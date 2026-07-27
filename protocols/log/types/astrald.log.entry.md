@@ -20,7 +20,7 @@ A single log entry produced by the node.
     "Time": "2026-06-10T12:00:00Z",
     "Objects": [
       {"Type": "astrald.log.tag", "Object": "net"},
-      {"Type": "string8", "Object": "link established"}
+      {"Type": "string32", "Object": "link established"}
     ]
   }
 }
