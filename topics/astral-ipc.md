@@ -14,6 +14,13 @@ defaults are:
 |-------------------------|----------------------------------------|
 | `tcp:127.0.0.1:8625`    | loopback TCP                           |
 | `unix:~/.apphost.sock`  | unix domain socket                     |
+| `memu:apphosty`         | in-process pipe, unbuffered            |
+| `memb:apphostb`         | in-process pipe, buffered              |
+
+The two `mem` endpoints are in-process pipes. They are reachable only from code
+embedded in the same process as the node — a binding linked into the host
+application — and not from a separate process, so a command-line client cannot
+dial them.
 
 All endpoints carry the same protocol. A guest opens a fresh connection per
 session; a session is one outbound query, one service registration, or one
@@ -95,7 +102,7 @@ must equal `GuestID`, or the guest must hold a `SudoAction` for it.
 
 ```
 guest → host:  mod.apphost.register_service_msg { Identity }
-host  → guest: astral.ack                       (or error_msg{denied})
+host  → guest: ack                              (or error_msg{denied})
 ```
 
 The registration connection stays open. For each inbound query targeting
@@ -117,7 +124,7 @@ Within `QueryAttachTimeout` (5 s) the guest must do one of:
 
   ```
   guest → host: mod.apphost.attach_query_msg { QueryID }
-  host  → guest: astral.ack       (or error_msg{route_not_found} if QueryID
+  host  → guest: ack              (or error_msg{route_not_found} if QueryID
                                    is unknown/expired)
   ```
 
@@ -145,7 +152,7 @@ The guest issues a normal `route_query` to the host with method
 Query: "apphost.register_handler?endpoint=<proto>:<addr>&token=<Nonce>"
 ```
 
-On `query_accepted_msg` the host sends `astral.ack` over the resulting
+On `query_accepted_msg` the host sends `ack` over the resulting
 bytestream and registers the handler. The host keeps the handler in its
 registry; the original query conn is closed.
 
@@ -161,7 +168,7 @@ host    → handler: mod.apphost.handle_query_msg {
                      Query:    String16,
                    }
 handler → host:    one of:
-                     astral.ack                         (accept)
+                     ack                            (accept)
                      mod.apphost.query_rejected_msg { Code: Uint8 }
                      mod.apphost.error_msg          { Code: String8 }
                      (or close) ─────────────────────── route_not_found to caller

@@ -11,12 +11,12 @@ Derive a `secp256k1` private key from a BIP-39 seed along a BIP-32 derivation pa
 
 The operation returns one of:
 * An `error_message` object if the path is malformed or derivation fails.
-* A `crypto.private_key` object with `Type = "secp256k1"` holding the raw 32-byte private key.
+* A `mod.crypto.private_key` object with `Type = "secp256k1"` holding the raw 32-byte private key.
 
 ## Examples
 
 ```shellsession
 $ echo '{"Type":"bip137sig.seed","Object":"5eed0102...64bytes...cafef00d"}' \
     | astral-query bip137sig.derive_key -path "m/44'/0'/0'/0/0" -in json -out json
-{"Type":"crypto.private_key","Object":{"Type":"secp256k1","Key":"3082..."}}
+{"Type":"mod.crypto.private_key","Object":{"Type":"secp256k1","Key":"3082..."}}
 ```

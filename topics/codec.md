@@ -13,7 +13,7 @@
 
 | Encoder     | Tag bytes                                                          | Notes                                                                                   |
 |-------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| `Short`     | `Object Type` ([`string8`](../primitive-types/string8.md))            | Used by framed channels and nested polymorphic fields.                                  |
+| `Short`     | `Object Type` ([`string8`](../primitive-types/string8.md))            | The default. Used by framed channels and nested polymorphic fields. Rejects an empty `Object Type`. |
 | `Canonical` | `Stamp \|\| Object Type (string8)`                                 | Used for `Object ID` hashing and out-of-band transport. Rejects an empty `Object Type`. |
 | `Indexed`   | [`uint8`](../primitive-types/uint8.md) index                          | Used by protocols with a closed type table known to both parties.                       |
 

@@ -16,5 +16,5 @@ The operation returns one of:
 
 ```shellsession
 $ astral-query nearby.broadcast -out json
-{"Type":"astral.ack","Object":{}}
+{"Type":"ack","Object":{}}
 ```

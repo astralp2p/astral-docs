@@ -18,5 +18,5 @@ The operation returns one of:
 ```shellsession
 $ astral-query ip.public_ip_candidates -out json
 {"Type":"mod.ip.ip_address","Object":"203.0.113.7"}
-{"Type":"astral.eos","Object":{}}
+{"Type":"eos","Object":{}}
 ```

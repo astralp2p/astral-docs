@@ -19,5 +19,5 @@ The operation returns one of:
 $ astral-query ip.local_addrs -out json
 {"Type":"mod.ip.ip_address","Object":"192.168.1.42"}
 {"Type":"mod.ip.ip_address","Object":"10.0.0.5"}
-{"Type":"astral.eos","Object":{}}
+{"Type":"eos","Object":{}}
 ```

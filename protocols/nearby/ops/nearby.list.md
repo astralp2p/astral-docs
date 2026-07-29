@@ -17,5 +17,5 @@ The operation returns one of:
 ```shellsession
 $ astral-query nearby.list -out json
 {"Type":"mod.nearby.status","Object":{"Identity":"<identity>","Attachments":{...}}}
-{"Type":"astral.eos","Object":{}}
+{"Type":"eos","Object":{}}
 ```
