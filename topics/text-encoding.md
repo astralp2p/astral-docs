@@ -14,8 +14,11 @@
   [`Query`](../core-definitions/query-string.md) parameters.
 * The `Text Encoding` is done by concatenating the following:
     * A string with the format "#[{OBJECT_TYPE}]", for example "#[uint32]".
-    * A single character indicating the encoding type: ":" for Base64, " " for
-      type-specific encoding.
+    * A single character indicating the encoding type. A sender writes `:` for
+      Base64 or a space for the type-specific encoding. A receiver accepts two
+      spellings of each: `:` or `=` for Base64, a space or a TAB for the
+      type-specific encoding. Any other byte in this position is a decode
+      error.
     * The encoded payload.
 * The `Text Encoding` of an `Untyped Object` is "#[]:" followed by the
   Base64-encoded `Payload`.
