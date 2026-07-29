@@ -9,7 +9,12 @@ supports one or both of:
   - batch mode — reads `Objects` from the `Channel` until EOS/EOF and runs the
     `Op` for each input, sending one result/error per input, in input order. A
     failed input does not end the batch; an input of an unexpected type is
-    answered with an `error_message` in-band. The reply stream mirrors the
+    answered with an `error_message` in-band. An input the `Channel` cannot
+    decode at all — an undecodable payload, an unknown `Object Type`, a
+    corrupted frame — is answered with an `error_message` and ends the batch:
+    the decoder is past the frame boundary, so no further input is readable.
+    Results already sent for earlier inputs precede that `error_message` and
+    stand. No terminator follows it. The reply stream otherwise mirrors the
     input stream's terminator: an explicit EOS input is answered with a final
     EOS; a stream ended by EOF is not.
 

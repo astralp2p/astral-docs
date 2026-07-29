@@ -10,7 +10,10 @@ Push objects to the node; each received object is offered to the registered rece
 
 ## Returned objects
 
-The operation returns a stream of `bool` objects — one per pushed object — where `true` means a receiver accepted the object and `false` means it was rejected. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
+The operation returns one of:
+* A `bool` object per pushed object, where `true` means a receiver accepted the object and `false` means it was rejected.
+* An `error_message` object if an input cannot be decoded, or if an input is of a type the operation does not accept. A decode failure ends the operation; a wrong-typed input does not.
+* An `eos` object answering an explicit `eos` input. A stream ended by EOF is not answered.
 
 ## Examples
 
