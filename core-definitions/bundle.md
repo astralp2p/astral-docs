@@ -38,7 +38,9 @@ Bundle of one uint32 = 42               → 19 bytes
    00 00 00 2a                Payload (uint32 = 42)
 ```
 
-* Uniqueness is enforced on decode, not only on construction. A member whose
-  [`Object ID`](object-id.md) repeats one already read aborts the decode with an
-  error, part-way through the frame. A `Bundle` containing a duplicate is
-  unreadable. Uniqueness is part of the wire contract.
+* Members are unique by [`Object ID`](object-id.md). Two structurally identical
+  `Objects` have the same `Object ID` and cannot both appear.
+* A decoder must reject a `Bundle` in which an `Object ID` repeats. Such a frame
+  is malformed, not merely redundant, and rejection occurs part-way through it —
+  at the member that repeats. Uniqueness therefore binds the writer: it is part
+  of the wire contract, not a property of the building interface.
