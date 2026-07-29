@@ -29,7 +29,11 @@ onto the process's standard streams:
 * `-in <enc>` decodes input [`Objects`](../core-definitions/object.md) from stdin.
 * `-out <enc>` encodes result `Objects` to stdout.
 
-`<enc>` is one of `bin`, `json`, or `text`. Because the streams carry typed
+`<enc>` is a channel format token: `bin`, `json`, `text` or `canonical` in
+either direction, plus `base64` and `render` for `-out` only. The full table is
+in [`Channel`](../core-definitions/channel.md). Tokens are case-sensitive, and
+an unrecognised one produces no output and exits successfully — an empty result
+with no error message is the symptom of a typo. Because the streams carry typed
 `Objects`, single-mode ops chain with shell pipes when the upstream result's
 `Object Type` is the type the next op reads and both sides use the same encoding:
 
