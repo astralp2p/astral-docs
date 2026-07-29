@@ -28,4 +28,4 @@ A *Swarm* is a group of *Nodes* and has rules that define who is allowed to join
 
 A *Query* is a singular call to an [*Op*](../core-definitions/op.md) from the *Caller* to the *Target* and can be rejected or accepted. An accepted *Query* results in a channel over which sides exchange data as *Objects* (or, in some cases, raw bytes).
 
-Every *Query* carries a [*Zone*](../core-definitions/zone.md) — `device`, `virtual`, `network`, or a combination — that limits how far it travels. A *Query* without the `network` zone is served only by the local *Node*, so a local app must authenticate (present an access token) to reach other *Nodes*.
+A [*Zone*](../core-definitions/zone.md) — `device`, `virtual`, `network`, or a combination — accompanies a *Query* at each *Node* that routes it, and limits what that *Node* will do with it. A *Query* without the `network` zone is served only by the *Node* holding it, so a local app must authenticate (present an access token) to reach other *Nodes*. The *Zone* is not a field of the *Query* and does not travel with it: a *Node* receiving a *Query* over a *Link* routes it under all three zones.
