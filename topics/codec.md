@@ -13,9 +13,18 @@
 
 | Encoder     | Tag bytes                                                          | Notes                                                                                   |
 |-------------|--------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| `Short`     | `Object Type` ([`string8`](../primitive-types/string8.md))            | The default. Used by framed channels and nested polymorphic fields. Rejects an empty `Object Type`. |
-| `Canonical` | `Stamp \|\| Object Type (string8)`                                 | Used for `Object ID` hashing and out-of-band transport. Rejects an empty `Object Type`. |
+| `Short`     | `Object Type` ([`string8`](../primitive-types/string8.md))            | The default. Used by framed channels and nested polymorphic fields.                     |
+| `Canonical` | `Stamp \|\| Object Type (string8)`                                 | Used for `Object ID` hashing and out-of-band transport.                                 |
 | `Indexed`   | [`uint8`](../primitive-types/uint8.md) index                          | Used by protocols with a closed type table known to both parties.                       |
+
+* An empty `Object Type` is rejected. `Short` and `Canonical` reject it
+  unconditionally. `Indexed` rejects it unless the empty name is itself an
+  entry in the closed table, in which case it encodes as that entry's index.
+* The zero-length type tag that denotes nil in a [polymorphic
+  field](binary-encoding.md#polymorphic-fields) is not an exception. That tag is
+  written by the container encoding, which emits it and returns before any
+  `Type Encoder` runs. A non-nil value whose `Object Type` is empty is rejected
+  there as well.
 
 ## Canonical Form
 
