@@ -15,7 +15,14 @@ The `/.ws` upgrade negotiates one of two subprotocols via the
   [binary-channel](../core-definitions/channel.md) bytestream.
 - `astral.json.v1` — one JSON envelope per text frame.
 
-The connection is closed if neither subprotocol is offered.
+The connection is closed with `StatusPolicyViolation` (1008) if neither
+subprotocol is offered.
+
+Any `Origin` is accepted at the WebSocket layer — the endpoint is
+loopback-only at the network layer, so a remote page cannot reach it
+regardless of `Origin`. The HTTP `Authorization: Bearer` header used by the
+rest of the HTTP bridge is not consulted for `/.ws`; authentication uses the
+in-protocol auth token message.
 
 ## Endpoint and framing
 
@@ -100,7 +107,9 @@ Notes:
   protocol.
 - JSON mode auto-injects `out=json&in=json` server-side so responder
   frames are JSON-encoded `astral.JSONAdapter` objects. Override by
-  putting `in=`/`out=` in `queryString` yourself.
+  putting `in=`/`out=` in `queryString` yourself. Responders that bypass
+  the channel and write raw bytes are not safe for JSON mode; query them
+  over `astral.binary.v1`.
 
 ## Receiving queries (inbound)
 

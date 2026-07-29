@@ -12,7 +12,9 @@ node fails with `route_not_found`). Authenticating retains the `Network` zone
 and binds the session, and the queries it makes, to the token's
 [`Identity`](../../core-definitions/identity.md).
 
-A guest arriving over the WebSocket endpoint carries its browser origin. An
+A guest arriving over the WebSocket endpoint carries its browser origin under
+the `origin-web` key in the query's `Extra`; per-origin authorization is left
+to the individual operations. An
 unauthenticated web guest is further confined to a configured operation
 allowlist selected by whether a user has claimed the node: an *unclaimed* node
 (no active contract) exposes the setup-ceremony operations; a *claimed* node
