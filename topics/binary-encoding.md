@@ -146,6 +146,12 @@ Presence flag value range
    02 .. ff                   any other  — rejected as corrupt
 ```
 
+## Bundles
+
+* A [`Bundle`](../core-definitions/bundle.md) is a container in its own right
+  and follows neither the `Slice` nor the polymorphic-field rule above. Its
+  framing is given in [Bundle](../core-definitions/bundle.md#binary-encoding).
+
 ## Polymorphic fields
 
 * Polymorphic fields and interface-typed elements carry a type tag inline:
