@@ -2,7 +2,12 @@
 
 * The `Text Encoding` is an encoding that is used by the `Astral
   Network`.
-* The `Text Encoding` encodes its payload using Base64 encoding.
+* The `Text Encoding` encodes its payload using Base64 with the standard
+  alphabet (`A`–`Z`, `a`–`z`, `0`–`9`, `+`, `/`) and `=` padding to a
+  multiple of four characters.
+* The URL-safe alphabet (`-` and `_` in place of `+` and `/`) and the
+  unpadded form are never used. Either produces output the receiver
+  misreads or rejects. The variant is part of the wire contract.
 * The `Text Encoding` can have a type-specific encoding of the payload,
   which must be specified in the documentation of the [`Object Type`](../core-definitions/object-type.md).
 * The `Text Encoding` can be used to encode objects as

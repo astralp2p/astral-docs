@@ -15,6 +15,17 @@ An object ID consisting of a `Size` (uint64) and a `Hash` (SHA-256, 32 bytes).
 
 A zBase32-encoded string of the binary representation, prefixed with `data1`.
 
+The encoding has three steps, and all three are required — see
+[Object ID](../core-definitions/object-id.md):
+
+* encode the 40-byte binary representation with the zBase32 alphabet
+  `ybndrfg8ejkmcpqxot1uwisza345h769`;
+* remove every leading `y` from the result;
+* prefix `data1`.
+
+An encoding that omits the strip is 69 characters. It is well-formed, and it
+compares unequal to the same `Object ID` encoded with the strip.
+
 ## Text Encoding
 
-A zBase32-encoded string of the binary representation, prefixed with `data1`.
+As the JSON Encoding above.

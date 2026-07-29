@@ -66,6 +66,7 @@ Contents:
   * [uint16](primitive-types/uint16.md)
   * [uint32](primitive-types/uint32.md)
   * [uint64](primitive-types/uint64.md)
+  * [zone](primitive-types/zone.md)
 * Protocols
   * [Basics](protocols/README.md) – protocol documentation structure
   * [apphost](protocols/apphost/README.md) - on-device API for local apps (tokens, handlers, contracts, holds)

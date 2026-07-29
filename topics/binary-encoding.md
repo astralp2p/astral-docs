@@ -24,6 +24,25 @@
   (255, 65 535, 2³²−1, 2⁶⁴−1).
 * `Structured` objects are written field by field in the order declared
   by the schema; field names are not on the wire.
+* A field whose schema names no width does not leave the choice to the
+  encoder:
+  * a text field is [`string32`](../primitive-types/string32.md) — the
+    `uint32`-prefixed width, not `string8`;
+  * a byte-sequence field is **not** `bytes32`. It is a [`Slice`](#slices)
+    of [`uint8`](../primitive-types/uint8.md), carrying a `uint32` count
+    and a presence byte per element. Its encoded length is `4 + 2n` bytes
+    for `n` bytes of content, against `4 + n` for `bytes32`.
+* A frame written with the wrong width is well-formed. It decodes to the
+  wrong length, and no error is reported.
+
+```
+Structured defaults — { Name: "hi", Data: [0x0a, 0x0b] }
+
+   00 00 00 02 68 69          Name — string32 "hi"
+   00 00 00 02                Data — uint32 count = 2
+   01 0a                      Data[0] — presence + uint8 = 0x0a
+   01 0b                      Data[1] — presence + uint8 = 0x0b
+```
 
 ## Slices
 
@@ -106,13 +125,23 @@ Optional uint16
 
 ### Presence flag values
 
-* `0x00` (absent) or `0x01` (present). Any other value is rejected as
-  corrupt.
+* `0x01` (present) is legal wherever a presence flag appears.
+* `0x00` (absent) is legal only where the element can be absent — a
+  pointer or interface element. For every other element kind the decoder
+  rejects `0x00`: such an element has no absent state to decode into.
+* Any other value is rejected as corrupt.
+* Which values are legal depends on the element's kind, not on the
+  position alone. A container built from a schema whose element type
+  resolves to a pointer emits `0x00` for an absent element. A decoder
+  reading that position as a non-pointer element rejects it. Each is
+  correct for its own element kind. The kind must be agreed by both
+  sides, and a writer must never emit `0x00` for an element the schema
+  declares non-optional.
 
 ```
 Presence flag value range
 
-   00                         absent     — accepted
+   00                         absent     — pointer/interface elements only
    01                         present    — accepted
    02 .. ff                   any other  — rejected as corrupt
 ```
