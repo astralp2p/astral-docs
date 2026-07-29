@@ -13,3 +13,13 @@ No payload.
 ## Text Encoding
 
 No payload.
+
+## Example
+
+An acknowledgement, in each encoding:
+
+```
+binary   (no payload)
+json     null
+text     (no payload)
+```

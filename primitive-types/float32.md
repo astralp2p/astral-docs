@@ -13,3 +13,13 @@ A JSON number.
 ## Text Encoding
 
 The decimal string representation of the value.
+
+## Example
+
+`1.5`, in each encoding:
+
+```
+binary   3f c0 00 00
+json     1.5
+text     1.5
+```

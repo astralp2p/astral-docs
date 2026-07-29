@@ -13,3 +13,13 @@ A JSON number.
 ## Text Encoding
 
 The decimal string representation of the integer.
+
+## Example
+
+`-42`, in each encoding:
+
+```
+binary   d6
+json     -42
+text     -42
+```

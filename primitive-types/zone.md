@@ -23,3 +23,13 @@ number is not accepted in its place.
 ## Text Encoding
 
 The same letter string as the JSON Encoding, without quotes.
+
+## Example
+
+`Device | Network`, in each encoding:
+
+```
+binary   05
+json     "dn"
+text     dn
+```

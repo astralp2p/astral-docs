@@ -29,3 +29,19 @@ compares unequal to the same `Object ID` encoded with the strip.
 ## Text Encoding
 
 As the JSON Encoding above.
+
+## Example
+
+The `Object ID` of the untyped 5-byte payload `hello`:
+
+```
+binary   00 00 00 00 00 00 00 05
+         2c f2 4d ba 5f b0 a3 0e 26 e8 3b 2a c5 b9 e2 9e
+         1b 16 1e 5c 1f a7 42 5e 73 04 33 62 93 8b 98 24
+json     "data1km81js7f9cfdbauqoq3kash6f8o5naxfa878ejx8gbbuckjazgbr"
+text     data1km81js7f9cfdbauqoq3kash6f8o5naxfa878ejx8gbbuckjazgbr
+```
+
+The binary form is the 8-byte `Size` followed by the 32-byte `Hash`. The text
+form is 57 characters here, not 69: twelve leading `y` characters were stripped
+before the `data1` prefix, per the three steps above.

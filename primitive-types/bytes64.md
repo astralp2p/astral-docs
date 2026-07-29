@@ -13,3 +13,13 @@ A base64 string.
 ## Text Encoding
 
 A base64 string.
+
+## Example
+
+The two bytes `0a 0b`, in each encoding:
+
+```
+binary   00 00 00 00 00 00 00 02 0a 0b
+json     "Cgs="
+text     Cgs=
+```

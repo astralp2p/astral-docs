@@ -13,3 +13,13 @@ A plain JSON string.
 ## Text Encoding
 
 A plain string.
+
+## Example
+
+`"hi"`, in each encoding:
+
+```
+binary   00 00 00 02 68 69
+json     "hi"
+text     hi
+```
