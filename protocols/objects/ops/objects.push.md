@@ -10,7 +10,7 @@ Push objects to the node; each received object is offered to the registered rece
 
 ## Returned objects
 
-The operation returns a stream of `bool` objects — one per pushed object — where `true` means a receiver accepted the object and `false` means it was rejected.
+The operation returns a stream of `bool` objects — one per pushed object — where `true` means a receiver accepted the object and `false` means it was rejected. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
 
 ## Examples
 

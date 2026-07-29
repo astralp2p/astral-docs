@@ -1,6 +1,6 @@
 # objects.register_blueprint
 
-Register runtime `astral.blueprint` descriptors (struct kind or alias kind) with `DefaultBlueprints`. The op reads blueprints from the input stream until `eos` or EOF, registers each, and sends the resulting `object_id.sha256` or an `error_message` per input. A final `eos` object is sent before the channel closes.
+Register runtime `astral.blueprint` descriptors (struct kind or alias kind) with `DefaultBlueprints`. The op reads blueprints from the input stream until `eos` or EOF, registers each, and sends the resulting `object_id.sha256` or an `error_message` per input. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
 
 ## Arguments
 
@@ -13,7 +13,7 @@ Register runtime `astral.blueprint` descriptors (struct kind or alias kind) with
 The operation returns one of:
 * An `error_message` object if a non-blueprint object is received or registration fails.
 * An `object_id.sha256` object for each successfully registered blueprint.
-* An `eos` object terminating the stream.
+* An `eos` object answering the input stream's `eos`.
 
 ## Examples
 

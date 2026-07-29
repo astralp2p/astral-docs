@@ -2,8 +2,9 @@
 
 Sign an app contract supplied by the caller. The node co-signs the contract,
 indexes it, stores it, and pushes the signed contract to the local user swarm.
-The caller sends a `mod.auth.contract` object on the channel and receives the
-signed result.
+The caller sends `mod.auth.contract` objects on the channel and receives one
+signed result or `error_message` per input; an object of another type is
+answered with an `error_message`. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
 
 ## Arguments
 
@@ -14,6 +15,7 @@ This operation takes no arguments.
 The operation returns one of:
 * An `error_message` object if signing, indexing, or storage failed.
 * A `mod.auth.signed_contract` object containing the signed contract.
+* An `eos` object answering an explicit `eos` input.
 
 ## Examples
 

@@ -8,12 +8,13 @@ Probe an object to determine its astral type, MIME type, host repository, and re
 * repo (string8) – Repository to probe in. Defaults to the read-default repository.
 * in (string8) – Input format.
 * out (string8) – Output format.
-* (stream) – When `id` is omitted, a stream of `object_id.sha256` objects to probe; `eos` closes the channel.
+* (stream) – When `id` is omitted, a stream of `object_id.sha256` objects to probe. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
 
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the repository is not found or the probe fails.
+* An `error_message` object if the repository is not found, the probe fails, or an unexpected object is received on the input stream.
+* An `eos` object answering an explicit `eos` input.
 * A `mod.objects.probe` object for each id (one shot if `id` was given, otherwise one per streamed id).
 
 ## Examples

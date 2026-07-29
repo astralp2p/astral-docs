@@ -12,9 +12,10 @@ Verify a signature over a hash. The public key defaults to the caller's identity
 
 ## Returned objects
 
-The operation returns one of:
+An input of an unexpected type is answered with an `error_message` and the exchange continues. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not. The operation returns one of:
 * An `error_message` object if the hash or key cannot be decoded, if either is missing when the signature arrives, or if verification fails.
 * An `ack` object acknowledging each `mod.crypto.public_key` or `mod.crypto.hash` sent on the stream, and a final `ack` confirming a successful verification.
+* An `eos` object answering an explicit `eos` input.
 
 ## Examples
 

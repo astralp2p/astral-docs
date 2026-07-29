@@ -6,8 +6,12 @@ supports one or both of:
 
   - single mode — runs once; takes input via args and/or a single input `Object`;
     sends one result/error back.
-  - batch mode — reads `Objects` from the `Channel` until EOS/EOF, runs the `Op`
-    for each, sends one result/error per input, then EOS.
+  - batch mode — reads `Objects` from the `Channel` until EOS/EOF and runs the
+    `Op` for each input, sending one result/error per input, in input order. A
+    failed input does not end the batch; an input of an unexpected type is
+    answered with an `error_message` in-band. The reply stream mirrors the
+    input stream's terminator: an explicit EOS input is answered with a final
+    EOS; a stream ended by EOF is not.
 
 ## Composing single-mode ops
 

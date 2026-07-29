@@ -10,7 +10,7 @@ operation fails with `no signing scheme available for key ...`.
 
 * in (string) – Optional input stream format (e.g. `json`).
 * out (string) – Optional output stream format (e.g. `json`).
-* (stream) – A `mod.auth.contract` object to sign.
+* (stream) – `mod.auth.contract` objects to sign, one `mod.auth.signed_contract` or `error_message` returned per input; an object of another type is answered with an `error_message`. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
 
 ## Returned objects
 
@@ -19,6 +19,7 @@ The operation returns one of:
   or either signature is already present on the contract.
 * A `mod.auth.signed_contract` object containing the original contract and
   both signatures.
+* An `eos` object answering an explicit `eos` input.
 
 ## Examples
 

@@ -7,13 +7,14 @@ Encode typed astral objects and write them as new repository entries. The id of 
 * repo (string8) – Repository to write into. Defaults to the write-default repository.
 * in (string8) – Input format.
 * out (string8) – Output format.
-* (stream) – A stream of astral objects (typed or unparsed) to store. Each object is encoded and committed as a separate entry.
+* (stream) – A stream of astral objects (typed or unparsed) to store. Each object is encoded and committed as a separate entry. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
 
 ## Returned objects
 
 The operation returns one of:
 * An `error_message` object if the repository is not found or any store fails.
 * An `object_id.sha256` object per successfully stored input object.
+* An `eos` object answering an explicit `eos` input.
 
 ## Examples
 

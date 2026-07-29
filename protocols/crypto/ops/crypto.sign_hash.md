@@ -13,10 +13,11 @@ Sign a hash with a private key held by the node. The signer key defaults to the 
 
 ## Returned objects
 
-The operation returns one of:
+An input of an unexpected type is answered with an `error_message` and the exchange continues. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not. The operation returns one of:
 * An `error_message` object if the key cannot be decoded, no signer is available for the scheme, or signing fails.
 * An `ack` object acknowledging each `mod.crypto.public_key` sent on the stream.
 * A `mod.crypto.signature` object for each hash signed.
+* An `eos` object answering an explicit `eos` input.
 
 ## Examples
 

@@ -10,9 +10,10 @@ Derive the public key for a private key passed via the input stream.
 
 ## Returned objects
 
-The operation returns one of:
+An input of an unexpected type is answered with an `error_message` and the exchange continues. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not. The operation returns one of:
 * An `error_message` object if the key could not be decoded or no engine supports its type.
 * A `mod.crypto.public_key` object containing the derived public key.
+* An `eos` object answering an explicit `eos` input.
 
 ## Examples
 
