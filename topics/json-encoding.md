@@ -14,7 +14,18 @@
   container, the same shape as a top-level object. The nested "Type" names the
   concrete `Object Type`; a JSON `null` in the slot is the absent value.
 * Absent optional values are encoded as JSON `null`.
-* Field-name lookup during decoding is case-insensitive.
+* Field-name lookup during decoding is case-insensitive. This applies to the
+  container's own "Type" and "Object" keys and to `Payload` key names alike.
+* A container key other than "Type" and "Object" is an error, and a decoder
+  rejects the container. Ignoring the key instead leaves the `Payload` unread
+  and yields a zero-valued object from a document that named a type correctly —
+  a corrupted value that reports no error.
+* Two keys of one container, or of one `Payload`, whose names differ only in
+  case are an error. A decoder rejects the container rather than choosing
+  between them.
+* A container with no "Object" key carries no `Payload` and is equivalent to an
+  "Object" key holding JSON `null`. The absent form of an interface-typed slot
+  remains a JSON `null` in the slot, not an omitted key.
 
 
 ## Example

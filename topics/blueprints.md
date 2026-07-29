@@ -49,7 +49,8 @@
   `astral.blueprint.ref_spec`, `astral.blueprint.slice_spec`,
   `astral.blueprint.array_spec`, `astral.blueprint.map_spec`,
   `astral.blueprint.ptr_spec`, `astral.blueprint.object_spec`. The "Type" value
-  is matched case-sensitively; only `Payload` key names are case-insensitive.
+  is matched case-sensitively; key names are case-insensitive
+  ([JSON Encoding](json-encoding.md)).
 * Carrier payloads (name and type keys are JSON strings; `Length` is a JSON
   number): `PrimitiveSpec` `{"PrimitiveType"}` ·
   `RefSpec`/`PtrSpec`/`SliceSpec` `{"Type"}` (a `SliceSpec`'s empty `Type` →
