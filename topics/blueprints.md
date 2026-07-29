@@ -19,11 +19,19 @@
     * `PtrSpec` — [`bool`](../primitive-types/bool.md) presence + value if present.
     * `ObjectSpec` — [`string8`](../primitive-types/string8.md) type tag + payload.
 * `Slice/Array/MapSpec` with empty element or value type → heterogeneous; each element carries its own type tag.
+* `Slice/Array/MapSpec` with a named element or value type admits a nil element.
+  A decoder built from such a `Spec` must accept `0x00` in the element slot and
+  read it as nil. A decoder compiled against a non-optional element of the same
+  type rejects `0x00` — see
+  [Presence flag values](binary-encoding.md#presence-flag-values). Both are
+  correct for their own element kind, so the two are not mutually readable even
+  when both sides hold the same `Spec`.
 * Primitive allowlist: `stringN` / `uintN` / `bytesN` (`N` ∈ {8, 16, 32, 64}), `bool`,
   [`time`](../primitive-types/time.md),
   [`identity`](../primitive-types/identity.md),
   [`object_id.sha256`](../primitive-types/object_id.sha256.md),
-  [`nonce64`](../primitive-types/nonce64.md), `duration`, `zone`.
+  [`nonce64`](../primitive-types/nonce64.md), `duration`,
+  [`zone`](../primitive-types/zone.md).
 * `MapSpec.KeyType` is [`string16`](../primitive-types/string16.md) or `uintN` (`N` ∈ {8, 16, 32, 64}).
 
 ## Registry
