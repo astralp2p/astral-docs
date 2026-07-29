@@ -4,7 +4,7 @@ Start an ephemeral KCP listener on the given UDP port. The operation fails if a 
 
 ## Arguments
 
-* Port (uint16, required) – UDP port to listen on.
+* port (uint16, required) – UDP port to listen on.
 
 ## Returned objects
 
@@ -15,6 +15,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query kcp.new_ephemeral_listener -Port 9000 -out json
+$ astral-query kcp.new_ephemeral_listener -port 9000 -out json
 {"Type":"ack","Object":null}
 ```

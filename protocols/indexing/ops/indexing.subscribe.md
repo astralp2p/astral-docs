@@ -4,7 +4,7 @@ Deliver pending index changes to a registered indexer identified by `nonce`. The
 
 ## Arguments
 
-* Nonce (nonce64, required) – Nonce identifying the registered indexer.
+* nonce (nonce64, required) – Nonce identifying the registered indexer.
 
 ## Returned objects
 
@@ -18,7 +18,7 @@ The caller must respond to each delivered change with an `indexing.ack`. The op 
 ## Examples
 
 ```shellsession
-$ astral-query indexing.subscribe -Nonce 0102030405060708 -out json
+$ astral-query indexing.subscribe -nonce 0102030405060708 -out json
 {"Type":"indexing.index","Object":{"Repo":"myrepo","Version":1,"ObjectID":"<object-id>"}}
 {"Type":"indexing.index","Object":{"Repo":"myrepo","Version":2,"ObjectID":"<object-id>"}}
 ```

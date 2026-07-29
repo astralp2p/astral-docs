@@ -1,11 +1,11 @@
 # indexing.enable_repo
 
-Enable or disable indexing for a named object repository. Pass `Disable` to deactivate a previously enabled repo. The op returns `ErrRepositoryNotFound` if the repository name is not known to the objects module.
+Enable or disable indexing for a named object repository. Pass `disable` to deactivate a previously enabled repo. The op returns `ErrRepositoryNotFound` if the repository name is not known to the objects module.
 
 ## Arguments
 
-* Repo (string, required) – Name of the object repository to enable or disable.
-* Disable (bool) – When true, disables the repository instead of enabling it. Defaults to false.
+* repo (string, required) – Name of the object repository to enable or disable.
+* disable (bool) – When true, disables the repository instead of enabling it. Defaults to false.
 
 ## Returned objects
 
@@ -16,11 +16,11 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query indexing.enable_repo -Repo myrepo -out json
+$ astral-query indexing.enable_repo -repo myrepo -out json
 {"Type":"ack","Object":{}}
 ```
 
 ```shellsession
-$ astral-query indexing.enable_repo -Repo myrepo -Disable true -out json
+$ astral-query indexing.enable_repo -repo myrepo -disable true -out json
 {"Type":"ack","Object":{}}
 ```

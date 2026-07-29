@@ -1,14 +1,14 @@
 # nat.list_holes
 
-Stream the holes currently held in the local pool, optionally filtered to those involving a given peer. When `With` is supplied, only holes whose active or passive identity equals that peer are streamed; if `With` cannot be resolved to an identity the operation returns an `error_message` instead.
+Stream the holes currently held in the local pool, optionally filtered to those involving a given peer. When `with` is supplied, only holes whose active or passive identity equals that peer are streamed; if `with` cannot be resolved to an identity the operation returns an `error_message` instead.
 
 ## Arguments
 
-* With (string) – A peer identity, given as a hex public key or alias resolved via the directory. When set, only holes involving this peer are returned.
+* with (string) – A peer identity, given as a hex public key or alias resolved via the directory. When set, only holes involving this peer are returned.
 
 ## Returned objects
 
-The operation returns a stream of `nat.hole` objects, terminated by `eos`. If `With` is set and cannot be resolved to an identity, the operation returns an `error_message` object.
+The operation returns a stream of `nat.hole` objects, terminated by `eos`. If `with` is set and cannot be resolved to an identity, the operation returns an `error_message` object.
 
 ## Examples
 

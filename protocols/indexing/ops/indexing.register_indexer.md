@@ -4,7 +4,7 @@ Register a new indexer with a human-readable name and return its assigned nonce.
 
 ## Arguments
 
-* Name (string, required) – Human-readable name for the indexer.
+* name (string, required) – Human-readable name for the indexer.
 
 ## Returned objects
 
@@ -15,6 +15,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query indexing.register_indexer -Name myindexer -out json
+$ astral-query indexing.register_indexer -name myindexer -out json
 {"Type":"nonce64","Object":"0102030405060708"}
 ```

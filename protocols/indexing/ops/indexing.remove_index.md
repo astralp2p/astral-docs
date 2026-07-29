@@ -4,7 +4,7 @@ Remove a registered indexer identified by `nonce`, unregistering it from future 
 
 ## Arguments
 
-* Nonce (nonce64, required) – Nonce of the indexer to remove.
+* nonce (nonce64, required) – Nonce of the indexer to remove.
 
 ## Returned objects
 
@@ -15,6 +15,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query indexing.remove_index -Nonce 0102030405060708 -out json
+$ astral-query indexing.remove_index -nonce 0102030405060708 -out json
 {"Type":"ack","Object":{}}
 ```

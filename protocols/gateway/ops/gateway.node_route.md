@@ -4,7 +4,7 @@ Route a raw connection to a target identity. When the target is this node, the r
 
 ## Arguments
 
-* Target (identity, required) – Identity of the node to route the connection to.
+* target (identity, required) – Identity of the node to route the connection to.
 
 ## Returned objects
 
