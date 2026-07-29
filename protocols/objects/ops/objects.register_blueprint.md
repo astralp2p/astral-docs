@@ -18,8 +18,10 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ echo '{"Type":"astral.blueprint","Object":{"Fields":[],"Type":"example.thing","Underlying":""}}
+$ echo '{"Type":"astral.blueprint","Object":{"Fields":[{"Name":"Author","Spec":{"Type":"astral.blueprint.primitive_spec","Object":{"PrimitiveType":"identity"}}},{"Name":"Body","Spec":{"Type":"astral.blueprint.primitive_spec","Object":{"PrimitiveType":"string16"}}}],"Type":"example.message","Underlying":""}}
 {"Type":"eos","Object":null}' | astral-query objects.register_blueprint -in json -out json
 {"Type":"object_id.sha256","Object":"data1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
 {"Type":"eos","Object":null}
 ```
+
+A `Field`'s `Spec` slot is interface-typed, so it is a nested "Type"/"Object" container — see [Blueprints § JSON](../../../topics/blueprints.md#json).

@@ -34,6 +34,38 @@
   [`zone`](../primitive-types/zone.md).
 * `MapSpec.KeyType` is [`string16`](../primitive-types/string16.md) or `uintN` (`N` ∈ {8, 16, 32, 64}).
 
+## JSON
+
+* A `Blueprint`'s [`JSON Encoding`](json-encoding.md) `Payload` always carries
+  all three keys `Type`, `Fields`, and `Underlying`. `Struct` kind carries the
+  `Fields` array and an empty-string `Underlying`;
+  [`Alias`](../core-definitions/alias.md) kind carries the `Underlying`
+  primitive name and an empty `Fields` array (`[]`). `Type` and `Underlying`
+  are JSON strings; `Fields` is a JSON array.
+* Each `Field` is an object with `Name` (a JSON string) and `Spec` keys. `Spec`
+  is an interface-typed slot ([JSON Encoding](json-encoding.md)): a nested
+  "Type"/"Object" container whose "Type" is the carrier's exact registered
+  `Object Type` name — one of `astral.blueprint.primitive_spec`,
+  `astral.blueprint.ref_spec`, `astral.blueprint.slice_spec`,
+  `astral.blueprint.array_spec`, `astral.blueprint.map_spec`,
+  `astral.blueprint.ptr_spec`, `astral.blueprint.object_spec`. The "Type" value
+  is matched case-sensitively; only `Payload` key names are case-insensitive.
+* Carrier payloads (name and type keys are JSON strings; `Length` is a JSON
+  number): `PrimitiveSpec` `{"PrimitiveType"}` ·
+  `RefSpec`/`PtrSpec`/`SliceSpec` `{"Type"}` (a `SliceSpec`'s empty `Type` →
+  heterogeneous) · `ArraySpec` `{"Type","Length"}` · `MapSpec`
+  `{"KeyType","ValueType"}` · `ObjectSpec` `{}`.
+* Key order within any `Payload` is not significant — decoding is by key name.
+  The reference encoder emits `Payload` keys in alphabetical order (e.g.
+  `Fields`, `Type`, `Underlying`); the examples below use that order.
+
+```
+{"Type":"astral.blueprint","Object":{"Fields":[
+  {"Name":"Author","Spec":{"Type":"astral.blueprint.primitive_spec","Object":{"PrimitiveType":"identity"}}},
+  {"Name":"Body","Spec":{"Type":"astral.blueprint.primitive_spec","Object":{"PrimitiveType":"string16"}}}
+],"Type":"example.message","Underlying":""}}
+```
+
 ## Registry
 
 * Maps `Object Type` → `Blueprint` or prototype. Names are unique and immutable.
