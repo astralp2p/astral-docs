@@ -52,10 +52,24 @@ tell an anonymous caller apart from the node itself once the caller is resolved.
 IPC guests carry no web origin and are not subject to the web-guest operation
 allowlist that applies to browser guests (see the apphost protocol).
 
-The guest may then send exactly one of `RouteQueryMsg`, `RegisterServiceMsg`,
-or `AttachQueryMsg` (the last only on a fresh sub-connection answering an
-`IncomingQueryMsg`). Any other top-level message yields
-`error_msg{protocol_error}` and connection close.
+The guest may then send any of `RouteQueryMsg`, `RegisterServiceMsg`,
+`AttachQueryMsg` (the last only on a fresh sub-connection answering an
+`IncomingQueryMsg`), `RejectIncomingMsg`, or a further `AuthTokenMsg`. Any
+other top-level message yields `error_msg{protocol_error}` and connection
+close.
+
+How many messages the guest may send depends on the outcome, not on a fixed
+count:
+
+- **The connection stays a message channel** after every refusal — an
+  `error_msg` of any code, and `query_rejected_msg`. The guest may send
+  another top-level message, including another `RouteQueryMsg`.
+- **The connection stops being a message channel** on two successes only: an
+  accepted `RouteQueryMsg`, where it becomes the raw bytestream of that query,
+  and an accepted `AttachQueryMsg`, where it is handed to the inbound query.
+- **A successful** `RegisterServiceMsg` **keeps the message channel open by
+  design** — that connection then carries an unbounded stream of
+  `RejectIncomingMsg`.
 
 ## Sending queries
 
@@ -87,7 +101,9 @@ Error codes returned for `route_query`: `route_not_found`,
 On `query_accepted_msg` the connection ceases to be a message channel and
 becomes the **raw bidirectional bytestream of the accepted query**. Both
 endpoints write/read query bytes directly; the session ends when either side
-closes the connection. One query per connection.
+closes the connection. One **accepted** query per connection — a guest may
+issue any number of `RouteQueryMsg`s on one connection so long as each is
+refused; the first acceptance consumes it.
 
 A query in flight can be cancelled by opening a separate session and routing
 `apphost.cancel?id=<Nonce>` to the host.
@@ -141,7 +157,23 @@ Within `QueryAttachTimeout` (5 s) the guest must do one of:
 
 - **Ignore** — after the timeout the caller observes `route_not_found`.
 
-Closing the registration connection unregisters the handler.
+Closing the registration connection does **not** unregister the handler.
+Removal is lazy: the handler stays in the registry, keeps being selected for
+matching queries, and is dropped only when a push to it fails. Two
+consequences an implementation must expect:
+
+- **The query that triggers the removal is lost.** After the failed push the
+  host continues to the next matching handler; if the closed one was the only
+  match, the caller observes `route_not_found`. The *second* caller after the
+  close is the first to get a clean answer.
+- **One failed push is not guaranteed.** A write into a locally buffered but
+  remotely closed socket can succeed, in which case the host waits out
+  `QueryAttachTimeout` (5 s), answers `route_not_found`, and leaves the
+  handler registered. A stale registration can therefore outlive more than one
+  inbound query.
+
+For prompt, deterministic removal use the bind connection described in
+section B, whose close removes every handler registered with that token.
 
 ### B. Register-handler (host dials a guest-side IPC endpoint)
 

@@ -13,6 +13,18 @@ supports one or both of:
     input stream's terminator: an explicit EOS input is answered with a final
     EOS; a stream ended by EOF is not.
 
+## Reading a response
+
+* EOF always ends a response. A `Channel` that closes has delivered everything
+  the `Op` will send.
+* An `EOS` is a terminator an `Op` may send in addition. Batch mode mirrors the
+  input terminator, as above. In single mode, and for long-lived streams, whether
+  an `EOS` arrives belongs to the individual `Op`'s contract and is stated in its
+  documentation.
+* A client must never block waiting for an `EOS`. It consumes one when present
+  and treats EOF as a legitimate end of the response in every case. A client that
+  waits for a terminator the `Op` does not send hangs until the connection drops.
+
 ## Composing single-mode ops
 
 * A single-mode `Op` is a filter: one input `Object` produces one result `Object`.
