@@ -102,7 +102,7 @@ Notes:
   which is rarely what you want).
 - an unauthenticated web guest may call only the operations on the node's
   claim-state allowlist — the setup-ceremony operations while the node is
-  unclaimed, otherwise a minimal identity-acquisition set. Operations outside
+  unclaimed, otherwise a minimal identity-acquisition set. [Operations](../core-definitions/op.md) outside
   it are rejected. Authenticating lifts the restriction. See the apphost
   protocol.
 - JSON mode auto-injects `out=json&in=json` server-side so responder

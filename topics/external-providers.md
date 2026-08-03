@@ -50,7 +50,7 @@
   vocabulary are ignored — that is what makes them optional.
 * Refusing is cheap and local. The fan-out drops the refusing provider and the other searchers still
   answer, so a query may name tags only some searchers know.
-* Matches are deduplicated by `Object ID` on the `Node`, so an `App` that fans out internally need
+* Matches are deduplicated by [`Object ID`](../core-definitions/object-id.md) on the `Node`, so an `App` that fans out internally need
   not deduplicate its own stream.
 
 ## Serving describe
