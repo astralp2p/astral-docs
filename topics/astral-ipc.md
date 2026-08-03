@@ -184,7 +184,7 @@ The guest issues a normal `route_query` to the host with method
 Query: "apphost.register_handler?endpoint=<proto>:<addr>&token=<Nonce>"
 ```
 
-On `query_accepted_msg` the host sends `ack` over the resulting
+On `query_accepted_msg` the host sends [`ack`](../primitive-types/ack.md) over the resulting
 bytestream and registers the handler. The host keeps the handler in its
 registry; the original query conn is closed.
 

@@ -34,7 +34,7 @@ An [`Operation`](op.md) selects the encoding with the `in` and `out`
   [Codec](../topics/codec.md)) with **no per-object length prefix**.
 * A reader cannot locate the next object without fully decoding the current one
   against its schema, and cannot resynchronize after a decode error: once a
-  `Stamp` has been consumed the stream position is indeterminate, so the first
+  [`Stamp`](stamp.md) has been consumed the stream position is indeterminate, so the first
   failed read ends the channel.
 
 ## Binary Encoding

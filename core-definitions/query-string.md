@@ -7,7 +7,7 @@
   ("operation?param1=value1&param2=value2").
 * A `Query String` has no length limit of its own. The limit is whichever
   carrier transports it:
-  * over a [`Link`](link.md), a `uint16` length — 65 535 bytes (see
+  * over a [`Link`](link.md), a [`uint16`](../primitive-types/uint16.md) length — 65 535 bytes (see
     [Link Multiplexer](../topics/link-mux.md));
   * over the apphost protocols, a [`string16`](../primitive-types/string16.md)
     — also 65 535 bytes;

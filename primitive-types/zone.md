@@ -22,7 +22,7 @@ number is not accepted in its place.
 
 ## Text Encoding
 
-The same letter string as the JSON Encoding, without quotes.
+The same letter string as the [JSON Encoding](../topics/json-encoding.md), without quotes.
 
 ## Example
 

@@ -16,7 +16,7 @@
 |-------------|--------------------------------|--------------------|------------------------------|
 | `Searcher`  | which objects match this query | `objects.search`   | `mod.objects.search_result`  |
 | `Describer` | what is known about this object| `objects.describe` | `mod.objects.describe_result`|
-| `Finder`    | who can provide this object    | `objects.find`     | `identity`                   |
+| `Finder`    | who can provide this object    | `objects.find`     | [`identity`](../primitive-types/identity.md)                   |
 
 * Each role is a separate registry. A provider is either a module compiled into the `Node` or an
   [`App`](../core-definitions/app.md) registered at runtime — see
