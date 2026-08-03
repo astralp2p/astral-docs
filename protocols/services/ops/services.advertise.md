@@ -13,9 +13,10 @@ service stays available across such a change: a consumer following
 [`services.discover`](services.discover.md) sees the advertisement amended,
 not withdrawn and raised again.
 
-By convention the `Name` is the operation namespace the provider serves, so a
-consumer that discovers `contacts` calls `contacts.*` without being told a
-second name.
+The `Name` identifies the provider rather than the interface it serves: an app
+answering on the `contacts` namespace may advertise itself as
+`contacts-backend`. A provider that wants a consumer to know which namespace to
+call puts that in `Info`.
 
 ## Arguments
 
