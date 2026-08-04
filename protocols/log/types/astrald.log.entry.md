@@ -7,7 +7,7 @@ A single log entry produced by the node.
 * Origin (identity) – Identity of the logger that produced the entry.
 * Level (uint8) – Severity level; lower values are more severe.
 * Time (time) – Timestamp when the entry was created.
-* Objects (object[]) – Ordered list of typed objects that form the log message body.
+* Objects ([]object) – Ordered list of typed objects that form the log message body.
 
 ## Example
 
