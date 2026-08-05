@@ -21,7 +21,8 @@
   [`string32`](../primitive-types/string32.md)/`bytes32` use `uint32`,
   [`string64`](../primitive-types/string64.md)/`bytes64` use `uint64`. The
   width is part of the `Object Type`; payload caps follow the width
-  (255, 65 535, 2³²−1, 2⁶⁴−1).
+  (255, 65 535, 2³²−1, 2⁶⁴−1). A decoder may still refuse a payload it cannot
+  afford to buffer — see [Decoding limits](codec.md#decoding-limits).
 * `Structured` objects are written field by field in the order declared
   by the schema; field names are not on the wire.
 * A field whose schema names no width does not leave the choice to the

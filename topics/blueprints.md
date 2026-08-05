@@ -82,6 +82,6 @@
 
 ## Limits
 
-* Nested `Blueprint` frames are capped; `RefSpec`/`PtrSpec` cycles surface as typed errors.
+* Nested `Blueprint` frames are capped — the figure and the floor every implementation must accept are in [Decoding limits](codec.md#decoding-limits); `RefSpec`/`PtrSpec` cycles surface as typed errors.
 * `ArraySpec.Length` and registered name lengths are bounded.
 * `Aliases` over `Struct Blueprints` are not supported.

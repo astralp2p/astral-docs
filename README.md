@@ -90,7 +90,7 @@ Contents:
   * Narratives
     * [Network Architecture](topics/network-architecture.md) - how identities, nodes, links, swarms, and contracts compose at runtime
     * [Blueprints](topics/blueprints.md) - runtime wire-structure schemas that let a node encode and decode typed objects without compiled code
-    * [Codec](topics/codec.md) - binary framing layer: type encoders, type tags, and the canonical form of typed objects
+    * [Codec](topics/codec.md) - binary framing layer: type encoders, type tags, the canonical form of typed objects, and the limits a decoder may impose
     * [Object Discovery](topics/object-discovery.md) - how a node answers search, describe, and find by fanning out across registered providers
     * [External Providers](topics/external-providers.md) - how apps register as searchers, describers, and finders, and what they serve in return
   * Wire mechanics
