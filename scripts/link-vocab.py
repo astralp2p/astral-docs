@@ -69,6 +69,7 @@ add_common('uint32.md', ['uint32'])
 add_common('uint64.md', ['uint64'])
 
 # Topics
+add_topic('app-routing.md', ['App Routing'])
 add_topic('astral-ipc.md', ['Astral IPC'])
 add_topic('op-modes.md', ['Op modes', 'Batch mode'])
 add_topic('binary-encoding.md', ['Binary Encoding'])
