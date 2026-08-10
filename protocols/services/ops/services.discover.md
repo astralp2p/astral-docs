@@ -2,7 +2,9 @@
 
 Stream service availability updates visible to the caller. Each `services.update` object describes a service becoming available or unavailable. In follow mode the channel stays open and delivers updates as they occur; otherwise the initial snapshot is sent followed by an `eos` object.
 
-What a caller sees depends on where it asks from. Advertisements raised by an app through [`services.advertise`](services.advertise.md) are served to local callers only: an app extends the node hosting it, and what it advertises stays that node's business. Advertisements a module of the node itself raises, and those [`services.sync`](services.sync.md) fetched from a remote identity, carry no such restriction.
+What a caller sees depends on where it asks from. Advertisements raised by an app through [`services.advertise`](services.advertise.md) are served to local callers and to callers in the node's own swarm, and to no other caller: an app extends the node hosting it, and what it advertises stays that node's business and its user's. A node of a user's swarm therefore discovers the services its siblings host, which is how an app finds its counterpart on another of the user's nodes; a caller outside the swarm is served none of them, and cannot enumerate the apps a node runs. Advertisements a module of the node itself raises, and those [`services.sync`](services.sync.md) fetched from a remote identity, carry no such restriction.
+
+Discovery is the only direction that crosses a link. [`services.advertise`](services.advertise.md) rejects a query arriving over the network, so an app advertises on the node hosting it and never on another.
 
 ## Arguments
 
