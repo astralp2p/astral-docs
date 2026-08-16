@@ -1,6 +1,6 @@
 # objects.read
 
-Stream the raw bytes of an object. Unlike most ops, the response body is the object payload itself rather than a stream of typed objects, and access is gated by `mod.objects.read_object_action`.
+Stream the raw bytes of an object. Unlike most ops, the response body is the object payload itself rather than a stream of typed objects, and access is gated by `mod.auth.see_objects_action`.
 
 ## Arguments
 
