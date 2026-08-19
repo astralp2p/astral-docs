@@ -1,6 +1,7 @@
 # user.assets
 
-Stream the list of object IDs currently held in this user's asset list.
+Stream the list of object IDs currently held in this user's asset list. The
+caller must hold `mod.user.see_swarm_action`; rejected with code `4` otherwise.
 
 ## Arguments
 

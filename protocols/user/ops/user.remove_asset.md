@@ -1,8 +1,10 @@
 # user.remove_asset
 
-Remove an object from the user's asset list. The change is logged as a
-removal (tombstone) so other nodes pick it up via `user.sync_assets`, and a
-`mod.user.notification` with event `assets` is pushed to all linked siblings.
+Remove an object from the user's asset list. The caller must hold
+`mod.user.admin_swarm_action`; rejected with code `4` otherwise. The change is
+logged as a removal (tombstone) so other nodes pick it up via
+`user.sync_assets`, and a `mod.user.notification` with event `assets` is pushed
+to all linked siblings.
 
 ## Arguments
 

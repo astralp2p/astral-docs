@@ -13,7 +13,7 @@ the token alone, so an app learns what it was granted by using it.
 ## Arguments
 
 * permits (string8) – Actions the app asks to hold, comma-separated (e.g.
-  `mod.user.info_action`). An action name carries no comma. Omitted asks for
+  `mod.user.see_swarm_action`). An action name carries no comma. Omitted asks for
   nothing.
 * in (string8) – Input format.
 * out (string8) – Output format.
@@ -37,6 +37,6 @@ $ astral-query apphost.register -out json
 Asking to hold an action:
 
 ```shellsession
-$ astral-query apphost.register -permits mod.user.info_action -out json
+$ astral-query apphost.register -permits mod.user.see_swarm_action -out json
 {"Type":"apphost.access_token","Object":{"Identity":"03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f","Token":"b9c2e1a3d4f5867a","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
 ```

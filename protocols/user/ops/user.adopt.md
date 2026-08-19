@@ -1,6 +1,6 @@
 # user.adopt
 
-Issue a swarm membership contract for a target node and return the signed result. Rejected with code `2` if the node has no active contract. Rejected with code `3` if the caller is not the active contract's issuer. After indexing, the signed contract is pushed to the local swarm asynchronously and a sync task is scheduled for the new member.
+Issue a swarm membership contract for a target node and return the signed result. The caller must hold `mod.user.admin_swarm_action`; the active contract's issuer holds it by default. Rejected with code `2` if the node has no active contract, with code `3` if the target identity does not resolve, and with code `4` if the caller is not authorized. After indexing, the signed contract is pushed to the local swarm asynchronously and a sync task is scheduled for the new member.
 
 ## Arguments
 

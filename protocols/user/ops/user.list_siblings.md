@@ -2,7 +2,8 @@
 
 List identities of sibling nodes currently linked to this node — that is,
 nodes in the same user swarm with a live link maintained by the sibling
-linker.
+linker. The caller must hold `mod.user.see_swarm_action`; rejected with code
+`4` otherwise.
 
 ## Arguments
 

@@ -18,6 +18,13 @@ cold-card path). A user permanently bans a node with `user.expel`, and the list
 of bans is inspectable via `user.list_expelled`. Banned nodes hold a
 `mod.user.signed_expulsion` and are refused new contracts.
 
+Two actions gate the protocol. `mod.user.see_swarm_action` covers every read —
+`user.info`, `user.assets`, `user.sync_assets`, `user.list_siblings`,
+`user.swarm_status` and `user.list_expelled`. `mod.user.admin_swarm_action`
+covers every change to what the swarm holds — `user.adopt`, `user.expel`,
+`user.add_asset` and `user.remove_asset`. A node contract issued to a management
+node carries both, delegable one hop.
+
 The active contract is validated on every application — both signatures, subject
 identity match, remaining validity, and a swarm-membership permit — so a stored
 value that fails validation never takes effect.
