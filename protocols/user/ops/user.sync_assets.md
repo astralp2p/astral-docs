@@ -7,7 +7,9 @@ of the user's asset list in sync.
 Each entry is a `mod.user.op_update` carrying the nonce, the object ID, and
 whether the entry is a removal (tombstone).
 
-Rejected with code `2` if the database read failed.
+The caller must hold `mod.user.see_swarm_action`; sibling nodes sync as the
+user, who holds it by default. Rejected with code `2` if the database read
+failed, and with code `4` if the caller is not authorized.
 
 ## Arguments
 
