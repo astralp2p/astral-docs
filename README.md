@@ -76,6 +76,7 @@ Contents:
   * [dir](protocols/dir/README.md) - alias management, identity resolution
   * [ether](protocols/ether/README.md) - LAN UDP broadcast for node presence and discovery
   * [lna](protocols/lna/README.md) - lightning network analytics
+  * [mcp](protocols/mcp/README.md) - AI agent registration and the MCP endpoint serving agents the network
   * [nat](protocols/nat/README.md) - NAT traversal via UDP hole punching
   * [nodes](protocols/nodes/README.md) - encrypted links and multiplexed sessions between nodes
   * [objects](protocols/objects/README.md) - typed object storage, retrieval, and provider discovery
