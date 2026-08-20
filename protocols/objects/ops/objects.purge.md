@@ -2,6 +2,11 @@
 
 Delete objects from a repository in oldest-read-first order, skipping any object that is currently held by a registered holder.
 
+The caller must hold
+[`mod.auth.admin_objects_action`](../../auth/types/mod.auth.admin_objects_action.md).
+The query is rejected before the repository is looked up when the caller is not
+authorized.
+
 ## Arguments
 
 * repo (string8, required) – Repository to purge.

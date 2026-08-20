@@ -2,6 +2,11 @@
 
 Remove a repository by name. Built-in repositories cannot be removed.
 
+The caller must hold
+[`mod.auth.admin_objects_action`](../../auth/types/mod.auth.admin_objects_action.md).
+The query is rejected before the repository is looked up when the caller is not
+authorized.
+
 ## Arguments
 
 * name (string8, required) – Name of the repository to remove.

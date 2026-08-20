@@ -3,10 +3,17 @@
 A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
 modify the node's repositories: which repositories it has, and what they hold.
 
-The action gates `fs.new_repo` and `fs.new_watch`, the two operations that
-attach a host filesystem directory to the object graph. Attaching a directory
-makes every file under it an addressable object, so the grant reaches further
-than the repository it names.
+The action gates every operation that destroys what the node holds or changes
+which repositories it has — `objects.delete`, `objects.purge`,
+`objects.remove_repository`, `fs.new_repo` and `fs.new_watch`.
+
+Writing and destroying are separate authorities. Adding to a repository answers
+to [`mod.auth.store_objects_action`](mod.auth.store_objects_action.md); an
+issuer granting that does not thereby grant emptying the same repository.
+
+Attaching a host filesystem directory makes every file under it an addressable
+object, so `fs.new_repo` and `fs.new_watch` reach further than the repository
+they name.
 
 ObjectID, Repo and Path declare the nouns the call touches. None is evaluated.
 Each is left unset by an operation that names no single object, repository, or
