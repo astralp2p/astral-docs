@@ -19,9 +19,9 @@
   [`mod.nodes.relay_for_action`](../protocols/nodes/types/mod.nodes.relay_for_action.md). The `App`
   is the `Issuer` and the `Node` is the `Subject`: the `App` permits that `Node` to relay on its
   behalf.
-* The `Contract` is signed when the `App` provisions itself — `apphost.register` mints an `Identity`
-  and signs the `Contract` in one step — or afterwards through `apphost.new_app_contract` and
-  `apphost.sign_app_contract`.
+* The `Contract` is signed when the `App` provisions itself: `apphost.register` mints an `Identity`
+  and signs the `Contract` in one step. There is no second path — an `App` does not bring an
+  `Identity` of its own to a `Node`.
 * The `Contract` is what makes an `App` addressable. An `Identity` no `Contract` names is an
   `Identity` no `Node` relays for, and a `Query` addressed to it resolves to no host.
 * An `App` hosted on several `Nodes` signs a `Contract` with each. The `Identities` are distinct —
