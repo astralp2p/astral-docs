@@ -2,6 +2,11 @@
 
 Delete an object (or a stream of objects) from a repository.
 
+The caller must hold
+[`mod.auth.admin_objects_action`](../../auth/types/mod.auth.admin_objects_action.md).
+The query is rejected before the repository is looked up when the caller is not
+authorized.
+
 ## Arguments
 
 * repo (string8, required) – Repository to delete from. There is no default repository for delete.

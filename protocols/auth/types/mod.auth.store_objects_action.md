@@ -11,7 +11,9 @@ Indexing state is node-wide: enabling a repository indexes every object in it
 from then on, and a subscription consumes an indexer's change stream and
 advances its cursor, so both are writes to node state.
 
-This action does not cover deleting, purging, or removing a repository.
+This action does not cover deleting, purging, or removing a repository. An
+operation that destroys answers to
+[`mod.auth.admin_objects_action`](mod.auth.admin_objects_action.md).
 
 Repo and Type declare the nouns the call touches. Neither is evaluated. An
 operation that names neither leaves both empty, as does an operation whose

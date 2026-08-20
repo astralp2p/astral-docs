@@ -12,6 +12,7 @@ Every op in this protocol submits an action before it acts:
 * Reads answer to [`mod.auth.see_objects_action`](../auth/types/mod.auth.see_objects_action.md).
 * Writes answer to [`mod.auth.store_objects_action`](../auth/types/mod.auth.store_objects_action.md).
 * The three registration ops answer to [`mod.auth.serve_objects_action`](../auth/types/mod.auth.serve_objects_action.md), each naming its role.
+* Destroying answers to [`mod.auth.admin_objects_action`](../auth/types/mod.auth.admin_objects_action.md).
 
-`objects.delete`, `objects.purge` and `objects.remove_repository` submit no
-action.
+Writing and destroying are separate authorities. A caller granted the first may
+add to a repository and not empty it.
