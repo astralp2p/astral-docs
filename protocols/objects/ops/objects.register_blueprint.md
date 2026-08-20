@@ -2,6 +2,11 @@
 
 Register runtime `astral.blueprint` descriptors (struct kind or alias kind) with `DefaultBlueprints`. The op reads blueprints from the input stream until `eos` or EOF, registers each, and sends the resulting `object_id.sha256` or an `error_message` per input. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
 
+The caller must hold
+[`mod.auth.store_objects_action`](../../auth/types/mod.auth.store_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized.
+
 ## Arguments
 
 * in (string8) – Input format.

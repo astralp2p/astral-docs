@@ -2,6 +2,12 @@
 
 Enable or disable indexing for a named object repository. Pass `disable` to deactivate a previously enabled repo. The op returns `ErrRepositoryNotFound` if the repository name is not known to the objects module.
 
+The caller must hold
+[`mod.auth.store_objects_action`](../../auth/types/mod.auth.store_objects_action.md).
+Indexing state is node-wide, so changing it answers to the same action that
+guards writes in the [`objects`](../../objects/README.md) protocol. The query
+is rejected when the caller is not authorized.
+
 ## Arguments
 
 * repo (string, required) – Name of the object repository to enable or disable.

@@ -2,6 +2,11 @@
 
 Return the astral type name of an object, reading just enough bytes to parse the stamp and type header.
 
+The caller must hold
+[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * id (object_id.sha256, required) – The id to inspect.

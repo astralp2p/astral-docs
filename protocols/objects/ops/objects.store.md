@@ -2,6 +2,11 @@
 
 Encode typed astral objects and write them as new repository entries. The id of each stored object is returned.
 
+The caller must hold
+[`mod.auth.store_objects_action`](../../auth/types/mod.auth.store_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized.
+
 ## Arguments
 
 * repo (string8) – Repository to write into. Defaults to the write-default repository.

@@ -1,6 +1,11 @@
 # objects.read
 
-Stream the raw bytes of an object. Unlike most ops, the response body is the object payload itself rather than a stream of typed objects, and access is gated by `mod.auth.see_objects_action`.
+Stream the raw bytes of an object. Unlike most ops, the response body is the object payload itself rather than a stream of typed objects.
+
+The caller must hold
+[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
 
 ## Arguments
 

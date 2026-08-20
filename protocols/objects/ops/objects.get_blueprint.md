@@ -6,6 +6,11 @@ referenced types are not resolved or included, so the caller fetches each
 referenced type itself. The operation returns an `error_message` if the named
 type is primitive (primitives have no blueprint) or is unknown.
 
+The caller must hold
+[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * type (string8, required) – The type name to return the blueprint for.

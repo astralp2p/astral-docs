@@ -2,6 +2,11 @@
 
 Stream every registered type name in dependency order: compile-time prototypes first, then runtime blueprints topologically sorted by reference. Each name is sent as a `string8` object; the stream is terminated by an `eos` object.
 
+The caller must hold
+[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * out (string8) – Output format.

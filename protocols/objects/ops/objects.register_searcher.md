@@ -2,6 +2,11 @@
 
 Register the caller as an external searcher. The module proxies `objects.search` calls back to the caller's identity for the lifetime of the registration. Network-originated queries are rejected.
 
+The caller must hold
+[`mod.auth.serve_objects_action`](../../auth/types/mod.auth.serve_objects_action.md)
+for the `searcher` role. The query is rejected when the caller is not
+authorized.
+
 ## Arguments
 
 * in (string8) – Input format.

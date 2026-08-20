@@ -24,7 +24,7 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ echo '{"Type":"mod.auth.contract","Object":{"Issuer":"...","Subject":"...","Permits":[{"Action":"mod.user.swarm_access_action"}],"ExpiresAt":"2027-05-27T12:00:00+02:00"}}' \
+$ echo '{"Type":"mod.auth.contract","Object":{"Issuer":"...","Subject":"...","Permits":[{"Action":"mod.user.see_swarm_action"}],"ExpiresAt":"2027-05-27T12:00:00+02:00"}}' \
     | astral-query auth.sign_contract -in json -out json
 {"Type":"mod.auth.signed_contract","Object":{...}}
 ```
