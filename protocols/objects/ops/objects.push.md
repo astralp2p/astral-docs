@@ -2,6 +2,11 @@
 
 Push objects to the node; each received object is offered to the registered receivers and an acceptance flag is returned per object.
 
+The caller must hold
+[`mod.auth.store_objects_action`](../../auth/types/mod.auth.store_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized.
+
 ## Arguments
 
 * in (string8) – Input format.

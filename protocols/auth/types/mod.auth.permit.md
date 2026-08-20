@@ -7,7 +7,7 @@ narrow the grant.
 ## Fields
 
 * Action (string8) – Object type of the action this permit grants
-  (e.g. `mod.user.swarm_access_action`).
+  (e.g. `mod.user.see_swarm_action`).
 * Constraints (bundle) – Optional bundle of constraint objects. When the
   permitted action implements `Constrainable`, the action evaluates this
   bundle to decide whether the permit applies. Action types that do not
@@ -24,7 +24,7 @@ narrow the grant.
 {
   "Type": "mod.auth.permit",
   "Object": {
-    "Action": "mod.user.swarm_access_action"
+    "Action": "mod.user.see_swarm_action"
   }
 }
 ```

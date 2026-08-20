@@ -2,6 +2,11 @@
 
 Load a stored object (or a stream of objects) and decode it into its typed representation. Non-astral payloads are returned as `blob`.
 
+The caller must hold
+[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * id (object_id.sha256) – Id to load. If omitted, the operation streams ids from the input.

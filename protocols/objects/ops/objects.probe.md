@@ -2,6 +2,11 @@
 
 Probe an object to determine its astral type, MIME type, host repository, and read latency.
 
+The caller must hold
+[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * id (object_id.sha256) – Id to probe. If omitted, the operation streams ids from the input.

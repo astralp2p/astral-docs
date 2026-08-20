@@ -2,6 +2,11 @@
 
 Create a new object by streaming raw payload chunks into a repository.
 
+The caller must hold
+[`mod.auth.store_objects_action`](../../auth/types/mod.auth.store_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized.
+
 ## Arguments
 
 * alloc (uint64) – Pre-allocation hint in bytes for the underlying writer.

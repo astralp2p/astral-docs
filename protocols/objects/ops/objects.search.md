@@ -2,6 +2,11 @@
 
 Run a search query across registered searchers. The query string follows the `objects.search_query` grammar (bare words, `tag:value`, `-tag:value`, `?tag:value`, `~tag:value`).
 
+The caller must hold
+[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * q (string, required) – The search query.

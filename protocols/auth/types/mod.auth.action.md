@@ -10,7 +10,7 @@ types embed `mod.auth.action` and add their own fields.
 * ActorID (identity) – Identity of the caller performing the action.
 
 A concrete action type (e.g. `mod.auth.sudo_action`,
-`mod.user.swarm_access_action`) carries these fields plus any of its own.
+`mod.user.see_swarm_action`) carries these fields plus any of its own.
 When evaluating a contract, the auth module matches a permit to an action by
 object type. Action types may additionally implement `Constrainable` to
 evaluate the permit's `Constraints` bundle; action types that do not are

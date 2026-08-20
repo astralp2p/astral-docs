@@ -2,6 +2,12 @@
 
 Deliver pending index changes to a registered indexer identified by `nonce`. The op streams an `indexing.index` or `indexing.unindex` message for each pending change, waits for the caller to acknowledge each with an `indexing.ack`, then advances the indexer's stored state. When the indexer is caught up the op blocks until a new change arrives or the context is cancelled. Delivery is retried with exponential back-off (1 s initial, 1 min cap, factor 2) when the caller signals `ErrIndexingTemporarilyFailed`.
 
+The caller must hold
+[`mod.auth.store_objects_action`](../../auth/types/mod.auth.store_objects_action.md).
+Indexing state is node-wide, so changing it answers to the same action that
+guards writes in the [`objects`](../../objects/README.md) protocol. The query
+is rejected when the caller is not authorized.
+
 ## Arguments
 
 * nonce (nonce64, required) – Nonce identifying the registered indexer.

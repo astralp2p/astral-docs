@@ -2,6 +2,11 @@
 
 Echo received objects back to the caller, optionally filtered by type. Useful for debugging the object pipeline.
 
+The caller must hold
+[`mod.auth.store_objects_action`](../../auth/types/mod.auth.store_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized.
+
 ## Arguments
 
 * only (string8) – Comma-separated list of object types to echo. Other types are dropped.

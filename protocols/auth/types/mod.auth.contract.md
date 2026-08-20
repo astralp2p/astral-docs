@@ -31,7 +31,7 @@ when signing with text-only schemes (e.g. `bip137`); binary schemes
     "Issuer": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "Subject": "03a7c1f5b9d4e62a8f730ce15d2b4a9c11e8d77c3b5f04a6d92e1b8f72c4d3e5a6",
     "Permits": [
-      { "Action": "mod.user.swarm_access_action" }
+      { "Action": "mod.user.see_swarm_action" }
     ],
     "ExpiresAt": "2027-05-27T12:00:00+02:00"
   }

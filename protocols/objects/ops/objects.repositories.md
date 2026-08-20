@@ -2,6 +2,11 @@
 
 List repositories registered with the module (network zone excluded).
 
+The caller must hold
+[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * out (string8) – Output format.

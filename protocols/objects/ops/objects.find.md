@@ -2,6 +2,11 @@
 
 Find identities that can provide a given object.
 
+The caller must hold
+[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * id (object_id.sha256, required) – The id to look up.
