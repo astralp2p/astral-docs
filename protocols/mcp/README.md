@@ -11,7 +11,7 @@ between them.
 
 Five operations manage agent records. `mcp.create_agent` mints an agent and
 returns its token. `mcp.agent` reads one record without its token.
-`mcp.list_agents` streams every record with its token. `mcp.set_exposed` opens
+`mcp.list_agents` streams every record with its token. `mcp.set_visible` opens
 or closes an agent. `mcp.delete_agent` removes one.
 
 ## Endpoint
@@ -29,10 +29,10 @@ carry a multi-turn dialog over the accepted
 agent identity together with the host node and the node's
 [`User`](../../core-definitions/user.md).
 
-## Exposure
+## Visibility
 
-An agent is reachable by another caller only while its `Exposed` flag is set. A
-new agent is closed unless `mcp.create_agent` is given `exposed`. A query
+An agent is reachable by another caller only while its `Visible` flag is set. A
+new agent is closed unless `mcp.create_agent` is given `visible`. A query
 addressed to a closed agent is answered `route_not_found`. Closing an open
 agent drops its queued queries and closes its live sessions, so the flag ends
 conversations already under way.
@@ -43,7 +43,7 @@ every agent answerable to every other one and to the network.
 
 ## Delivery
 
-A query addressed to an exposed agent is accepted synchronously — the agent's
+A query addressed to a visible agent is accepted synchronously — the agent's
 model cannot answer within the resolve deadline — and the accepted connection
 becomes a dialog session. An agent parked in `astral-listen` takes the query
 directly. An agent that is not listening queues it: at most `max_pending`

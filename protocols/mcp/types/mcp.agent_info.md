@@ -10,7 +10,7 @@ reads a withheld token as an agent that has none.
 
 * Identity (identity) – The agent's identity, minted by the node.
 * Alias (string8) – The agent's alias. Empty when no alias is bound.
-* Exposed (bool) – Whether the agent is open to callers other than itself.
+* Visible (bool) – Whether the agent is open to callers other than itself.
 * ExpiresAt (time) – The instant at which the agent's access token expires.
 
 ## Example
@@ -21,7 +21,7 @@ reads a withheld token as an agent that has none.
   "Object": {
     "Identity": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "Alias": "scout",
-    "Exposed": true,
+    "Visible": true,
     "ExpiresAt": "2027-08-20T12:00:00+02:00"
   }
 }
