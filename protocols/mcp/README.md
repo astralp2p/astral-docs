@@ -11,8 +11,8 @@ between them.
 
 Five operations manage agent records. `mcp.create_agent` mints an agent and
 returns its token. `mcp.agent` reads one record without its token.
-`mcp.list_agents` streams every record with its token. `mcp.set_visible` opens
-or closes an agent. `mcp.delete_agent` removes one.
+`mcp.list_agents` streams every record with its token. `mcp.disconnect_agent`
+ends an agent's live traffic. `mcp.delete_agent` removes one.
 
 ## Endpoint
 
@@ -29,21 +29,44 @@ carry a multi-turn dialog over the accepted
 agent identity together with the host node and the node's
 [`User`](../../core-definitions/user.md).
 
-## Visibility
+## Authorization
 
-An agent is reachable by another caller only while its `Visible` flag is set. A
-new agent is closed unless `mcp.create_agent` is given `visible`. A query
-addressed to a closed agent is answered `route_not_found`. Closing an open
-agent drops its queued queries and closes its live sessions, so the flag ends
-conversations already under way.
+A call between two agents crosses two permissions, and each belongs to a
+different party. The `mcp` protocol holds neither: one node carries the agents
+of many tenants and knows no relation between them, so it asks
+[`auth`](../auth/README.md) and acts on the answer.
 
-The flag is the whole of an agent's reachability: the node knows no relation
-between the agents it holds, so anything short of an explicit opt-in makes
-every agent answerable to every other one and to the network.
+The agent starting a call submits
+[`mod.mcp.call_agent_action`](types/mod.mcp.call_agent_action.md) before the
+[`Query`](../../core-definitions/query.md) is built. The agent being called
+submits
+[`mod.mcp.answer_agent_action`](types/mod.mcp.answer_agent_action.md) before a
+parked `astral-listen` is claimed and before the query is queued — a parked
+listener is not permission, and claiming one for a query about to be refused
+would consume it. A call proceeds only where both are granted.
+
+A refused call is answered as one addressed to an identity the node holds no
+agent for: `route_not_found` on the answering side, and an unresolvable target
+on the calling side. A caller cannot tell an agent that refuses it from an
+agent that does not exist, and an agent cannot tell a target it may not reach
+from one that is not there.
+
+**The node holds no reachability of its own.** An agent is reachable where a
+registered handler, an active
+[`Contract`](../../core-definitions/contract.md), or a configured external
+authority says so, and a node with none of the three answers no call. What an
+agent permits belongs to whoever owns it, and a node that held a copy would
+hold a second answer to a question it does not decide.
+
+`mcp.disconnect_agent` ends an agent's live traffic: it closes the
+conversations the agent is in and drops the queries waiting for it. It carries
+no permission and writes none — a change of permission is answered on the next
+call the node asks about, and the traffic already flowing is the one part of
+that change its owner cannot make elsewhere.
 
 ## Delivery
 
-A query addressed to a visible agent is accepted synchronously — the agent's
+A query the two actions permit is accepted synchronously — the agent's
 model cannot answer within the resolve deadline — and the accepted connection
 becomes a dialog session. An agent parked in `astral-listen` takes the query
 directly. An agent that is not listening queues it: at most `max_pending`

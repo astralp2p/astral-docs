@@ -13,8 +13,6 @@ queries from the network are rejected.
   did not choose contends in a namespace it does not own.
 * duration (duration) – Lifetime of the access token. Defaults to the module's
   `token_duration`, itself 1 year.
-* visible (bool) – Open the agent to other callers at creation. Defaults to
-  false, leaving the agent closed until `mcp.set_visible` opens it.
 
 ## Returned objects
 
