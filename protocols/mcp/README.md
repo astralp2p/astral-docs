@@ -21,14 +21,15 @@ default `tcp:127.0.0.1:8626`; an empty value disables it. An agent
 authenticates with its access token as a bearer token, and every tool call acts
 as the authenticated agent identity.
 
-The endpoint serves six tools. `astral-query` sends a
+The endpoint serves seven tools. `astral-query` sends a
 [`Query`](../../core-definitions/query.md) to a node service. `astral-whoami`
 returns the agent identity together with the host node and the node's
-[`User`](../../core-definitions/user.md). The other four are the agent's mail:
+[`User`](../../core-definitions/user.md). The other five are the agent's mail:
 `send_message` writes an [`mcp.message`](types/mcp.message.md) to another
 agent, `inbox` lists the messages waiting without their bodies, `read_message`
-reads one by [`mcp.message_id`](types/mcp.message_id.md), and `read_next` waits
-for the oldest unread message and claims it.
+reads one by [`mcp.message_id`](types/mcp.message_id.md), `read_next` waits
+for the oldest unread message and claims it, and `outbox` lists what this agent
+sent and what became of each one.
 
 ## Authorization
 
@@ -71,10 +72,14 @@ answers an `ack`. The node answers, not the agent, so delivery finishes inside
 the resolve deadline whether or not the recipient's model is running, and a
 recipient on another node is the same call as one on the same node.
 
-The row carries the sender, the recipient, the body, the instant the message
-arrived and the instant it was read. The sender is the query's caller and the
-recipient its target. Neither is a field of the message, so a sender claims
-neither.
+The row carries the sender, the recipient, the body, the instant the node
+stored the message and the instant it was read. The sender is the query's
+caller and the recipient its target. Neither is a field of the message, so a
+sender claims neither.
+
+The stored instant is a claim about the node and not about the recipient, who
+may not run for days. It is named for what the node did, beside a sender's row
+whose own instants are named the same way.
 
 **A message is read once.** `read_next` stamps the oldest unread message and
 returns it, and a second reader takes the next message rather than the same
@@ -86,15 +91,68 @@ claiming, so a second read answers the same message unchanged.
 the row, so a sender that repeats a delivery after a lost `ack` leaves one
 message.
 
-An agent answers `mcp.message` and no other query. A query naming any other
-path is answered `route_not_found`: an agent is a mailbox and not a service.
+An agent answers `mcp.message` and `mcp.receipt`, and no other query. A query
+naming any other path is answered `route_not_found`: an agent is a mailbox and
+not a service.
+
+## The sender's record
+
+A send is a row in the sender's outbox, written before the delivery is
+attempted and stamped by what the delivery returns. The two rows have different
+owners: the recipient's row is the recipient's, and across nodes it is not on
+the sender's machine at all, while what a sender knows survives whether or not
+the recipient's node is reachable.
+
+The row carries the recipient, the body, and four instants — when the send was
+attempted, when the recipient's node acknowledged the write, when the delivery
+was known to have failed, and when the body was handed out. Each names when a
+fact became true, and an unset instant is the absence of that fact rather than a
+value somebody chose. A row nothing has stamped is a send whose fate is
+unknown, which is the honest answer after a crash: an acknowledgement that
+never arrived proves nothing about the write.
+
+A send refused before delivery is attempted — an unresolvable recipient, or
+`mod.mcp.call_agent_action` denied — leaves no row. A stored list of refusals
+would tell a recipient that refuses apart from one that does not exist, which is
+the collapse the refusal is built on.
+
+`outbox` lists an agent's own rows and no other agent's. The rejection an
+error carries is the recipient's node's own words, so it is quoted material and
+never a field to act on.
+
+**A collection is reported by the recipient's node.** When the body is handed
+out and the sender holds an agent on the same node, that node stamps the
+sender's row directly. When the sender is elsewhere, the recipient's node puts
+an `mcp.receipt` query to the sender's identity carrying one
+[`mcp.receipt`](types/mcp.receipt.md), and the sender's node stamps the row and
+answers an `ack`.
+
+The stamp reports that the body was handed out and never that a model
+considered it. `read_next` stamps on the claim, so a recipient that drains its
+inbox and stops marks every message collected.
+
+**A receipt is one attempt.** The fact it carries is already true and durable on
+the node that sends it, so a receipt lost in transit leaves the sender believing
+a message was never collected — wrong, permanently, and in the direction that
+waits rather than the one that assumes. Nothing retries one, and the recipient's
+read never waits on one.
+
+**The outbox row is the receipt's permission.** The sender's node admits an
+`mcp.receipt` without asking [`auth`](../auth/README.md): the row is the
+consequence of a permitted past act, and the receipt says one thing about that
+one message. Directions are granted per side and the two are independent, so
+asking `mod.mcp.answer_agent_action` here would refuse a receipt wherever the
+sender's inbound direction is narrower than its outbound one — the ordinary
+case, not the edge one. A node holding no matching row answers an error, and a
+node with no outbox at all answers `route_not_found`.
 
 ## Origin
 
 Every operation is local-only: a query arriving over a
-[`Link`](../../core-definitions/link.md) is rejected. `mcp.message` is no
-operation and is not local-only — it is addressed to an agent's identity rather
-than to a node's, and a caller reaches it over a link.
+[`Link`](../../core-definitions/link.md) is rejected. `mcp.message` and
+`mcp.receipt` are no operations and are not local-only — each is addressed to an
+agent's identity rather than to a node's, and a caller reaches both over a
+link.
 
 A query an agent sends through `astral-query` carries the `mcp` origin. The
 [`shell`](../shell/README.md) protocol mounts every module's operations and
