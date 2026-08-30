@@ -29,7 +29,9 @@ returns the agent identity together with the host node and the node's
 agent, `inbox` lists the messages waiting without their bodies, `read_message`
 reads one by [`mcp.message_id`](types/mcp.message_id.md), `read_next` waits
 for the oldest unread message and claims it, and `outbox` lists what this agent
-sent and what became of each one.
+sent and what became of each one. `inbox` and `read_next` take a thread, and
+`read_next` also takes a sender, so a reader can name which message it is
+waiting for.
 
 ## Authorization
 
@@ -72,8 +74,8 @@ answers an `ack`. The node answers, not the agent, so delivery finishes inside
 the resolve deadline whether or not the recipient's model is running, and a
 recipient on another node is the same call as one on the same node.
 
-The row carries the sender, the recipient, the body, the instant the node
-stored the message and the instant it was read. The sender is the query's
+The row carries the sender, the recipient, the body, the thread, the instant
+the node stored the message and the instant it was read. The sender is the query's
 caller and the recipient its target. Neither is a field of the message, so a
 sender claims neither.
 
@@ -81,9 +83,39 @@ The stored instant is a claim about the node and not about the recipient, who
 may not run for days. It is named for what the node did, beside a sender's row
 whose own instants are named the same way.
 
-**A message is read once.** `read_next` stamps the oldest unread message and
-returns it, and a second reader takes the next message rather than the same
-one. `read_message` opens one by identifier and stamps it read; reading is not
+## Threads
+
+**A thread is a query and never a record.** An [`mcp.message`](types/mcp.message.md)
+carries the identifier of the exchange it belongs to. A first message carries
+its own, so every message is in a thread, and a thread is the set of rows
+sharing the label. Nothing is opened, owned, closed or expired, and no node
+holds a record that another node must agree with.
+
+The label is flat. A reply copies the value it received rather than appending
+to it, so every message in one exchange carries the root's identifier.
+
+**The recipient's node enforces it, and never the wire.** A message arriving
+with no thread is stored under its own identifier, so a sender that names none
+— an agent on a node that predates the field — writes a message that is the
+root of its own exchange, which is what it was before threads existed.
+
+**The thread is the sender's claim**, as the body is, while the sender and the
+recipient are the route's. Naming an existing exchange means naming a 128-bit
+identifier that was never published, and every row carries the identity of
+whoever wrote it.
+
+## Reading
+
+**A reader names what it is waiting for.** `read_next` claims the oldest unread
+message matching a sender, a thread, both, or neither, and leaves every other
+message where it is. A reader waiting on one answer therefore cannot claim a
+stranger's message, and a message it did not ask for is never taken and never
+has to be given back. `inbox` takes the same thread filter without claiming
+anything.
+
+**A message is read once.** `read_next` stamps the oldest matching unread
+message and returns it, and a second reader takes the next message rather than
+the same one. `read_message` opens one by identifier and stamps it read; reading is not
 claiming, so a second read answers the same message unchanged.
 
 **A delivery that arrives twice is stored once.** The
