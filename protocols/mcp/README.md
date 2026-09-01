@@ -21,15 +21,44 @@ default `tcp:127.0.0.1:8626`; an empty value disables it. An agent
 authenticates with its access token as a bearer token, and every tool call acts
 as the authenticated agent identity.
 
-The endpoint serves seven tools. `astral-query` sends a
-[`Query`](../../core-definitions/query.md) to a node service. `astral-whoami`
-returns the agent identity together with the host node and the node's
-[`User`](../../core-definitions/user.md). The other five are the agent's mail:
-`send_message` writes an [`mcp.message`](types/mcp.message.md) to another
-agent, `inbox` lists the messages waiting without their bodies, `read_message`
-reads one by [`mcp.message_id`](types/mcp.message_id.md), `read_next` waits
-for the oldest unread message and claims it, and `outbox` lists what this agent
-sent and what became of each one. `inbox` and `read_next` take a thread, and
+The endpoint serves six tools of its own. `astral-query` sends a
+[`Query`](../../core-definitions/query.md) to a node service. The other five are
+the agent's mail: `send_message` writes an [`mcp.message`](types/mcp.message.md)
+to another agent, `inbox` lists the messages waiting without their bodies,
+`read_message` reads one by [`mcp.message_id`](types/mcp.message_id.md),
+`read_next` waits for the oldest unread message and claims it, and `outbox`
+lists what this agent sent and what became of each one.
+
+**No tool names the agent to itself.** An agent's identity is minted by the node
+and held by whoever registered the agent, and a node holding many tenants'
+agents knows what none of them is called. A deployment that answers its agents
+that question declares a tool for it.
+
+## Declared tools
+
+A deployment declares tools of its own beside the six. Each is a name, a
+description, and one [`Query`](../../core-definitions/query.md) named as
+`astral://<identity-or-alias>:<query>`. The node registers it under that name
+and puts that query when an agent calls it.
+
+**A declared tool takes no argument.** Its query is fixed where the tool is
+declared, so what it asks does not vary with the call.
+
+**The query is the agent's own.** It is put as the calling agent rather than as
+the node, and it is the same
+[`mod.mcp.call_agent_action`](types/mod.mcp.call_agent_action.md) that
+`astral-query` raises about the same pair: a tool is a named query and buys the
+agent no reach it did not have. It carries the `mcp` origin, so a tool named
+against a node operation is refused as any agent's query to one is.
+
+**The node reads none of the answer.** What the answer means belongs to the
+answering service, and the description is declared beside the query for the same
+reason. A type the node's registry does not hold is carried back as opaque bytes
+under its type name rather than refused.
+
+**A declared tool may not take one of the six names.** A configuration that
+overrode one would silently repoint it, and the node refuses the configuration
+instead. `inbox` and `read_next` take a thread, and
 `read_next` also takes a sender, so a reader can name which message it is
 waiting for.
 
