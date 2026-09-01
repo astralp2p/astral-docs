@@ -137,6 +137,13 @@ the recipient's node neither refuses it nor repairs it: a claim about a message
 nobody has is a claim nothing answers, and a link that leads nowhere costs the
 message beside it nothing. The one link refused is a message naming itself.
 
+**Thread is retired.** The flat label named what a reply now names for itself,
+so it leaves rather than sitting dead on every message, and ParentID takes its
+position in the frame. That is an incompatible change: the frame is positional
+and carries no version marker, so a peer at the revision before it writes a
+thread where a reader after it reads a parent, type-correct and silent. Nodes
+carrying `mcp.message` between them move together.
+
 **Replies are read, never followed.** `read_messages` answers a message with the
 messages that name it, one level. Walking further is the reader's to do, and the
 node holds no depth it must agree with anyone about.
