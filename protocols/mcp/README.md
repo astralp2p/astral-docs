@@ -64,9 +64,8 @@ under its type name rather than refused.
 
 **A declared tool may not take one of the six names.** A configuration that
 overrode one would silently repoint it, and the node refuses the configuration
-instead. A name the endpoint has retired is reserved on the same terms: an agent
-that learned what a name meant must not find a deployment answering it with
-something else.
+instead. A name the endpoint served in an earlier revision and serves no longer
+is free.
 
 ## Authorization
 
