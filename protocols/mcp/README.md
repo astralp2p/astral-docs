@@ -24,10 +24,16 @@ as the authenticated agent identity.
 The endpoint serves six tools of its own. `astral-query` sends a
 [`Query`](../../core-definitions/query.md) to a node service. The other five are
 the agent's mail: `send_message` writes an [`mcp.message`](types/mcp.message.md)
-to another agent, `inbox` lists the messages waiting without their bodies,
-`read_message` reads one by [`mcp.message_id`](types/mcp.message_id.md),
-`read_next` waits for the oldest unread message and claims it, and `outbox`
-lists what this agent sent and what became of each one.
+to another agent, `list_messages` lists a box without the bodies,
+`read_messages` reads whole messages by [`mcp.message_id`](types/mcp.message_id.md),
+`wait` parks until a message arrives and answers what did, and `archive` puts a
+message away.
+
+**An agent has three boxes and two of them are one axis.** `inbox` is what was
+written to it and `outbox` what it wrote; `archive` is neither, because it is a
+state rather than a direction — a message put away is still one the agent sent
+or received, and both listings exclude it. A message is in exactly one of the
+first two for its whole life, and moves into and out of the third.
 
 **No tool names the agent to itself.** An agent's identity is minted by the node
 and held by whoever registered the agent, and a node holding many tenants'
@@ -58,9 +64,9 @@ under its type name rather than refused.
 
 **A declared tool may not take one of the six names.** A configuration that
 overrode one would silently repoint it, and the node refuses the configuration
-instead. `inbox` and `read_next` take a thread, and
-`read_next` also takes a sender, so a reader can name which message it is
-waiting for.
+instead. A name the endpoint has retired is reserved on the same terms: an agent
+that learned what a name meant must not find a deployment answering it with
+something else.
 
 ## Authorization
 
@@ -103,49 +109,62 @@ answers an `ack`. The node answers, not the agent, so delivery finishes inside
 the resolve deadline whether or not the recipient's model is running, and a
 recipient on another node is the same call as one on the same node.
 
-The row carries the sender, the recipient, the body, the thread, the instant
-the node stored the message and the instant it was read. The sender is the query's
-caller and the recipient its target. Neither is a field of the message, so a
-sender claims neither.
+The row carries the sender, the recipient, the body, the message it answers, the
+instant the node wrote it, the instant it was read and the instant it was put
+away. The sender is the query's caller and the recipient its target. Neither is
+a field of the message, so a sender claims neither.
 
 The stored instant is a claim about the node and not about the recipient, who
 may not run for days. It is named for what the node did, beside a sender's row
 whose own instants are named the same way.
 
-## Threads
+## Replies
 
-**A thread is a query and never a record.** An [`mcp.message`](types/mcp.message.md)
-carries the identifier of the exchange it belongs to. A first message carries
-its own, so every message is in a thread, and a thread is the set of rows
-sharing the label. Nothing is opened, owned, closed or expired, and no node
-holds a record that another node must agree with.
+**A reply names the message it answers, and an exchange is a query.** An
+[`mcp.message`](types/mcp.message.md) carries the identifier of the one message
+it answers, and a message answering none carries the zero value. An exchange is
+the chain those links make. Nothing is opened, owned, closed or expired, and no
+node holds a record that another node must agree with.
 
-The label is flat. A reply copies the value it received rather than appending
-to it, so every message in one exchange carries the root's identifier.
+**The link is a claim about another message, never about a party.** It is the
+sender's, as the body is, while the sender and the recipient are the route's.
+Naming a message means naming a 128-bit identifier that was never published, and
+every row carries the identity of whoever wrote it.
 
-**The recipient's node enforces it, and never the wire.** A message arriving
-with no thread is stored under its own identifier, so a sender that names none
-— an agent on a node that predates the field — writes a message that is the
-root of its own exchange, which is what it was before threads existed.
+**A parent the node does not hold is stored as it stands.** A message may name
+one that never arrived, one that was put away, or one that never existed, and
+the recipient's node neither refuses it nor repairs it: a claim about a message
+nobody has is a claim nothing answers, and a link that leads nowhere costs the
+message beside it nothing. The one link refused is a message naming itself.
 
-**The thread is the sender's claim**, as the body is, while the sender and the
-recipient are the route's. Naming an existing exchange means naming a 128-bit
-identifier that was never published, and every row carries the identity of
-whoever wrote it.
+**Thread is retired.** The flat label named what a reply now names for itself,
+so it leaves rather than sitting dead on every message, and ParentID takes its
+position in the frame. That is an incompatible change: the frame is positional
+and carries no version marker, so a peer at the revision before it writes a
+thread where a reader after it reads a parent, type-correct and silent. Nodes
+carrying `mcp.message` between them move together.
+
+**Replies are read, never followed.** `read_messages` answers a message with the
+messages that name it, one level. Walking further is the reader's to do, and the
+node holds no depth it must agree with anyone about.
 
 ## Reading
 
-**A reader names what it is waiting for.** `read_next` claims the oldest unread
-message matching a sender, a thread, both, or neither, and leaves every other
-message where it is. A reader waiting on one answer therefore cannot claim a
-stranger's message, and a message it did not ask for is never taken and never
-has to be given back. `inbox` takes the same thread filter without claiming
-anything.
+**Nothing is claimed.** `wait` parks until the agent's inbox holds a message it
+has not put away, and answers what it found without touching a row. Two readers
+waiting at once are answered the same messages, and neither takes anything from
+the other. A reader that stops between the answer and the work leaves the
+mailbox exactly as it was.
 
-**A message is read once.** `read_next` stamps the oldest matching unread
-message and returns it, and a second reader takes the next message rather than
-the same one. `read_message` opens one by identifier and stamps it read; reading is not
-claiming, so a second read answers the same message unchanged.
+**Reading is a separate act, and it is not a claim.** `read_messages` opens what
+it is given and stamps each inbox message read. A second read answers the same
+messages unchanged, so a caller that retries a call whose answer it never saw
+loses nothing.
+
+**Archiving is what says the agent is done.** `archive` stamps the message put
+away, and a message put away is excluded from both listings and never answered
+by `wait` again. It is the recipient's own bookkeeping: it names no other node,
+crosses no link, and the sender learns nothing from it.
 
 **A delivery that arrives twice is stored once.** The
 [`mcp.message_id`](types/mcp.message_id.md) is minted by the sender and keys
@@ -177,9 +196,9 @@ A send refused before delivery is attempted — an unresolvable recipient, or
 would tell a recipient that refuses apart from one that does not exist, which is
 the collapse the refusal is built on.
 
-`outbox` lists an agent's own rows and no other agent's. The rejection an
-error carries is the recipient's node's own words, so it is quoted material and
-never a field to act on.
+`list_messages` answers an agent's own rows and no other agent's, whichever box
+it names. The rejection an error carries is the recipient's node's own words, so
+it is quoted material and never a field to act on.
 
 **A collection is reported by the recipient's node.** When the body is handed
 out and the sender holds an agent on the same node, that node stamps the
@@ -189,8 +208,9 @@ an `mcp.receipt` query to the sender's identity carrying one
 answers an `ack`.
 
 The stamp reports that the body was handed out and never that a model
-considered it. `read_next` stamps on the claim, so a recipient that drains its
-inbox and stops marks every message collected.
+considered it, and `wait` hands nothing out — a recipient learns a message
+exists without its sender learning anything. A recipient that reads its mail and
+stops marks every message it opened collected.
 
 **A receipt is one attempt.** The fact it carries is already true and durable on
 the node that sends it, so a receipt lost in transit leaves the sender believing
@@ -205,7 +225,7 @@ one message. Directions are granted per side and the two are independent, so
 asking `mod.mcp.answer_agent_action` here would refuse a receipt wherever the
 sender's inbound direction is narrower than its outbound one — the ordinary
 case, not the edge one. A node holding no matching row answers an error, and a
-node with no outbox at all answers `route_not_found`.
+node holding no sent rows at all answers `route_not_found`.
 
 ## Origin
 
