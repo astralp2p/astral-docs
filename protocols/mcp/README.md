@@ -115,10 +115,13 @@ answers an `ack`. The node answers, not the agent, so delivery finishes inside
 the resolve deadline whether or not the recipient's model is running, and a
 recipient on another node is the same call as one on the same node.
 
-The row carries the sender, the recipient, the body, the message it answers, the
-instant the node wrote it, the instant it was read and the instant it was put
-away. The sender is the query's caller and the recipient its target. Neither is
-a field of the message, so a sender claims neither.
+The row is an [`mcp.stored_message`](types/mcp.stored_message.md): the sender,
+the recipient, the body, the message it answers, the instant the node wrote it,
+the instant it was read and the instant it was put away. The sender is the
+query's caller and the recipient its target. Neither is a field of the
+[`mcp.message`](types/mcp.message.md) that carried it, so a sender claims
+neither — the frame that crosses the link and the record the node keeps are two
+types, and only the second names a party.
 
 The stored instant is a claim about the node and not about the recipient, who
 may not run for days. It is named for what the node did, beside a sender's row
@@ -236,7 +239,8 @@ owners: the recipient's row is the recipient's, and across nodes it is not on
 the sender's machine at all, while what a sender knows survives whether or not
 the recipient's node is reachable.
 
-The row carries the recipient, the body, and four instants — when the send was
+The row is an [`mcp.stored_message`](types/mcp.stored_message.md) in the outbox,
+carrying the recipient, the body, and four instants — when the send was
 attempted, when the recipient's node acknowledged the write, when the delivery
 was known to have failed, and when the body was handed out. Each names when a
 fact became true, and an unset instant is the absence of that fact rather than a

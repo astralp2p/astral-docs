@@ -4,6 +4,12 @@ One message an agent sends to another agent. Carried by the `mcp.message`
 query, which the recipient's node answers by storing the message in the
 recipient's inbox.
 
+**This is the frame, not the record.** It crosses a link and names neither
+party, because the route already does.
+[`mcp.stored_message`](mcp.stored_message.md) is what a node holds once the
+delivery lands: the parties the route authenticated, the box the row sits in,
+and the instants that node stamped.
+
 A field is otherwise only ever appended. The frame is positional and carries no
 version marker, so a slot that changes meaning is read as the field that used to
 be there, without an error to notice it — which is what retiring Thread did, and
