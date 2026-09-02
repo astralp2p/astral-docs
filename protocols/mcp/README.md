@@ -35,6 +35,13 @@ state rather than a direction — a message put away is still one the agent sent
 or received, and both listings exclude it. A message is in exactly one of the
 first two for its whole life, and moves into and out of the third.
 
+`list_messages` names one of the three in `list`, and the narrowings belong to
+the list named: an inbox narrows by who wrote and by what is unopened, an outbox
+by who was written to and by what a recipient's node has stored and not handed
+out. A narrowing that cannot apply to the named list is refused rather than
+ignored, because ignoring it answers everything or nothing under a question the
+caller thought it had asked.
+
 **No tool names the agent to itself.** An agent's identity is minted by the node
 and held by whoever registered the agent, and a node holding many tenants'
 agents knows what none of them is called. A deployment that answers its agents
@@ -130,11 +137,17 @@ sender's, as the body is, while the sender and the recipient are the route's.
 Naming a message means naming a 128-bit identifier that was never published, and
 every row carries the identity of whoever wrote it.
 
-**A parent the node does not hold is stored as it stands.** A message may name
-one that never arrived, one that was put away, or one that never existed, and
-the recipient's node neither refuses it nor repairs it: a claim about a message
-nobody has is a claim nothing answers, and a link that leads nowhere costs the
-message beside it nothing. The one link refused is a message naming itself.
+**A reply names a message both parties hold.** The sending agent's node refuses
+a parent that agent does not hold, and the recipient's node refuses one the
+recipient does not hold. A message has one of each, so a parent is a message
+between exactly these two parties, and no agent replies into an exchange it is
+not part of. A message put away still counts as held: archiving does not unsee
+it.
+
+**That makes an exchange a forest.** Every parent names a message stored
+earlier, so no chain of links returns to where it began and a reader walking one
+needs no record of where it has been. A message naming itself is refused as the
+cheapest case of the same rule.
 
 **Thread is retired.** The flat label named what a reply now names for itself,
 so it leaves rather than sitting dead on every message, and ParentID takes its
@@ -155,15 +168,56 @@ waiting at once are answered the same messages, and neither takes anything from
 the other. A reader that stops between the answer and the work leaves the
 mailbox exactly as it was.
 
+**A park names the window it was given.** `wait` takes the window the caller
+asks for, grants it up to the deployment's ceiling, and answers `granted_secs`
+beside `waited_secs` — the budget and the spend. An ask over the ceiling is
+clamped rather than refused: a refusal would make the deployment's ceiling part
+of every client's configuration, where a clamp is read off the answer. A caller
+naming no window is granted the deployment's default. `timed_out` says the
+granted window closed with nothing new.
+
+**The inbox has a cursor and the node does not hold it.** Every answer that
+lists the inbox carries `next_since`, and a caller passing it back as `since`
+sees only what was written after. The cursor is a position in the order the node
+wrote the rows, never an instant: a row's stored time is chosen before the row
+commits, so a cursor over time steps past a message that had not appeared yet,
+and does so permanently. An answer with nothing newer repeats the cursor it was
+given, so following the instruction costs the caller no memory. The other two
+lists are histories read newest first and refuse a cursor rather than answer one
+wrongly.
+
 **Reading is a separate act, and it is not a claim.** `read_messages` opens what
 it is given and stamps each inbox message read. A second read answers the same
 messages unchanged, so a caller that retries a call whose answer it never saw
 loses nothing.
 
+**A read answers the shape of an exchange and carries part of it.** Every
+message a read answers names each of its direct replies in `child_ids`,
+whatever else the answer carries: a reader that cannot see a reply exists cannot
+ask for it, and a count names no message. How much of those replies comes back
+beside it is the caller's — none, envelopes, or the bodies too. A reply's body
+is opt-in because handing one out stamps it read and tells its sender it was
+collected, which a reader asking about the parent never asked for.
+
+**An answer is bounded, and says where the bound fell.** A read names at most
+twenty messages and carries at most ten replies of each. The message the caller
+named is charged against the response budget before its replies, so an overflow
+drops what was not asked for first, and a message whose body was left out for
+room is marked as such. An identifier the agent does not hold is reported rather
+than refused: one wrong identifier does not cost the rest of the batch.
+
 **Archiving is what says the agent is done.** `archive` stamps the message put
 away, and a message put away is excluded from both listings and never answered
-by `wait` again. It is the recipient's own bookkeeping: it names no other node,
-crosses no link, and the sender learns nothing from it.
+by `wait` again. It is the agent's own bookkeeping: it names no other node,
+crosses no link, and the other party learns nothing from it. It is also the one
+stamp with an inverse — `undo` puts the message back, through the same tool.
+
+The answer is `changed` rather than `archived`, because under `undo` the second
+would name the opposite of what happened: what the call reports is whether it
+was the one that moved the message. It is false alike for a message already
+where the caller asked and for one the caller does not hold, which the agent
+acts on the same way — and separating them would say whether an identifier it
+does not hold exists.
 
 **A delivery that arrives twice is stored once.** The
 [`mcp.message_id`](types/mcp.message_id.md) is minted by the sender and keys
@@ -190,14 +244,18 @@ value somebody chose. A row nothing has stamped is a send whose fate is
 unknown, which is the honest answer after a crash: an acknowledgement that
 never arrived proves nothing about the write.
 
-A send refused before delivery is attempted — an unresolvable recipient, or
-`mod.mcp.call_agent_action` denied — leaves no row. A stored list of refusals
-would tell a recipient that refuses apart from one that does not exist, which is
-the collapse the refusal is built on.
+A send refused before delivery is attempted leaves no row: an unresolvable
+recipient, `mod.mcp.call_agent_action` denied, a body over the bound, or a
+parent the sending agent does not hold. A stored list of refusals would tell a
+recipient that refuses apart from one that does not exist, which is the collapse
+the refusal is built on.
 
-`list_messages` answers an agent's own rows and no other agent's, whichever box
+`list_messages` answers an agent's own rows and no other agent's, whichever list
 it names. The rejection an error carries is the recipient's node's own words, so
-it is quoted material and never a field to act on.
+it is quoted material and never a field to act on. It is bounded where it is
+stored and marked where it was cut: a refusing node decides neither how much of
+the reader's context it occupies nor whether the reader can tell it read the
+whole of it.
 
 **A collection is reported by the recipient's node.** When the body is handed
 out and the sender holds an agent on the same node, that node stamps the

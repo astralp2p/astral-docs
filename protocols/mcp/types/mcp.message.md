@@ -20,8 +20,10 @@ would be a second claim about a fact the route already holds.
   under it is stored once.
 * Content (string32) – The message body.
 * ParentID ([mcp.message_id](mcp.message_id.md)) – The one message this message
-  answers. The zero value answers none. A parent the recipient's node does not
-  hold is stored as it stands; the one link refused is a message naming itself.
+  answers. The zero value answers none. The recipient's node refuses a parent
+  the recipient does not hold, in either box and whether or not it was put
+  away, so a parent is a message between exactly these two parties. A message
+  naming itself is refused as the same rule's cheapest case.
 
 ## Example
 
