@@ -290,15 +290,25 @@ node holding no sent rows at all answers `route_not_found`.
 
 ## Origin
 
-Every operation is local-only: a query arriving over a
-[`Link`](../../core-definitions/link.md) is rejected. `mcp.message` and
-`mcp.receipt` are no operations and are not local-only — each is addressed to an
-agent's identity rather than to a node's, and a caller reaches both over a
-link.
+Every operation rejects a query that arrived over a
+[`Link`](../../core-definitions/link.md). `mcp.message` and `mcp.receipt` are no
+operations and take no such refusal — each is addressed to an agent's identity
+rather than to a node's, and a caller reaches both over a link.
 
 A query an agent sends through `astral-query` carries the `mcp` origin. The
 [`shell`](../shell/README.md) protocol mounts every module's operations and
-rejects a query carrying that origin, so an agent reaches neither the `mcp`
-operations nor any other module's operations on its own host node. The four
-operations answer a caller on the node itself — the operator, or the dashboard
-that administers the agents.
+rejects a query carrying that origin, so an agent reaches no module's operations
+by that path.
+
+**The refusal reads the query's origin and never the caller.** Two paths stamp
+one: a query arriving over a link carries `network`, and a query an agent sends
+through `astral-query` carries `mcp`. A query arriving by any other path carries
+no origin, and a query carrying no origin is not refused. The node's own entry
+paths carry none, [`apphost`](../apphost/README.md)'s endpoints among them, and
+an agent's access token is an apphost access token and authenticates there.
+
+An agent therefore reaches these four operations by a path the refusal does not
+cover. `mcp.list_agents` answers every registered agent's access token to
+whoever reaches it, and `mcp.delete_agent` takes an alias, which an agent reads
+off any message it holds. Restricting the four to an operator is a caller-identity
+check, which the protocol does not currently define.
