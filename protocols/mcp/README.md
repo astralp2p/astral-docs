@@ -88,11 +88,29 @@ submits
 [`mod.mcp.answer_agent_action`](types/mod.mcp.answer_agent_action.md) before
 the message is accepted. A call proceeds only where both are granted.
 
-A refused call is answered as one addressed to an identity the node holds no
-agent for: `route_not_found` on the answering side, and an unresolvable target
-on the calling side. A caller cannot tell an agent that refuses it from an
-agent that does not exist, and an agent cannot tell a target it may not reach
-from one that is not there.
+A call the calling side refuses is answered as one naming an identity the node
+cannot resolve, and no row is written. An agent cannot tell a target it may not
+reach from one that is not there.
+
+A call the answering side refuses is rejected with `RejectNotAdmitted`, reject
+code 5 — operation-specific, so above the generic codes
+[`Query`](../../core-definitions/query.md) reserves. It is a separate answer
+from `route_not_found`, which the same node answers for an identity it holds no
+agent for and which a caller also reads when the answering node could not be
+reached at all. The two are separate because the caller acts on them
+differently: a caller turned away stops and asks whoever owns it, and a caller
+that found nobody retries later.
+
+**The code carries no reason.** [`auth`](../auth/README.md) answers one bit, so
+an agent that admits nobody, an owner who does not admit this caller, and an
+authority that would not decide all reach the caller as this one code.
+
+**The code tells a caller that the target is an agent on the node it reached.**
+That is what separating the two answers costs, and the answering side pays it
+alone: a rejection is reachable only for a registered agent, so a caller whose
+own side admits every target learns which identities are agents there. The
+calling side's refusal stays indistinguishable from a name that resolves to
+nobody.
 
 **The node holds no reachability of its own.** An agent is reachable where a
 registered handler, an active
@@ -255,8 +273,9 @@ recipient that refuses apart from one that does not exist, which is the collapse
 the refusal is built on.
 
 `list_messages` answers an agent's own rows and no other agent's, whichever list
-it names. The rejection an error carries is the recipient's node's own words, so
-it is quoted material and never a field to act on. It is bounded where it is
+it names. A row the answering side rejected carries the refusal, and a row a
+recipient's node refused after accepting the delivery carries that node's own
+words. The second is quoted material and never a field to act on. It is bounded where it is
 stored and marked where it was cut: a refusing node decides neither how much of
 the reader's context it occupies nor whether the reader can tell it read the
 whole of it.
