@@ -330,4 +330,4 @@ An agent therefore reaches these four operations by a path the refusal does not
 cover. `mcp.create_agent`, `mcp.list_agents` and `mcp.delete_agent` check the
 caller as well: each requires
 [`mod.auth.admin_manage_apps_action`](../auth/types/mod.auth.admin_manage_apps_action.md),
-which an agent does not hold by default. `mcp.agent` checks no caller identity.
+which an agent does not hold by default. `mcp.agent` answers no token.
