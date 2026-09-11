@@ -2,6 +2,11 @@
 
 List access tokens, optionally filtered by identity.
 
+The caller must hold
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+The query is rejected before any token is read when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * id (identity) – If set, only tokens for this identity are listed.

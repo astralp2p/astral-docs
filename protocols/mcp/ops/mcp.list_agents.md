@@ -3,6 +3,11 @@
 Stream every registered agent, access tokens included. Local-only — queries
 from the network are rejected.
 
+The caller must hold
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+The query is rejected before any agent record is read when the caller is not
+authorized, and a refused caller receives no bytes.
+
 The token is streamed by design: `mcp.create_agent` returns a token once, and
 this operation is the only way to recover one that was lost. The response is
 therefore a credential-bearing enumeration of every tenant's agents on the
