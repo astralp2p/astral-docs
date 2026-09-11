@@ -1,6 +1,6 @@
 # indexing.register_indexer
 
-Register a new indexer with a human-readable name and return its assigned nonce. The nonce is used in subsequent `indexing.subscribe` and `indexing.remove_index` calls.
+Register a new indexer with a human-readable name and return its assigned nonce. The nonce is used in subsequent `indexing.subscribe` and `indexing.unregister_indexer` calls.
 
 ## Arguments
 
