@@ -2,6 +2,11 @@
 
 Delete the value at a path.
 
+The caller must hold
+[`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md).
+The query is rejected before any node is looked up when the caller is not
+authorized, with or without `recursive`, and a refused caller receives no bytes.
+
 ## Arguments
 
 * path (string8, required) – The path to delete.

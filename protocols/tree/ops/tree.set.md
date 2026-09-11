@@ -2,6 +2,12 @@
 
 Set the value at a path. The value is passed as a typed object via the input stream.
 
+The caller must hold
+[`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md).
+The query is rejected before it is accepted when the caller is not authorized,
+in single-value and streaming mode alike, and a refused caller receives no
+bytes.
+
 ## Arguments
 
 * path (string8, required) – The path to write.

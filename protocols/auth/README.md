@@ -20,6 +20,7 @@ an operation submits its action before it acts.
 * [`mod.auth.store_objects_action`](types/mod.auth.store_objects_action.md) – write objects into the node, and change what it indexes
 * [`mod.auth.serve_objects_action`](types/mod.auth.serve_objects_action.md) – stand in the node's answer path as a describer, finder, or searcher
 * [`mod.auth.admin_objects_action`](types/mod.auth.admin_objects_action.md) – change which repositories the node has
+* [`mod.auth.configure_node_state_action`](types/mod.auth.configure_node_state_action.md) – change the node's tree, its mounts, and its identity aliases
 
 Five more are declared by the protocols that own them:
 [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md) and
