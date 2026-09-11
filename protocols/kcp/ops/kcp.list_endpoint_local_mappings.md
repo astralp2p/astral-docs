@@ -2,6 +2,11 @@
 
 Stream all current remote-endpoint-to-local-port mappings. The operation emits one `mod.kcp.endpoint_local_mapping` object per mapping, then terminates with `eos`.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before any mapping is read when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 No arguments.

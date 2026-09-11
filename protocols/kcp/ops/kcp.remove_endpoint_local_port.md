@@ -2,6 +2,11 @@
 
 Remove the local UDP port mapping for a remote KCP endpoint. The query is rejected immediately if `endpoint` cannot be parsed.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before `endpoint` is parsed or any mapping changes when
+the caller is not authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * endpoint (string8, required) – Remote KCP endpoint in `host:port` form.

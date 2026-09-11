@@ -2,6 +2,11 @@
 
 Stream the holes currently held in the local pool, optionally filtered to those involving a given peer. When `with` is supplied, only holes whose active or passive identity equals that peer are streamed; if `with` cannot be resolved to an identity the operation returns an `error_message` instead.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before the hole pool is read when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * with (string) – A peer identity, given as a hex public key or alias resolved via the directory. When set, only holes involving this peer are returned.

@@ -2,6 +2,11 @@
 
 List all open multiplexed sessions across all active links, ordered by creation time.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before any session is listed when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * out (string) – Output format hint for the channel (e.g. `json`).

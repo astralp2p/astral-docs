@@ -2,6 +2,11 @@
 
 Stream the candidate public IP addresses for the local node, collected from all registered `PublicIPCandidateProvider` sources.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before any candidate is collected when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 None.

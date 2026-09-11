@@ -2,6 +2,11 @@
 
 Migrate an existing session onto a different link. Used to move traffic between links, e.g. to switch networks or shed pressure.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before the session or the link is looked up when the
+caller is not authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * session_id (nonce64, required) – The id of the session to migrate.

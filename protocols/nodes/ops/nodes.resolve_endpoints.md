@@ -2,6 +2,11 @@
 
 Resolve all known endpoints for an identity by querying every registered endpoint resolver.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before the identity is resolved when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * id (string, required) – The target identity, given as a hex public key or alias resolved via the directory.
