@@ -5,6 +5,11 @@ long as the channel stays open. Closing the channel withdraws the
 advertisement, so an app that exits or disconnects leaves nothing behind.
 Local-only — queries from the network are rejected.
 
+The caller must hold
+[`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md).
+The query is rejected before any advertisement is published when the caller is
+not authorized, and a refused caller receives no bytes.
+
 The provider is the caller. There is no argument for it, so an app can
 advertise nothing but itself.
 
@@ -31,6 +36,9 @@ The operation returns one of:
   missing or zero, or the caller is the node itself.
 * An `ack` object once the advertisement stands, followed by the channel
   staying open for the lifetime of the advertisement.
+
+The operation is rejected outright if the query arrives from the network or the
+caller is not authorized.
 
 ## Examples
 
