@@ -2,13 +2,20 @@
 
 Reserve an idle connection to a registered target node. The caller receives a `mod.gateway.socket` describing the endpoint and nonce to present on the raw exonet connection.
 
+The caller must hold
+[`mod.auth.use_gateway_action`](../../auth/types/mod.auth.use_gateway_action.md),
+which every caller holds while the gateway is enabled. The query is rejected
+before any connection is reserved or connector state is allocated when the
+gateway is disabled or the caller is not authorized, and a refused caller
+receives no bytes.
+
 ## Arguments
 
 * target (identity, required) – Identity of the registered node to connect to.
 
 ## Returned objects
 
-The operation returns one of:
+The operation rejects the query if the gateway is disabled or the caller is not authorized. Otherwise it returns one of:
 * An `error_message` object if no idle connection is available for the target.
 * A `mod.gateway.socket` object containing the endpoint and nonce the caller must present over the raw exonet connection.
 
