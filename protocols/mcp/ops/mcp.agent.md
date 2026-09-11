@@ -3,6 +3,12 @@
 Return one agent's record without its access token. Local-only — queries from
 the network are rejected.
 
+The caller must hold
+[`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
+The query is rejected before any agent record is read when the caller is not
+authorized, and a refused caller receives no bytes. A query from the network is
+rejected before the action is submitted.
+
 ## Arguments
 
 * id (string, required) – The agent, given as a hex public key or alias
