@@ -21,15 +21,17 @@ an operation submits its action before it acts.
 * [`mod.auth.serve_objects_action`](types/mod.auth.serve_objects_action.md) – stand in the node's answer path as a describer, finder, or searcher
 * [`mod.auth.admin_objects_action`](types/mod.auth.admin_objects_action.md) – change which repositories the node has
 
-Five more are declared by the protocols that own them:
+Six more are declared by the protocols that own them:
 [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md) and
 [`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)
 in the [`user`](../user/README.md) protocol,
 [`mod.nodes.relay_for_action`](../nodes/types/mod.nodes.relay_for_action.md) in
-[`nodes`](../nodes/README.md), and
+[`nodes`](../nodes/README.md),
 [`mod.mcp.call_agent_action`](../mcp/types/mod.mcp.call_agent_action.md) and
 [`mod.mcp.answer_agent_action`](../mcp/types/mod.mcp.answer_agent_action.md) in
-[`mcp`](../mcp/README.md).
+[`mcp`](../mcp/README.md), and
+[`mod.coldcard.scan_action`](../coldcard/types/mod.coldcard.scan_action.md) in
+[`coldcard`](../coldcard/README.md).
 
 Only `mod.auth.serve_objects_action` evaluates a permit's `Constraints` bundle.
 Every other action refuses a permit carrying constraints rather than granting it
