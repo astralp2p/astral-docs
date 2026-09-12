@@ -3,6 +3,11 @@
 Delete an access token so it no longer authenticates. Local-only — queries
 from the network are rejected.
 
+The caller must hold
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+The query is rejected before the token is looked up when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * token (string8, required) – The token to delete.
