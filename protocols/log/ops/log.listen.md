@@ -2,6 +2,11 @@
 
 Subscribe to the node's live log stream. The operation streams `astrald.log.entry` objects to the caller as log entries are produced. The stream runs until the caller disconnects or the node disconnects a stalled caller.
 
+The caller must hold
+[`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
+The query is rejected before the caller is subscribed to the log when the
+caller is not authorized, and a refused caller receives no bytes.
+
 ## Returned objects
 
 The operation returns a continuous stream of `astrald.log.entry` objects.

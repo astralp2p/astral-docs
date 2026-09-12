@@ -2,6 +2,11 @@
 
 List the child keys at a path.
 
+The caller must hold
+[`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
+The query is rejected before any path is walked when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * path (string8) – The path to list. Defaults to `/` if omitted.
