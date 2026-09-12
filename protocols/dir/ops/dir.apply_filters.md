@@ -2,6 +2,11 @@
 
 Apply a set of named filters to an identity and return whether any filter matches. The identity defaults to the caller; pass `id` to test a different identity. Returns `true` if any of the named filters returns true for the identity, `false` otherwise.
 
+The caller must hold
+[`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
+The query is rejected before any filter is applied when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * filters (string8, required) – Comma-separated list of filter names to apply.
