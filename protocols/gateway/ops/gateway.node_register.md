@@ -1,6 +1,12 @@
 # gateway.node_register
 
-Register the caller as a node reachable through the gateway. If the caller is already registered, the visibility is updated and the existing `Socket` is returned. Access is denied unless the caller passes the gateway's authorization check.
+Register the caller as a node reachable through the gateway. If the caller is already registered, the visibility is updated and the existing `Socket` is returned.
+
+The caller must hold
+[`mod.auth.use_gateway_action`](../../auth/types/mod.auth.use_gateway_action.md),
+which every caller holds while the gateway is enabled. The query is rejected
+before any registration is created or updated when the gateway is disabled or
+the caller is not authorized, and a refused caller receives no bytes.
 
 ## Arguments
 
@@ -8,8 +14,8 @@ Register the caller as a node reachable through the gateway. If the caller is al
 
 ## Returned objects
 
-The operation returns one of:
-* An `error_message` object if authorization fails or the endpoint cannot be resolved.
+The operation rejects the query if the gateway is disabled or the caller is not authorized. Otherwise it returns one of:
+* An `error_message` object if the endpoint cannot be resolved.
 * A `mod.gateway.socket` object containing the endpoint and nonce the caller must present over the raw exonet connection.
 
 ## Examples

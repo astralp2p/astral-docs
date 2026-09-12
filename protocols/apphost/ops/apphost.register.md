@@ -10,6 +10,14 @@ for, and its register policy decides what the new identity actually holds.
 Whatever is granted is written into a node→app contract; the answer carries
 the token alone, so an app learns what it was granted by using it.
 
+Every registration also asks for a node-local grant of
+[`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md)
+for the new identity, whatever the app asked for. The register policy decides
+whether the grant is written, and the default policy writes it, so a new app
+can register a handler with
+[`apphost.register_handler`](apphost.register_handler.md) and advertise itself
+with [`services.advertise`](../../services/ops/services.advertise.md).
+
 ## Arguments
 
 * permits (string8) – Actions the app asks to hold, comma-separated (e.g.

@@ -2,6 +2,12 @@
 
 Mount a remote node's tree subtree at a local path.
 
+The caller must hold
+[`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md).
+The query is rejected before the target is resolved or the remote tree is
+queried when the caller is not authorized, and a refused caller receives no
+bytes.
+
 ## Arguments
 
 * path (string8, required) – The local path at which to mount the remote subtree.

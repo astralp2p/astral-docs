@@ -327,7 +327,7 @@ paths carry none, [`apphost`](../apphost/README.md)'s endpoints among them, and
 an agent's access token is an apphost access token and authenticates there.
 
 An agent therefore reaches these four operations by a path the refusal does not
-cover. `mcp.list_agents` answers every registered agent's access token to
-whoever reaches it, and `mcp.delete_agent` takes an alias, which an agent reads
-off any message it holds. Restricting the four to an operator is a caller-identity
-check, which the protocol does not currently define.
+cover. `mcp.create_agent`, `mcp.list_agents` and `mcp.delete_agent` check the
+caller as well: each requires
+[`mod.auth.admin_manage_apps_action`](../auth/types/mod.auth.admin_manage_apps_action.md),
+which an agent does not hold by default. `mcp.agent` answers no token.

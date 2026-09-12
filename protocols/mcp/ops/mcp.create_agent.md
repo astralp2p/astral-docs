@@ -6,6 +6,11 @@ returned object carries the token, and it is the only response that does —
 `mcp.list_agents` is the sole way to recover it afterwards. Local-only —
 queries from the network are rejected.
 
+The caller must hold
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+The query is rejected before an identity is minted when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * alias (string) – Alias to bind to the new agent. No alias is bound when

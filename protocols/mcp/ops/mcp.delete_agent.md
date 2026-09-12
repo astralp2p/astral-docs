@@ -5,6 +5,11 @@ record. The agent's queued queries are dropped and its live sessions closed.
 The signed relay contract stays indexed until it expires. Local-only — queries
 from the network are rejected.
 
+The caller must hold
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+The query is rejected before the agent is resolved when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * id (string, required) – The agent, given as a hex public key or alias
