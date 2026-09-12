@@ -4,6 +4,11 @@ Register an IPC query handler for the caller's identity. The host forwards
 inbound queries targeting the caller to the given endpoint. Local-only —
 queries from the network are rejected.
 
+The caller must hold
+[`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md).
+The query is rejected before any handler is installed when the caller is not
+authorized, and a refused caller receives no bytes.
+
 The operation expects an IPC dial endpoint, so it is not usable over the
 WebSocket transport; a WebSocket client registers through the
 register-service flow in the
@@ -19,6 +24,9 @@ register-service flow in the
 The operation returns one of:
 * An `error_message` object if there was an error.
 * An `ack` object if the handler was registered.
+
+The operation is rejected outright if the query arrives from the network or the
+caller is not authorized.
 
 ## Examples
 
