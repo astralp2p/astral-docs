@@ -2,6 +2,12 @@
 
 Set or remove an alias for an identity.
 
+The caller must hold
+[`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md),
+for removing an alias as well as setting one. The query is rejected before any
+alias is written when the caller is not authorized, and a refused caller
+receives no bytes.
+
 ## Arguments
 
 * id (identity, required) – The identity to set the alias for
