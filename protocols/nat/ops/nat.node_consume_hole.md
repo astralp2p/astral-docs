@@ -2,6 +2,11 @@
 
 Hand a hole out of the local pool through a two-phase lock-then-take handshake. The node first removes the hole named by `pair` from its pool; if no hole with that nonce exists the operation fails. The role depends on `target`: when `target` is set the node acts as the initiator, opens `nat.node_consume_hole` on the target, locks the hole, and returns an `ack`; when `target` is omitted the node acts as the responder and drives the exchange over the channel, receiving a `lock` `nat.consume_hole_signal`, replying `locked`, receiving `take`, replying `taken`, and finally returning the `nat.hole`. The operation fails if the hole is already locked by another consumer or the handshake does not complete.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before any hole leaves the pool when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * pair (nonce64, required) – The nonce of the hole to consume.

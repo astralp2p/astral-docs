@@ -2,6 +2,11 @@
 
 Drive the initiator side of a NAT hole-punch against a target identity and register the resulting hole. The node resolves its own public IPv4 address and the target identity, then runs the offer/answer/ready/go/result exchange with the target's `nat.node_punch` operation. The operation fails if the node has no suitable public IPv4 address, if the target identity cannot be resolved, or if any step of the punch does not complete.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before any puncher socket is opened when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * target (string, required) – The peer to punch to, given as a hex public key or alias resolved via the directory.

@@ -20,6 +20,7 @@ an operation submits its action before it acts.
 * [`mod.auth.store_objects_action`](types/mod.auth.store_objects_action.md) – write objects into the node, and change what it indexes
 * [`mod.auth.serve_objects_action`](types/mod.auth.serve_objects_action.md) – stand in the node's answer path as a describer, finder, or searcher
 * [`mod.auth.admin_objects_action`](types/mod.auth.admin_objects_action.md) – change which repositories the node has
+* [`mod.auth.admin_network_action`](types/mod.auth.admin_network_action.md) – read the node's network state, make it do network work, and control its links and listeners
 * [`mod.auth.admin_manage_apps_action`](types/mod.auth.admin_manage_apps_action.md) – issue, list, and delete app access tokens and MCP agents
 * [`mod.auth.configure_node_state_action`](types/mod.auth.configure_node_state_action.md) – change the node's tree, its mounts, and its identity aliases
 * [`mod.auth.serve_apps_action`](types/mod.auth.serve_apps_action.md) – host an app handler and a service advertisement on the node

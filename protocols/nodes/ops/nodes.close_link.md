@@ -2,6 +2,11 @@
 
 Close an active link by its local id.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before any link is closed when the caller is not
+authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * id (nonce64, required) – The local id of the link to close.

@@ -2,6 +2,12 @@
 
 Establish a new link to a target identity, either by dialing a specific endpoint or by running the configured link strategies until one succeeds.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before the target is resolved or any link task is
+scheduled when the caller is not authorized, and a refused caller receives no
+bytes.
+
 ## Arguments
 
 * target (string, required) – The target identity, given as a hex public key or alias resolved via the directory.

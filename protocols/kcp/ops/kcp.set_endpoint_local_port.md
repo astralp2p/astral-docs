@@ -2,6 +2,11 @@
 
 Map a remote KCP endpoint to a local UDP port. The query is rejected immediately if `endpoint` cannot be parsed; otherwise the operation fails if a mapping already exists and `replace` is false.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before `endpoint` is parsed or any mapping changes when
+the caller is not authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * endpoint (string, required) – Remote KCP endpoint in `host:port` form.

@@ -2,6 +2,11 @@
 
 Fetch and store service advertisements from a remote identity, updating the local service registry. In follow mode the sync runs continuously until any data is received on the channel. The channel is cancelled as soon as any input arrives.
 
+The caller must hold
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
+The query is rejected before the target is resolved or any sync starts when the
+caller is not authorized, and a refused caller receives no bytes.
+
 ## Arguments
 
 * id (string) – Target identity to sync from, given as a hex public key or alias resolved via the directory.
