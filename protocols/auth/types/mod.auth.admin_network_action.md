@@ -42,8 +42,10 @@ member holds an unexpelled
 contract from the node's user. A network link does not make a node a member. An app registration
 does not make an identity a member.
 
-The user identity does not hold this action by default. The user, an app, or any
-other identity holds it through one of two paths:
+The user identity holds this action, as it holds the other node-wide actions. A
+user that adopts and expels swarm members already decides what the network is.
+
+An app, or any other identity, holds it through one of two paths:
 
 * A node-local grant – the node records a permit for the action against the
   identity. A grant is valid on the granting node alone and carries no portable
