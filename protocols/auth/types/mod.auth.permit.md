@@ -1,8 +1,13 @@
 # mod.auth.permit
 
-A single capability granted by a `mod.auth.contract`. A permit names the
-object type of an action and, optionally, a bundle of constraints that
-narrow the grant.
+A single capability. A permit names the object type of an action and,
+optionally, a bundle of constraints that narrow the grant.
+
+A permit is carried by a `mod.auth.contract`, which is signed and portable, or
+recorded as a node-local grant, which authorizes on one node and travels
+nowhere. `Delegation` is meaningful only on the first: a grant is never
+delegable. [`apphost.list_grants`](../../apphost/ops/apphost.list_grants.md)
+returns the permits one node has recorded for an identity.
 
 ## Fields
 

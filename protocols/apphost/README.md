@@ -2,7 +2,8 @@
 
 The `apphost` protocol exposes on-device APIs that let local apps access the
 astral network via the node — access token issuance, query handler
-registration, app contract signing, and object holds.
+registration, app contract signing, node-local grant administration, and object
+holds.
 
 A local app connects as an anonymous guest or authenticates with an access
 token. An anonymous (or expired-token) guest is confined to the `Device` and
