@@ -21,9 +21,10 @@ A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
 
 The user identity and the node's own identity hold this action by default, and
-nobody else. Any other identity holds it through a node-local grant or a signed
-contract. A local caller carrying no identity is routed as the node's own
-identity.
+nobody else. A node member of the node's swarm does not hold it, and holds
+[`mod.auth.see_node_state_action`](mod.auth.see_node_state_action.md) alone. Any
+other identity holds it through a node-local grant or a signed contract. A local
+caller carrying no identity is routed as the node's own identity.
 
 ## Fields
 

@@ -8,6 +8,19 @@ The query is rejected before the target is resolved or the remote tree is
 queried when the caller is not authorized, and a refused caller receives no
 bytes.
 
+The mount queries the target as the mounting node's own identity, not as the
+caller and not as the user. The target answers under its own rules. A node
+member of the target's swarm holds
+[`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md)
+and reads the mounted tree. Writing through the mount answers to
+[`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md)
+on the target, which no swarm membership grants: the target records a node-local
+grant for the mounting node, or a signed contract carries it.
+
+The operation queries the target before it records the mount point, with `root`
+given and without it. A target that refuses the query, or does not answer it,
+fails the operation and no mount is recorded.
+
 ## Arguments
 
 * path (string8, required) – The local path at which to mount the remote subtree.
