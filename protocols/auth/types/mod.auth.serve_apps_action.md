@@ -13,6 +13,12 @@ One action covers the two hosting operations —
 operations reject a query from the network before they submit the action, so no
 permit lets a remote identity host on the node.
 
+The same action covers the guest message `mod.apphost.register_service_msg`
+([Astral IPC](../../../topics/astral-ipc.md#receiving-queries)). The host submits
+the action for the identity named in the message, after its session and
+`SudoAction` checks, and answers `mod.apphost.error_msg{denied}` when the
+identity does not hold it.
+
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
 
