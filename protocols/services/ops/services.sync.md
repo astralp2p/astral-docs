@@ -9,7 +9,7 @@ caller is not authorized, and a refused caller receives no bytes.
 
 ## Arguments
 
-* id (string) – Target identity to sync from, given as a hex public key or alias resolved via the directory.
+* id (string, required) – Target identity to sync from, given as a hex public key or alias resolved via the directory.
 * follow (bool) – If true, continue syncing until the channel receives input. Defaults to false.
 * in (string8) – Input format.
 * out (string8) – Output format.
