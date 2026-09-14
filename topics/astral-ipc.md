@@ -112,7 +112,11 @@ A query in flight can be cancelled by opening a separate session and routing
 
 There are two ways to register as a handler for an identity. Both require an
 authenticated session and the same authorization: the registered identity
-must equal `GuestID`, or the guest must hold a `SudoAction` for it.
+must equal `GuestID`, or the guest must hold a `SudoAction` for it. The
+registered identity must also hold
+[`mod.auth.serve_apps_action`](../protocols/auth/types/mod.auth.serve_apps_action.md).
+The host refuses a registration that fails either check before any handler is
+installed.
 
 ### A. Register-service (push notifications on the registration conn)
 

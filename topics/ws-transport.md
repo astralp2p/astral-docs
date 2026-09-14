@@ -134,6 +134,9 @@ Two WSes are involved:
 3. Server replies with [`ack`](../primitive-types/ack.md); on error it sends `mod.apphost.error_msg`
    (e.g. unauthorized). Authorization mirrors `route_query`: the caller
    identity must equal [`Identity`](../core-definitions/identity.md) or hold a `SudoAction` for it.
+   `Identity` must also hold
+   [`mod.auth.serve_apps_action`](../protocols/auth/types/mod.auth.serve_apps_action.md);
+   without it the server sends `mod.apphost.error_msg{denied}` and installs no handler.
 4. The library then loops on the receiver. Stray frames are ignored;
    every `mod.apphost.incoming_query_msg`
    (`{ QueryID, Caller, Target, Query }`) is wrapped in an
