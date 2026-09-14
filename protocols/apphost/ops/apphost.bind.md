@@ -30,7 +30,9 @@ The operation streams:
 * An `ack` object once the session is bound.
 * An `error_message` object if the bind message could not be processed.
 
-The caller must then send a `mod.apphost.bind_msg` over the same channel.
+The caller must then send a `mod.apphost.bind_msg` over the same channel. The
+`ack` is a readiness `ack` — see
+[Op modes & composition § Control signals](../../../topics/op-modes.md#control-signals).
 
 ## Examples
 

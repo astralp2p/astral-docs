@@ -37,6 +37,9 @@ The operation returns one of:
 * An `ack` object once the advertisement stands, followed by the channel
   staying open for the lifetime of the advertisement.
 
+The `ack` is a readiness `ack` — see
+[Op modes & composition § Control signals](../../../topics/op-modes.md#control-signals).
+
 The operation is rejected outright if the query arrives from the network or the
 caller is not authorized.
 
