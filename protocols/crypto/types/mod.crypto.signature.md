@@ -7,13 +7,17 @@ A generic container for a signature, tagged with the scheme that produced it.
 * Scheme (string8) – Name of the signature scheme (e.g. `asn1`, `bip137`).
 * Data (bytes16) – Raw signature bytes for the given scheme.
 
-The text form is `<scheme>:<base64-encoded data>`; JSON encodes the object as that same text.
+The text form is `<scheme>:<base64-encoded data>`; JSON encodes the object as its named
+fields, not as that text. `Data` carries the same base64 in both forms.
 
 ## Example
 
 ```json
 {
   "Type": "mod.crypto.signature",
-  "Object": "asn1:MEUCIQDg+5p9aT4q2QzVKbS9N5wXYrFh3vUaQ7E2lY0bX9pSAiB7H1k0kZl0ZTd5KQv0pZL5kE2c8R5Mz0qY1g6kPq3rTfM="
+  "Object": {
+    "Data": "MEYCIQDJ1xPxQO1Mnv2l5z3reHcBj8FtVfp+jKL6aXSbhAzTmAIhAMFZnUnPVqraUY0iigrOK5oyCd84y8wNHzdVOo3BC5s7",
+    "Scheme": "asn1"
+  }
 }
 ```

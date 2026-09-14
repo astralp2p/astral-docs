@@ -20,6 +20,6 @@ An input of an unexpected type is answered with an `error_message` and the excha
 ## Examples
 
 ```shellsession
-$ echo '{"Type":"mod.crypto.signature","Object":"bip137:H3p1c1AY2W2NwO/lXh3uM9ETFt2Wp6dQjVA0kZl0ZTd5KQv0pZL5kE2c8R5Mz0qY1g6kPq3rTfM4l3a4eO1Q="}' | astral-query crypto.verify_text_signature -text "hello world" -key secp256k1:02bef8840eb35ef2ae3c83c07cb5779278904f99cb4103f71e37cc69931ae5e15f -in json -out json
+$ echo '{"Type":"mod.crypto.signature","Object":{"Data":"H+d3VDEwVfpzQ6Onkq/rYV1Mz/ljt+T/DbMb3gg+iyBnOczabFybkOcypDKhDppsI8+y0jTBlItao84Qf29Rmr8=","Scheme":"bip137"}}' | astral-query crypto.verify_text_signature -text "hello world" -key secp256k1:03e55f6b3bbd37b75fcbd40291b93a9cc116903a94971b62889ab6e132b674319a -in json -out json
 {"Type":"ack","Object":null}
 ```

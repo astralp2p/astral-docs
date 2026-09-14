@@ -16,5 +16,5 @@ The operation returns one of:
 
 ```shellsession
 $ echo '{"Type":"mod.auth.contract","Object":{...}}' | astral-query user.accept_membership -in json -out json
-{"Type":"mod.crypto.signature","Object":"bip137:..."}
+{"Type":"mod.crypto.signature","Object":{"Data":"...","Scheme":"bip137"}}
 ```
