@@ -7,6 +7,11 @@ The action gates every operation that destroys what the node holds or changes
 which repositories it has — `objects.delete`, `objects.purge`,
 `objects.remove_repository`, `fs.new_repo` and `fs.new_watch`.
 
+[`indexing.unregister_indexer`](../../indexing/ops/indexing.unregister_indexer.md)
+submits the action when the caller does not own the registration it deletes.
+The deletion destroys the registration's progress cursors. The owner deletes its
+own registration without the action.
+
 Writing and destroying are separate authorities. Adding to a repository answers
 to [`mod.auth.store_objects_action`](mod.auth.store_objects_action.md); an
 issuer granting that does not thereby grant emptying the same repository.

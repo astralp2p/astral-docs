@@ -6,10 +6,9 @@ repository, registering a type, and turning indexing of a repository on or off.
 
 One action covers every write that adds to node state — `objects.store`,
 `objects.create`, `objects.push`, `objects.echo`, `objects.new_mem`,
-`objects.register_blueprint`, `indexing.enable_repo` and `indexing.subscribe`.
-Indexing state is node-wide: enabling a repository indexes every object in it
-from then on, and a subscription consumes an indexer's change stream and
-advances its cursor, so both are writes to node state.
+`objects.register_blueprint` and `indexing.enable_repo`. Indexing state is
+node-wide: enabling a repository indexes every object in it from then on, so
+it is a write to node state.
 
 This action does not cover deleting, purging, or removing a repository. An
 operation that destroys answers to
