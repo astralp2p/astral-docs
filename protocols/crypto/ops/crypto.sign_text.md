@@ -30,10 +30,10 @@ An input of an unexpected type is answered with an `error_message` and the excha
 
 ```shellsession
 $ astral-query crypto.sign_text -text "hello world" -out json
-{"Type":"mod.crypto.signature","Object":"bip137:H3p1c1AY2W2NwO/lXh3uM9ETFt2Wp6dQjVA0kZl0ZTd5KQv0pZL5kE2c8R5Mz0qY1g6kPq3rTfM4l3a4eO1Q="}
+{"Type":"mod.crypto.signature","Object":{"Data":"H+d3VDEwVfpzQ6Onkq/rYV1Mz/ljt+T/DbMb3gg+iyBnOczabFybkOcypDKhDppsI8+y0jTBlItao84Qf29Rmr8=","Scheme":"bip137"}}
 ```
 
 ```shellsession
 $ echo '{"Type":"string8","Object":"hello world"}' | astral-query crypto.sign_text -scheme bip137 -in json -out json
-{"Type":"mod.crypto.signature","Object":"bip137:H3p1c1AY2W2NwO/lXh3uM9ETFt2Wp6dQjVA0kZl0ZTd5KQv0pZL5kE2c8R5Mz0qY1g6kPq3rTfM4l3a4eO1Q="}
+{"Type":"mod.crypto.signature","Object":{"Data":"H+d3VDEwVfpzQ6Onkq/rYV1Mz/ljt+T/DbMb3gg+iyBnOczabFybkOcypDKhDppsI8+y0jTBlItao84Qf29Rmr8=","Scheme":"bip137"}}
 ```

@@ -30,10 +30,10 @@ An input of an unexpected type is answered with an `error_message` and the excha
 
 ```shellsession
 $ astral-query crypto.sign_hash -hash 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 -out json
-{"Type":"mod.crypto.signature","Object":"asn1:MEUCIQDg+5...AiB7H1k="}
+{"Type":"mod.crypto.signature","Object":{"Data":"MEYCIQDJ1xPxQO1Mnv2l5z3reHcBj8FtVfp+jKL6aXSbhAzTmAIhAMFZnUnPVqraUY0iigrOK5oyCd84y8wNHzdVOo3BC5s7","Scheme":"asn1"}}
 ```
 
 ```shellsession
 $ echo '{"Type":"mod.crypto.hash","Object":"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"}' | astral-query crypto.sign_hash -scheme asn1 -in json -out json
-{"Type":"mod.crypto.signature","Object":"asn1:MEUCIQDg+5...AiB7H1k="}
+{"Type":"mod.crypto.signature","Object":{"Data":"MEYCIQDJ1xPxQO1Mnv2l5z3reHcBj8FtVfp+jKL6aXSbhAzTmAIhAMFZnUnPVqraUY0iigrOK5oyCd84y8wNHzdVOo3BC5s7","Scheme":"asn1"}}
 ```
