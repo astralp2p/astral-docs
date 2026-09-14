@@ -9,6 +9,12 @@ The caller must hold
 The query is rejected before any handler is installed when the caller is not
 authorized, and a refused caller receives no bytes.
 
+The handler records the guest session that registered it, alongside the
+identity it answers for. The two differ when the session registers under an
+identity it holds a [`mod.auth.sudo_action`](../../auth/types/mod.auth.sudo_action.md)
+for. [`apphost.bind`](apphost.bind.md) matches the recorded session when it
+removes handlers by token.
+
 The operation expects an IPC dial endpoint, so it is not usable over the
 WebSocket transport; a WebSocket client registers through the
 register-service flow in the

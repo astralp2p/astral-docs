@@ -13,6 +13,15 @@ The action gates nine operations — `apphost.create_token`,
 before it reads or changes a credential or a grant, and a refused caller
 receives no bytes.
 
+Two further operations submit the action as an administrative override rather
+than a gate. [`apphost.bind`](../../apphost/ops/apphost.bind.md) and
+[`apphost.cancel`](../../apphost/ops/apphost.cancel.md) restrict a caller to the
+handlers and queries its own session owns; a holder of this action reaches those
+another session owns. Both submit the requesting session's authenticated
+identity as the actor, never the caller the query names, so a token-less session
+holds nothing here. Neither operation refuses a caller that does not hold the
+action — it keeps its own records.
+
 Listing is administration, not a separate read tier. `apphost.list_tokens` and
 `mcp.list_agents` hand out the bearer credentials they enumerate, and a bearer
 of an access token acts as the identity the token authenticates.
