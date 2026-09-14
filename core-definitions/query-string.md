@@ -5,6 +5,10 @@
   payload of [`Text Encoding`](../topics/text-encoding.md). The [`Object Type`](object-type.md) is defined by the `Parameter`.
 * A `Query String` is encoded using the standard HTTP query string format
   ("operation?param1=value1&param2=value2").
+* A `Parameter` name appears once in a `Query String`. When a name repeats, the
+  first value applies and every later value is ignored.
+* A list travels as one `Parameter` value, with its elements separated by
+  commas (e.g. `only=string8,string16`).
 * A `Query String` has no length limit of its own. The limit is whichever
   carrier transports it:
   * over a [`Link`](link.md), a [`uint16`](../primitive-types/uint16.md) length — 65 535 bytes (see
