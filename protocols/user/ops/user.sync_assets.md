@@ -24,6 +24,9 @@ The operation streams:
   next call. When there were no rows it equals `start`; otherwise it is one
   past the highest height streamed.
 
+The `uint64` is a typed final object, and no `eos` follows it — see
+[Op modes & composition § Control signals](../../../topics/op-modes.md#control-signals).
+
 ## Examples
 
 ```shellsession

@@ -19,7 +19,7 @@ authorized.
 
 ## Returned objects
 
-The operation returns a stream of the same objects it received (subject to the `only`/`except` filters). The stream ends when the input closes or a `stop`-typed object arrives.
+The operation returns a stream of the same objects it received (subject to the `only`/`except` filters). The stream ends when the input closes or a `stop`-typed object arrives. The `stop` type is a typed input terminator — see [Op modes & composition § Control signals](../../../topics/op-modes.md#control-signals).
 
 ## Examples
 

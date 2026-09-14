@@ -30,6 +30,37 @@ supports one or both of:
   and treats EOF as a legitimate end of the response in every case. A client that
   waits for a terminator the `Op` does not send hangs until the connection drops.
 
+## Control signals
+
+An `Op`'s documentation can give an `Object` a signalling role through one of three
+patterns. A client reads such an `Object` by the documentation of the `Op` that
+exchanges it, not by its `Object Type` alone.
+
+* readiness `ack` — an [`ack`](../primitive-types/ack.md) means completion by
+  default: the `Op` has finished the work the `ack` answers. An `Op`'s documentation
+  can instead state that its `ack` means readiness: the `Op` is set up and keeps the
+  `Channel` open for the caller's further input. Closing the `Channel` after a
+  readiness `ack` ends the `Op`, and the `Op` undoes what it holds open:
+  [`objects.create`](../protocols/objects/ops/objects.create.md) discards the
+  uncommitted data, [`apphost.bind`](../protocols/apphost/ops/apphost.bind.md)
+  removes the bound handlers, and
+  [`services.advertise`](../protocols/services/ops/services.advertise.md) withdraws
+  the advertisement.
+* typed final object — an `Op`'s documentation can name an `Object Type` that ends
+  its output in place of an [`eos`](../primitive-types/eos.md). The named `Object` is
+  the last one the `Op` sends and carries a value of its own; no `eos` follows it.
+  [`user.sync_assets`](../protocols/user/ops/user.sync_assets.md) ends its output
+  with a `uint64`, the next height to request. A client never blocks waiting for the
+  named `Object` and treats EOF as a legitimate end of the response, as it does for
+  `eos`.
+* typed input terminator — an `Op`'s documentation can name an `Object Type` that
+  ends the caller's input. The `Op` stops reading at the first input `Object` of that
+  type. [`objects.create`](../protocols/objects/ops/objects.create.md) ends its input
+  at a [`mod.objects.commit_msg`](../protocols/objects/types/mod.objects.commit_msg.md)
+  and commits the written data.
+  [`objects.echo`](../protocols/objects/ops/objects.echo.md) ends its input at the
+  `Object Type` its `stop` argument names and does not echo that `Object`.
+
 ## Composing single-mode ops
 
 * A single-mode `Op` is a filter: one input `Object` produces one result `Object`.
