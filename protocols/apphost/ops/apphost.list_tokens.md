@@ -1,6 +1,7 @@
 # apphost.list_tokens
 
-List access tokens, optionally filtered by identity.
+List access tokens, optionally filtered by identity. Local-only — queries from
+the network are rejected.
 
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).

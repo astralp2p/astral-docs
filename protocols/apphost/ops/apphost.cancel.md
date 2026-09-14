@@ -1,6 +1,7 @@
 # apphost.cancel
 
-Cancel an en-route query by nonce.
+Cancel an en-route query by nonce. Local-only — queries from the network are
+rejected.
 
 A query records the guest session that launched it. That session cancels it,
 and no other does. The record names the session's authenticated

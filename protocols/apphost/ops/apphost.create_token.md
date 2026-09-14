@@ -1,6 +1,7 @@
 # apphost.create_token
 
-Create a new access token for an identity.
+Create a new access token for an identity. Local-only — queries from the
+network are rejected.
 
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
