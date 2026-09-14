@@ -15,5 +15,5 @@ The operation returns one of:
 
 ```shellsession
 $ astral-query secp256k1.new -out json
-{"Type":"mod.crypto.private_key","Object":"secp256k1:Yt+8a1q4XbPnGZsbT5gV/Sj5y4kCmWNL2L4y3rXh0vQ="}
+{"Type":"mod.crypto.private_key","Object":{"Key":"Yt+8a1q4XbPnGZsbT5gV/Sj5y4kCmWNL2L4y3rXh0vQ=","Type":"secp256k1"}}
 ```

@@ -18,6 +18,6 @@ An input of an unexpected type is answered with an `error_message` and the excha
 ## Examples
 
 ```shellsession
-$ echo '{"Type":"mod.crypto.private_key","Object":"secp256k1:Yt+8a1q4XbPnGZsbT5gV/Sj5y4kCmWNL2L4y3rXh0vQ="}' | astral-query crypto.public_key -in json -out json
-{"Type":"mod.crypto.public_key","Object":"secp256k1:02bef8840eb35ef2ae3c83c07cb5779278904f99cb4103f71e37cc69931ae5e15f"}
+$ echo '{"Type":"mod.crypto.private_key","Object":{"Key":"Yt+8a1q4XbPnGZsbT5gV/Sj5y4kCmWNL2L4y3rXh0vQ=","Type":"secp256k1"}}' | astral-query crypto.public_key -in json -out json
+{"Type":"mod.crypto.public_key","Object":{"Key":"AsnGhUaJDnfvxJzDOsMWP1vOgOGXcz3IbZx8lehe7sZY","Type":"secp256k1"}}
 ```
