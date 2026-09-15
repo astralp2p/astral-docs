@@ -106,7 +106,7 @@ issue any number of `RouteQueryMsg`s on one connection so long as each is
 refused; the first acceptance consumes it.
 
 A query in flight can be cancelled by opening a separate session and routing
-`apphost.cancel?id=<Nonce>` to the host.
+`apphost.cancel?query_id=<Nonce>` to the host.
 
 ## Receiving queries
 

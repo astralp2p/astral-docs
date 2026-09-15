@@ -11,7 +11,7 @@ without `recursive`, and `dir.set_alias` removing an alias as well as setting
 one.
 
 Each operation submits the action before it accepts the query.
-`tree.mount_remote` submits it before it resolves the target or queries the
+`tree.mount_remote` submits it before it resolves `identity` or queries the
 remote tree. A refused caller receives no bytes.
 
 Reading the same state answers to `mod.auth.see_node_state_action`. Neither

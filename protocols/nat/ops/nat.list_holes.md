@@ -1,6 +1,6 @@
 # nat.list_holes
 
-Stream the holes currently held in the local pool, optionally filtered to those involving a given peer. When `with` is supplied, only holes whose active or passive identity equals that peer are streamed; if `with` cannot be resolved to an identity the operation returns an `error_message` instead.
+Stream the holes currently held in the local pool, optionally filtered to those involving a given peer. When `identity` is supplied, only holes whose active or passive identity equals that peer are streamed; if `identity` cannot be resolved the operation returns an `error_message` instead.
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
@@ -9,11 +9,11 @@ authorized, and a refused caller receives no bytes.
 
 ## Arguments
 
-* with (string) – A peer identity, given as a hex public key or alias resolved via the directory. When set, only holes involving this peer are returned.
+* identity (string8) – A peer identity, given as a hex public key or a name resolved via the directory. When set, only holes involving this peer are returned.
 
 ## Returned objects
 
-The operation returns a stream of `nat.hole` objects, terminated by `eos`. If `with` is set and cannot be resolved to an identity, the operation returns an `error_message` object.
+The operation returns a stream of `nat.hole` objects, terminated by `eos`. If `identity` is set and cannot be resolved, the operation returns an `error_message` object.
 
 ## Examples
 

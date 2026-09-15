@@ -25,7 +25,8 @@ hop count on it would describe authority it cannot carry.
 
 ## Arguments
 
-* id (identity, required) – The identity the grant is recorded for.
+* identity (string8, required) – The identity the grant is recorded for, given
+  as a hex public key or a name resolved via the directory.
 * action (string8, required) – Object type of the action granted (e.g.
   `mod.auth.admin_manage_apps_action`).
 * duration (duration) – Lifetime of the grant. Omitted grants until the grant
@@ -35,19 +36,22 @@ hop count on it would describe authority it cannot carry.
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` object if `identity` does not resolve.
+* An `error_message` object reading `missing identity` if `identity` resolves to
+  the anonymous identity.
 * An `error_message` object if the grant was not written.
 * An `ack` object if the grant was recorded.
 
 ## Examples
 
 ```shellsession
-$ astral-query apphost.grant -id 0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c -action mod.auth.admin_manage_apps_action -out json
+$ astral-query apphost.grant -identity 0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c -action mod.auth.admin_manage_apps_action -out json
 {"Type":"ack","Object":null}
 ```
 
 Granting for a bounded time:
 
 ```shellsession
-$ astral-query apphost.grant -id 0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c -action mod.auth.see_node_state_action -duration 720h -out json
+$ astral-query apphost.grant -identity 0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c -action mod.auth.see_node_state_action -duration 720h -out json
 {"Type":"ack","Object":null}
 ```

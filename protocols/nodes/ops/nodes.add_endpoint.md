@@ -9,7 +9,7 @@ not authorized, and a refused caller receives no bytes.
 
 ## Arguments
 
-* id (identity, required) – The identity of the node the endpoint belongs to.
+* identity (string8, required) – The identity of the node the endpoint belongs to, given as a hex public key or a name resolved via the directory.
 * endpoint (string, required) – The endpoint to add, formatted as `<network>:<address>` (e.g. `tcp:1.2.3.4:1791`).
 * in (string) – Input format hint for the channel (e.g. `json`).
 * out (string) – Output format hint for the channel (e.g. `json`).
@@ -17,12 +17,14 @@ not authorized, and a refused caller receives no bytes.
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` object if `identity` does not resolve.
+* An `error_message` object reading `missing identity` if `identity` resolves to the anonymous identity.
 * An `error_message` object if the endpoint cannot be parsed or stored.
 * An `ack` object if the endpoint was registered successfully.
 
 ## Examples
 
 ```shellsession
-$ astral-query nodes.add_endpoint -id 02bef8840eb35ef2ae3c83c07cb5779278904f99cb4103f71e37cc69931ae5e15f -endpoint tcp:1.2.3.4:1791 -out json
+$ astral-query nodes.add_endpoint -identity 02bef8840eb35ef2ae3c83c07cb5779278904f99cb4103f71e37cc69931ae5e15f -endpoint tcp:1.2.3.4:1791 -out json
 {"Type":"ack","Object":null}
 ```

@@ -5,16 +5,19 @@ Trigger this node to pull the user's asset list from another node by calling
 node's own list. Used to force a one-shot reconciliation without waiting for a
 sibling notification.
 
-The caller must hold `mod.user.admin_swarm_action`; rejected with code `4`
-otherwise. The op changes what this node carries, as `user.add_asset` and
+The caller must hold `mod.user.admin_swarm_action`. Rejected with code `3` if
+`identity` does not resolve or resolves to the anonymous identity, and with code
+`4` if the caller is not authorized. `identity` is resolved before the caller is
+authorized. The op changes what this node carries, as `user.add_asset` and
 `user.remove_asset` do — the node named in the call decides the entries this
 node ends up holding, so it is the same authority rather than a read.
 
 ## Arguments
 
-* node (identity, required) – Identity of the node to sync with, normally a
-  sibling. The node is not required to be one: the caller names where the
-  entries come from.
+* identity (string8, required) – Identity of the node to sync with, normally a
+  sibling, given as a hex public key or a name resolved via the directory. The
+  node is not required to be a sibling: the caller names where the entries come
+  from.
 * start (uint64, optional) – Height to start syncing from. Defaults to `0`.
 
 ## Returned objects
@@ -26,6 +29,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query user.sync_with -node 0282fee8...779b2c -out text
+$ astral-query user.sync_with -identity 0282fee8...779b2c -out text
 #[ack]
 ```
