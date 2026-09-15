@@ -69,16 +69,45 @@
 
 ## Registry
 
-* Maps `Object Type` → `Blueprint` or prototype. Names are unique and immutable.
+* Maps `Object Type` → `Blueprint` or prototype. Names are unique and immutable. A shape change takes a new name — see [Versioning](#versioning).
 * A registry can have a `Parent`; lookups walk the chain, local entries shadow.
 * `Object Type` names are ASCII non-empty. `Field Names` are ASCII non-empty, unique within a `Blueprint` (case-insensitive).
 * A `Blueprint` is itself an [`Object`](../core-definitions/object.md); registering returns the [`Object ID`](../core-definitions/object-id.md) of its canonical form.
 * Nested types resolve through the same registry given to the enclosing `Decode`.
 
+## Versioning
+
+* A registered `Blueprint` is final. A `Struct`'s `Fields` and an
+  [`Alias`](../core-definitions/alias.md)'s `Underlying` never change after
+  registration.
+* A type whose shape changes is a distinct `Object Type` under a new name. The
+  new name is the base name suffixed with `.vN`, `N` counting from 2:
+  `example.message`, then `example.message.v2`.
+* Both names stay registered. Objects written under the old name remain
+  readable under it and keep their
+  [`Object IDs`](../core-definitions/object-id.md).
+* A writer selects the name it emits. A reader that accepts both registers both.
+* Appending a `Field` to a registered `Struct` is not an alternative to a new
+  name. A `Payload` carries its `Fields` back to back with no per-field tag and
+  no length ([Codec](codec.md)), so the reader's `Blueprint` is the only bound
+  on the `Payload`:
+    * A reader holding the shorter `Blueprint` stops before the appended
+      `Field`. Under a framing that carries a per-object length — a
+      [`Channel`](../core-definitions/channel.md) `bin` frame, a
+      [`Bundle`](../core-definitions/bundle.md) member — it discards the
+      surplus bytes and reports no error. Under `canonical` framing or in a
+      nested `RefSpec` slot the surplus bytes are read as the next object and
+      the stream desynchronizes.
+    * A reader holding the longer `Blueprint` reads past the end of a `Payload`
+      written under the shorter one and fails.
+* The second case covers every object already written: stored bytes decode
+  against the registry as it stands at read time.
+
 ## Sync
 
 * Exchanged in dependency order: aliases first, then structs topologically sorted so every `RefSpec`/`PtrSpec`/`SliceSpec`/`ArraySpec`/`MapSpec` edge targets an already-replayed name.
 * Replay compares by `Object ID`: same name + matching ID is a no-op, same name + mismatched bytes is a conflict.
+* A conflict is resolved under [Versioning](#versioning). Replay never replaces a registered `Blueprint`.
 
 ## Limits
 
