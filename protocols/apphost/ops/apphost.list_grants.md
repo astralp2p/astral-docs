@@ -20,19 +20,22 @@ whatever the caller holds.
 
 ## Arguments
 
-* id (identity, required) – The identity whose grants are listed.
+* identity (string8, required) – The identity whose grants are listed, given as
+  a hex public key or a name resolved via the directory.
 * out (string8) – Output format.
 
 ## Returned objects
 
 The operation returns a stream of `mod.auth.permit` objects, followed by an
-`eos` object. An `error_message` object is returned instead if the grants could
-not be read.
+`eos` object. An `error_message` object is returned instead if `identity` does
+not resolve, or if the grants could not be read. An `error_message` object
+reading `missing identity` is returned instead if `identity` resolves to the
+anonymous identity.
 
 ## Examples
 
 ```shellsession
-$ astral-query apphost.list_grants -id 0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c -out json
+$ astral-query apphost.list_grants -identity 0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c -out json
 {"Type":"mod.auth.permit","Object":{"Action":"mod.auth.admin_manage_apps_action","Constraints":null,"Delegation":0}}
 {"Type":"mod.auth.permit","Object":{"Action":"mod.auth.serve_apps_action","Constraints":null,"Delegation":0}}
 {"Type":"eos","Object":null}

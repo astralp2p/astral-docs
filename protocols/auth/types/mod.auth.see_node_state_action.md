@@ -34,8 +34,9 @@ identity holds it through a node-local grant or a signed contract. A node member
 the user has expelled holds it no longer.
 
 A node member holds this action so a remote tree mount resolves. A mount queries
-the target as the mounting node's own identity, not as the caller and not as the
-user. A node member that reads the node's state reads its log stream with it.
+the remote node as the mounting node's own identity, not as the caller and not
+as the user. A node member that reads the node's state reads its log stream with
+it.
 
 Changing the same state answers to
 [`mod.auth.configure_node_state_action`](mod.auth.configure_node_state_action.md),

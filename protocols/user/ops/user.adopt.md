@@ -1,10 +1,10 @@
 # user.adopt
 
-Issue a swarm membership contract for a target node and return the signed result. The caller must hold `mod.user.admin_swarm_action`; the active contract's issuer holds it by default. Rejected with code `2` if the node has no active contract, with code `3` if the target identity does not resolve, and with code `4` if the caller is not authorized. After indexing, the signed contract is pushed to the local swarm asynchronously and a sync task is scheduled for the new member.
+Issue a swarm membership contract for the named node and return the signed result. The caller must hold `mod.user.admin_swarm_action`; the active contract's issuer holds it by default. Rejected with code `2` if the node has no active contract, with code `3` if `identity` does not resolve, and with code `4` if the caller is not authorized. After indexing, the signed contract is pushed to the local swarm asynchronously and a sync task is scheduled for the new member.
 
 ## Arguments
 
-* target (string, required) – Alias or public key of the node to adopt.
+* identity (string8, required) – The node to adopt, given as a hex public key or a name resolved via the directory.
 
 ## Returned objects
 
@@ -15,6 +15,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query user.adopt -target laptop -out json
+$ astral-query user.adopt -identity laptop -out json
 {"Type":"mod.auth.signed_contract","Object":{...}}
 ```

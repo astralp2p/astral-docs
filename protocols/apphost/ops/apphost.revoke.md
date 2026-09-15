@@ -21,13 +21,17 @@ whatever the caller holds.
 
 ## Arguments
 
-* id (identity, required) – The identity whose grant is withdrawn.
+* identity (string8, required) – The identity whose grant is withdrawn, given
+  as a hex public key or a name resolved via the directory.
 * action (string8, required) – Object type of the action to withdraw.
 * out (string8) – Output format.
 
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` object if `identity` does not resolve.
+* An `error_message` object reading `missing identity` if `identity` resolves to
+  the anonymous identity.
 * An `error_message` object if no grant matched, or the withdrawal failed. The
   message is `grant not found` when the identity holds no grant for the action.
 * An `ack` object if the grant was withdrawn.
@@ -35,6 +39,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query apphost.revoke -id 0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c -action mod.auth.admin_manage_apps_action -out json
+$ astral-query apphost.revoke -identity 0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c -action mod.auth.admin_manage_apps_action -out json
 {"Type":"ack","Object":null}
 ```

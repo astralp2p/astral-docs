@@ -30,7 +30,7 @@ nonce does not take the record over, and is uncancellable.
 
 ## Arguments
 
-* id (nonce64, required) – Nonce of the query to cancel.
+* query_id (nonce64, required) – Nonce of the query to cancel.
 * cause (string) – Optional cause attached to the cancellation as an error.
 
 ## Returned objects
@@ -43,6 +43,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query apphost.cancel -id a3f1c2d4e5b6f708 -cause "user aborted" -out text
+$ astral-query apphost.cancel -query_id a3f1c2d4e5b6f708 -cause "user aborted" -out text
 #[ack]
 ```

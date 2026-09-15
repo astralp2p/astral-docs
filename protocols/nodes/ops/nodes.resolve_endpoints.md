@@ -9,7 +9,7 @@ authorized, and a refused caller receives no bytes.
 
 ## Arguments
 
-* id (string, required) – The target identity, given as a hex public key or alias resolved via the directory.
+* identity (string8, required) – The identity whose endpoints are resolved, given as a hex public key or a name resolved via the directory.
 * out (string) – Output format hint for the channel (e.g. `json`).
 
 ## Returned objects
@@ -19,7 +19,7 @@ The operation returns a stream of `mod.nodes.endpoint_with_ttl` objects, termina
 ## Examples
 
 ```shellsession
-$ astral-query nodes.resolve_endpoints -id 037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590 -out json
+$ astral-query nodes.resolve_endpoints -identity 037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590 -out json
 {"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"tcp.endpoint","Object":"1.2.3.4:1791"},"TTL":7776000}}
 {"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"tor.endpoint","Object":"abcdefghijklmnop.onion:1791"},"TTL":null}}
 {"Type":"eos","Object":null}

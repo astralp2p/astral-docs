@@ -9,7 +9,7 @@ authorized, and a refused caller receives no bytes.
 
 ## Arguments
 
-* id (nonce64, required) – The local id of the link to close.
+* link_id (nonce64, required) – The local id of the link to close.
 * out (string) – Output format hint for the channel (e.g. `json`).
 
 ## Returned objects
@@ -21,6 +21,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query nodes.close_link -id 7c1a93b50f2e4d18 -out json
+$ astral-query nodes.close_link -link_id 7c1a93b50f2e4d18 -out json
 {"Type":"ack","Object":null}
 ```
