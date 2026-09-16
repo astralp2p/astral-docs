@@ -65,8 +65,8 @@ unguessable `QueryID` is the pairing token.
 ## Sending queries (outbound)
 
 ```js
-const stream = await host.query('user.info', {
-  args: { name: 'alice' },          // appended as ?name=alice
+const stream = await host.query('dir.resolve', {
+  args: { identity: 'alice' },      // appended as ?identity=alice
   target:  null,                    // default: host.identity
   caller:  undefined,               // default: host.guestID
   zone:    'dvn',
