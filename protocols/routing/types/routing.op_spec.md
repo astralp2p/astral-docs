@@ -4,8 +4,8 @@ Describes a single routable operation: its name and the parameters it accepts.
 
 ## Fields
 
-* Name (string) – The operation name as used in query strings.
-* Parameters (list) – One entry per accepted parameter, each with `Name` (string), `Type` (string), and `Required` (bool). The entry has no registered [`Object Type`](../../../core-definitions/object-type.md) of its own and cannot be requested by name.
+* Name (string32) – The operation name as used in query strings.
+* Parameters (list of [`routing.op_param`](routing.op_param.md)) – One entry per accepted parameter.
 
 ## Example
 
