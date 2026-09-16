@@ -7,8 +7,8 @@ when it is denied, before it opens a repository or accepts the connection. A
 refused caller receives no bytes.
 
 One action covers every read — `objects.read`, `objects.load`,
-`objects.contains`, `objects.get_type`, `objects.probe`, `objects.describe`,
-`objects.scan`, `objects.search`, `objects.find`, `objects.repositories`,
+`objects.contains`, `objects.probe`, `objects.describe`, `objects.scan`,
+`objects.search`, `objects.find`, `objects.repositories`,
 `objects.blueprints` and `objects.get_blueprint`. Reading bytes and enumerating
 ids are not separated: a caller that can enumerate a repository already holds
 what guarding a single object would protect.
