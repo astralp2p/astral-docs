@@ -20,17 +20,30 @@
 ## Registering
 
 * Three `Ops` register the caller: `objects.register_searcher`, `objects.register_describer`,
-  `objects.register_finder`. None takes arguments beyond `in` and `out` — the `Node` takes the
-  registrant from the caller's [`Identity`](../core-definitions/identity.md), so an `App` cannot
-  register anybody but itself.
+  `objects.register_finder`. Beyond `in` and `out` each takes only a requested `duration` — the
+  `Node` takes the registrant from the caller's
+  [`Identity`](../core-definitions/identity.md), so an `App` cannot register anybody but itself.
 * Registration is node-local. A [`Query`](../core-definitions/query.md) arriving over the network is
   rejected: an `App` may extend the `Node` hosting it, never a remote one. The `Node` also refuses a
   missing or zero caller `Identity`, and refuses to register itself.
-* Registration is keyed by the caller's `Identity`, one per `Identity` per role. Repeating it is a
-  no-op, so an `App` may register whenever it is unsure whether it already has.
-* The `Node` answers with an [`ack`](../primitive-types/ack.md) and routes the matching discovery
-  call to that `Identity` for the lifetime of the registration. A `Node` does not keep a registration
-  on an `App`'s behalf across its own restart; an `App` re-registers when it reconnects.
+* Registration is keyed by the caller's `Identity`, one per `Identity` per role. Repeating it
+  refreshes that one registration rather than adding a second, so an `App` may register whenever it
+  is unsure whether it already has.
+* Registration is leased, not permanent. The `Node` answers with a
+  [`mod.objects.registration_lease`](../protocols/objects/types/mod.objects.registration_lease.md)
+  and routes the matching discovery call to that `Identity` until the lease expires. The `Node`
+  grants the lease: it clamps the requested `duration` to its own maximum, so an `App` learns how
+  long it actually has rather than deciding for the `Node`.
+* An `App` renews by registering again before the lease ends — the same `Op` that registers renews.
+  Expiry is silent: a `Node` sends no notice, because a registrant that has stopped answering is
+  exactly the case the lease exists for, and it is not there to be told. An `App` that keeps its
+  lease alive stays registered indefinitely; one that stops — crashed, killed, or disconnected —
+  falls out of the fan-out within one lease.
+* The per-call timeout below bounds one call; the lease bounds how many such calls a departed `App`
+  costs at all. Without a lease a registration outlives the process that made it, and every later
+  fan-out waits out that timeout again for an answer nobody is going to send.
+* A `Node` does not keep a registration on an `App`'s behalf across its own restart; an `App`
+  re-registers when it reconnects.
 * Every result an `External Provider` returns is stamped by the `Node` with the registered
   `Identity` as its `SourceID`, replacing whatever the `App` set. A provider cannot attribute its
   answers to another `Identity`.
@@ -81,3 +94,6 @@
 * Type registration and provider registration belong to the same connect step. An `App` that
   re-registers after a reconnect republishes its `Blueprints` too, so a `Node` that restarted
   relearns both the vocabulary and who speaks it.
+* Renewing a lease is not reconnecting. The `Node` has not forgotten anything, so a renewal carries
+  no `Blueprints` — it extends a registration the `Node` still holds. Republishing belongs to the
+  connect step alone.
