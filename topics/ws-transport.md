@@ -13,7 +13,7 @@ The `/.ws` upgrade negotiates one of two subprotocols via the
 
 - `astral.binary.v1` — binary WebSocket frames carrying the standard
   [binary-channel](../core-definitions/channel.md) bytestream.
-- `astral.json.v1` — one JSON envelope per text frame.
+- `astral.json.v1` — one newline-terminated JSON envelope per text frame.
 
 The connection is closed with `StatusPolicyViolation` (1008) if neither
 subprotocol is offered.
@@ -39,8 +39,17 @@ in-protocol auth token message.
   The library presents this to user code as a friendly `AstralObject`
   `{ type, value }` and converts between the two on the wire.
 
+- Terminator: every JSON envelope ends with a newline (`\n`), as on any
+  [JSON channel](../core-definitions/channel.md). The terminator is written
+  inside the text frame; it is not supplied by the WebSocket framing.
+
 Binary frames are silently dropped by the receiver — this client is
 text/JSON only.
+
+A sender that omits the terminator is not an error the node reports. The
+node re-frames a relayed responder's bytes on newlines and holds an
+unterminated envelope in its write buffer, so the frame never reaches the
+caller and the query answers with no objects.
 
 ## Connection lifecycle
 
