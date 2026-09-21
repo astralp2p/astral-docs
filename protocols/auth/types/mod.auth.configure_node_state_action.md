@@ -1,18 +1,16 @@
 # mod.auth.configure_node_state_action
 
 A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
-change the node's state: the values in its tree, the remote trees mounted into
-it, and the aliases in its directory.
+change the node's state: the values in its tree and the aliases in its
+directory.
 
 The action gates every operation that changes that state — `tree.set`,
-`tree.delete`, `tree.mount_remote`, `tree.unmount` and `dir.set_alias`. It
-covers `tree.set` in single-value and streaming mode, `tree.delete` with and
-without `recursive`, and `dir.set_alias` removing an alias as well as setting
-one.
+`tree.delete` and `dir.set_alias`. It covers `tree.set` in single-value and
+streaming mode, `tree.delete` with and without `recursive`, and `dir.set_alias`
+removing an alias as well as setting one.
 
-Each operation submits the action before it accepts the query.
-`tree.mount_remote` submits it before it resolves `identity` or queries the
-remote tree. A refused caller receives no bytes.
+Each operation submits the action before it accepts the query. A refused caller
+receives no bytes.
 
 Reading the same state answers to `mod.auth.see_node_state_action`. Neither
 action implies the other.
