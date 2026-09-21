@@ -13,10 +13,6 @@ One action covers `tree.get`, `tree.list`, `dir.alias_map`, `dir.filters`,
 The action includes the log stream. A holder reads other callers' logged
 activity as well as node metadata.
 
-A path under a remote mount is walked on the remote node. `tree.get` and
-`tree.list` submit the action before the walk, so a refused caller makes the
-node query no other node.
-
 `mcp.agent` answers an agent's record without its access token. The action
 grants agent metadata and no credential.
 
@@ -33,10 +29,7 @@ node's swarm hold this action by default, and nobody else. An app or any other
 identity holds it through a node-local grant or a signed contract. A node member
 the user has expelled holds it no longer.
 
-A node member holds this action so a remote tree mount resolves. A mount queries
-the remote node as the mounting node's own identity, not as the caller and not
-as the user. A node member that reads the node's state reads its log stream with
-it.
+A node member that reads the node's state reads its log stream with it.
 
 Changing the same state answers to
 [`mod.auth.configure_node_state_action`](mod.auth.configure_node_state_action.md),
