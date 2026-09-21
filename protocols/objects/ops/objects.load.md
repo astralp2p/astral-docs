@@ -16,10 +16,15 @@ authorized, and a refused caller receives no bytes.
 * out (string8) – Output format.
 * (stream) – When `id` is omitted, a stream of `object_id.sha256` objects to load. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
 
+Each id, given as `id` or streamed, can be a
+[`Partial Object ID`](../../../core-definitions/object-id.md). The lookup
+matches it by `Hash` inside the selected repository. An id with a nonzero
+`Size` matches only an object with that `Size` and that `Hash`.
+
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the repository is not found, the load fails, or an unexpected object is received on the input stream.
+* An `error_message` object if the repository is not found, the load fails, or an unexpected object is received on the input stream. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`.
 * The decoded typed object for each id (one shot if `id` was given, otherwise one per streamed id). Non-astral payloads come back as `blob`.
 * An `eos` object answering an explicit `eos` input.
 

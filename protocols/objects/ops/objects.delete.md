@@ -15,10 +15,15 @@ authorized.
 * out (string8) – Output format.
 * (stream) – When `id` is omitted, a stream of `object_id.sha256` objects to delete. An explicit `eos` input is answered with a final `eos`; a stream ended by EOF is not.
 
+Each id, given as `id` or streamed, can be a
+[`Partial Object ID`](../../../core-definitions/object-id.md). The lookup
+matches it by `Hash` inside the selected repository. An id with a nonzero
+`Size` matches only an object with that `Size` and that `Hash`.
+
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the repository is not found, the delete fails, or an unexpected object — including a stray `ack` — is received on the input stream.
+* An `error_message` object if the repository is not found, the delete fails, or an unexpected object — including a stray `ack` — is received on the input stream. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`.
 * An `eos` object answering an explicit `eos` input.
 * An `ack` object for each successful delete (one shot if `id` was given, otherwise one per streamed id).
 
