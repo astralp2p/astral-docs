@@ -15,9 +15,14 @@ authorized, and a refused caller receives no bytes.
 * repo (string8) – Repository to read from. Defaults to the read-default repository.
 * zone (zone) – Zone filter for the read context. Defaults to all zones.
 
+The `id` can be a
+[`Partial Object ID`](../../../core-definitions/object-id.md). The lookup
+matches it by `Hash` inside the selected repository. An `id` with a nonzero
+`Size` matches only an object with that `Size` and that `Hash`.
+
 ## Returned objects
 
-The operation rejects the query if the caller is not authorized, the repository is missing, or the read fails. On success the raw bytes of the object are written directly to the response stream (no astral framing).
+The operation rejects the query if the caller is not authorized, the repository is missing, or the read fails. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`. On success the raw bytes of the object are written directly to the response stream (no astral framing).
 
 ## Examples
 
