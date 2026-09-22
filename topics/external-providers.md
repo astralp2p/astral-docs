@@ -77,6 +77,27 @@
   knows and stays silent about the rest; silence is not a failure and does not affect the other
   describers' contributions.
 
+## Receiving a partial object ID
+
+* A `Describer` or a `Finder` can receive a
+  [`Partial Object ID`](../core-definitions/object-id.md) — an
+  [`Object ID`](../core-definitions/object-id.md) whose `Size` is 0. The `Node` resolves nothing
+  before the fan-out: it reads no repository for `objects.describe` or `objects.find`, so the
+  `Object ID` a provider receives is the one the caller supplied.
+* A provider matching by exact `Object ID` contributes nothing for a `Partial Object ID`, since no
+  stored key equals it. A provider that indexes by `Hash` answers it like any other lookup. Each
+  provider chooses which of the two it is; the `Node` requires neither.
+* A provider contributing nothing may return an empty stream or fail. Both reach the caller as the
+  same absence, because the `Node` drops a provider's error rather than failing the fan-out.
+* A provider that matches by `Hash` decides what its result names. A `Node` rewrites only the
+  `SourceID` of a result, so an `Object ID` a provider puts in a
+  [`mod.objects.describe_result`](../protocols/objects/types/mod.objects.describe_result.md) reaches
+  the caller unchanged, `Partial Object ID` included.
+* A provider holding two entries that share one `Hash` under different `Sizes` contributes nothing
+  for a `Partial Object ID`. Only one of the two `Sizes` describes the bytes behind that `Hash`, and
+  a provider that cannot tell which stays silent rather than attributing a descriptor to the wrong
+  object.
+
 ## Publishing types
 
 * A descriptor's `Data` is usually a type the `App` defines rather than a primitive.

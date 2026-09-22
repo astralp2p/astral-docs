@@ -57,6 +57,16 @@ A decoder accepts a `data0` body only when:
 
 A decoder rejects every other `data0` body.
 
+A body of 52 `y` characters meets all four conditions, so a decoder accepts it.
+It decodes to the `Object ID` whose `Size` is 0 and whose `Hash` is 32 zero
+bytes, the same value a `data1` body of zero characters decodes to.
+
+That `Object ID` is the zero `Object ID`: no object hashes to 32 zero bytes.
+Both text forms decode to it, so an operation treats them alike. An operation
+that refuses a zero `Object ID` refuses it before it refuses a
+`Partial Object ID`, so the zero `Object ID` is reported as a missing argument
+rather than as a `Partial Object ID`.
+
 The `Object ID` of the `Empty Object` has a `Size` of 0, so it is also a
 `Partial Object ID`. The first bit of its `Hash` is 1, so its `data1` form and
 its `data0` form carry the same 52-character body. An object ID with a `Size`

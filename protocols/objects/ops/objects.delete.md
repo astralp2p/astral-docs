@@ -23,9 +23,14 @@ matches it by `Hash` inside the selected repository. An id with a nonzero
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the repository is not found, the delete fails, or an unexpected object — including a stray `ack` — is received on the input stream. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`.
+* An `error_message` object if the repository is not found, the delete fails, or an unexpected object — including a stray `ack` — is received on the input stream. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`; that `error_message` carries the text `hash lookup: unsupported operation`. A repository that cannot look up by `Hash` reports it for a `Partial Object ID` alone, never for an `Object ID` with a nonzero `Size`.
 * An `eos` object answering an explicit `eos` input.
 * An `ack` object for each successful delete (one shot if `id` was given, otherwise one per streamed id).
+
+A repository that stores objects but never deletes them fails for any `id`, and
+its `error_message` carries the text `unsupported operation`. The two texts
+name different limits: `unsupported operation` refuses the delete, and
+`hash lookup: unsupported operation` refuses only the lookup by `Hash`.
 
 ## Examples
 
