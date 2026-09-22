@@ -13,6 +13,16 @@ authorized, and a refused caller receives no bytes.
 * zone (zone) – Zone filter for finder lookups. Defaults to all zones.
 * out (string8) – Output format.
 
+The `id` can be a
+[`Partial Object ID`](../../../core-definitions/object-id.md). The operation
+reads no repository, so it resolves no `Partial Object ID` before the fan-out.
+Every `Finder` receives the `id` as given.
+
+A `Finder` decides for itself whether it matches by `Hash` alone. A `Finder`
+that matches an `Object ID` exactly contributes nothing to a call carrying a
+`Partial Object ID`. A `Finder` contributing nothing does not fail the
+operation, which streams the identities the other finders returned.
+
 ## Returned objects
 
 The operation returns one of:

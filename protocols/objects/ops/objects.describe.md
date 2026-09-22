@@ -15,6 +15,17 @@ authorized, and a refused caller receives no bytes.
 * except (string8) – Comma-separated list of descriptor object types to exclude.
 * out (string8) – Output format.
 
+The `id` can be a
+[`Partial Object ID`](../../../core-definitions/object-id.md). The operation
+reads no repository, so it resolves no `Partial Object ID` before the fan-out.
+Every `Describer` receives the `id` as given.
+
+A `Describer` decides for itself whether it matches by `Hash` alone. A
+`Describer` that matches an `Object ID` exactly contributes nothing to a call
+carrying a `Partial Object ID`. A `Describer` contributing nothing does not
+fail the operation, which streams the descriptors the other describers
+returned.
+
 ## Returned objects
 
 The operation returns a stream of `mod.objects.describe_result` objects (one per descriptor) followed by an `eos` object. The describe context has a one-minute timeout.

@@ -13,7 +13,11 @@
     name, and the node resolves it as [`dir.resolve`](dir/ops/dir.resolve.md)
     does.
   * A parameter named `id` carries an
-    [`Object ID`](../core-definitions/object-id.md).
+    [`Object ID`](../core-definitions/object-id.md). An operation that looks the
+    object up accepts a
+    [`Partial Object ID`](../core-definitions/object-id.md) as well; an
+    operation that records the `id` accepts only an `Object ID` with a nonzero
+    `Size`.
   * A `nonce64` parameter is named for what the nonce identifies: `query_id`,
     `link_id`, `session_id`.
   * A parameter naming an identity by its role in the operation keeps the
