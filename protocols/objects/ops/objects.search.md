@@ -7,6 +7,13 @@ The caller must hold
 The query is rejected before any repository is opened when the caller is not
 authorized, and a refused caller receives no bytes.
 
+Within the network zone the node forwards the query to other nodes as the
+caller. A search by the active contract's issuer adds every linked sibling as a
+source. Each source authorizes the forwarded query as the caller, so a node
+forwards only the authority its caller holds there.
+A query arriving from the network runs without the network zone: the node
+answers from its own data and forwards nothing.
+
 ## Arguments
 
 * q (string, required) – The search query.
