@@ -27,14 +27,12 @@ an operation submits its action before it acts.
 * [`mod.auth.see_node_state_action`](types/mod.auth.see_node_state_action.md) – read the node's tree, directory aliases and filters, agent and participant metadata, and log stream
 * [`mod.auth.use_gateway_action`](types/mod.auth.use_gateway_action.md) – register with the node's gateway, reserve a connection through it, and be forwarded by it
 
-Eight more are declared by the protocols that own them:
+Seven more are declared by the protocols that own them:
 [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md) and
 [`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)
 in the [`user`](../user/README.md) protocol,
 [`mod.nodes.relay_for_action`](../nodes/types/mod.nodes.relay_for_action.md) in
 [`nodes`](../nodes/README.md),
-[`mod.mcp.call_agent_action`](../mcp/types/mod.mcp.call_agent_action.md) in
-[`mcp`](../mcp/README.md),
 [`mod.messaging.send_action`](../messaging/types/mod.messaging.send_action.md),
 [`mod.messaging.receive_action`](../messaging/types/mod.messaging.receive_action.md)
 and

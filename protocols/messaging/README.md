@@ -243,12 +243,6 @@ Nothing is in flight between two decisions: a message is a write that finishes
 before its sender returns, so an owner narrowing what a participant may do has
 nothing left to stop.
 
-Mail never asks
-[`mod.mcp.call_agent_action`](../mcp/types/mod.mcp.call_agent_action.md). That
-action guards the [`mcp`](../mcp/README.md) endpoint's generic queries —
-`astral-query` and declared tools — while the endpoint's mail tools reach this
-module, which asks the two actions above.
-
 ## Delivery
 
 A message is a row in the recipient's inbox. `messaging.send_message` puts a
@@ -281,12 +275,12 @@ hosts a mailbox.
    when it arrived over a [`Link`](../../core-definitions/link.md), carrying the
    `network` origin, or came from this node's own send path, which marks the
    queries it routes internally. Any other copy — one a local app routes itself,
-   or one an agent routes through `astral-query` with the `mcp` origin — is
-   rejected with the generic reject code 1, whatever its target and before the
-   hosting check. The recipient's side asks no send action, so a copy that
-   skipped the sending node's check is refused here; a copy addressed to a
-   mailbox on another node would cross a link, where the far node cannot tell
-   it from a send.
+   or one an [`mcp`](../mcp/README.md) declared tool puts for an agent with the
+   `mcp` origin — is rejected with the generic reject code 1, whatever its
+   target and before the hosting check. The recipient's side asks no send
+   action, so a copy that skipped the sending node's check is refused here; a
+   copy addressed to a mailbox on another node would cross a link, where the far
+   node cannot tell it from a send.
 3. **Hosting.** A target whose mailbox this node does not host, as
    [Hosting](#hosting) defines it, is answered `route_not_found`, and the
    node's other routers try it.
@@ -509,8 +503,8 @@ that is not a `messaging.receipt` is answered `not a receipt`.
 
 Every operation rejects a query carrying the `network` origin, which a query
 arriving over a [`Link`](../../core-definitions/link.md) carries, and a query
-carrying the `mcp` origin, which a query the [`mcp`](../mcp/README.md) endpoint
-puts for an agent carries — through `astral-query` or a declared tool. The
+carrying the `mcp` origin, which a query a declared tool of the
+[`mcp`](../mcp/README.md) endpoint puts for an agent carries. The
 refusal comes before any action is submitted and before the caller is checked,
 and a refused caller receives no bytes. A query that omits a required argument,
 or carries an argument that does not parse as its type, is rejected with the
