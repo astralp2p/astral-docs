@@ -1,19 +1,25 @@
-# mcp.stored_message
+# messaging.stored_message
 
-One message as a node holds it, in one agent's box. Every message a node carries
-is two of these — the sender's and the recipient's, differing in `Box` and in
-their owner and in nothing else — and across nodes only one of them is on any
-given machine.
+One message as a node holds it, in one participant's box. Every message a node
+carries is two of these — the sender's and the recipient's, differing in `Box`
+and in their owner and in nothing else — and across nodes only one of them is on
+any given machine.
 
-**This and [`mcp.message`](mcp.message.md) are two types because they answer two
-questions.** `mcp.message` is the frame that crosses a link, and it names
-neither party because the route already does. This is the record a node holds
-once the delivery lands: the parties the route authenticated, the box the row
-sits in, and the instants that node stamped. Neither is derivable from the
-other. One type carrying both would either put a spoofable claim on the wire or
-leave a reader unable to say who wrote what —
-[`mcp.agent_info`](mcp.agent_info.md) sits beside [`mcp.agent`](mcp.agent.md)
-for the same reason.
+**This and [`messaging.message`](messaging.message.md) are two types because
+they answer two questions.** `messaging.message` is the frame that crosses a
+link, and it names neither party because the route already does. This is the
+record a node holds once the delivery lands: the parties the route
+authenticated, the box the row sits in, and the instants that node stamped.
+Neither is derivable from the other. One type carrying both would either put a
+spoofable claim on the wire or leave a reader unable to say who wrote what —
+[`messaging.identity_info`](messaging.identity_info.md) sits beside
+[`messaging.identity_credential`](messaging.identity_credential.md) for the
+same reason.
+
+An operation answers this record without its body, as a
+[`messaging.envelope`](messaging.envelope.md), and
+[`messaging.read_message`](messaging.read_message.md) carries the body beside
+the envelope when a read hands it out.
 
 **An unset instant is the absence of the fact.** It is never a value somebody
 chose, and never a zero one. A row carrying `CreatedAt` alone is a send whose
@@ -29,8 +35,8 @@ it could state it wrong.
 * Cursor (uint64) – The position the node wrote this row at, in its own order.
   Opaque: only its order is a fact. Only the inbox pages by it; the other two
   lists are histories read newest first.
-* ID ([mcp.message_id](mcp.message_id.md)) – The message's identifier, minted by
-  the sender. It names the message on both sides.
+* ID ([messaging.message_id](messaging.message_id.md)) – The message's
+  identifier, minted by the sender. It names the message on both sides.
 * Box (string8) – `inbox` or `outbox`. A message is in one of them for its whole
   life. The archive is a state rather than a third box, and `ArchivedAt` carries
   it.
@@ -39,8 +45,8 @@ it could state it wrong.
 * Recipient ([identity](../../../primitive-types/identity.md)) – Who it was
   written to, as the route authenticated it.
 * Content (string32) – The message body.
-* ParentID ([mcp.message_id](mcp.message_id.md)) – The one message this answers.
-  The zero value answers none.
+* ParentID ([messaging.message_id](messaging.message_id.md)) – The one message
+  this answers. The zero value answers none.
 * CreatedAt ([time](../../../primitive-types/time.md)) – When this node wrote
   this row: the recipient's arrival on an inbox row, the sender's attempt on an
   outbox row.
@@ -59,7 +65,7 @@ it could state it wrong.
   When the delivery was known not to have been stored.
 * FetchedAt (optional [time](../../../primitive-types/time.md)) – Outbox only.
   When the recipient's node handed the body out. It reports a collection, never
-  that a model read it.
+  that anyone read it.
 * Err (optional string16) – Outbox only. The recipient's node's own words for a
   refusal, bounded by the storing node and marked where it was cut. Quoted
   material: another operator wrote it, and nothing acts on it.
@@ -68,7 +74,7 @@ it could state it wrong.
 
 ```json
 {
-  "Type": "mcp.stored_message",
+  "Type": "messaging.stored_message",
   "Object": {
     "Cursor": 412,
     "ID": "7f3a1c9e5b024d6810af2e7c94b5d3a6",
@@ -78,7 +84,14 @@ it could state it wrong.
     "Content": "the index is rebuilt",
     "ParentID": "0d41e6b28c5a4f9137be0a62d85c7f14",
     "CreatedAt": "2026-09-02T22:14:07.104829Z",
-    "ReadAt": "2026-09-02T22:19:55.660411Z"
+    "ArchivedAt": null,
+    "ReadAt": "2026-09-02T22:19:55.660411Z",
+    "ReceiptDueAt": null,
+    "ReceiptStoredAt": null,
+    "LandedAt": null,
+    "FailedAt": null,
+    "FetchedAt": null,
+    "Err": null
   }
 }
 ```

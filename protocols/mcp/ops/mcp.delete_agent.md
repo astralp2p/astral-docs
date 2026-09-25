@@ -1,14 +1,24 @@
 # mcp.delete_agent
 
-Remove an agent: revoke its access token, unset its alias, and delete its
-record. The agent's queued queries are dropped and its live sessions closed.
-The signed relay contract stays indexed until it expires. Local-only — queries
-from the network are rejected.
+Remove an agent: withdraw this node's hosting of its
+[`messaging`](../../messaging/README.md) mailbox as
+[`messaging.delete_identity`](../../messaging/ops/messaging.delete_identity.md)
+does — every access token revoked, every node-local grant withdrawn, the alias
+unset, the mailbox index entry removed, and the mail it owns on this node
+deleted, both boxes, archived or not — and then delete its agent record. A
+correspondent's copy of the same message is owned by the correspondent and
+stays. The withdrawal is local and not a revocation: the signed hosting contract
+and the signed relay contract each stay valid until their expiry. Local-only —
+queries from the network are rejected.
 
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
 The query is rejected before the agent is resolved when the caller is not
 authorized, and a refused caller receives no bytes.
+
+An agent whose mailbox this node's index no longer names has its record deleted
+all the same. A failure keeps the agent record, so a repeated call finishes the
+removal.
 
 ## Arguments
 
@@ -22,8 +32,9 @@ The operation returns one of:
   no identity.
 * An `error_message` object reading `agent not found` if the identity resolves
   but no agent is registered under it.
-* An `error_message` object if revoking the token, unsetting the alias, or
-  deleting the record failed.
+* An `error_message` object if revoking a token or a grant, unsetting the
+  alias, deleting the mailbox index entry and its mail, or deleting the record
+  failed.
 * An `ack` object if the agent was removed.
 
 ## Examples

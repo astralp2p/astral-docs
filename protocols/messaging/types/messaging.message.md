@@ -1,0 +1,44 @@
+# messaging.message
+
+One message a participant sends to another participant. Carried by the
+`messaging.message` query, which the recipient's node answers by storing the
+message in the recipient's inbox.
+
+**This is the frame, not the record.** It crosses a link and names neither
+party, because the route already does.
+[`messaging.stored_message`](messaging.stored_message.md) is what a node holds
+once the delivery lands: the parties the route authenticated, the box the row
+sits in, and the instants that node stamped.
+
+A field is only ever appended. The frame is positional and carries no version
+marker, so a slot that changes meaning is read as the field that used to be
+there, without an error to notice it.
+
+The message names neither party. The sender is the query's caller and the
+recipient its target, both authenticated by the route, so a field naming either
+would be a second claim about a fact the route already holds.
+
+## Fields
+
+* ID ([messaging.message_id](messaging.message_id.md)) – The message's
+  identifier, minted by the sender. It names the message on both sides, and a
+  delivery repeated under it is stored once.
+* Content (string32) – The message body.
+* ParentID ([messaging.message_id](messaging.message_id.md)) – The one message
+  this message answers. The zero value answers none. The recipient's node
+  refuses a parent the recipient does not hold, in either box and whether or
+  not it was put away, so a parent is a message between exactly these two
+  parties. A message naming itself is refused as the same rule's cheapest case.
+
+## Example
+
+```json
+{
+  "Type": "messaging.message",
+  "Object": {
+    "ID": "7f3a1c9e5b024d6810af2e7c94b5d3a6",
+    "Content": "the index is rebuilt",
+    "ParentID": "0d41e6b28c5a4f9137be0a62d85c7f14"
+  }
+}
+```

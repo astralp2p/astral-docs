@@ -1,18 +1,25 @@
 # mod.mcp.call_agent_action
 
 A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission for the
-actor to start a [`Query`](../../../core-definitions/query.md) to another agent.
+actor to put a [`Query`](../../../core-definitions/query.md) to another identity through
+the [`mcp`](../README.md) endpoint.
 
 The actor is the calling agent, and the action asks what that agent is permitted to
-reach. What the agent on the other side is permitted to answer is a separate action,
-[`mod.mcp.answer_agent_action`](mod.mcp.answer_agent_action.md). A call between two
-agents proceeds only when both are granted, and neither party's permission decides the
-other's.
+reach. What the target does with a query that reaches it is the target's own decision,
+and this action does not ask it.
 
-The action is submitted where a call starts — the `astral-query` tool of the
-[`mcp`](../README.md) endpoint — before the query is built. A denied agent is answered as
-it is for a target that resolves to no [`Identity`](../../../core-definitions/identity.md):
-it learns that it cannot reach the target, and not whether the target exists.
+The action guards the endpoint's generic queries: the `astral-query` tool and every
+declared tool submit it before the query is built. A denied agent is answered as it is
+for a target that resolves to no [`Identity`](../../../core-definitions/identity.md),
+`unknown target`: it learns that it cannot reach the target, and not whether the target
+exists.
+
+Mail does not submit this action. The endpoint's mail tools call the
+[`messaging`](../../messaging/README.md) module, which asks
+[`mod.messaging.send_action`](../../messaging/types/mod.messaging.send_action.md) of the
+sender and
+[`mod.messaging.receive_action`](../../messaging/types/mod.messaging.receive_action.md)
+of the recipient.
 
 Whether the action is granted is the [`auth`](../../auth/README.md) protocol's decision —
 a registered handler, or an active
@@ -25,7 +32,7 @@ non-empty is refused rather than granted in full.
 ## Fields
 
 * Action ([`mod.auth.action`](../../auth/types/mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID. ActorID is the calling agent.
-* ToID (identity) – The agent the actor is asking to call.
+* ToID (identity) – The target the actor is asking to query.
 
 ## Example
 

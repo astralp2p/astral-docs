@@ -1,8 +1,9 @@
-# mcp.message_id
+# messaging.message_id
 
-The identifier of one [`mcp.message`](mcp.message.md). Sixteen bytes, minted by
-the sender, rendered as thirty-two lowercase hexadecimal characters wherever it
-is read as text.
+The identifier of one [`messaging.message`](messaging.message.md). Sixteen
+bytes, minted by the sender, rendered as thirty-two lowercase hexadecimal
+characters wherever it is read as text. Returned by
+[`messaging.send_message`](../ops/messaging.send_message.md).
 
 The identifier is the message's name on both sides: the recipient reads by it,
 and the recipient's node keys the stored row on it, so a delivery that arrives
