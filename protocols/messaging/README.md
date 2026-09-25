@@ -15,21 +15,24 @@ relay contract, a signed hosting contract, an optional
 [`Alias`](../../core-definitions/alias.md), and an
 [`apphost`](../apphost/README.md) access token the participant authenticates
 with — and returns its token. `messaging.identity` reads one participant without
-its token. `messaging.delete_identity` withdraws the node's hosting of one
-mailbox and deletes the mail it owns there.
+its token. `messaging.delete_identity` revokes the participant's tokens and
+grants, unsets its alias, withdraws the node's hosting of its mailbox, and
+deletes the mail it owns there.
 
 Five operations are a participant's mail, and each acts on the caller's own
 mailbox, which the node must host. `messaging.send_message` writes a
 [`messaging.message`](types/messaging.message.md) to another participant,
 `messaging.list_messages` lists a box without the bodies,
-`messaging.read_messages` reads whole messages by
-[`messaging.message_id`](types/messaging.message_id.md), `messaging.wait` parks
-until a message arrives and answers what did, and `messaging.archive` puts a
-message away.
+`messaging.read_messages` reads whole messages, each named by a
+[`messaging.message_ref`](types/messaging.message_ref.md), `messaging.wait`
+parks until a message arrives and answers what did, and `messaging.archive`
+puts a message away.
 
 Two queries carry mail between nodes, and neither is an operation.
 `messaging.message` delivers a message to the recipient's identity, and
-`messaging.receipt` tells the sender's identity that a body was handed out.
+`messaging.receipt` tells the sender's identity that a body was handed out. A
+node takes either only when it arrived over a link or came from the node's own
+send path — see [Delivery](#delivery).
 
 The [`mcp`](../mcp/README.md) endpoint serves the five mail operations to its
 agents as tools, calling the messaging module directly, and `mcp.create_agent`
@@ -46,7 +49,8 @@ it.** The hosting contract is a
 * Permits – One permit for
   [`mod.messaging.host_mailbox_action`](types/mod.messaging.host_mailbox_action.md),
   with `Delegation` 0 and no constraints.
-* ExpiresAt – The instant of signing plus the module's `hosting_duration`.
+* ExpiresAt – The instant the node builds the contract plus the module's
+  `hosting_duration`.
 
 `messaging.create_identity` builds the contract, signs it with the keys the node
 holds for both parties, indexes it with [`auth`](../auth/README.md), stores it,
@@ -60,8 +64,9 @@ and the rule is not node-local: the action is granted when its `MailboxID` is
 not the zero identity and its actor is `MailboxID` itself. A node asks the
 action with itself as actor, so for any mailbox but its own it reaches the rule
 only through a contract: `auth` walks the contracts the node is subject to and
-asks the action again with each issuer as actor. The mailbox index never names
-the node's own identity, so no node hosts a mailbox for itself.
+asks the action again with each issuer as actor. No node hosts a mailbox for
+itself: the hosting check refuses the node's own identity, and the zero
+identity, before the index or `auth` is asked.
 
 **A contract binds to its issuer's mailbox.** A contract the mailbox identity
 issued to the node grants the node hosting of that one mailbox. A contract from
@@ -78,20 +83,22 @@ them as two contracts. A relay permit alone never authorizes hosting, and a
 hosting permit alone never authorizes relaying.
 
 **Hosting and admission are separate checks.** A delivery from a sender to a
-recipient is stored only when three checks pass, in this order:
+recipient is stored only when all of these pass:
 
-1. The recipient's node hosts the recipient's mailbox.
-2. The sending side granted
+1. The sending node hosts the sender's mailbox and grants
    [`mod.messaging.send_action`](types/mod.messaging.send_action.md), with the
-   sender as actor, before the delivery left the sender's node.
+   sender as actor, before the delivery leaves it. The recipient's node asks no
+   send action: it takes a delivery only over a link or from its own send
+   path, where this check ran — see [Delivery](#delivery).
+2. The recipient's node hosts the recipient's mailbox.
 3. The recipient's node grants
    [`mod.messaging.receive_action`](types/mod.messaging.receive_action.md), with
    the recipient as actor.
 
 A hosting permit satisfies neither admission check, and an admission grant
-establishes no hosting. The sender's node sends only for a sender whose mailbox
-it hosts. Hosting gives no caller access to the mailbox: a mail operation acts
-on the caller's own mailbox, and the route authenticates the caller.
+establishes no hosting. Hosting gives no caller access to the mailbox: a mail
+operation acts on the caller's own mailbox, and the route authenticates the
+caller.
 
 **The mailbox index narrows routing and never authorizes.** A node keeps an
 index of the hosting contracts it provisioned: one entry per mailbox identity,
@@ -109,10 +116,13 @@ The index cannot outlive the authority it records. An entry whose contract has
 expired or no longer authorizes stays in the index and serves nothing.
 
 **Each check happens when a request starts.** A delivery or a receipt is checked
-when it arrives, before it is accepted. A mail operation, and a direct call to
-the module acting on a mailbox, is checked when it starts, before anything is
-read or written. A request that passed runs to its end: a `messaging.wait`
-parked before the contract expired ends at its granted window.
+when it arrives, before it is accepted. A mail operation is checked before it
+is accepted, and the module checks again when the operation calls it; a direct
+call to the module acting on a mailbox is checked when it starts. Nothing is
+read or written before the check. An operation whose second check fails has
+already been accepted, and answers `not a messaging participant`. A request
+that passed runs to its end: a `messaging.wait` parked before the contract
+expired ends at its granted window.
 
 **Expiry stops serving and deletes nothing.** A mailbox whose hosting contract
 has expired receives no delivery and answers no mail operation, and its stored
@@ -120,17 +130,32 @@ mail stays. Losing hosting authority never authorizes destroying mail. No
 operation renews a hosting contract.
 
 **Only contracts this node provisioned are served.** The index names only the
-hosting contracts this node signed when it provisioned a mailbox, as
-`messaging.create_identity` does. A hosting contract indexed from elsewhere,
-through [`auth.index`](../auth/ops/auth.index.md) or otherwise, grants
+hosting contracts this node signed when it provisioned a mailbox:
+`messaging.create_identity` provisions one, and so does the upgrade of a node
+whose agents kept mail under the [`mcp`](../mcp/README.md) module. A hosting
+contract indexed from elsewhere, through
+[`auth.index`](../auth/ops/auth.index.md) or otherwise, grants
 `mod.messaging.host_mailbox_action`, but the index has no entry for it, so the
 node does not host that mailbox.
+
+**An upgraded mailbox is pending until the module runs.** A node whose `mcp`
+module kept its agents' mail carries that mail over with its cursors, and
+enters every agent identity in the index as a pending entry, which names no
+contract. When the module starts running, it signs, indexes and stores a
+hosting contract for each pending entry and records it on the entry. A pending
+entry serves nothing: its mailbox receives no delivery and answers no mail
+operation. An entry whose key the node does not hold, or whose contract cannot
+be signed, indexed or stored, is logged and stays pending. The next start tries
+it again. An entry deleted or provisioned while its contract was signed is left
+as it is.
 
 **Deletion is a local withdrawal and not a revocation.**
 `messaging.delete_identity` removes the index entry and the mail the identity
 owns on this node. The signed hosting contract stays valid until its expiry,
 wherever a copy is held. This node stops hosting the mailbox because its index
-no longer names it.
+no longer names it. A delivery or a send admitted before the withdrawal writes
+its row before the withdrawal removes the mail, or writes nothing and answers
+`not a messaging participant`.
 
 ## Boxes
 
@@ -159,13 +184,15 @@ a different party. The `messaging` protocol holds neither: one node hosts the
 mailboxes of many tenants and knows no relation between them, so it asks
 [`auth`](../auth/README.md) and acts on the answer.
 
-The sender submits
-[`mod.messaging.send_action`](types/mod.messaging.send_action.md) before
-anything is written. The recipient's node submits
+The sending node submits
+[`mod.messaging.send_action`](types/mod.messaging.send_action.md), with the
+sender as actor, before anything is written. The recipient's node submits
 [`mod.messaging.receive_action`](types/mod.messaging.receive_action.md), with
 the recipient as actor, before the delivery is accepted. A message is stored
 only where both are granted, and only on a node that hosts the recipient's
-mailbox: [Hosting](#hosting) gives the order of the three checks.
+mailbox: [Hosting](#hosting) lists the three checks, and
+[Delivery](#delivery) gives the order in which the recipient's node makes its
+own.
 
 A send the sending side refuses is answered as one naming an identity the node
 cannot resolve, `unknown recipient`, and no row is written. A participant cannot
@@ -173,24 +200,36 @@ tell a recipient it may not reach from one that is not there.
 
 A delivery the receiving side refuses is rejected with `RejectNotAdmitted`,
 reject code 5 — operation-specific, so above the generic codes
-[`Query`](../../core-definitions/query.md) reserves — and the sender reads
-`the recipient does not take messages from you`. It is a separate answer from
-`route_not_found`, which the same node answers for an identity whose mailbox it
-does not host and which a sender also reads when the answering node could not
-be reached at all. The two are separate because the sender acts on them
-differently: a sender turned away stops and asks whoever owns it, and a sender
-that found nobody retries later.
+[`Query`](../../core-definitions/query.md) reserves. A sender whose node hosts
+the recipient's mailbox reads `the recipient does not take messages from you`.
+It is a separate answer from `route_not_found`, which the same node answers for
+an identity whose mailbox it does not host and which a sender also reads when
+the answering node could not be reached at all. The two are separate because
+the sender acts on them differently: a sender turned away stops and asks
+whoever owns it, and a sender that found nobody retries later.
+
+**Across nodes a refusal reaches the sender as `route_not_found`.** The
+recipient's node rejects the delivery with code 5 over the link as well. The
+sending node reaches a recipient on another node through the recipient's relay
+contract — see [Delivery](#delivery) — and its relay path takes a relay's
+rejection as a failed relay: it tries the next relay, then answers
+`route_not_found`. The sender reads `the recipient took nothing; they may not
+exist, or their node may be unreachable`, and its outbox row is stamped failed
+and carries no words. A sender tells a refusal from an absence only when the
+recipient's mailbox is on the sender's own node.
 
 **The code carries no reason.** [`auth`](../auth/README.md) answers one bit, so
 a participant that admits nobody, an owner who does not admit this sender, and
 an authority that would not decide all reach the sender as this one code.
 
-**The code tells a sender that the node it reached hosts the target's
-mailbox.** That is what separating the two answers costs, and the receiving
-side pays it alone: a rejection is reachable only for an identity whose mailbox
-the node hosts, so a sender whose own side admits every recipient learns which
-mailboxes that node hosts. The sending side's refusal stays indistinguishable
-from a name that resolves to nobody.
+**The code tells whoever receives it that the answering node hosts the
+target's mailbox.** That is what separating the two answers costs, and the
+receiving side pays it alone: a rejection is reachable only for an identity
+whose mailbox the node hosts, so a sender on that node whose own side admits
+every recipient learns which mailboxes the node hosts. A sending node that
+routes a delivery to that node over a link receives the same code, although its
+relay path does not pass the code on to the sender. The sending side's refusal stays
+indistinguishable from a name that resolves to nobody.
 
 **The node holds no reachability of its own.** A participant is reachable where
 an `auth` handler, an active
@@ -218,7 +257,66 @@ A message is a row in the recipient's inbox. `messaging.send_message` puts a
 it and answers an `ack`. The node answers, not the participant, so delivery
 finishes inside the resolve deadline whether or not anything reading the
 recipient's mail is running, and a recipient on another node is the same call
-as one on the same node.
+as one on the same node. Only a refusal by the receiving side reads differently
+across nodes — see [Authorization](#authorization).
+
+**The node routes a delivery as itself.** The query's caller is the sender and
+its target the recipient, and the sending node routes it on its own context
+rather than on one carrying the sender's identity. A link carries a query whose
+caller is not the routing context's identity as a relay query naming the caller
+and the target, so the recipient's node reads the sender as the caller. A
+receipt is routed the same way with the parties reversed. The sending node
+reaches a recipient on another node through a relay contract of the
+recipient's that it holds; the protocol publishes no record of which node
+hosts a mailbox.
+
+**A node takes a delivery or a receipt in five steps**, in this order:
+
+1. **Path.** A query addressed to any identity whose path is neither
+   `messaging.message` nor `messaging.receipt` is answered `route_not_found`
+   before anything else is asked. Hosting a mailbox claims no other query
+   addressed to its identity: a mailbox is not a service, and the node's other
+   routers try the query as if this module were absent.
+2. **Provenance.** A `messaging.message` or `messaging.receipt` is taken only
+   when it arrived over a [`Link`](../../core-definitions/link.md), carrying the
+   `network` origin, or came from this node's own send path, which marks the
+   queries it routes internally. Any other copy — one a local app routes itself,
+   or one an agent routes through `astral-query` with the `mcp` origin — is
+   rejected with the generic reject code 1, whatever its target and before the
+   hosting check. The recipient's side asks no send action, so a copy that
+   skipped the sending node's check is refused here; a copy addressed to a
+   mailbox on another node would cross a link, where the far node cannot tell
+   it from a send.
+3. **Hosting.** A target whose mailbox this node does not host, as
+   [Hosting](#hosting) defines it, is answered `route_not_found`, and the
+   node's other routers try it.
+4. **Receipt.** A `messaging.receipt` is accepted without asking
+   [`auth`](../auth/README.md) — see [the sender's record](#the-senders-record).
+5. **Admission.** A `messaging.message` asks
+   [`mod.messaging.receive_action`](types/mod.messaging.receive_action.md), with
+   the target as actor and the caller as `FromID`. A refusal is rejected with
+   `RejectNotAdmitted`, reject code 5, and a grant accepts the delivery.
+
+An accepted delivery reads one object within the module's `delivery_timeout`
+and answers it with one of:
+
+* An `ack` once the message is stored, or when the same sender repeats a
+  delivery of an identifier this inbox already holds from it.
+* An `error_message` object reading `not a message` if the object is not a
+  `messaging.message`.
+* An `error_message` object reading `the message names no id` for the zero
+  identifier, `message too large` for a body over the module's
+  `max_payload_bytes`, `a message may not answer itself` for a `ParentID` equal
+  to its `ID`, or `the message answers one this node does not hold` for a
+  parent the recipient holds in neither box.
+* An `error_message` object reading `a message is already stored under that id`
+  when another sender's message already holds that identifier in this inbox.
+* An `error_message` object reading `not a messaging participant` when the
+  mailbox was withdrawn after the delivery was accepted, or carrying the store's
+  own words when the row cannot be written.
+
+A delivery whose object is not read within `delivery_timeout` is closed with no
+answer.
 
 The row is a [`messaging.stored_message`](types/messaging.stored_message.md):
 the sender, the recipient, the body, the message it answers, the instant the
@@ -311,9 +409,11 @@ twenty messages and carries at most ten replies of each, and the bodies one
 answer carries are bounded by the module's `max_read_bytes`. The message the
 caller named is charged against that budget before its replies, so an overflow
 drops what was not asked for first, and a message whose body was left out for
-room is marked `Truncated`. An identifier the participant does not hold is
-reported rather than refused: one wrong identifier does not cost the rest of
-the batch.
+room is marked `Truncated`. The read stamp and the collection report are made
+as each row is read, before its body is charged, so a message left out for room
+is stamped read and reported collected all the same. An identifier the
+participant does not hold is reported rather than refused: one wrong identifier
+does not cost the rest of the batch.
 
 **Archiving is what says the participant is done.** `messaging.archive` stamps
 the message put away, and a message put away is excluded from both listings and
@@ -335,12 +435,8 @@ and keys the row, so a sender that repeats a delivery after a lost `ack` leaves
 one message.
 
 A hosted mailbox answers `messaging.message` and `messaging.receipt`, and no
-other query. A query addressed to an identity whose mailbox the node does not
-host is answered `route_not_found` before anything else is asked. A query naming
-any other path is answered `route_not_found` for a caller the mailbox's identity
-admits: a mailbox is not a service. A caller it does not admit is rejected with
-`RejectNotAdmitted` first, whatever the path: every query but a receipt asks
-`mod.messaging.receive_action` before its path is read.
+other query: [Delivery](#delivery) gives the order in which a node checks the
+path, the provenance, the hosting and the admission of each.
 
 ## The sender's record
 
@@ -367,18 +463,22 @@ collapse the refusal is built on.
 
 `messaging.list_messages` answers a participant's own rows and no other
 participant's, whichever list it names. A row the receiving side rejected
-carries the refusal, and a row a recipient's node refused after accepting the
-delivery carries that node's own words. The second is quoted material and never
-a field to act on. It is bounded where it is stored and marked where it was cut:
-a refusing node decides neither how much of the reader's context it occupies nor
-whether the reader can tell it read the whole of it.
+carries the refusal when the recipient's mailbox is on the sender's own node;
+across nodes the rejection arrives as `route_not_found`, and the row carries no
+words — see [Authorization](#authorization). A row a recipient's node refused
+after accepting the delivery carries that node's own words, which are quoted
+material and never a field to act on. The words are bounded where they are
+stored and marked where they were cut: a refusing node decides neither how much
+of the reader's context they occupy nor whether the reader can tell it read the
+whole of them.
 
 **A collection is reported by the recipient's node.** When the body is handed
 out and the same node hosts the sender's mailbox, that node stamps the sender's
-row directly. When the sender is elsewhere, the recipient's node puts a
-`messaging.receipt` query to the sender's identity carrying one
-[`messaging.receipt`](types/messaging.receipt.md), and the sender's node stamps
-the row and answers an `ack`.
+row directly. Otherwise the recipient's node stamps its own row `ReceiptDueAt`,
+puts a `messaging.receipt` query to the sender's identity carrying one
+[`messaging.receipt`](types/messaging.receipt.md), and stamps `ReceiptStoredAt`
+once the sender's node stamps the row and answers an `ack`. Only the read that
+first stamps `ReceiptDueAt` sends a receipt.
 
 The stamp reports that the body was handed out and never that anyone considered
 it, and neither `messaging.wait` nor `messaging.list_messages` hands a body out
@@ -398,8 +498,12 @@ consequence of a permitted past act, and the receipt says one thing about that
 one message. Directions are granted per side and the two are independent, so
 asking `mod.messaging.receive_action` here would refuse a receipt wherever the
 sender's inbound direction is narrower than its outbound one — the ordinary
-case, not the edge one. A node holding no matching row answers an error, and a
-node that does not host the target's mailbox answers `route_not_found`.
+case, not the edge one. A node that does not host the target's mailbox answers
+`route_not_found`. An accepted receipt is answered an `ack` when it stamps the
+target's outbox row for that identifier, sent to the caller and not yet
+stamped collected. Any other receipt is answered an `error_message` object
+reading `unknown message` — a row already stamped included — and an object
+that is not a `messaging.receipt` is answered `not a receipt`.
 
 ## Origin
 
@@ -408,7 +512,10 @@ arriving over a [`Link`](../../core-definitions/link.md) carries, and a query
 carrying the `mcp` origin, which a query the [`mcp`](../mcp/README.md) endpoint
 puts for an agent carries — through `astral-query` or a declared tool. The
 refusal comes before any action is submitted and before the caller is checked,
-and a refused caller receives no bytes.
+and a refused caller receives no bytes. A query that omits a required argument,
+or carries an argument that does not parse as its type, is rejected with the
+generic reject code 1 before the operation runs, and so before the origin
+refusal.
 
 **The mail operations answer only a caller whose mailbox this node hosts.** Each
 rejects a caller that is the zero identity or whose mailbox this node does not
@@ -422,12 +529,16 @@ and `messaging.identity` requires
 [`mod.auth.see_node_state_action`](../auth/types/mod.auth.see_node_state_action.md).
 A participant holds neither by default.
 
-`messaging.message` and `messaging.receipt` are not operations and take no such
-refusal — each is addressed to a participant's identity rather than to a
-node's, and a caller reaches both over a link. A node puts the deliveries and
-receipts it sends with no origin: their path is fixed and addressed to a
-participant, and no operation answers either name. Each is still checked for
-hosting when it arrives.
+`messaging.message` and `messaging.receipt` are not operations and take no
+operation's refusal — each is addressed to a participant's identity rather than
+to a node's, and a caller reaches both over a link. A node puts the deliveries
+and receipts it sends with no origin and with its send path's internal mark:
+their path is fixed and addressed to a participant, and no operation answers
+either name. A node takes either only when it arrived over a link or carries
+that mark. A copy with any other provenance — no origin, the `local` origin or
+the `mcp` origin — is rejected with the generic reject code 1, whatever its
+target, before the hosting check. A copy that passes is checked for hosting as
+[Delivery](#delivery) orders it.
 
 **A participant reaches its own mail through apphost.** A participant's access
 token is an [`apphost`](../apphost/README.md) access token, and apphost's
@@ -437,23 +548,39 @@ there — and through them the participant's own mailbox and nothing else.
 **An MCP tool carries no query.** The [`mcp`](../mcp/README.md) endpoint's mail
 tools call the messaging module directly as the authenticated agent, so no
 origin applies to them, and the module's hosting check does: a tool reaches a
-mailbox only where the matching operation would.
+mailbox only where the matching operation would. Where the operation rejects a
+caller whose mailbox this node does not host, the tool answers
+`not a messaging participant`.
 
 ## Configuration
 
-The module reads `messaging.yaml`:
+The module reads `messaging.yaml`. Every key is optional, and a key left out
+takes its default:
 
+```yaml
+hosting_duration: 87600h
+token_duration: 8760h
+delivery_timeout: 15s
+wait_default: 2m
+wait_max: 15m
+max_payload_bytes: 65536
+max_read_bytes: 65536
+```
+
+* `hosting_duration` – The lifetime of a hosting contract the module signs,
+  counted from the instant it builds the contract, for
+  `messaging.create_identity` and for a pending entry alike. Defaults to 87600
+  hours — ten 365-day years, the lifetime of the relay contract
+  `messaging.create_identity` signs beside it, which no key changes.
 * `token_duration` – The lifetime of the access token
-  `messaging.create_identity` issues when the caller names none. Defaults to 1
-  year.
-* `hosting_duration` – The lifetime of the hosting contract
-  `messaging.create_identity` signs, counted from its signing. Defaults to 10
-  years, the lifetime of the relay contract signed beside it.
-* `delivery_timeout` – How long a node waits on one delivery or one receipt
-  before it gives up. Defaults to 15 seconds.
+  `messaging.create_identity` issues when the caller names no `duration`.
+  Defaults to 8760 hours, 365 days.
+* `delivery_timeout` – Bounds one delivery and one receipt on the sending node,
+  and the read of either on the answering node. Defaults to 15 seconds.
 * `wait_default` – The window `messaging.wait` grants a caller naming none.
   Defaults to 2 minutes.
-* `wait_max` – The most any `messaging.wait` is granted. Defaults to 15 minutes.
+* `wait_max` – The most any `messaging.wait` is granted, `wait_default`
+  included. Defaults to 15 minutes.
 * `max_payload_bytes` – The longest body, in bytes, a send accepts and a
   delivery stores. Defaults to 65536.
 * `max_read_bytes` – The most body bytes one `messaging.read_messages` answer

@@ -14,10 +14,15 @@ queries from the network are rejected.
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
 The query is rejected before the agent is resolved when the caller is not
-authorized, and a refused caller receives no bytes.
+authorized, and a refused caller receives no bytes. A query from the network is
+rejected before the action is submitted.
 
-An agent whose mailbox this node's index no longer names has its record deleted
-all the same. A failure keeps the agent record, so a repeated call finishes the
+**The participant goes first, and its absence is tolerated.** The node deletes
+the messaging participant, then the agent record. A participant this node's
+mailbox index no longer names — removed by `messaging.delete_identity`, or by an
+earlier call whose record deletion failed — is not an error: the record is
+deleted all the same, and nothing else is revoked. Any other failure of the
+participant's deletion keeps the agent record, so a repeated call finishes the
 removal.
 
 ## Arguments
@@ -31,7 +36,7 @@ The operation returns one of:
 * An `error_message` object reading `unknown identity` if `identity` resolves to
   no identity.
 * An `error_message` object reading `agent not found` if the identity resolves
-  but no agent is registered under it.
+  but no agent is registered under it, or the record cannot be read.
 * An `error_message` object if revoking a token or a grant, unsetting the
   alias, deleting the mailbox index entry and its mail, or deleting the record
   failed.

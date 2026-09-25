@@ -23,7 +23,7 @@ is what a caller reads when it does not hold the agent's credentials.
     "Identity": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "Alias": "scout",
     "Token": "h4d8s2w6y1b9t3n7",
-    "ExpiresAt": "2027-08-20T12:00:00+02:00"
+    "ExpiresAt": "2027-08-20T10:00:00Z"
   }
 }
 ```

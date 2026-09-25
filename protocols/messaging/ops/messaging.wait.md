@@ -16,7 +16,10 @@ origin is rejected before the caller is checked.
 caller holds an open channel while the node waits for mail rather than a query
 that is not yet answered. The park ends when the inbox holds a matching message,
 when the granted window closes, or when the caller closes the channel. A park
-the caller ended is answered nothing.
+the caller ended is answered nothing. The node reads and discards whatever the
+caller writes after the query, so only the end of the channel ends the park
+early. The node looks at the inbox again when a message lands in it or one is
+put back with `undo`, and every ten seconds besides.
 
 **The window is granted, never refused.** A caller naming no window is granted
 the module's `wait_default`, 2 minutes by default. An ask over the module's
@@ -31,12 +34,22 @@ read off the answer's `Granted`.
 * since (uint64) – Waits only for what is written after this cursor: the
   `NextSince` of an earlier answer, or the greatest `Cursor` a listing answered.
   Defaults to 0, which narrows nothing.
-* timeout (duration) – The window to park for. Defaults to the module's
-  `wait_default`, and an ask over the module's `wait_max` is granted `wait_max`.
+* timeout (duration) – The window to park for. Zero, negative or absent takes
+  the module's `wait_default`, and an ask over the module's `wait_max` is
+  granted `wait_max`.
 
 ## Returned objects
 
+Once the query is accepted, the operation checks again that this node hosts
+the caller's mailbox, then checks `since` and resolves `from`, in that order,
+before it parks.
+
 The operation returns one of:
+* An `error_message` object reading `not a messaging participant` if this node
+  stopped hosting the caller's mailbox after the query was accepted.
+* An `error_message` object reading
+  `since is a cursor a previous answer gave you, not <since>` if `since` is
+  over 9223372036854775807.
 * An `error_message` object reading `unknown correspondent: <from>` if `from`
   resolves to no identity.
 * An `error_message` object if the inbox cannot be read.
@@ -53,5 +66,5 @@ $ astral-query messaging.wait -since 412 -timeout 5m -out json
 
 ```shellsession
 $ astral-query messaging.wait -since 413 -timeout 1h -out json
-{"Type":"messaging.wait_result","Object":{"Messages":null,"NextSince":413,"TimedOut":true,"Granted":900000000000,"Waited":900000631000}}
+{"Type":"messaging.wait_result","Object":{"Messages":[],"NextSince":413,"TimedOut":true,"Granted":900000000000,"Waited":900000631000}}
 ```

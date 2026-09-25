@@ -14,15 +14,22 @@ Four operations manage agent records. `mcp.create_agent` mints an agent through
 the messaging module, as `messaging.create_identity` mints a participant, keeps
 its record, and returns its token. `mcp.agent` reads one record without its
 token. `mcp.list_agents` streams every record with its token.
-`mcp.delete_agent` removes one: the node withdraws its hosting of the agent's
-mailbox, deletes the mail the agent owns there, and deletes the record.
+`mcp.delete_agent` removes one: the node revokes the agent's tokens and grants,
+unsets its alias, withdraws its hosting of the agent's mailbox, deletes the mail
+the agent owns there, and deletes the record.
 
 ## Endpoint
 
 The MCP endpoint is a streamable HTTP listener configured by `bind_mcp`,
 default `tcp:127.0.0.1:8626`; an empty value disables it. An agent
 authenticates with its access token as a bearer token, and every tool call acts
-as the authenticated agent identity.
+as the authenticated agent identity. The endpoint accepts any unexpired
+[`apphost`](../apphost/README.md) access token and reads no agent record, so a
+participant minted with
+[`messaging.create_identity`](../messaging/ops/messaging.create_identity.md)
+authenticates as well. The token is checked on every HTTP request: a request
+presenting a revoked or expired token is refused, and a request already running
+is not cut short.
 
 The endpoint serves six tools of its own. `astral-query` sends a
 [`Query`](../../core-definitions/query.md) to a node service. The other five are
@@ -48,9 +55,22 @@ says `read` rather than carrying the inbox stamps; identifiers are hex text,
 instants are RFC 3339 text, and an unset instant is left out. `wait` takes
 `timeout_secs` and answers `granted_secs` and `waited_secs` in whole seconds.
 `list_messages` and `wait` answer `next_since`, the cursor to pass back as
-`since`, which repeats the `since` the call was given when nothing newer was
-answered. Beyond parsing its arguments, a tool refuses what its operation
-refuses, in the same words.
+`since`, as decimal text. A call that sent `since` — `0` included — is always
+answered one: the greatest cursor answered, or the `since` it sent, read as a
+number and written back in plain decimal, when nothing newer was answered. A
+call that sent no `since` is answered the greatest cursor answered, and no
+`next_since` when it answered nothing. An outbox or archive listing answers the
+greatest cursor it listed as well, and both lists refuse a nonzero `since`.
+
+A tool parses its arguments before it calls the module. A `since` that is not
+a decimal integer from 0 to 9223372036854775807 is refused with
+`since is a cursor a previous answer gave you, not "<since>"`, a `box` other
+than `inbox` or `outbox` with `box is inbox or outbox, not <box>`, and a
+message identifier that is not thirty-two hexadecimal characters with
+`invalid message id`. `read_messages` reads a negative `max_children` as 0 and
+one over 10 as 10. Beyond that, a tool refuses what its operation refuses, in the same words,
+and answers `not a messaging participant` where its operation rejects a caller
+whose mailbox this node does not host.
 
 A tool call carries no query, so the origin refusal every `messaging` operation
 applies reaches none of the five. The messaging module checks that this node
@@ -84,6 +104,14 @@ the node, and it is the same
 `astral-query` raises about the same pair: a tool is a named query and buys the
 agent no reach it did not have. It carries the `mcp` origin, so a tool named
 against a node operation is refused as any agent's query to one is.
+
+**A query leaves this node as a plain query.** `astral-query` and a declared
+tool both route their query on a context naming the agent. A target on this
+node reads the agent as the caller. A link carries such a query as a plain
+query between the two nodes rather than as a relay query naming the agent and
+the target, so the far node reads it as this node querying the far node.
+[`messaging`](../messaging/README.md#delivery) routes its deliveries as the
+node for this reason.
 
 **The node reads none of the answer.** What the answer means belongs to the
 answering service, and the description is declared beside the query for the same
@@ -121,7 +149,8 @@ of the recipient — see
 Every operation rejects a query that arrived over a
 [`Link`](../../core-definitions/link.md).
 
-A query an agent sends through `astral-query` carries the `mcp` origin. The
+A query an agent sends through `astral-query` or a declared tool carries the
+`mcp` origin. The
 [`shell`](../shell/README.md) protocol mounts every module's operations and
 rejects a query carrying that origin, so an agent reaches no module's operations
 by that path. Every [`messaging`](../messaging/README.md) operation rejects that
@@ -129,13 +158,38 @@ origin as well.
 
 **The refusal reads the query's origin and never the caller.** Two paths stamp
 one: a query arriving over a link carries `network`, and a query an agent sends
-through `astral-query` carries `mcp`. A query arriving by any other path carries
-no origin, and a query carrying no origin is not refused. The node's own entry
-paths carry none, [`apphost`](../apphost/README.md)'s endpoints among them, and
-an agent's access token is an apphost access token and authenticates there.
+through `astral-query` or a declared tool carries `mcp`. A query arriving by
+any other path carries no origin, and a query carrying no origin is not
+refused. The node's own entry paths carry none,
+[`apphost`](../apphost/README.md)'s endpoints among them, and an agent's access
+token is an apphost access token and authenticates there.
 
 An agent therefore reaches these four operations by a path the refusal does not
 cover. `mcp.create_agent`, `mcp.list_agents` and `mcp.delete_agent` check the
 caller as well: each requires
 [`mod.auth.admin_manage_apps_action`](../auth/types/mod.auth.admin_manage_apps_action.md),
 which an agent does not hold by default. `mcp.agent` answers no token.
+
+## Configuration
+
+The module reads `mcp.yaml`. Every key is optional, and a key left out takes its
+default:
+
+* `bind_mcp` – The endpoint the MCP server listens on. Defaults to
+  `tcp:127.0.0.1:8626`; an empty value disables the endpoint, and the
+  operations stay served.
+* `query_timeout` – The response window of one `astral-query` call that names
+  no `timeout_ms`, and of every declared tool call. Defaults to 15 seconds.
+* `max_response_bytes` – The most bytes one `astral-query` or declared tool
+  answer reads. Defaults to 65536; an answer that fills it is marked
+  `truncated`.
+* `max_response_objects` – The most objects one answer decodes. Defaults to 64;
+  an answer that reaches it is marked `truncated`.
+* `tools` – The [declared tools](#declared-tools), each a `name`, a
+  `description` and a `query`. A node refuses to start on a tool with no name,
+  no description, a taken name, or a query that is not
+  `astral://<identity-or-alias>:<query>`.
+
+The mail's own bounds — the access token's lifetime, the `wait` windows and the
+longest body — are the [`messaging`](../messaging/README.md#configuration)
+module's, in `messaging.yaml`.

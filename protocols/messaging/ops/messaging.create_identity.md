@@ -17,7 +17,7 @@ carrying the `mcp` origin is rejected before the action is submitted.
 identity issues it and this node is its subject. It carries one permit for
 [`mod.messaging.host_mailbox_action`](../types/mod.messaging.host_mailbox_action.md),
 with `Delegation` 0 and no constraints, and expires after the module's
-`hosting_duration`, 10 years by default. The node signs it with the keys it
+`hosting_duration`, 87600 hours by default. The node signs it with the keys it
 holds for both parties, indexes it, stores it, and records it in its mailbox
 index. The relay contract is a separate contract with its own permit: see
 [Hosting](../README.md#hosting).
@@ -33,16 +33,18 @@ holds no reachability of its own.
 * alias (string) – Alias to bind to the new participant. No alias is bound when
   empty, and none is generated: an alias is node-global, so a name the caller
   did not choose contends in a namespace it does not own.
-* duration (duration) – Lifetime of the access token. Defaults to the module's
-  `token_duration`, itself 1 year. It sets neither contract's lifetime.
+* duration (duration) – Lifetime of the access token. Zero or absent takes the
+  module's `token_duration`, 8760 hours by default. It sets neither contract's
+  lifetime.
 
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the identity cannot be minted, the alias is
-  already taken (`alias already taken`), the token cannot be issued, a contract
-  cannot be signed, indexed or stored, or the mailbox index entry cannot be
-  stored.
+* An `error_message` object if, in this order, the identity's key cannot be
+  stored or indexed, a contract cannot be signed, indexed or stored, the alias
+  is already taken (`alias already taken`) or cannot be bound, the token cannot
+  be issued, or the mailbox index entry cannot be stored. The index entry is
+  written last, so a failed call leaves no mailbox this node serves.
 * A `messaging.identity_credential` object describing the new participant,
   including its token.
 

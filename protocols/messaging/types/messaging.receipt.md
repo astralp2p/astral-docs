@@ -18,9 +18,13 @@ The receipt carries one attempt and no state of its own. The fact it reports is
 already true and durable on the node that sends it, so a receipt lost in transit
 costs the sender a stamp and nothing else. Nothing retries one.
 
-The sender's node admits a receipt by the matching outbox row and asks
-[`auth`](../../auth/README.md) nothing: see
-[the sender's record](../README.md#the-senders-record).
+A receipt is sent only when the node that handed the body out does not host
+the sender's mailbox; a node that hosts it stamps the sender's row directly.
+The sender's node takes a receipt only over a link or from its own send path,
+and admits it by the matching outbox row, asking
+[`auth`](../../auth/README.md) nothing: see [Delivery](../README.md#delivery)
+and [the sender's record](../README.md#the-senders-record). A receipt naming no
+such row, or one already stamped collected, is answered `unknown message`.
 
 ## Fields
 

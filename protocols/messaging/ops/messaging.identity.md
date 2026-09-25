@@ -9,6 +9,10 @@ The query is rejected before any participant record is read when the caller is
 not authorized, and a refused caller receives no bytes. A query from the network
 or carrying the `mcp` origin is rejected before the action is submitted.
 
+The record is read from this node's mailbox index and never asks the hosting
+check: an entry still pending, and one whose hosting contract has expired or no
+longer authorizes, is answered as any other. See [Hosting](../README.md#hosting).
+
 ## Arguments
 
 * identity (string8, required) – The participant, given as a hex public key or a
@@ -23,6 +27,7 @@ The operation returns one of:
   resolves but this node's mailbox index has no entry for it. A caller
   distinguishes a mistyped name from an identity whose mailbox this node does
   not index.
+* An `error_message` object if the index cannot be read.
 * A `messaging.identity_info` object describing the participant.
 
 ## Examples

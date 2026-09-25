@@ -16,11 +16,12 @@ say whether the identifier exists anywhere else.
 ## Fields
 
 * Messages ([]messaging.read_message) – The messages the caller named and holds,
-  in the order it named them. Each inbox message among them is stamped read.
+  in the order it named them. Each inbox message among them is stamped read,
+  one whose body was left out for room included.
 * Replies ([]messaging.read_message) – Their direct replies that have not been
   put away, each message's oldest first, as many as `MaxChildren` allows. Empty
   when `Children` is `none`. When `Children` is `full`, each inbox reply among
-  them is stamped read.
+  them is stamped read, one whose body was left out for room included.
 * NotFound ([]messaging.message_ref) – The references the caller does not hold.
 
 ## Example

@@ -35,11 +35,15 @@ grants no relaying.
 
 The action is submitted by the node that serves a mailbox, with the node's own
 identity as actor, each time a request touching that mailbox starts: a delivery
-or a receipt addressed to the identity, before it is accepted, and every mail
-operation or direct call to the module acting on the mailbox, before anything
-is read or written. See [Hosting](../README.md#hosting) for the contract
-`messaging.create_identity` signs and the index that narrows which mailboxes a
-node checks.
+or a receipt addressed to the identity, after its path and provenance checks
+and before it is accepted; every mail operation, before it is accepted and
+again when it calls the module; every direct call to the module acting on the
+mailbox, before anything is read or written; and a read that hands out an inbox
+body, to learn whether the sender's row is on this node. It is submitted only
+for an identity the node's mailbox index names with an unexpired contract, and
+never for the node's own identity or the zero identity. See
+[Hosting](../README.md#hosting) for the contract `messaging.create_identity`
+signs and the index that narrows which mailboxes a node checks.
 
 The permit in a hosting contract carries no constraints and has `Delegation` 0,
 so the node hands the authority on to no other identity. A permit whose

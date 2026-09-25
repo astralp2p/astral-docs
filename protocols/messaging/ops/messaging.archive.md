@@ -27,6 +27,8 @@ link, and the other party learns nothing from it.
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` object reading `not a messaging participant` if this node
+  stopped hosting the caller's mailbox after the query was accepted.
 * An `error_message` object reading `box is inbox or outbox, not <box>` if
   `box` names neither.
 * An `error_message` object if the row cannot be written.

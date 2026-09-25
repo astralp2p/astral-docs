@@ -2,7 +2,9 @@
 
 One message a participant sends to another participant. Carried by the
 `messaging.message` query, which the recipient's node answers by storing the
-message in the recipient's inbox.
+message in the recipient's inbox. That node takes the query only over a link or
+from its own send path, and [Delivery](../README.md#delivery) lists its checks
+and its answers.
 
 **This is the frame, not the record.** It crosses a link and names neither
 party, because the route already does.

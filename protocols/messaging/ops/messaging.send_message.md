@@ -18,6 +18,12 @@ The caller must also hold
 recipient. A send the action refuses is answered as one naming a recipient that
 resolves to no identity, and no row is written.
 
+Once the query is accepted, the operation reads the request, then checks in
+this order: that this node still hosts the caller's mailbox, the recipient, the
+body's length and the parent, before it writes the outbox row. The node then
+routes the delivery as itself, with the caller as the query's caller and the
+recipient as its target — see [Delivery](../README.md#delivery).
+
 ## Arguments
 
 * (stream) – One
@@ -27,6 +33,11 @@ resolves to no identity, and no row is written.
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` object reading `not a messaging participant` if this node
+  stopped hosting the caller's mailbox after the query was accepted, or
+  withdrew it before the outbox row was written. No row is written.
+* An `error_message` object reading `unexpected object: <type>` if the input is
+  an object of another type.
 * An `error_message` object reading `unknown recipient: <to>` if `To` resolves
   to no identity, resolves to the zero identity, or names a recipient the
   caller may not reach. The three are one answer, and no row is written.
@@ -39,19 +50,23 @@ The operation returns one of:
 * An `error_message` object reading `delivery failed: <cause>` if the outbox row
   was written and the delivery did not land. The cause is one of:
   * `the recipient does not take messages from you` – the recipient's node
-    rejected the delivery with `RejectNotAdmitted`, code 5. The outbox row is
-    stamped failed and carries these words.
+    rejected the delivery with `RejectNotAdmitted`, code 5, and that node is
+    this node. The outbox row is stamped failed and carries these words.
   * `the recipient took nothing; they may not exist, or their node may be
-    unreachable` – no node answered for the recipient: no node reached hosts
-    the recipient's mailbox, or the node hosting it could not be reached. The
-    outbox row is stamped failed.
+    unreachable` – no node took the delivery: no node reached hosts the
+    recipient's mailbox, the node hosting it could not be reached, or that node
+    is another node and rejected the delivery with `RejectNotAdmitted`, which
+    this node's relay path answers as `route_not_found` — see
+    [Authorization](../README.md#authorization). The outbox row is stamped
+    failed and carries no words.
   * `the message did not leave this node: <reason>` – the message could not be
     written to the delivery. The outbox row is stamped failed.
   * `the recipient's node refused it: <words>` – the recipient's node answered
     the delivery with an error, such as `message too large`,
-    `the message answers one this node does not hold`, or
-    `a message is already stored under that id`. The outbox row is stamped
-    failed and carries these words.
+    `the message answers one this node does not hold`,
+    `a message is already stored under that id`, or
+    `not a messaging participant`. The outbox row is stamped failed and carries
+    these words.
   * `the message left and nothing came back: <reason>` – no acknowledgement
     came back: the delivery ran past the module's `delivery_timeout`, the
     connection closed before an answer, or the answer was neither an `ack` nor

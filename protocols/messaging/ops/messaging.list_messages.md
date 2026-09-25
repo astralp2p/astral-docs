@@ -37,7 +37,16 @@ carry no bodies, and the bound is on
 
 ## Returned objects
 
+Once the query is accepted, the operation checks again that this node hosts
+the caller's mailbox, then checks `since`, resolves `from` and `to`, and checks
+`list` and its narrowings, in that order. The first failure is the answer.
+
 The operation returns one of:
+* An `error_message` object reading `not a messaging participant` if this node
+  stopped hosting the caller's mailbox after the query was accepted.
+* An `error_message` object reading
+  `since is a cursor a previous answer gave you, not <since>` if `since` is
+  over 9223372036854775807.
 * An `error_message` object reading `no such list: <list>` if `list` names none
   of the three.
 * An `error_message` object reading

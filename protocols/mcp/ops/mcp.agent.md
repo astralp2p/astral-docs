@@ -20,15 +20,15 @@ The operation returns one of:
 * An `error_message` object reading `unknown identity` if `identity` resolves to
   no identity.
 * An `error_message` object reading `agent not found` if the identity resolves
-  but no agent is registered under it. A caller distinguishes a mistyped name
-  from an identity that is not an agent.
+  but no agent is registered under it, or the record cannot be read. A caller
+  distinguishes a mistyped name from an identity that is not an agent.
 * An `mcp.agent_info` object describing the agent.
 
 ## Examples
 
 ```shellsession
 $ astral-query mcp.agent -identity scout -out json
-{"Type":"mcp.agent_info","Object":{"Identity":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c","Alias":"scout","ExpiresAt":"2027-08-20T12:00:00+02:00"}}
+{"Type":"mcp.agent_info","Object":{"Identity":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c","Alias":"scout","ExpiresAt":"2027-08-20T10:00:00Z"}}
 ```
 
 ```shellsession

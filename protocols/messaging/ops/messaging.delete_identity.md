@@ -19,11 +19,19 @@ and the signed relay contract are left as they are: each stays valid until its
 expiry, wherever a copy is held. This node stops hosting the mailbox because its
 mailbox index no longer names it. See [Hosting](../README.md#hosting).
 
-**A failure keeps the index entry.** A token or a grant left standing keeps
-authorizing whoever presents the identity, and the index entry is the record
-that names it, so a call that fails part-way can be repeated and the repeat
-finishes the removal. The index entry and the mail the identity owns are removed
-together, in one write.
+**A failure keeps the index entry.** The steps run in this order: the tokens,
+the grants, the alias, then the index entry with the mail. A token or a grant
+left standing keeps authorizing whoever presents the identity, and the index
+entry is the record that names it, so a call that fails part-way can be
+repeated and the repeat finishes the removal. The index entry and the mail the
+identity owns are removed together, in one write. The node stops serving the
+mailbox just before that write. When the write fails, the entry and the mail
+stay and the mailbox goes unserved: a repeated call removes them, and a node
+restart serves the mailbox again, with its tokens already revoked.
+
+A delivery or a send already admitted for the mailbox writes its row before the
+withdrawal removes the mail, or writes nothing and answers
+`not a messaging participant`. An entry still pending is removed as any other.
 
 An [`mcp`](../../mcp/README.md) agent is removed with
 [`mcp.delete_agent`](../../mcp/ops/mcp.delete_agent.md), which removes the
@@ -40,9 +48,10 @@ The operation returns one of:
 * An `error_message` object reading `unknown identity` if `identity` resolves to
   no identity.
 * An `error_message` object reading `identity not found` if the identity
-  resolves but this node's mailbox index has no entry for it.
-* An `error_message` object if revoking a token or a grant, unsetting the
-  alias, or deleting the index entry and its mail failed.
+  resolves to the zero identity, or resolves but this node's mailbox index has
+  no entry for it. Nothing is revoked.
+* An `error_message` object if reading the index, revoking a token or a grant,
+  unsetting the alias, or deleting the index entry and its mail failed.
 * An `ack` object if the participant was removed.
 
 ## Examples
