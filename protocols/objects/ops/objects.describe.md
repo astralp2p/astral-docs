@@ -7,6 +7,12 @@ The caller must hold
 The query is rejected before any repository is opened when the caller is not
 authorized, and a refused caller receives no bytes.
 
+Within the network zone the node forwards the call to every provider of the
+object as the caller. Each provider authorizes the forwarded call as the caller,
+so a node forwards only the authority its caller holds there.
+A query arriving from the network runs without the network zone: the node
+answers from its own data and forwards nothing.
+
 ## Arguments
 
 * id (object_id.sha256, required) – The id to describe.
