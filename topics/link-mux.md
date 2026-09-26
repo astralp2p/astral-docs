@@ -185,6 +185,8 @@ by `Nonce`:
 * **`ErrCode` != 0** — *rejected*. The value is the query's
   [*Reject Code*](../core-definitions/query.md): the generic rejection is `1`,
   and operation-specific codes take other values. The session is discarded.
+* A target node that finds no route for the query answers the generic `1`. A
+  `response` has no code of its own for a missing route.
 
 The caller matches a `response` to its session by nonce and additionally checks
 that it arrived from the expected peer before acting on it, so a response on the

@@ -38,6 +38,17 @@
   [`Link Multiplexer`](link-mux.md).
 * The `Node` attaches the calling `App`'s own `Contract` to the outgoing `Query`, so the receiving
   `Node` can establish that the caller permits this relayer to speak for it.
+* The `Node` tries the candidates one at a time, in the order it found them. The first candidate
+  that accepts the `Query` ends the routing. A candidate that rejects the `Query` does not end it,
+  and the next candidate is tried.
+* When no candidate accepts, the `Query` fails with the first rejection a candidate answered with a
+  `Reject Code` other than the generic `1`, and carries that `Reject Code` (see
+  [`Query`](../core-definitions/query.md)).
+* A candidate's generic rejection counts as no route. A `Node` answers a `Query` it has no route
+  for with the generic `Reject Code` over a `Link` (see
+  [`Link Multiplexer`](link-mux.md#response-semantics)), so the generic `Reject Code` does not tell
+  a refusal from a missing route.
+* The `Query` fails as unroutable when no candidate answered a `Reject Code` other than `1`.
 * A `Node` holding no such `Contract` for the `Target` has no candidate and the `Query` fails as
   unroutable. Resolution consults held `Contracts` alone and asks the network nothing.
 

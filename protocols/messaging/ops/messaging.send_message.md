@@ -49,16 +49,14 @@ The operation returns one of:
   written.
 * An `error_message` object reading `delivery failed: <cause>` if the outbox row
   was written and the delivery did not land. The cause is one of:
-  * `the recipient does not take messages from you` – the recipient's node
-    rejected the delivery with `RejectNotAdmitted`, code 5, and that node is
-    this node. The outbox row is stamped failed and carries these words.
+  * `the recipient does not take messages from you` – the recipient's node,
+    this node or another, rejected the delivery with `RejectNotAdmitted`,
+    code 5 — see [Authorization](../README.md#authorization). The outbox row is
+    stamped failed and carries these words.
   * `the recipient took nothing; they may not exist, or their node may be
     unreachable` – no node took the delivery: no node reached hosts the
-    recipient's mailbox, the node hosting it could not be reached, or that node
-    is another node and rejected the delivery with `RejectNotAdmitted`, which
-    this node's relay path answers as `route_not_found` — see
-    [Authorization](../README.md#authorization). The outbox row is stamped
-    failed and carries no words.
+    recipient's mailbox, or the node hosting it could not be reached. The
+    outbox row is stamped failed and carries no words.
   * `the message did not leave this node: <reason>` – the message could not be
     written to the delivery. The outbox row is stamped failed.
   * `the recipient's node refused it: <words>` – the recipient's node answered
