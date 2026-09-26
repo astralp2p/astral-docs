@@ -199,23 +199,23 @@ tell a recipient it may not reach from one that is not there.
 
 A delivery the receiving side refuses is rejected with `RejectNotAdmitted`,
 reject code 5 — operation-specific, so above the generic codes
-[`Query`](../../core-definitions/query.md) reserves. A sender whose node hosts
-the recipient's mailbox reads `the recipient does not take messages from you`.
-It is a separate answer from `route_not_found`, which the same node answers for
-an identity whose mailbox it does not host and which a sender also reads when
-the answering node could not be reached at all. The two are separate because
-the sender acts on them differently: a sender turned away stops and asks
-whoever owns it, and a sender that found nobody retries later.
+[`Query`](../../core-definitions/query.md) reserves. The sender reads `the
+recipient does not take messages from you`, whichever node hosts the
+recipient's mailbox. It is a separate answer from `route_not_found`, which the
+same node answers for an identity whose mailbox it does not host and which a
+sender also reads when the answering node could not be reached at all. The two
+are separate because the sender acts on them differently: a sender turned away
+stops and asks whoever owns it, and a sender that found nobody retries later.
 
-**Across nodes a refusal reaches the sender as `route_not_found`.** The
-recipient's node rejects the delivery with code 5 over the link as well. The
-sending node reaches a recipient on another node through the recipient's relay
-contract — see [Delivery](#delivery) — and its relay path takes a relay's
-rejection as a failed relay: it tries the next relay, then answers
-`route_not_found`. The sender reads `the recipient took nothing; they may not
-exist, or their node may be unreachable`, and its outbox row is stamped failed
-and carries no words. A sender tells a refusal from an absence only when the
-recipient's mailbox is on the sender's own node.
+**Across nodes a refusal reaches the sender with its code.** The sending node
+reaches a recipient on another node through the recipient's relay contract —
+see [Delivery](#delivery) — and the recipient's node rejects the delivery with
+code 5 over the link. The sending node tries every relay, and when none accepts
+it answers the first rejection whose code is not the generic `1`, carrying that
+code, rather than `route_not_found` — see
+[App Routing](../../topics/app-routing.md#resolving-the-host). The sender reads
+`the recipient does not take messages from you`, and its outbox row is stamped
+failed and carries those words.
 
 **The code carries no reason.** [`auth`](../auth/README.md) answers one bit, so
 a participant that admits nobody, an owner who does not admit this sender, and
@@ -224,10 +224,9 @@ an authority that would not decide all reach the sender as this one code.
 **The code tells whoever receives it that the answering node hosts the
 target's mailbox.** That is what separating the two answers costs, and the
 receiving side pays it alone: a rejection is reachable only for an identity
-whose mailbox the node hosts, so a sender on that node whose own side admits
-every recipient learns which mailboxes the node hosts. A sending node that
-routes a delivery to that node over a link receives the same code, although its
-relay path does not pass the code on to the sender. The sending side's refusal stays
+whose mailbox the node hosts, so a sender whose own side admits every
+recipient learns which mailboxes a node hosts, whether that node is the
+sender's own or one reached over a link. The sending side's refusal stays
 indistinguishable from a name that resolves to nobody.
 
 **The node holds no reachability of its own.** A participant is reachable where
@@ -250,8 +249,8 @@ A message is a row in the recipient's inbox. `messaging.send_message` puts a
 it and answers an `ack`. The node answers, not the participant, so delivery
 finishes inside the resolve deadline whether or not anything reading the
 recipient's mail is running, and a recipient on another node is the same call
-as one on the same node. Only a refusal by the receiving side reads differently
-across nodes — see [Authorization](#authorization).
+as one on the same node. A refusal by the receiving side reads the same across
+nodes — see [Authorization](#authorization).
 
 **The node routes a delivery as itself.** The query's caller is the sender and
 its target the recipient, and the sending node routes it on its own context
@@ -458,9 +457,8 @@ collapse the refusal is built on.
 `messaging.list_messages` answers the rows of one mailbox, whichever list it
 names: the caller's own, or one the caller reads as a
 [delegated read](#delegated-read). A row the receiving side rejected
-carries the refusal when the recipient's mailbox is on the sender's own node;
-across nodes the rejection arrives as `route_not_found`, and the row carries no
-words — see [Authorization](#authorization). A row a recipient's node refused
+carries the refusal, whichever node hosts the recipient's mailbox — see
+[Authorization](#authorization). A row a recipient's node refused
 after accepting the delivery carries that node's own words, which are quoted
 material and never a field to act on. The words are bounded where they are
 stored and marked where they were cut: a refusing node decides neither how much
