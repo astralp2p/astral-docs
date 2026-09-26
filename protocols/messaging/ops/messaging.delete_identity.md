@@ -16,8 +16,11 @@ carrying the `mcp` origin is rejected before the action is submitted.
 
 **The withdrawal is local and not a revocation.** The signed hosting contract
 and the signed relay contract are left as they are: each stays valid until its
-expiry, wherever a copy is held. This node stops hosting the mailbox because its
-mailbox index no longer names it. See [Hosting](../README.md#hosting).
+expiry, wherever a copy is held. The hosting contract names this node as its
+subject and grants nothing on any other node. This node stops hosting the
+mailbox because its mailbox index no longer names it, and the node never renews
+the hosting contract of a mailbox its index does not name. See
+[Hosting](../README.md#hosting).
 
 **A failure keeps the index entry.** The steps run in this order: the tokens,
 the grants, the alias, then the index entry with the mail. A token or a grant
@@ -26,8 +29,9 @@ entry is the record that names it, so a call that fails part-way can be
 repeated and the repeat finishes the removal. The index entry and the mail the
 identity owns are removed together, in one write. The node stops serving the
 mailbox just before that write. When the write fails, the entry and the mail
-stay and the mailbox goes unserved: a repeated call removes them, and a node
-restart serves the mailbox again, with its tokens already revoked.
+stay and the mailbox goes unserved and unrenewed: a repeated call removes them,
+and a node restart serves and renews the mailbox again, with its tokens already
+revoked.
 
 A delivery or a send already admitted for the mailbox writes its row before the
 withdrawal removes the mail, or writes nothing and answers
