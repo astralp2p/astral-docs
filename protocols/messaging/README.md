@@ -112,8 +112,7 @@ naming the contract's [`Object ID`](../../core-definitions/object-id.md) and its
 expiry. The index narrows which targets the module checks at all. A node hosts a
 mailbox only while all of these hold:
 
-* the index has an entry for the mailbox identity, and the entry names a
-  contract;
+* the index has an entry for the mailbox identity;
 * the contract's expiry has not passed;
 * `mod.messaging.host_mailbox_action` is granted with the node as actor and the
   mailbox identity as `MailboxID`.
@@ -140,24 +139,11 @@ mail stays. Losing hosting authority never authorizes destroying mail. No
 operation renews a hosting contract.
 
 **Only contracts this node provisioned are served.** The index names only the
-hosting contracts this node signed when it provisioned a mailbox:
-`messaging.create_identity` provisions one, and so does the upgrade of a node
-whose agents kept mail under the [`mcp`](../mcp/README.md) module. A hosting
-contract indexed from elsewhere, through
+hosting contracts this node signed when `messaging.create_identity` provisioned
+a mailbox. A hosting contract indexed from elsewhere, through
 [`auth.index`](../auth/ops/auth.index.md) or otherwise, grants
 `mod.messaging.host_mailbox_action`, but the index has no entry for it, so the
 node does not host that mailbox.
-
-**An upgraded mailbox is pending until the module runs.** A node whose `mcp`
-module kept its agents' mail carries that mail over with its cursors, and
-enters every agent identity in the index as a pending entry, which names no
-contract. When the module starts running, it signs, indexes and stores a
-hosting contract for each pending entry and records it on the entry. A pending
-entry serves nothing: its mailbox receives no delivery and answers no mail
-operation. An entry whose key the node does not hold, or whose contract cannot
-be signed, indexed or stored, is logged and stays pending. The next start tries
-it again. An entry deleted or provisioned while its contract was signed is left
-as it is.
 
 **Deletion is a local withdrawal and not a revocation.**
 `messaging.delete_identity` removes the index entry and the mail the identity
@@ -657,11 +643,11 @@ max_payload_bytes: 65536
 max_read_bytes: 65536
 ```
 
-* `hosting_duration` – The lifetime of a hosting contract the module signs,
-  counted from the instant it builds the contract, for
-  `messaging.create_identity` and for a pending entry alike. Defaults to 87600
-  hours — ten 365-day years, the lifetime of the relay contract
-  `messaging.create_identity` signs beside it, which no key changes.
+* `hosting_duration` – The lifetime of the hosting contract
+  `messaging.create_identity` signs, counted from the instant it builds the
+  contract. Defaults to 87600 hours — ten 365-day years, the lifetime of the
+  relay contract `messaging.create_identity` signs beside it, which no key
+  changes.
 * `token_duration` – The lifetime of the access token
   `messaging.create_identity` issues when the caller names no `duration`.
   Defaults to 8760 hours, 365 days.

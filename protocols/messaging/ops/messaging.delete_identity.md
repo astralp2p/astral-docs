@@ -31,7 +31,7 @@ restart serves the mailbox again, with its tokens already revoked.
 
 A delivery or a send already admitted for the mailbox writes its row before the
 withdrawal removes the mail, or writes nothing and answers
-`not a messaging participant`. An entry still pending is removed as any other.
+`not a messaging participant`.
 
 An [`mcp`](../../mcp/README.md) agent is removed with
 [`mcp.delete_agent`](../../mcp/ops/mcp.delete_agent.md), which removes the

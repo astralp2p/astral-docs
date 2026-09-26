@@ -10,8 +10,8 @@ not authorized, and a refused caller receives no bytes. A query from the network
 or carrying the `mcp` origin is rejected before the action is submitted.
 
 The record is read from this node's mailbox index and never asks the hosting
-check: an entry still pending, and one whose hosting contract has expired or no
-longer authorizes, is answered as any other. See [Hosting](../README.md#hosting).
+check: an entry whose hosting contract has expired or no longer authorizes is
+answered as any other. See [Hosting](../README.md#hosting).
 
 ## Arguments
 
