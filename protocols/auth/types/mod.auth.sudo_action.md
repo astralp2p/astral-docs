@@ -9,8 +9,8 @@ identities requires an active
 
 The action gates every operation that takes one identity's authority for
 another: the `as` argument of `shell.shell`, the `key` argument of
-`crypto.sign_hash` and `crypto.sign_text`, and an apphost guest binding its
-session to an identity.
+`crypto.sign_hash` and `crypto.sign_text`, the issuer and the subject of
+`auth.sign_contract`, and an apphost guest binding its session to an identity.
 
 An [`Identity`](../../../core-definitions/identity.md) is a public key, so
 signing under another party's key is that party acting rather than a capability

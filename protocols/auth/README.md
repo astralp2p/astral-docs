@@ -6,9 +6,12 @@ co-signed by both parties as a `mod.auth.signed_contract`. The node indexes
 such contracts and consults them, alongside locally registered handlers,
 when authorizing typed actions (`mod.auth.action` and its concrete subtypes).
 
-Two operations are exposed: `auth.sign_contract` co-signs a contract
-presented on the stream using private keys held by the node, and `auth.index`
-verifies a stored `mod.auth.signed_contract` and adds it to the local index.
+Two operations are exposed: [`auth.sign_contract`](ops/auth.sign_contract.md)
+co-signs a contract presented on the stream using private keys held by the
+node, for a local caller that may sign as both of its parties, or the claim
+contract of node setup for the node's own session while the node is unclaimed;
+and `auth.index` verifies a stored `mod.auth.signed_contract` and adds it to the
+local index.
 
 ## Actions
 
