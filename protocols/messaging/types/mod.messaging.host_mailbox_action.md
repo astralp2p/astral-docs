@@ -36,13 +36,18 @@ grants no relaying.
 The action is submitted by the node that serves a mailbox, with the node's own
 identity as actor, each time a request touching that mailbox starts: a delivery
 or a receipt addressed to the identity, after its path and provenance checks
-and before it is accepted; every mail operation, before it is accepted and
-again when it calls the module; every direct call to the module acting on the
-mailbox, before anything is read or written; and a read that hands out an inbox
-body, to learn whether the sender's row is on this node. It is submitted only
-for an identity the node's mailbox index names with an unexpired contract, and
-never for the node's own identity or the zero identity. See
-[Hosting](../README.md#hosting) for the contract `messaging.create_identity`
+and before it is accepted; every mail operation other than
+`messaging.read_messages`, before it is accepted and again when it calls the
+module; `messaging.read_messages` on the caller's own mailbox, once the request
+arrives and before any row is read; every direct call to the module acting on
+the mailbox, before anything is read or written; and a read of the recipient's own
+mailbox that hands out an inbox body, to learn whether the sender's row is on
+this node. A [delegated read](../README.md#delegated-read) submits it for the
+mailbox the read names, before
+[`mod.messaging.read_mailbox_action`](mod.messaging.read_mailbox_action.md). It
+is submitted only for an identity the node's mailbox index names with an
+unexpired contract, and never for the node's own identity or the zero identity.
+See [Hosting](../README.md#hosting) for the contract `messaging.create_identity`
 signs and the index that narrows which mailboxes a node checks.
 
 The permit in a hosting contract carries no constraints and has `Delegation` 0,

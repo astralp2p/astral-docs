@@ -26,7 +26,11 @@ mailbox, which the node must host. `messaging.send_message` writes a
 `messaging.read_messages` reads whole messages, each named by a
 [`messaging.message_ref`](types/messaging.message_ref.md), `messaging.wait`
 parks until a message arrives and answers what did, and `messaging.archive`
-puts a message away.
+puts a message away. `messaging.list_messages` and `messaging.read_messages`
+also read a mailbox this node hosts for another identity, when the authority
+grants that reader
+[`mod.messaging.read_mailbox_action`](types/mod.messaging.read_mailbox_action.md)
+— see [Delegated read](#delegated-read).
 
 Two queries carry mail between nodes, and neither is an operation.
 `messaging.message` delivers a message to the recipient's identity, and
@@ -98,7 +102,9 @@ recipient is stored only when all of these pass:
 A hosting permit satisfies neither admission check, and an admission grant
 establishes no hosting. Hosting gives no caller access to the mailbox: a mail
 operation acts on the caller's own mailbox, and the route authenticates the
-caller.
+caller. Another identity reads the mailbox only under a separate grant,
+[`mod.messaging.read_mailbox_action`](types/mod.messaging.read_mailbox_action.md),
+and only reads it — see [Delegated read](#delegated-read).
 
 **The mailbox index narrows routing and never authorizes.** A node keeps an
 index of the hosting contracts it provisioned: one entry per mailbox identity,
@@ -116,13 +122,17 @@ The index cannot outlive the authority it records. An entry whose contract has
 expired or no longer authorizes stays in the index and serves nothing.
 
 **Each check happens when a request starts.** A delivery or a receipt is checked
-when it arrives, before it is accepted. A mail operation is checked before it
-is accepted, and the module checks again when the operation calls it; a direct
-call to the module acting on a mailbox is checked when it starts. Nothing is
-read or written before the check. An operation whose second check fails has
-already been accepted, and answers `not a messaging participant`. A request
-that passed runs to its end: a `messaging.wait` parked before the contract
-expired ends at its granted window.
+when it arrives, before it is accepted. A mail operation other than
+`messaging.read_messages` is checked before it is accepted, and the module
+checks again when the operation calls it. `messaging.read_messages` learns the
+mailbox it reads from its request, which arrives once the query is accepted, so
+it is checked after the request arrives. A direct call to the module acting on a
+mailbox is checked when it starts. No row is read or written before the check.
+An operation that fails the check after it accepted the query answers
+`not a messaging participant`, except a refused
+[delegated read](#delegated-read), which ends the query with no answer. A
+request that passed runs to its end: a `messaging.wait` parked before the
+contract expired ends at its granted window.
 
 **Expiry stops serving and deletes nothing.** A mailbox whose hosting contract
 has expired receives no delivery and answers no mail operation, and its stored
@@ -173,9 +183,12 @@ not handed out. A narrowing that cannot apply to the named list is refused
 rather than ignored, because ignoring it answers everything or nothing under a
 question the caller thought it had asked.
 
-**No operation names an owner.** The owner of every row a mail operation reads
-or writes is the query's caller, authenticated by the route. No argument names
-an owner, so no value a caller passes reaches another participant's mail.
+**Only a read names a mailbox.** The owner of every row a mail operation writes
+is the query's caller, authenticated by the route. `messaging.list_messages`
+and `messaging.read_messages` read the caller's own mailbox unless they name
+another, and another is read only as a [delegated read](#delegated-read), which
+the authority grants and which changes nothing. No other value a caller passes
+reaches another participant's mail.
 
 ## Authorization
 
@@ -387,7 +400,8 @@ newest first and refuse a cursor rather than answer one wrongly.
 **Reading is a separate act, and it is not a claim.** `messaging.read_messages`
 opens what it is given and stamps each inbox message read. A second read answers
 the same messages unchanged, so a caller that retries a call whose answer it
-never saw loses nothing.
+never saw loses nothing. A read of another identity's mailbox stamps nothing at
+all — see [Delegated read](#delegated-read).
 
 **A read answers the shape of an exchange and carries part of it.** Every
 message a read names carries the identifier of each of its direct replies in
@@ -455,8 +469,9 @@ parent the sending participant does not hold. A stored list of refusals would
 tell a recipient that refuses apart from one that does not exist, which is the
 collapse the refusal is built on.
 
-`messaging.list_messages` answers a participant's own rows and no other
-participant's, whichever list it names. A row the receiving side rejected
+`messaging.list_messages` answers the rows of one mailbox, whichever list it
+names: the caller's own, or one the caller reads as a
+[delegated read](#delegated-read). A row the receiving side rejected
 carries the refusal when the recipient's mailbox is on the sender's own node;
 across nodes the rejection arrives as `route_not_found`, and the row carries no
 words — see [Authorization](#authorization). A row a recipient's node refused
@@ -472,7 +487,9 @@ row directly. Otherwise the recipient's node stamps its own row `ReceiptDueAt`,
 puts a `messaging.receipt` query to the sender's identity carrying one
 [`messaging.receipt`](types/messaging.receipt.md), and stamps `ReceiptStoredAt`
 once the sender's node stamps the row and answers an `ack`. Only the read that
-first stamps `ReceiptDueAt` sends a receipt.
+first stamps `ReceiptDueAt` sends a receipt, and only a read of the recipient's
+own mailbox stamps it: a [delegated read](#delegated-read) hands bodies out and
+reports no collection.
 
 The stamp reports that the body was handed out and never that anyone considered
 it, and neither `messaging.wait` nor `messaging.list_messages` hands a body out
@@ -499,6 +516,73 @@ stamped collected. Any other receipt is answered an `error_message` object
 reading `unknown message` — a row already stamped included — and an object
 that is not a `messaging.receipt` is answered `not a receipt`.
 
+## Delegated read
+
+**Another identity reads a mailbox where the authority grants it, and only reads
+it.** `messaging.list_messages` takes a `mailbox` argument, and a
+[`messaging.read_messages_request`](types/messaging.read_messages_request.md)
+carries a `Mailbox` field. Absent, or naming the caller, either reads the
+caller's own mailbox as the rest of this document describes. Naming another
+identity makes the call a delegated read: the caller lists or reads that
+mailbox's rows and changes none of them. Only these two operations take a
+mailbox. `messaging.send_message`, `messaging.archive` and `messaging.wait` act
+on the caller's own mailbox alone, and the [`mcp`](../mcp/README.md) endpoint's
+tools name no mailbox.
+
+**The node asks, and the authority decides.** A delegated read is answered only
+when these pass, in this order, before any row is read:
+
+1. The caller is neither the zero identity nor this node's own identity. The
+   caller need not have a mailbox on this node.
+2. This node hosts the named mailbox, as [Hosting](#hosting) defines it. A
+   mailbox this node does not serve is refused.
+3. [`mod.messaging.read_mailbox_action`](types/mod.messaging.read_mailbox_action.md)
+   is granted with the caller as actor and the named mailbox as `MailboxID`.
+
+A refused delegated read reads nothing, and its caller receives no bytes.
+`messaging.list_messages` rejects the query at every step.
+`messaging.read_messages` rejects the query at step 1, before it accepts it. It
+learns the mailbox from its request, which arrives once the query is accepted,
+so a refusal at step 2 or step 3 ends the query with no answer.
+
+A `mailbox` argument of `messaging.list_messages` that resolves to no identity
+is rejected before step 1, and its caller receives no bytes. A `from` or `to`
+that resolves to no identity differs: it is answered `unknown correspondent`.
+
+No credential is borrowed. The reader authenticates as itself, and the mailbox's
+own token is neither presented nor needed. The node holds no rule about who
+reads whose mailbox: it asks [`auth`](../auth/README.md) on every delegated read
+and acts on the answer, so a changed answer applies to the next read.
+
+**The module gives [`auth`](../auth/README.md) no rule for the action.** Being
+the mailbox identity grants nothing. An `auth` handler registered for
+`mod.messaging.read_mailbox_action` or the external authority configured for it
+grants the action, and the node acts on their answer as it does for
+[Authorization](#authorization). A node with neither refuses every delegated
+read.
+
+**The action refuses every permit.** A
+[`mod.auth.permit`](../auth/types/mod.auth.permit.md) for
+`mod.messaging.read_mailbox_action` is refused whether or not it carries a
+constraint. No permit carries a delegated read, so no
+[`mod.auth.signed_contract`](../auth/types/mod.auth.signed_contract.md) carries
+one: in a contract whose subject is the reader, a permit for the action grants
+nothing, whoever the issuer is, and `auth` asks the handlers and the external
+authority about the reader itself. The refusal covers contracts carrying this
+action and no other. A contract carrying
+[`mod.auth.sudo_action`](../auth/types/mod.auth.sudo_action.md) lets its subject
+act as its issuer, and a read the subject makes as the issuer is the issuer's
+read.
+
+**A delegated read never stamps.** It stamps no `ReadAt` or `ReceiptDueAt` on
+the mailbox's inbox rows, sends no `messaging.receipt`, and stamps no
+`FetchedAt` on a sender's outbox row on this node. This holds for the messages
+the read names and for their replies under `Children` `full` alike. The
+mailbox's owner finds its mailbox as it left it: an unread message stays unread,
+and no sender learns of a collection its recipient did not make. Everything else
+about a read holds: the bounds, `ChildIDs`, the replies answered beside a
+message, and `Truncated`.
+
 ## Origin
 
 Every operation rejects a query carrying the `network` origin, which a query
@@ -511,11 +595,20 @@ or carries an argument that does not parse as its type, is rejected with the
 generic reject code 1 before the operation runs, and so before the origin
 refusal.
 
-**The mail operations answer only a caller whose mailbox this node hosts.** Each
-rejects a caller that is the zero identity or whose mailbox this node does not
-host, as [Hosting](#hosting) defines it, before anything is read or written. The
-node hosts no mailbox for its own identity, so a local caller that carries no
-identity and acts as the node reaches no mailbox.
+**The mail operations answer only a caller whose mailbox this node hosts.** On
+the caller's own mailbox, `messaging.send_message`, `messaging.list_messages`,
+`messaging.wait` and `messaging.archive` reject a caller that is the zero
+identity or whose mailbox this node does not host, as [Hosting](#hosting)
+defines it, before anything is read or written. `messaging.read_messages`
+rejects the zero identity and the node's own identity before it accepts the
+query. `messaging.read_messages` learns the mailbox it reads from its request,
+which arrives once the query is accepted, and answers a caller whose own
+mailbox this node does not host `not a messaging participant` before any row is
+read. The node hosts no mailbox for its own identity, so a local caller that
+carries no identity and acts as the node reaches no mailbox. A
+[delegated read](#delegated-read) is checked differently: its caller need not
+have a mailbox here, the mailbox it names must, and the node's own identity is
+refused as a reader.
 
 `messaging.create_identity` and `messaging.delete_identity` require
 [`mod.auth.admin_manage_apps_action`](../auth/types/mod.auth.admin_manage_apps_action.md),
@@ -537,14 +630,17 @@ target, before the hosting check. A copy that passes is checked for hosting as
 **A participant reaches its own mail through apphost.** A participant's access
 token is an [`apphost`](../apphost/README.md) access token, and apphost's
 endpoints stamp no origin, so the token's bearer reaches the mail operations
-there — and through them the participant's own mailbox and nothing else.
+there — and through them the participant's own mailbox, and another mailbox
+only to read it, where the authority grants the bearer
+[`mod.messaging.read_mailbox_action`](types/mod.messaging.read_mailbox_action.md).
 
 **An MCP tool carries no query.** The [`mcp`](../mcp/README.md) endpoint's mail
 tools call the messaging module directly as the authenticated agent, so no
 origin applies to them, and the module's hosting check does: a tool reaches a
-mailbox only where the matching operation would. Where the operation rejects a
+mailbox only where the matching operation would. Where the operation refuses a
 caller whose mailbox this node does not host, the tool answers
-`not a messaging participant`.
+`not a messaging participant`. No tool names a mailbox: an agent's tools act on
+the agent's own mailbox alone.
 
 ## Configuration
 

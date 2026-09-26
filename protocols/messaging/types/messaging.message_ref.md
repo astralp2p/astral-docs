@@ -10,8 +10,10 @@ in each direction — a participant writing to itself holds both — and the
 archive spans both directions, so a reference names the box an envelope
 reported beside the identifier.
 
-The owner is not a field. It is the caller of the operation the reference is
-passed to, so no reference reaches another participant's mail.
+The owner is not a field. It is the mailbox of the read the reference is passed
+to — the caller's own, or the one a
+[delegated read](../README.md#delegated-read) names — so no reference reaches
+mail outside that mailbox.
 
 ## Fields
 

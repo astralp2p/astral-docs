@@ -71,13 +71,16 @@ than `inbox` or `outbox` with `box is inbox or outbox, not <box>`, and a
 message identifier that is not thirty-two hexadecimal characters with
 `invalid message id`. `read_messages` reads a negative `max_children` as 0 and
 one over 10 as 10. Beyond that, a tool refuses what its operation refuses, in the same words,
-and answers `not a messaging participant` where its operation rejects a caller
+and answers `not a messaging participant` where its operation refuses a caller
 whose mailbox this node does not host.
 
 A tool call carries no query, so the origin refusal every `messaging` operation
 applies reaches none of the five. The messaging module checks that this node
 hosts the agent's mailbox, as it does for any caller, so a tool reaches a
-mailbox only where the matching operation would.
+mailbox only where the matching operation would. No tool names a mailbox: an
+agent lists and reads its own mailbox alone, and the
+[delegated read](../messaging/README.md#delegated-read) the operations offer is
+not a tool.
 
 **A held `wait` reports progress.** A caller that names an MCP progress token is
 sent a progress notification each time the park passes its ten-second floor

@@ -1,7 +1,9 @@
 # messaging.read_messages_result
 
-What one read answers: the messages the caller named and holds, their direct
-replies, and the references it does not hold. Returned by
+What one read answers: the messages the caller named that the mailbox read
+holds, their direct replies, and the references the mailbox does not hold. The
+mailbox read is the caller's own, or the one a
+[delegated read](../README.md#delegated-read) names. Returned by
 [`messaging.read_messages`](../ops/messaging.read_messages.md).
 
 **The replies are a flat set beside the messages.** The edge is on the reply,
@@ -9,20 +11,27 @@ which names its parent in `ParentID`, so a nested answer would carry the same
 edge twice. The read goes one level, and the `ChildIDs` on every named message
 are what let a reader walk on.
 
-**A reference the caller does not hold is reported rather than refused.** One
+**A reference the mailbox does not hold is reported rather than refused.** One
 wrong identifier does not cost the rest of the batch, and the report does not
 say whether the identifier exists anywhere else.
 
+**Only a read of the caller's own mailbox stamps.** A
+[delegated read](../README.md#delegated-read) stamps no message and no reply
+read, and tells no sender a body was collected.
+
 ## Fields
 
-* Messages ([]messaging.read_message) – The messages the caller named and holds,
-  in the order it named them. Each inbox message among them is stamped read,
-  one whose body was left out for room included.
+* Messages ([]messaging.read_message) – The messages the caller named that the
+  mailbox read holds, in the order the caller named them. In a read of the
+  caller's own mailbox, each inbox message among them is stamped read, one whose
+  body was left out for room included.
 * Replies ([]messaging.read_message) – Their direct replies that have not been
   put away, each message's oldest first, as many as `MaxChildren` allows. Empty
-  when `Children` is `none`. When `Children` is `full`, each inbox reply among
-  them is stamped read, one whose body was left out for room included.
-* NotFound ([]messaging.message_ref) – The references the caller does not hold.
+  when `Children` is `none`. In a read of the caller's own mailbox with
+  `Children` `full`, each inbox reply among them is stamped read, one whose body
+  was left out for room included.
+* NotFound ([]messaging.message_ref) – The references the mailbox read does not
+  hold.
 
 ## Example
 
