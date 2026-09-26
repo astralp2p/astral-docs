@@ -13,10 +13,12 @@ agents of many tenants and knows no relation between them.
 Four operations manage agent records. `mcp.create_agent` mints an agent through
 the messaging module, as `messaging.create_identity` mints a participant, keeps
 its record, and returns its token. `mcp.agent` reads one record without its
-token. `mcp.list_agents` streams every record with its token.
-`mcp.delete_agent` removes one: the node revokes the agent's tokens and grants,
-unsets its alias, withdraws its hosting of the agent's mailbox, deletes the mail
-the agent owns there, and deletes the record.
+token. `mcp.list_agents` streams every record with its token. Both reads leave
+out an agent whose participant this node's mailbox index no longer names, and
+`mcp.list_agents` deletes that agent's record. `mcp.delete_agent` removes one:
+the node revokes the agent's tokens and grants, unsets its alias, withdraws its
+hosting of the agent's mailbox, deletes the mail the agent owns there, and
+deletes the record.
 
 ## Endpoint
 

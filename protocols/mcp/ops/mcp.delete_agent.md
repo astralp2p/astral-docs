@@ -21,9 +21,16 @@ rejected before the action is submitted.
 the messaging participant, then the agent record. A participant this node's
 mailbox index no longer names — removed by `messaging.delete_identity`, or by an
 earlier call whose record deletion failed — is not an error: the record is
-deleted all the same, and nothing else is revoked. Any other failure of the
-participant's deletion keeps the agent record, so a repeated call finishes the
-removal.
+deleted all the same, and nothing else is revoked. A record already deleted at
+that point is not an error either. Any other failure of the participant's
+deletion keeps the agent record, so a repeated call finishes the removal.
+
+**The record is read without the mailbox index.** The node reads the agent
+record alone, so this operation reaches the record of an agent whose
+participant is gone. `messaging.delete_identity` unsets the alias, so such an
+agent is named by its hex public key. `mcp.list_agents` deletes that record
+when it reads it, and this operation answers `agent not found` afterwards.
+`mcp.agent` deletes no record.
 
 ## Arguments
 

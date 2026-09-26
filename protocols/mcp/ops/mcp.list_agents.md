@@ -15,6 +15,14 @@ node, and its output must be treated as the tokens themselves are. A read that
 does not need the tokens is `mcp.agent`, which answers per agent and withholds
 them.
 
+**An agent whose participant is gone is left out.**
+[`messaging.delete_identity`](../../messaging/ops/messaging.delete_identity.md)
+on an agent's identity withdraws the participant and leaves the agent record,
+with a token that no longer authenticates. The node looks each agent's identity
+up in this node's mailbox index. An agent the index no longer names is left out
+of the stream, and its record is deleted. A failure of that deletion is logged
+and changes no answer.
+
 ## Arguments
 
 This operation takes no arguments.
@@ -22,8 +30,8 @@ This operation takes no arguments.
 ## Returned objects
 
 The operation returns a stream of `mcp.agent` objects, followed by an `eos`
-object. An `error_message` object is returned instead if the records cannot be
-read.
+object. An `error_message` object is returned instead if the records or the
+mailbox index cannot be read.
 
 ## Examples
 
