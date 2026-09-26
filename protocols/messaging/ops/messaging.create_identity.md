@@ -19,8 +19,9 @@ identity issues it and this node is its subject. It carries one permit for
 with `Delegation` 0 and no constraints, and expires after the module's
 `hosting_duration`, 87600 hours by default. The node signs it with the keys it
 holds for both parties, indexes it, stores it, and records it in its mailbox
-index. The relay contract is a separate contract with its own permit: see
-[Hosting](../README.md#hosting).
+index. The node renews it before it expires: see
+[Renewal and expiry](../README.md#renewal-and-expiry). The relay contract is a
+separate contract with its own permit: see [Hosting](../README.md#hosting).
 
 The participant it mints receives nothing until something grants
 [`mod.messaging.receive_action`](../types/mod.messaging.receive_action.md) for
