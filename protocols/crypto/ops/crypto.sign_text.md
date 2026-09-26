@@ -5,9 +5,10 @@ Sign a text message with a private key held by the node. The signer key defaults
 Signing under any key other than the caller's identity requires
 [`mod.auth.sudo_action`](../../auth/types/mod.auth.sudo_action.md) for the
 identity that key belongs to; without it the operation answers `cannot sign with
-another identity's key`. The node's own key is never signable this way and
-answers `cannot sign with the node's key`. The check runs on every frame,
-because the channel loop rebinds the signer key mid-stream.
+another identity's key`. The node's own key is refused to a caller that
+arrives as the node and answers `cannot sign with the node's key`; a caller
+holding `mod.auth.sudo_action` for the node signs under it. The check runs on
+every frame, because the channel loop rebinds the signer key mid-stream.
 
 ## Arguments
 

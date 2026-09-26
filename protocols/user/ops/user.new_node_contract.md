@@ -1,9 +1,16 @@
 # user.new_node_contract
 
-Build an unsigned `mod.auth.contract` that grants
-`mod.user.swarm_membership_action` from a user identity to a node identity for a
-given duration. Used by tooling that wants to assemble a contract before
-asking the issuer and subject to sign it.
+Build an unsigned `mod.auth.contract` from a user identity to a node identity
+for a given duration. The contract carries three permits, in this order:
+`mod.user.swarm_membership_action` with delegation 0, then
+`mod.user.admin_swarm_action` and `mod.user.see_swarm_action` with delegation 1.
+No permit carries constraints. Used by tooling that wants to assemble a
+contract before asking the issuer and subject to sign it.
+
+[`auth.sign_contract`](../../auth/ops/auth.sign_contract.md) signs this
+contract, unmodified, for the node's own session while the node is unclaimed
+and the contract's expiry is within the bounds that operation states. The
+default duration is within them.
 
 ## Arguments
 
@@ -12,7 +19,7 @@ asking the issuer and subject to sign it.
 * node (string, optional) – Name or identity of the subject (node). Defaults
   to the local node.
 * duration (string, optional) – Go-style duration (e.g. `8760h`). Defaults to
-  one year.
+  365 days (`8760h`).
 
 ## Returned objects
 

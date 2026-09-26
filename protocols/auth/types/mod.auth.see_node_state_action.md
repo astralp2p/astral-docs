@@ -25,16 +25,15 @@ aliases under their own identity.
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
 
-The user identity, the node's own identity, and every current node member of the
-node's swarm hold this action by default, and nobody else. An app or any other
-identity holds it through a node-local grant or a signed contract. A node member
-the user has expelled holds it no longer.
-
-A node member that reads the node's state reads its log stream with it.
+The user identity and the node's own identity hold this action by default, and
+nobody else. A node member of the node's swarm does not hold it under its own
+identity. An app, a node member, or any other identity holds it through a
+node-local grant or a signed contract. A local caller carrying no identity is
+routed as the node's own identity.
 
 Changing the same state answers to
 [`mod.auth.configure_node_state_action`](mod.auth.configure_node_state_action.md),
-which no swarm membership grants.
+which no swarm membership grants either.
 
 ## Fields
 
