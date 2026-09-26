@@ -39,8 +39,10 @@ The node signs it while all of these hold:
   expired contracts included. A failed lookup refuses the contract.
 
 [`apphost.register`](../../apphost/ops/apphost.register.md) and
-[`mcp.create_agent`](../../mcp/ops/mcp.create_agent.md) index a relay contract
-for each identity they mint, after the identity's private key is indexed. An
+[`messaging.create_identity`](../../messaging/ops/messaging.create_identity.md),
+which [`mcp.create_agent`](../../mcp/ops/mcp.create_agent.md) mints its agents
+through, index a relay contract for each identity they mint, after the
+identity's private key is indexed. An
 identity whose registration fails between those two steps holds no relay
 contract. The node indexes the node contract of each user it accepts, so the
 claim contract is never signed again for a user the node has had, even after
