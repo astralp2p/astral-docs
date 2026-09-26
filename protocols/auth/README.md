@@ -24,21 +24,24 @@ an operation submits its action before it acts.
 * [`mod.auth.serve_objects_action`](types/mod.auth.serve_objects_action.md) – stand in the node's answer path as a describer, finder, or searcher, or receive repository changes as an indexer
 * [`mod.auth.admin_objects_action`](types/mod.auth.admin_objects_action.md) – change which repositories the node has
 * [`mod.auth.admin_network_action`](types/mod.auth.admin_network_action.md) – read the node's network state, make it do network work, and control its links and listeners
-* [`mod.auth.admin_manage_apps_action`](types/mod.auth.admin_manage_apps_action.md) – issue, list, and delete app access tokens and MCP agents
+* [`mod.auth.admin_manage_apps_action`](types/mod.auth.admin_manage_apps_action.md) – issue, list, and delete app access tokens and MCP agents, and create and delete messaging participants
 * [`mod.auth.configure_node_state_action`](types/mod.auth.configure_node_state_action.md) – change the node's tree and its identity aliases
 * [`mod.auth.serve_apps_action`](types/mod.auth.serve_apps_action.md) – host an app handler and a service advertisement on the node
-* [`mod.auth.see_node_state_action`](types/mod.auth.see_node_state_action.md) – read the node's tree, directory aliases and filters, agent metadata, and log stream
+* [`mod.auth.see_node_state_action`](types/mod.auth.see_node_state_action.md) – read the node's tree, directory aliases and filters, agent and participant metadata, and log stream
 * [`mod.auth.use_gateway_action`](types/mod.auth.use_gateway_action.md) – register with the node's gateway, reserve a connection through it, and be forwarded by it
 
-Six more are declared by the protocols that own them:
+Eight more are declared by the protocols that own them:
 [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md) and
 [`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)
 in the [`user`](../user/README.md) protocol,
 [`mod.nodes.relay_for_action`](../nodes/types/mod.nodes.relay_for_action.md) in
 [`nodes`](../nodes/README.md),
-[`mod.mcp.call_agent_action`](../mcp/types/mod.mcp.call_agent_action.md) and
-[`mod.mcp.answer_agent_action`](../mcp/types/mod.mcp.answer_agent_action.md) in
-[`mcp`](../mcp/README.md), and
+[`mod.messaging.send_action`](../messaging/types/mod.messaging.send_action.md),
+[`mod.messaging.receive_action`](../messaging/types/mod.messaging.receive_action.md),
+[`mod.messaging.host_mailbox_action`](../messaging/types/mod.messaging.host_mailbox_action.md)
+and
+[`mod.messaging.read_mailbox_action`](../messaging/types/mod.messaging.read_mailbox_action.md)
+in [`messaging`](../messaging/README.md), and
 [`mod.coldcard.scan_action`](../coldcard/types/mod.coldcard.scan_action.md) in
 [`coldcard`](../coldcard/README.md).
 
@@ -46,3 +49,7 @@ Only `mod.auth.serve_objects_action` evaluates a permit's `Constraints` bundle.
 Every other action refuses a permit carrying constraints rather than granting it
 in full, because an action that does not evaluate a constraint is permitted
 regardless of one.
+
+[`mod.messaging.read_mailbox_action`](../messaging/types/mod.messaging.read_mailbox_action.md)
+refuses every permit, constrained or not, so no contract carries it: only a
+handler or the external authority asked about the actor itself grants it.

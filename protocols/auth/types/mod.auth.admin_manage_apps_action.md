@@ -1,17 +1,18 @@
 # mod.auth.admin_manage_apps_action
 
 A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
-administer the node's app and agent credentials and the node-local grants it
-records: the [`apphost`](../../apphost/README.md) access tokens the node issues,
-the [`mcp`](../../mcp/README.md) agents the node holds, and the grants that say
-what an identity may do here.
+administer the node's app, agent and participant credentials and the node-local
+grants it records: the [`apphost`](../../apphost/README.md) access tokens the
+node issues, the [`mcp`](../../mcp/README.md) agents, the
+[`messaging`](../../messaging/README.md) participants whose mailboxes the node
+hosts, and the grants that say what an identity may do here.
 
-The action gates nine operations — `apphost.create_token`,
+The action gates eleven operations — `apphost.create_token`,
 `apphost.list_tokens`, `apphost.delete_token`, `apphost.grant`,
 `apphost.revoke`, `apphost.list_grants`, `mcp.create_agent`,
-`mcp.list_agents` and `mcp.delete_agent`. Each operation submits the action
-before it reads or changes a credential or a grant, and a refused caller
-receives no bytes.
+`mcp.list_agents`, `mcp.delete_agent`, `messaging.create_identity` and
+`messaging.delete_identity`. Each operation submits the action before it reads
+or changes a credential or a grant, and a refused caller receives no bytes.
 
 Two further operations submit the action as an administrative override rather
 than a gate. [`apphost.bind`](../../apphost/ops/apphost.bind.md) and
@@ -32,14 +33,15 @@ confers no authority this action did not already carry.
 [`apphost.grant`](../../apphost/ops/apphost.grant.md),
 [`apphost.revoke`](../../apphost/ops/apphost.revoke.md) and
 [`apphost.list_grants`](../../apphost/ops/apphost.list_grants.md) therefore
-share the action rather than naming a tenth one.
+share the action rather than naming one of their own.
 
-An MCP agent's credential is an apphost access token, so one action covers both
-protocols.
+An MCP agent's credential and a messaging participant's credential are apphost
+access tokens, so one action covers all three protocols.
 
 `apphost.delete_token`, `apphost.grant`, `apphost.revoke`,
-`apphost.list_grants`, `mcp.create_agent`, `mcp.list_agents` and
-`mcp.delete_agent` also reject a query that arrived over a
+`apphost.list_grants`, `mcp.create_agent`, `mcp.list_agents`,
+`mcp.delete_agent`, `messaging.create_identity` and
+`messaging.delete_identity` also reject a query that arrived over a
 [`Link`](../../../core-definitions/link.md), whatever the caller holds. A grant
 authorizes on one node and travels nowhere, so it is neither written nor
 enumerated over a link.
@@ -52,8 +54,8 @@ nobody else. A local caller that carries no identity acts as the node's own
 identity. Any other identity holds the action through a node-local grant, which
 [`apphost.grant`](../../apphost/ops/apphost.grant.md) records, or through a
 [`mod.auth.signed_contract`](mod.auth.signed_contract.md) the node has indexed.
-An app or an agent holds nothing by default, so neither mints nor reads another
-identity's credentials.
+An app, an agent or another participant holds nothing by default, so none of
+them mints or reads another identity's credentials.
 
 ## Fields
 

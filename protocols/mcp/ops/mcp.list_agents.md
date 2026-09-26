@@ -15,6 +15,14 @@ node, and its output must be treated as the tokens themselves are. A read that
 does not need the tokens is `mcp.agent`, which answers per agent and withholds
 them.
 
+**An agent whose participant is gone is left out.**
+[`messaging.delete_identity`](../../messaging/ops/messaging.delete_identity.md)
+on an agent's identity withdraws the participant and leaves the agent record,
+with a token that no longer authenticates. The node looks each agent's identity
+up in this node's mailbox index. An agent the index no longer names is left out
+of the stream, and its record is deleted. A failure of that deletion is logged
+and changes no answer.
+
 ## Arguments
 
 This operation takes no arguments.
@@ -22,14 +30,14 @@ This operation takes no arguments.
 ## Returned objects
 
 The operation returns a stream of `mcp.agent` objects, followed by an `eos`
-object. An `error_message` object is returned instead if the records cannot be
-read.
+object. An `error_message` object is returned instead if the records or the
+mailbox index cannot be read.
 
 ## Examples
 
 ```shellsession
 $ astral-query mcp.list_agents -out json
-{"Type":"mcp.agent","Object":{"Identity":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c","Alias":"scout","Token":"h4d8s2w6y1b9t3n7","ExpiresAt":"2027-08-20T12:00:00+02:00"}}
-{"Type":"mcp.agent","Object":{"Identity":"026165850492521f4ac8abd9bd8088123446d126f648ca35e60f88177dc149ceb2","Alias":"","Token":"c5v1k8m4p7q2z6r3","ExpiresAt":"2027-08-20T12:00:00+02:00"}}
+{"Type":"mcp.agent","Object":{"Identity":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c","Alias":"scout","Token":"h4d8s2w6y1b9t3n7","ExpiresAt":"2027-08-20T10:00:00Z"}}
+{"Type":"mcp.agent","Object":{"Identity":"026165850492521f4ac8abd9bd8088123446d126f648ca35e60f88177dc149ceb2","Alias":"","Token":"c5v1k8m4p7q2z6r3","ExpiresAt":"2027-08-20T10:00:00Z"}}
 {"Type":"eos","Object":null}
 ```
