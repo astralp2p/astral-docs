@@ -53,15 +53,13 @@ it.** The hosting contract is a
 * Permits – One permit for
   [`mod.messaging.host_mailbox_action`](types/mod.messaging.host_mailbox_action.md),
   with `Delegation` 0 and no constraints.
-* ExpiresAt – The instant the node builds the contract plus the module's
-  `hosting_duration`.
+* ExpiresAt – The instant the node builds the contract plus ten 365-day years.
 
 `messaging.create_identity` builds the contract, signs it with the keys the node
 holds for both parties, indexes it with [`auth`](../auth/README.md), stores it,
 and records it in the node's mailbox index. The node holds the mailbox
 identity's key because it minted the identity, and the issuer is still the
-mailbox identity. The node renews the contract before it expires — see
-[Renewal and expiry](#renewal-and-expiry).
+mailbox identity. Nothing renews the contract — see [Expiry](#expiry).
 
 **The mailbox identity is the root of the authority.** The module gives
 [`auth`](../auth/README.md) one rule for `mod.messaging.host_mailbox_action`,
@@ -131,13 +129,12 @@ mailbox is checked when it starts. No row is read or written before the check.
 An operation that fails the check after it accepted the query answers
 `not a messaging participant`, except a refused
 [delegated read](#delegated-read), which ends the query with no answer. A
-request that passed runs to its end — see
-[Renewal and expiry](#renewal-and-expiry).
+request that passed runs to its end — see [Expiry](#expiry).
 
 **Only contracts this node provisioned are served.** The index names only the
 hosting contracts this node signed when `messaging.create_identity` provisioned
-a mailbox or the node renewed one. A hosting contract indexed from elsewhere,
-through [`auth.index`](../auth/ops/auth.index.md) or otherwise, grants
+a mailbox. A hosting contract indexed from elsewhere, through
+[`auth.index`](../auth/ops/auth.index.md) or otherwise, grants
 `mod.messaging.host_mailbox_action`, but the index has no entry for it, so the
 node does not host that mailbox.
 
@@ -147,33 +144,16 @@ owns on this node. The signed hosting contract stays valid until its expiry,
 wherever a copy is held. The contract names this node as its subject, so it
 grants nothing on any other node, and [`auth`](../auth/README.md) has no
 operation that revokes a signed contract. This node stops hosting the mailbox
-because its index no longer names it, and the node never renews the contract of
-a mailbox its index does not name. A delivery or a send admitted before the
+because its index no longer names it. A delivery or a send admitted before the
 withdrawal writes its row before the withdrawal removes the mail, or writes
 nothing and answers `not a messaging participant`.
 
-## Renewal and expiry
+## Expiry
 
-**The node renews the hosting contracts it provisioned.** The node runs a
-renewal pass when it starts and then every `renewal_interval`. A pass renews
-every mailbox whose index entry names a contract with less than a quarter of
-`hosting_duration` left. A renewal signs a fresh hosting contract on the same
-terms, with the mailbox identity as issuer and the node as subject, indexes it
-with [`auth`](../auth/README.md), and stores it. The index entry then names the
-fresh contract and its expiry, in one step that a withdrawal cannot
-interleave. The old contract stays valid until its own expiry.
-
-**A failed renewal is retried, and the old contract serves meanwhile.** A
-renewal that fails leaves the index entry on the old contract, and the next
-pass tries again. A hosting contract expires only when no renewal succeeded
-inside its window: every pass failed, or none ran. An expired contract is still
-inside the renewal window, so a renewal that succeeds after the expiry serves
-the mailbox again.
-
-**A mailbox withdrawn during a renewal stays withdrawn.** A pass renews only
-mailboxes the index names. A withdrawal that lands while a renewal is being
-signed keeps the mailbox withdrawn, and the contract signed for it serves
-nothing.
+**Nothing renews a hosting contract.** A hosting contract lasts ten 365-day
+years from the instant the node builds it, the lifetime of the relay contract
+`messaging.create_identity` signs beside it. No operation renews it and no key
+changes its length.
 
 **Expiry stops serving and deletes nothing.** Once the contract the index entry
 names has expired, a `messaging.message` or `messaging.receipt` addressed to
@@ -669,8 +649,6 @@ The module reads `messaging.yaml`. Every key is optional, and a key left out
 takes its default:
 
 ```yaml
-hosting_duration: 87600h
-renewal_interval: 24h
 token_duration: 8760h
 delivery_timeout: 15s
 wait_default: 2m
@@ -679,17 +657,6 @@ max_payload_bytes: 65536
 max_read_bytes: 65536
 ```
 
-* `hosting_duration` – The lifetime of the hosting contract
-  `messaging.create_identity` signs and of each contract that renews it, counted
-  from the instant the node builds the contract. Defaults to 87600 hours — ten
-  365-day years, the lifetime of the relay contract `messaging.create_identity`
-  signs beside it, which no key changes. A value of zero or less takes the
-  default. A contract with less than a quarter of `hosting_duration` left is
-  renewed.
-* `renewal_interval` – The time between two renewal passes. The node also runs
-  one pass when it starts. Defaults to 24 hours, and a value of zero or less
-  takes the default. An interval longer than a quarter of `hosting_duration`
-  lets a contract expire between two passes.
 * `token_duration` – The lifetime of the access token
   `messaging.create_identity` issues when the caller names no `duration`.
   Defaults to 8760 hours, 365 days.

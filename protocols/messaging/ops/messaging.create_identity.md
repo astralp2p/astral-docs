@@ -16,12 +16,11 @@ carrying the `mcp` origin is rejected before the action is submitted.
 **The hosting contract is the new identity's grant to this node.** The new
 identity issues it and this node is its subject. It carries one permit for
 [`mod.messaging.host_mailbox_action`](../types/mod.messaging.host_mailbox_action.md),
-with `Delegation` 0 and no constraints, and expires after the module's
-`hosting_duration`, 87600 hours by default. The node signs it with the keys it
+with `Delegation` 0 and no constraints, and expires ten 365-day years after the
+node builds it. The node signs it with the keys it
 holds for both parties, indexes it, stores it, and records it in its mailbox
-index. The node renews it before it expires: see
-[Renewal and expiry](../README.md#renewal-and-expiry). The relay contract is a
-separate contract with its own permit: see [Hosting](../README.md#hosting).
+index. Nothing renews it: see [Expiry](../README.md#expiry). The relay contract
+is a separate contract with its own permit: see [Hosting](../README.md#hosting).
 
 The participant it mints receives nothing until something grants
 [`mod.messaging.receive_action`](../types/mod.messaging.receive_action.md) for
