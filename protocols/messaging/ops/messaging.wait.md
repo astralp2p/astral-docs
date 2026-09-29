@@ -17,8 +17,7 @@ caller holds an open channel while the node waits for mail rather than a query
 that is not yet answered. The park ends when the inbox holds a matching message,
 when the granted window closes, or when the caller closes the channel. The
 expiry of the caller's hosting contract does not end a park — see
-[Renewal and expiry](../README.md#renewal-and-expiry). A park the caller ended
-is answered nothing. The node reads and discards whatever the
+[Expiry](../README.md#expiry). A park the caller ended is answered nothing. The node reads and discards whatever the
 caller writes after the query, so only the end of the channel ends the park
 early. The node looks at the inbox again when a message lands in it or one is
 put back with `undo`, and every ten seconds besides.
