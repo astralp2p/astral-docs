@@ -137,6 +137,29 @@ under its type name rather than refused.
 overrode one would silently repoint it, and the node refuses the configuration
 instead. A name the endpoint does not serve is free.
 
+## Activity report
+
+A deployment may ask the node to report that an identity is using the endpoint.
+The report is one [`Query`](../../core-definitions/query.md) named as
+`astral://<identity-or-alias>:<query>`.
+
+**The node puts the query at the start of an authenticated HTTP request.** Every
+authenticated request is a trigger, whatever its JSON-RPC method. The node puts
+it at most once per `activity_interval` per identity, and never while a report
+for that identity is in flight.
+
+**The query is the identity's own.** Its caller is the authenticated identity,
+whether or not that identity is an agent. The query takes no argument and
+carries the `mcp` origin. The node routes it on its own context, as it does a
+[declared tool](#declared-tools) query.
+
+**The node reads and discards the answer.** A report that is refused, fails or
+is late never affects the request, and the node does not retry it. A report ends
+at `query_timeout`.
+
+**The target learns the activity of every identity the endpoint authenticates,
+across tenants.** A deployment names a target it trusts with that.
+
 ## Authorization
 
 One node carries the agents of many tenants and holds no decision about what
@@ -161,7 +184,8 @@ query by its origin when it names one of its own operations — see
 Every operation rejects a query that arrived over a
 [`Link`](../../core-definitions/link.md).
 
-A query a declared tool puts for an agent carries the `mcp` origin. The
+A query a declared tool puts for an agent carries the `mcp` origin, as does an
+[activity report](#activity-report). The
 [`shell`](../shell/README.md) protocol mounts every module's operations and
 rejects a query carrying that origin, so a declared tool named against an
 operation of the agent's own node is refused, and an agent reaches none of that
@@ -174,9 +198,10 @@ agent's relay contract and stamps the `network` origin, as for any query
 arriving over a link. The operation then decides by its caller, the agent: an
 operation that requires a permit refuses an agent that holds none.
 
-**The refusal reads the query's origin and never the caller.** Two paths stamp
+**The refusal reads the query's origin and never the caller.** Three paths stamp
 one: a query arriving over a link carries `network`, and a query a declared
-tool puts for an agent carries `mcp`. A query arriving by any other path
+tool puts for an agent carries `mcp`, as does an
+[activity report](#activity-report) put for an authenticated identity. A query arriving by any other path
 carries no origin, and a query carrying no origin is not refused. The node's
 own entry paths carry none, [`apphost`](../apphost/README.md)'s endpoints among
 them, and an agent's access token is an apphost access token and authenticates
@@ -206,6 +231,11 @@ default:
   `description` and a `query`. A node refuses to start on a tool with no name,
   no description, a taken name, or a query that is not
   `astral://<identity-or-alias>:<query>`.
+* `activity_query` – The [activity report](#activity-report)'s query. Defaults
+  to empty, which sends no report. A node refuses to start on a value that is
+  not `astral://<identity-or-alias>:<query>`.
+* `activity_interval` – The least time between two reports for one identity.
+  Defaults to 1 minute.
 
 The mail's own bounds — the access token's lifetime, the `wait` windows and the
 longest body — are the [`messaging`](../messaging/README.md#configuration)
