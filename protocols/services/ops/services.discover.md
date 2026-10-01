@@ -7,8 +7,10 @@ The caller must hold
 [`mod.services.service_discovery_action`](../types/mod.services.service_discovery_action.md)
 for every requested service on this node. A request naming any service the
 caller may not discover is refused with an `error_message` before any provider
-is evaluated. The query is rejected when it arrives over a
-[`Link`](../../../core-definitions/link.md): discovery is local.
+is evaluated. A query arriving over a
+[`Link`](../../../core-definitions/link.md) is checked the same way, for the
+identity that sent it. The node answers from providers it hosts and never asks
+another node.
 
 ## The initial attempt
 

@@ -29,8 +29,10 @@ Two operations are exposed:
 The node itself offers services too, such as `nat` and `gateway`. Their
 `ProviderID` is the node identity.
 
-Discovery is local: a node answers from providers it hosts. A query arriving
-over a [`Link`](../../core-definitions/link.md) is rejected by both operations.
+Discovery is local: a node answers from providers it hosts and never asks
+another node. `services.advertise` is rejected when it arrives over a
+[`Link`](../../core-definitions/link.md). `services.discover` accepts a query
+over a `Link`; the caller is the identity that sent the query.
 Discovering a service requires
 [`mod.services.service_discovery_action`](types/mod.services.service_discovery_action.md)
 for that service. Discovering an offering grants nothing beyond it: every
