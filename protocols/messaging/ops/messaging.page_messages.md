@@ -12,9 +12,10 @@ from the network are rejected, and so are queries carrying the `mcp` origin.
 The operation stamps nothing read and tells no sender anything.
 
 Rows are answered in descending `Cursor` order. A page holds at most `limit`
-rows. The node reads one row past the limit, never answers it, and sets
-`NextBefore` from it, so a page that ends exactly at the limit still says
-whether another follows.
+rows. The node reads one row past the limit and never answers it: that row
+only says whether another page follows. `NextBefore` is the `Cursor` of the
+last row answered, so a page that ends exactly at the limit still says whether
+another follows.
 
 The answer is one object followed by an `eos` object, or one `error_message`
 object. A caller applies nothing it read before the `eos`: an object without

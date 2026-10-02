@@ -14,8 +14,9 @@ The operation stamps nothing read and tells no sender anything.
 A page answers conversations in descending order of their latest message's
 `Cursor`, and leaves out every conversation whose rows are all archived. With
 `peer`, the operation answers that one conversation whatever its state, or none.
-A page holds at most `limit` conversations; the node reads one past the limit
-to set `NextBefore`.
+A page holds at most `limit` conversations. The node reads one past the limit
+and never answers it: that conversation only says whether another page follows,
+and `NextBefore` is the latest `Cursor` of the last conversation answered.
 
 The answer is one object followed by an `eos` object, or one `error_message`
 object. A caller applies nothing it read before the `eos`: an object without
