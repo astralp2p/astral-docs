@@ -1,54 +1,67 @@
 # services.advertise
 
-Advertise a named service on behalf of the caller and keep it available for as
-long as the channel stays open. Closing the channel withdraws the
-advertisement, so an app that exits or disconnects leaves nothing behind.
-Local-only — queries from the network are rejected.
+Open a binding between the calling provider app and its node for a fixed set of
+services, and keep it open for as long as the provider serves them. Closing the
+channel ends the binding.
 
-The caller must hold
+The provider is the caller. There is no argument for it, so an app advertises
+nothing but itself. The caller must hold
 [`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md).
-The query is rejected before any advertisement is published when the caller is
-not authorized, and a refused caller receives no bytes.
+The query is rejected, and a refused caller receives no bytes, when it arrives
+over a [`Link`](../../../core-definitions/link.md), when the caller is the node
+identity, or when the caller is not authorized.
 
-The provider is the caller. There is no argument for it, so an app can
-advertise nothing but itself.
+`services` names every service of the binding, comma-separated. A name is
+non-empty, contains no comma, has no leading or trailing whitespace, and fits a
+`string8`; a list holds at least one name and no name twice. The set is fixed
+for the life of the binding: changing it means closing the binding and
+advertising the new set.
 
-Objects sent on the channel after the `ack` replace the advertised `Info`. The
-service stays available across such a change: a consumer following
-[`services.discover`](services.discover.md) sees the advertisement amended,
-not withdrawn and raised again.
+Admission is all-or-nothing. Each (provider, name) pair has at most one live
+binding. If any pair of the set already belongs to a live binding, the
+operation claims none of the set and leaves the existing binding untouched.
+Closing a binding releases every pair it holds.
 
-The `Name` identifies the provider rather than the interface it serves: an app
-answering on the `contacts` namespace may advertise itself as
-`contacts-backend`. A provider that wants a consumer to know which namespace to
-call puts that in `Info`.
+Advertising makes the services eligible for evaluation. It offers nothing to
+any caller by itself, and it registers no operation.
 
 ## Arguments
 
-* name (string8, required) – The service name to advertise.
+* services (string8, required) – The service names of the binding, comma-separated.
 * in (string8) – Input format.
 * out (string8) – Output format.
+
+## The binding
+
+After the `ack` the channel carries, in both directions:
+
+* node → provider: [`services.ask`](../types/services.ask.md). The node sends at
+  most one ask per caller at a time, for one service and one caller.
+* provider → node: [`services.answer`](../types/services.answer.md), one per
+  ask, echoing its `RequestID`; and
+  [`services.change`](../types/services.change.md) at any time.
+
+The provider answers every ask; an ask the provider cannot evaluate is answered
+with `Available` false. The node fails the binding on any other object, an
+undecodable frame, an answer for the wrong service or provider, or a change with
+`All` false and no callers. An answer that matches no outstanding ask is
+ignored.
+
+When the binding ends, every discovery stream that was shown one of its
+offerings receives a [`services.removed`](../types/services.removed.md) for it.
 
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the name is missing, the caller identity is
-  missing or zero, or the caller is the node itself.
-* An `ack` object once the advertisement stands, followed by the channel
-  staying open for the lifetime of the advertisement.
+* An `error_message` object if the list is invalid or a pair already belongs to a live binding, after which the channel closes.
+* An `ack` object once the binding stands, followed by the binding exchange above.
 
 The `ack` is a readiness `ack` — see
 [Op modes & composition § Control signals](../../../topics/op-modes.md#control-signals).
 
-The operation is rejected outright if the query arrives from the network or the
-caller is not authorized.
-
 ## Examples
 
 ```shellsession
-$ astral-query services.advertise -name contacts -out text
+$ astral-query services.advertise -services player,bitcoin-wallet -out text
 #[ack]
 ```
-
-The advertisement stands until the channel closes; the caller keeps the query
-open for as long as it serves the service.

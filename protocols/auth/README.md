@@ -30,7 +30,7 @@ an operation submits its action before it acts.
 * [`mod.auth.see_node_state_action`](types/mod.auth.see_node_state_action.md) – read the node's tree, directory aliases and filters, agent and participant metadata, and log stream
 * [`mod.auth.use_gateway_action`](types/mod.auth.use_gateway_action.md) – register with the node's gateway, reserve a connection through it, and be forwarded by it
 
-Eight more are declared by the protocols that own them:
+Nine more are declared by the protocols that own them:
 [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md) and
 [`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)
 in the [`user`](../user/README.md) protocol,
@@ -43,9 +43,13 @@ and
 [`mod.messaging.read_mailbox_action`](../messaging/types/mod.messaging.read_mailbox_action.md)
 in [`messaging`](../messaging/README.md), and
 [`mod.coldcard.scan_action`](../coldcard/types/mod.coldcard.scan_action.md) in
-[`coldcard`](../coldcard/README.md).
+[`coldcard`](../coldcard/README.md), and
+[`mod.services.service_discovery_action`](../services/types/mod.services.service_discovery_action.md)
+in [`services`](../services/README.md).
 
-Only `mod.auth.serve_objects_action` evaluates a permit's `Constraints` bundle.
+Only `mod.auth.serve_objects_action` and
+`mod.services.service_discovery_action` evaluate a permit's `Constraints`
+bundle.
 Every other action refuses a permit carrying constraints rather than granting it
 in full, because an action that does not evaluate a constraint is permitted
 regardless of one.
