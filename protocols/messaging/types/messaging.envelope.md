@@ -6,7 +6,10 @@ but `Content`, in the same order. Streamed by
 [`messaging.list_messages`](../ops/messaging.list_messages.md), answered by
 [`messaging.wait`](../ops/messaging.wait.md) inside a
 [`messaging.wait_result`](messaging.wait_result.md), and carried by every
-[`messaging.read_message`](messaging.read_message.md).
+[`messaging.read_message`](messaging.read_message.md), every
+[`messaging.listed_message`](messaging.listed_message.md) and every
+[`messaging.conversation`](messaging.conversation.md) that has a latest
+message.
 
 **The body is absent from the type rather than left empty.** A listing hands no
 body out, so it stamps nothing read and tells no sender that a message was

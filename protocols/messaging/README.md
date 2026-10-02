@@ -32,6 +32,14 @@ grants that reader
 [`mod.messaging.read_mailbox_action`](types/mod.messaging.read_mailbox_action.md)
 — see [Delegated read](#delegated-read).
 
+Four operations read a mailbox a bounded page at a time and follow what changes
+in it — see [Paging](#paging). `messaging.page_messages` reads one page of a
+list or of one peer's rows, newest first, `messaging.list_message_changes`
+reads the rows written or changed after a revision,
+`messaging.page_conversations` reads one page of the mailbox's conversations,
+and `messaging.list_conversation_changes` reads the conversations that changed
+after a revision. Each is a listing, admitted as `messaging.list_messages` is.
+
 Two queries carry mail between nodes, and neither is an operation.
 `messaging.message` delivers a message to the recipient's identity, and
 `messaging.receipt` tells the sender's identity that a body was handed out. A
@@ -448,6 +456,63 @@ A hosted mailbox answers `messaging.message` and `messaging.receipt`, and no
 other query: [Delivery](#delivery) gives the order in which a node checks the
 path, the provenance, the hosting and the admission of each.
 
+## Paging
+
+**A page is bounded, and so is the read behind it.**
+[`messaging.page_messages`](ops/messaging.page_messages.md) answers at most a
+hundred rows, newest first, and reads no body: the bound holds for what the node
+reads, not only for what crosses the wire. Each page answers the `before` of
+the next older one, and a page that reaches the oldest row answers 0. The node
+reads one row past the limit and never answers it, so a page that ends exactly
+at the limit still says whether another follows.
+
+**A conversation is one peer's rows in both boxes, in one order.** Under `peer`,
+a page holds the inbox rows the peer wrote and the outbox rows written to it,
+unarchived, in the order the node wrote them. A transcript reads in that order:
+the node wrote an outbox row before the inbox row of a reply to it, so a reply
+never stands above the message it answers.
+
+**Every change has a revision.** A row takes a new revision when it is written
+and whenever a field of its envelope changes: a fate, a read stamp, a receipt
+stamp, archiving and its undo. Revisions are one order across every row and
+conversation the node holds, and only their order is a fact.
+[`messaging.list_message_changes`](ops/messaging.list_message_changes.md)
+answers the rows whose revision is above the caller's `since`, at their latest
+state, archived rows included. A caller that reads a first page and then
+follows the changes from that page's `Rev` misses nothing: an arrival, a fate on
+an old row, a read made elsewhere, and a message put away or taken back out all
+arrive as row changes. A state written twice since `since` is answered once,
+at its latest state.
+
+**The positions are not cursors over a scope.** `Cursor` and `Rev` are positions
+in the node's own orders, meaningful under any narrowing. A position read under
+one narrowing and passed under another answers that other narrowing's rows on
+the far side of it, and promises no completeness: a caller that changes what it
+reads starts a new traversal. A position carries no authority — every request is
+admitted on its own.
+
+**A conversation summary keeps the list bounded.**
+[`messaging.page_conversations`](ops/messaging.page_conversations.md) answers
+one [`messaging.conversation`](types/messaging.conversation.md) per peer: its
+latest unarchived row and how many inbox rows from it wait unread. A page holds
+at most a hundred conversations by their latest row, so one correspondent that
+writes a great deal fills one row of the page and leaves every other
+conversation and its unread count a page away. A conversation whose rows are
+all archived is a tombstone: pages leave it out, and
+[`messaging.list_conversation_changes`](ops/messaging.list_conversation_changes.md)
+answers it, so a follower drops it.
+
+**A generation says the positions still name the mailbox.** A withdrawal deletes
+the mailbox's rows without a revision for each, so it gives the mailbox a new
+generation. Every page and change read answers the generation, and a request
+holding a position passes back the generation it came with. A position from an
+older generation is refused rather than answered a page that names nothing, and
+the caller starts again.
+
+**An answer is complete only at its `eos`.** Each of the four operations answers
+one object followed by an `eos`, or one `error_message`. A caller applies the
+rows and moves its positions only once the `eos` arrives.
+
 ## The sender's record
 
 A send is a row in the sender's outbox, written before the delivery is
@@ -525,7 +590,9 @@ it.** `messaging.list_messages` takes a `mailbox` argument, and a
 carries a `Mailbox` field. Absent, or naming the caller, either reads the
 caller's own mailbox as the rest of this document describes. Naming another
 identity makes the call a delegated read: the caller lists or reads that
-mailbox's rows and changes none of them. Only these two operations take a
+mailbox's rows and changes none of them. The four paging operations take a
+`mailbox` argument too, and a delegated page or change read is admitted and
+refused as `messaging.list_messages` is. Only these six operations take a
 mailbox. `messaging.send_message`, `messaging.archive` and `messaging.wait` act
 on the caller's own mailbox alone, and the [`mcp`](../mcp/README.md) endpoint's
 tools name no mailbox.
@@ -541,7 +608,8 @@ when these pass, in this order, before any row is read:
    is granted with the caller as actor and the named mailbox as `MailboxID`.
 
 A refused delegated read reads nothing, and its caller receives no bytes.
-`messaging.list_messages` rejects the query at every step.
+`messaging.list_messages` and the four paging operations reject the query at
+every step.
 `messaging.read_messages` rejects the query at step 1, before it accepts it. It
 learns the mailbox from its request, which arrives once the query is accepted,
 so a refusal at step 2 or step 3 ends the query with no answer.
@@ -598,7 +666,7 @@ refusal.
 
 **The mail operations answer only a caller whose mailbox this node hosts.** On
 the caller's own mailbox, `messaging.send_message`, `messaging.list_messages`,
-`messaging.wait` and `messaging.archive` reject a caller that is the zero
+the four paging operations, `messaging.wait` and `messaging.archive` reject a caller that is the zero
 identity or whose mailbox this node does not host, as [Hosting](#hosting)
 defines it, before anything is read or written. `messaging.read_messages`
 rejects the zero identity and the node's own identity before it accepts the
