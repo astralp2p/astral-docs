@@ -2,7 +2,8 @@
 
 A notice on a [`services.discover`](../ops/services.discover.md) stream that
 offerings the stream had shown are no longer valid because their provider was
-lost, for example when its advertisement binding closed.
+lost, for example when its advertisement binding closed, or when the swarm
+member that contributed them was lost.
 
 `Offerings` lists only keys previously sent on this stream as available. A
 removal is distinct from a [`services.update`](services.update.md) with

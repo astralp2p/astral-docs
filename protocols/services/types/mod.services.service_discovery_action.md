@@ -14,8 +14,10 @@ permit covers the action when the scope allows its `Service` on its `NodeID`. A
 permit with no constraints, an empty bundle, more than one object, or an object
 of any other type covers nothing: discovery is always granted per service.
 
-The user identity holds this action by default for every service. The node's
-own identity holds none: a local caller that presents no identity acts as the
+The user identity holds this action by default for every service. A member of
+the local swarm holds it by default for every service on every other member, so
+a node can carry an app's discovery to the swarm; what the app may reach is
+limited by the app's own grant on its node. The node's own identity holds none: a local caller that presents no identity acts as the
 node, so a default for the node would reach every such caller. Any other
 identity holds the action through a node-local grant with a scope, written by
 [`apphost.grant`](../../apphost/ops/apphost.grant.md), or a signed contract.
