@@ -20,7 +20,8 @@ is evaluated. A request is never narrowed.
 A query arriving over a [`Link`](../../../core-definitions/link.md) is checked
 the same way, for the identity that sent it.
 
-A `reach` other than `local` or `swarm` is refused with an `error_message`.
+A `reach` other than `local` or `swarm` is refused with an `error_message`, and
+so is `reach=swarm` arriving over a `Link`: an app asks only its own node.
 
 ## Discovery in an app's name
 
