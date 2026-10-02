@@ -29,10 +29,13 @@ Two operations are exposed:
 The node itself offers services too, such as `nat` and `gateway`. Their
 `ProviderID` is the node identity.
 
-Discovery is local: a node answers from providers it hosts and never asks
-another node. `services.advertise` is rejected when it arrives over a
+Discovery starts at the app's own node. By default the node answers from
+providers it hosts; with `reach=swarm` it also carries the discovery to every
+member of its local swarm in the app's name, and each member answers from the
+providers it hosts. `services.advertise` is rejected when it arrives over a
 [`Link`](../../core-definitions/link.md). `services.discover` accepts a query
-over a `Link`; the caller is the identity that sent the query.
+over a `Link`; the caller is the identity that sent the query, or the app it
+names in `for`.
 Discovering a service requires
 [`mod.services.service_discovery_action`](types/mod.services.service_discovery_action.md)
 for that service. Discovering an offering grants nothing beyond it: every

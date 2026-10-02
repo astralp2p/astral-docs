@@ -13,7 +13,7 @@ identity, or when the caller is not authorized.
 
 `services` names every service of the binding, comma-separated. A name is
 non-empty, contains no comma, has no leading or trailing whitespace, and fits a
-`string8`; a list holds at least one name and no name twice. The set is fixed
+`string8`; a list holds at least one name, at most 64, and no name twice. The set is fixed
 for the life of the binding: changing it means closing the binding and
 advertising the new set.
 

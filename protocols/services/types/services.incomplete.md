@@ -4,11 +4,13 @@ The incomplete outcome of the initial attempt of a
 [`services.discover`](../ops/services.discover.md) stream. It is sent at most
 once, immediately before the `eos` that ends the initial attempt, and only when
 some initial evaluation did not resolve before the node's budget expired or its
-provider was lost.
+provider was lost, or, with `reach=swarm`, when a swarm member could not be
+reached, refused, did not finish in time, or reported its own
+`services.incomplete`.
 
 A bare `eos` with no preceding `services.incomplete` means the initial attempt
-completed: every provider the attempt asked answered, including providers that
-offered nothing.
+completed: every provider and swarm member the attempt asked answered,
+including those that offered nothing.
 
 `Services` names requested services whose initial work did not resolve. It never
 names a provider or a node.
