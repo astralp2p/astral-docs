@@ -76,8 +76,9 @@
 ## Reach
 
 * A `Node` holds an `App`'s `Contract` only if it was given one. A `Node` gives its `Apps`'
-  `Contracts` to the members of its `Swarm`, on joining and as they are signed, so the members of a
-  `Swarm` come to know which `Apps` each of them hosts.
+  `Contracts` to a member of its `Swarm` when a `Link` to that member first comes up, so the members
+  of a `Swarm` come to know which `Apps` each of them hosts. An `App` registered while two members
+  are already linked becomes known to the other at the next first `Link`.
 * A `Node` refuses to index a `Contract` unless its `Issuer` or `Subject` is already known to the
   `Swarm` — the [`User`](../core-definitions/user.md) the `Node` answers to, or one of its members.
   An unrelated `App` therefore acquires no route by offering its own `Contract`.

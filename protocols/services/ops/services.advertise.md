@@ -44,8 +44,9 @@ After the `ack` the channel carries, in both directions:
 The provider answers every ask; an ask the provider cannot evaluate is answered
 with `Available` false. The node fails the binding on any other object, an
 undecodable frame, an answer for the wrong service or provider, or a change with
-`All` false and no callers. An answer that matches no outstanding ask is
-ignored.
+`All` false and no callers. The node retires an ask that is not answered within
+its request timeout; an answer that matches no outstanding ask, including a late
+one, is ignored.
 
 When the binding ends, every discovery stream that was shown one of its
 offerings receives a [`services.removed`](../types/services.removed.md) for it.
