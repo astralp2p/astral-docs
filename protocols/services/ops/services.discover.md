@@ -73,7 +73,9 @@ attempt was complete or not, and carries:
   shown offerings is lost, or the swarm member that contributed them is lost.
 
 Each update is the complete current offering. A slow reader receives the latest
-offering of each key, not every intermediate one.
+offering of each key, not every intermediate one. A reader that stops reading
+until a write exceeds the node's write timeout is disconnected: the channel
+closes.
 
 A lost swarm member is asked again when a link to it is created, and otherwise
 retried with a capped backoff, for as long as the follow is open. Its offerings

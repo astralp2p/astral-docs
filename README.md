@@ -96,6 +96,7 @@ Contents:
     * [Codec](topics/codec.md) - binary framing layer: type encoders, type tags, the canonical form of typed objects, and the limits a decoder may impose
     * [Object Discovery](topics/object-discovery.md) - how a node answers search, describe, and find by fanning out across registered providers
     * [External Providers](topics/external-providers.md) - how apps register as searchers, describers, and finders, and what they serve in return
+    * [Services](topics/services.md) - how apps advertise services, how other apps discover them on the node and across the swarm, and who may
   * Wire mechanics
     * [Binary Encoding](topics/binary-encoding.md) - default payload encoding: big-endian, two's complement, payload bytes only
     * [JSON Encoding](topics/json-encoding.md) - optional JSON container encoding for typed objects
