@@ -403,7 +403,16 @@ newest first and refuse a cursor rather than answer one wrongly.
 opens what it is given and stamps each inbox message read. A second read answers
 the same messages unchanged, so a caller that retries a call whose answer it
 never saw loses nothing. A read of another identity's mailbox stamps nothing at
-all — see [Delegated read](#delegated-read).
+all — see [Delegated read](#delegated-read) — and neither does a read of the
+caller's own made with `peek`: a client that shows mail to a person without
+collecting it on the participant's behalf reads it so.
+
+**A listing is paged by position.** `messaging.list_messages` takes `limit`,
+at most a hundred rows, and `before`, a `Cursor` below which the page starts.
+A page is the newest rows below that position, in both directions, and the
+smallest `Cursor` it answers is the next page's `before`. `since` and `before`
+page in opposite directions and are never asked together; the archive is read
+by time and takes no `before`.
 
 **A read answers the shape of an exchange and carries part of it.** Every
 message a read names carries the identifier of each of its direct replies in

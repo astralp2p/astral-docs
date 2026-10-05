@@ -6,7 +6,8 @@ one's direct replies. The mailbox is the caller's own unless the request's
 message it names read, as it does each inbox reply when `Children` is `full`,
 and tells the sender of each that the body was collected. A
 [delegated read](../README.md#delegated-read) of another identity's mailbox
-stamps nothing and tells no sender anything. Local-only — queries from the
+stamps nothing and tells no sender anything, and neither does a read made with
+`peek`. Local-only — queries from the
 network are rejected, and so are queries carrying the `mcp` origin.
 
 This node must host the mailbox read. A query from the network or carrying the
@@ -46,8 +47,15 @@ reference, the count of distinct references, each reference's box, and
 `Children`. The first failure is the answer, except for a refused delegated
 read, which ends the query with no answer.
 
+**A peek reads without picking up.** With `peek`, a read of the caller's own
+mailbox hands the bodies out and stamps nothing: no inbox message or reply is
+marked read, and no sender is told of a collection. The messages stay as a
+listing finds them, and a later read without `peek` picks them up. A delegated
+read stamps nothing with or without it.
+
 ## Arguments
 
+* peek (bool) – When true, the read stamps nothing. Defaults to false.
 * (stream) – One
   [`messaging.read_messages_request`](../types/messaging.read_messages_request.md)
   naming the mailbox, the messages, and how much of their replies to answer.
