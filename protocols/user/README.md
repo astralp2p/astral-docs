@@ -26,6 +26,13 @@ covers every change to what the swarm holds — `user.adopt`, `user.expel`,
 another node's entries to this one. A node contract issued to a management node
 carries both, delegable one hop.
 
+When a node first links to a swarm member it synchronises with it: it pushes
+the active contract, the membership contracts of the other members, the user's
+expulsions, and the relay contracts of the apps it hosts, and it pulls the
+member's asset updates. A pushed app relay contract lets the member route a
+query addressed to the app through this node. An app registered while the two
+nodes are already linked reaches the member at the next first link.
+
 The active contract is validated on every application — both signatures, subject
 identity match, remaining validity, and a swarm-membership permit — so a stored
 value that fails validation never takes effect.
