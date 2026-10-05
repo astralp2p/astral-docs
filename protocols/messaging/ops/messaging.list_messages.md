@@ -27,9 +27,17 @@ differ: a correspondent that resolves to no identity is answered an
 
 The list answers the rows of the mailbox listed and no other. The inbox is read
 in the order the node wrote the rows, oldest first; the outbox and the archive
-are histories read newest first. The listing is not paged: its rows carry no
-bodies, and the bound is on
-[`messaging.read_messages`](messaging.read_messages.md), where the bodies are.
+are histories read newest first. Rows carry no bodies; the bound on bodies is
+on [`messaging.read_messages`](messaging.read_messages.md).
+
+**A listing pages by `before` and `limit`.** `limit` answers at most that many
+rows. `before` answers only rows whose `Cursor` is below it. Under `before`, or
+under `limit` without `since`, the inbox is read newest first, as the outbox
+is, so a page is the newest rows below the position asked. The next older page
+is asked with the smallest `Cursor` of the last one as `before`; a page holding
+fewer rows than `limit` is the last. Under `since` with `limit`, the inbox is
+read oldest first, so a caller draining it forwards misses nothing. Without
+`limit`, the listing answers every row it narrows to.
 
 ## Arguments
 
@@ -49,6 +57,11 @@ bodies, and the bound is on
   has not been handed out. Defaults to false.
 * awaiting_pickup (bool) – Outbox only. When true, lists only the sends the
   recipient's node stored and has not handed out. Defaults to false.
+* before (uint64) – Inbox and outbox. Lists only the rows written before this
+  cursor: the smallest `Cursor` of an earlier page. Defaults to 0, which
+  narrows nothing.
+* limit (uint64) – Lists at most this many rows, from 1 to 100. Defaults to 0,
+  which answers every row.
 * mailbox (string8) – The mailbox to list, given as a hex public key or a name
   resolved via the directory. Absent, or naming the caller, lists the caller's
   own mailbox. Another identity makes the listing a
@@ -58,8 +71,9 @@ bodies, and the bound is on
 ## Returned objects
 
 Once the query is accepted, the operation checks again that this node hosts
-the mailbox listed, then checks `since`, resolves `from` and `to`, and checks
-`list` and its narrowings, in that order. The first failure is the answer.
+the mailbox listed, then checks `since`, `before` and `limit`, resolves `from`
+and `to`, and checks `list` and its narrowings, in that order. The first
+failure is the answer.
 
 The operation returns one of:
 * An `error_message` object reading `not a messaging participant` if this node
@@ -67,6 +81,13 @@ The operation returns one of:
 * An `error_message` object reading
   `since is a cursor a previous answer gave you, not <since>` if `since` is
   over 9223372036854775807.
+* An `error_message` object reading
+  `before is a cursor a previous answer gave you, not <before>` if `before` is
+  over 9223372036854775807.
+* An `error_message` object reading `limit is at most 100, not <limit>` if
+  `limit` is over 100.
+* An `error_message` object reading
+  `since and before page in opposite directions` if both are given.
 * An `error_message` object reading `no such list: <list>` if `list` names none
   of the three.
 * An `error_message` object reading
@@ -86,6 +107,8 @@ The operation returns one of:
     the archive.
   * `the archive spans both directions, so neither from nor to picks one` –
     `from` or `to` on the archive.
+  * `before pages by cursor; the archive is read by time` – `before` on the
+    archive.
 * An `error_message` object reading `unknown correspondent: <name>` if `from` or
   `to` resolves to no identity.
 * An `error_message` object if the rows cannot be read.
