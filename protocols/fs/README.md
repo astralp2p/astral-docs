@@ -6,6 +6,8 @@ File locations are represented as `mod.fs.file_location` values pairing a node i
 
 Repositories are created with `fs.new_repo` and filesystem watchers are registered with `fs.new_watch`.
 
+A repository created by either op is saved to the tree under `/mod/fs/repos/<name>` and registered again at the next node start, unless the op receives `temporary` set to `true`.
+
 Both ops answer to
 [`mod.auth.admin_objects_action`](../auth/types/mod.auth.admin_objects_action.md):
 attaching a directory makes every file under it an addressable object, so the
