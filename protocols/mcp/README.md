@@ -65,10 +65,19 @@ number and written back in plain decimal, when nothing newer was answered. A
 call that sent no `since` is answered the greatest cursor answered, and no
 `next_since` when it answered nothing. An outbox or archive listing answers the
 greatest cursor it listed as well, and both lists refuse a nonzero `since`.
+`list_messages` takes `before` and `limit` and passes both to
+[`messaging.list_messages`](../messaging/ops/messaging.list_messages.md), which
+pages by them. `list_messages` answers `next_before`, the cursor to pass back as
+`before` for the next older page, as decimal text. `next_before` is the
+smallest cursor of a page that answered as many rows as its `limit`. A call
+without `limit`, a call that sent `since`, an archive listing, and a page
+holding fewer rows than its `limit` answer no `next_before`.
 
 A tool parses its arguments before it calls the module. A `since` that is not
 a decimal integer from 0 to 9223372036854775807 is refused with
-`since is a cursor a previous answer gave you, not "<since>"`, a `box` other
+`since is a cursor a previous answer gave you, not "<since>"`, a `before` that
+is not with `before is a cursor a previous answer gave you, not "<before>"`, a
+negative `limit` with `limit is a number of messages, not <limit>`, a `box` other
 than `inbox` or `outbox` with `box is inbox or outbox, not <box>`, and a
 message identifier that is not thirty-two hexadecimal characters with
 `invalid message id`. `read_messages` reads a negative `max_children` as 0 and
