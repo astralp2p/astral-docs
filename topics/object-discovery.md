@@ -36,8 +36,27 @@
   provider that produced it. Discovery answers are attributed, never anonymous, so a caller can
   weigh or ignore a source rather than trusting a merged verdict.
 * A [`Zone`](../core-definitions/zone.md) accompanies the call and bounds how far the fan-out
-  reaches. `objects.search` consults searchers on other `Nodes` only when the `Zone` includes
-  `network`.
+  reaches. The `zone` argument of `objects.read`, `objects.find`, `objects.search` and
+  `objects.describe` limits the query's routing zone and never widens it. `device` permits device
+  providers, `virtual` permits virtual providers, and `network` permits other `Nodes`. `dv` keeps
+  the call on this `Node`; `dvn` also reaches its swarm.
+* The `Zone` filters the scope; it grants no access. Authorization is
+  [`mod.auth.see_objects_action`](../protocols/auth/types/mod.auth.see_objects_action.md), decided
+  before the fan-out.
+
+## Swarm
+
+* With `network`, a `Node` reaches the other members of its swarm in two ways:
+  * Swarm providers are registered providers like any other. The swarm `Finder` asks every member
+    [`objects.contains`](../protocols/objects/ops/objects.contains.md); the swarm `Searcher` and
+    swarm `Describer` forward the call to every member.
+  * `sources` names `Nodes` the caller chooses, on `objects.search` and `objects.describe`.
+    `sources_only` asks them alone, without the registered providers; without it they are asked on
+    top of the providers.
+* The `Node` authorizes its caller, then asks other `Nodes` as itself. A swarm member holds
+  `mod.auth.see_objects_action` and trusts that authorization.
+* A query arriving from another `Node` runs without the `network` zone, so the receiving `Node`
+  answers from its own providers and never asks back.
 
 ## Searching
 
@@ -77,6 +96,19 @@
 
 * `objects.find` streams the `Identities` believed to be able to provide the `Object`, deduplicated
   by their string form.
+* Two `Finders` are built in. The local `Finder` names this `Node` when its read-default repository
+  holds the `Object`. The swarm `Finder` names each swarm member that answers `objects.contains`
+  true, and runs only with `network`.
 * It answers where the bytes might be fetched from, not whether a fetch will succeed. A provider
   named by a `Finder` may be unreachable, may no longer hold the `Object`, or may refuse to serve
   it.
+
+## Reading
+
+* [`objects.read`](../protocols/objects/ops/objects.read.md) without `repo` uses finding to locate
+  bytes. Each identity the finders name is a candidate; candidates are tried concurrently as they
+  arrive, and the first to deliver supplies the read.
+* A failed attempt before bytes reach the caller gives way to the other candidates. A failure after
+  fails the read.
+* A search result, a descriptor, or a found identity grants no read access. Reading remains a
+  separate, authorized step.

@@ -12,12 +12,41 @@ authorized, and a refused caller receives no bytes.
 * id (object_id.sha256, required) – The id to read.
 * offset (uint64) – Byte offset to start reading from. Defaults to 0.
 * limit (uint64) – Maximum number of bytes to read. Defaults to 0 (no limit).
-* repo (string8) – Repository to read from. Defaults to the read-default repository.
-* zone (zone) – Zone filter for the read context. Defaults to all zones.
+* repo (string8) – Repository to read from. Without it, the bytes come from the candidates the finders name.
+* zone (zone) – Limits the query's routing zone and never widens it. Without it, the routing zone stands.
+
+## Sources
+
+With `repo`, the operation reads that repository only.
+
+Without `repo`, the operation runs
+[`objects.find`](objects.find.md)'s finders under the query's zone and treats
+each identity they name as a candidate source:
+
+* Each distinct candidate is tried once, as it arrives. Candidates are tried
+  concurrently, and local and remote candidates have no priority between them.
+* A candidate equal to this node is read from its read-default repository.
+* Any other candidate receives an `objects.read` query from this node, as this
+  node, with `zone=dv`. The node authorized its caller; the candidate trusts
+  that decision.
+* The first candidate to deliver bytes, or to end cleanly with none, supplies
+  the read. Discovery and every other attempt are cancelled.
+* A candidate that fails before any bytes reach the caller gives way to the
+  other candidates. A failure after bytes reach the caller fails the read; no
+  other candidate takes over.
+* Discovery is bounded to 30 seconds. Each candidate has 15 seconds to deliver
+  its first bytes.
+
+The `network` zone permits remote candidates. With `zone=dv` the read stays on
+this node.
+
+A query arriving from another node runs without the `network` zone, so the node
+answers from its own repositories and asks no further candidate.
 
 The `id` can be a
 [`Partial Object ID`](../../../core-definitions/object-id.md). The lookup
-matches it by `Hash` inside the selected repository. An `id` with a nonzero
+matches it by `Hash` inside the selected repository, or inside each candidate's
+repository. An `id` with a nonzero
 `Size` matches only an object with that `Size` and that `Hash`.
 
 `offset` and `limit` apply to the object the lookup matched, so a
@@ -34,7 +63,7 @@ out-of-bounds window is a failed read.
 
 ## Returned objects
 
-The operation rejects the query if the caller is not authorized, the repository is missing, or the read fails. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`. On success the raw bytes of the object are written directly to the response stream (no astral framing).
+The operation rejects the query if the caller is not authorized, the repository is missing, the read fails, or no candidate delivers the object. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`. On success the raw bytes of the object are written directly to the response stream (no astral framing).
 
 The operation has no `error_message`: every failure is a rejection, and it
 carries no reason. A caller that needs the reason for a failed lookup uses

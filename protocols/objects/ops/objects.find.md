@@ -10,13 +10,30 @@ authorized, and a refused caller receives no bytes.
 ## Arguments
 
 * id (object_id.sha256, required) – The id to look up.
-* zone (zone) – Zone filter for finder lookups. Defaults to all zones.
+* zone (zone) – Limits the query's routing zone and never widens it. Without it, the routing zone stands.
 * out (string8) – Output format.
+
+## Finders
+
+Two finders are built in:
+
+* The local finder names this node when its read-default repository holds the
+  object. It takes part with the `device` or `virtual` zone.
+* The swarm finder asks every other member of the swarm
+  [`objects.contains`](objects.contains.md) on its `main` repository,
+  concurrently, as this node, and names each member that answers true. Each
+  member has 10 seconds to answer. It takes part with the `network` zone.
+
+Registered external finders take part as well, under their own zone checks.
+
+A query arriving from another node runs without the `network` zone, so the node
+answers from its own finders and asks no further member.
 
 The `id` can be a
 [`Partial Object ID`](../../../core-definitions/object-id.md). The operation
-reads no repository, so it resolves no `Partial Object ID` before the fan-out.
-Every `Finder` receives the `id` as given.
+resolves no `Partial Object ID` before the fan-out. Every `Finder` receives the
+`id` as given. The local finder matches it by `Hash` inside the read-default
+repository.
 
 A `Finder` decides for itself whether it matches by `Hash` alone. A `Finder`
 that matches an `Object ID` exactly contributes nothing to a call carrying a

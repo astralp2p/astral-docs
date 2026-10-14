@@ -7,24 +7,32 @@ The caller must hold
 The query is rejected before any repository is opened when the caller is not
 authorized, and a refused caller receives no bytes.
 
-Within the network zone the node forwards the query to other nodes as the
-caller. A search by the active contract's issuer adds every linked sibling as a
-source. Each source authorizes the forwarded query as the caller, so a node
-forwards only the authority its caller holds there.
-A query arriving from the network runs without the network zone: the node
-answers from its own data and forwards nothing.
+Other nodes are reached two ways, both only within the `network` zone:
+
+* The swarm searcher is a registered searcher. It asks every other member of
+  the swarm, concurrently.
+* `sources` names nodes the caller chooses. `sources_only` decides whether they
+  are asked on top of the registered searchers or alone.
+
+The node asks other nodes as itself. It authorized its caller; the other node
+trusts that decision. A source equal to this node is skipped.
+
+A query arriving from the network runs without the `network` zone: the node
+answers from its own searchers and asks no other node.
 
 ## Arguments
 
 * q (string, required) – The search query.
 * repo (string8) – If set, only matches whose objects exist in this repository are returned.
-* zone (zone) – Zone filter for the search context. Defaults to all zones.
+* zone (zone) – Limits the query's routing zone and never widens it. Without it, the routing zone stands.
+* sources (string) – Comma-separated identities or aliases to ask. A repeated entry is asked once. Absent by default.
+* sources_only (bool) – `true` asks only `sources` and runs no registered searcher. Defaults to `false`, which asks `sources` on top of the registered searchers.
 * out (string8) – Output format.
 
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the repository is not found or the search fails to start.
+* An `error_message` object if the repository is not found, a `sources` entry does not resolve to an identity, or the search fails to start.
 * A stream of `mod.objects.search_result` objects (deduplicated by object id) followed by an `eos` object. The search context has a one-minute timeout.
 
 ## Examples
