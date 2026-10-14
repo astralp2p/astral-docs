@@ -20,11 +20,12 @@ single repository leaves Repo empty.
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
 
-The user identity and the node's own identity hold this action by default, and
-nobody else. A node member of the node's swarm does not hold it under its own
-identity. An app, a node member, or any other identity holds it through a
-node-local grant or a signed contract. A local caller carrying no identity is
-routed as the node's own identity.
+The user identity, the node's own identity and every node member of the node's
+swarm hold this action by default, and nobody else. A node shows the objects in
+its repositories to its swarm peers: a node that authorized its own caller asks
+a peer as itself, and the peer trusts that decision. An app or any other
+identity holds it through a node-local grant or a signed contract. A local
+caller carrying no identity is routed as the node's own identity.
 
 A node member of the node's swarm holds
 [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
