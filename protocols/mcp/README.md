@@ -77,7 +77,8 @@ holding fewer rows than its `limit` answer no `next_before`.
 A tool parses its arguments before it calls the module. A `since` that is not
 a decimal integer from 0 to 9223372036854775807 is refused with
 `since is a cursor a previous answer gave you, not "<since>"`, a `before` that
-is not with `before is a cursor a previous answer gave you, not "<before>"`, a
+is not a decimal integer from 0 to 9223372036854775807 with
+`before is a cursor a previous answer gave you, not "<before>"`, a
 negative `limit` with `limit is a number of messages, not <limit>`, a `box` other
 than `inbox` or `outbox` with `box is inbox or outbox, not <box>`, and a
 message identifier that is not thirty-two hexadecimal characters with
