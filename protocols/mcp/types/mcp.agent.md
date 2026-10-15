@@ -11,7 +11,8 @@ is what a caller reads when it does not hold the agent's credentials.
 
 * Identity (identity) – The agent's identity, minted by the node.
 * Alias (string8) – The agent's alias. Empty when no alias is bound.
-* Token (string8) – The access token authenticating the agent.
+* Token (string8) – The access token authenticating the agent. Empty in an
+  `mcp.list_agents` answer when the token no longer authenticates as the agent.
 * ExpiresAt (time) – The instant at which the token expires.
 
 ## Example

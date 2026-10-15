@@ -23,6 +23,14 @@ up in this node's mailbox index. An agent the index no longer names is left out
 of the stream, and its record is deleted. A failure of that deletion is logged
 and changes no answer.
 
+**A token that no longer authenticates is withheld.** The agent record keeps
+the token `mcp.create_agent` issued.
+[`apphost.delete_token`](../../apphost/ops/apphost.delete_token.md) revokes that
+token and leaves the record, and the token stops authenticating at its
+`ExpiresAt`. The node checks each record's token with the `apphost` module. An
+agent whose token does not authenticate as the agent's identity is streamed
+with an empty `Token`. A check that fails withholds the token.
+
 ## Arguments
 
 This operation takes no arguments.
