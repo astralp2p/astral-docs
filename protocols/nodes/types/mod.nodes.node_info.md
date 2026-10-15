@@ -1,25 +1,22 @@
 # mod.nodes.node_info
 
-A compact descriptor of a node: its alias, identity, and a list of known endpoints. Text-encodes as a base62 string (the `node1` info format).
+A compact descriptor of a node: its alias, identity, and a list of known endpoints.
 
 ## Fields
 
 * Alias (string8) – Self-reported alias for the node.
-* Identity (identity) – The node's public key.
-* Endpoints ([]object) – List of `exonet.Endpoint` objects. On the wire each entry is preceded by a `uint8` type tag (`0` = tcp, `1` = tor, `2` = gateway, `3` = utp). The list length is encoded as a `uint8` and therefore capped at 255.
+* Identity (identity, optional) – The node's public key.
+* Endpoints ([]object) – List of `exonet.Endpoint` objects. Each entry carries its own `Object Type`, so every endpoint type is representable, `mod.kcp.endpoint` and `nat.endpoint` included.
+
+The text form is the base62 encoding of the binary encoding; JSON encodes the object as that same text.
 
 ## Example
+
+`Alias` `void0`, `Identity` `02bef8840eb35ef2ae3c83c07cb5779278904f99cb4103f71e37cc69931ae5e15f`, and two endpoints: `mod.tcp.endpoint` `1.2.3.4:1791` and `mod.kcp.endpoint` `1.2.3.4:1791`.
 
 ```json
 {
   "Type": "mod.nodes.node_info",
-  "Object": {
-    "Alias": "void0",
-    "Identity": "02bef8840eb35ef2ae3c83c07cb5779278904f99cb4103f71e37cc69931ae5e15f",
-    "Endpoints": [
-      { "Type": "tcp.endpoint", "Object": "1.2.3.4:1791" },
-      { "Type": "tor.endpoint", "Object": "abcdefghijklmnop.onion:1791" }
-    ]
-  }
+  "Object": "f3ACGQgAIgO3S7N4IztycBuxWzFyeWbQ8vBEMgABQAdul2bwRmbl5CcjRnLk9WbQIAAAAwXhXuGTmGz34x9DE0yZeJIxTy7qlPgHkHXl3rZdgQ89VgAghs0emdFA"
 }
 ```
