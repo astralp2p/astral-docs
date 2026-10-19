@@ -14,6 +14,11 @@
   container, the same shape as a top-level object. The nested "Type" names the
   concrete `Object Type`; a JSON `null` in the slot is the absent value.
 * Absent optional values are encoded as JSON `null`.
+* A [`Slice`](binary-encoding.md#slices) is encoded as a JSON array. A `Slice`
+  with no elements is encoded as `[]`, never `null`; a nil `Slice` and an
+  empty `Slice` encode alike.
+* A [`Map`](binary-encoding.md#maps) is encoded as a JSON object. A nil `Map` is encoded as JSON `null`;
+  an empty, non-nil `Map` is encoded as `{}`.
 * Field-name lookup during decoding is case-insensitive. This applies to the
   container's own "Type" and "Object" keys and to `Payload` key names alike.
 * A container key other than "Type" and "Object" is an error, and a decoder
