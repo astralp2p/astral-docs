@@ -50,9 +50,15 @@ in [`services`](../services/README.md).
 Only `mod.auth.serve_objects_action` and
 `mod.services.service_discovery_action` evaluate a permit's `Constraints`
 bundle.
-Every other action refuses a permit carrying constraints rather than granting it
-in full, because an action that does not evaluate a constraint is permitted
-regardless of one.
+Every other action except `mod.auth.sudo_action` refuses a permit carrying
+constraints rather than granting it in full, because an action that does not
+evaluate a constraint is permitted regardless of one.
+
+[`mod.auth.sudo_action`](types/mod.auth.sudo_action.md) is the exception: a sudo
+permit is always unconstrained. The action does not evaluate constraints, so a
+sudo permit grants the full authority of the identity it names whatever
+`Constraints` it carries, and an expiry or delegation limit on it does not narrow
+what the holder may do as that identity.
 
 [`mod.messaging.read_mailbox_action`](../messaging/types/mod.messaging.read_mailbox_action.md)
 refuses every permit, constrained or not, so no contract carries it: only a

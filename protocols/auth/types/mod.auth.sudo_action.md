@@ -25,6 +25,11 @@ without the refusal an unauthenticated local caller would satisfy the actor-is-t
 test and sign as the node. A caller holding a real sudo permit for the node still
 signs, having proved something the rewrite cannot supply.
 
+A sudo permit is always unconstrained. The action does not evaluate a permit's
+`Constraints` bundle, so a permit for it grants the full authority of the
+identity it names, including signing contracts in that identity's name,
+whatever constraints the permit carries.
+
 ## Fields
 
 * Action ([`mod.auth.action`](mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID.
