@@ -30,7 +30,7 @@ an operation submits its action before it acts.
 * [`mod.auth.see_node_state_action`](types/mod.auth.see_node_state_action.md) – read the node's tree, directory aliases and filters, agent and participant metadata, and log stream
 * [`mod.auth.use_gateway_action`](types/mod.auth.use_gateway_action.md) – register with the node's gateway, reserve a connection through it, and be forwarded by it
 
-Nine more are declared by the protocols that own them:
+Ten more are declared by the protocols that own them:
 [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md) and
 [`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)
 in the [`user`](../user/README.md) protocol,
@@ -43,22 +43,29 @@ and
 [`mod.messaging.read_mailbox_action`](../messaging/types/mod.messaging.read_mailbox_action.md)
 in [`messaging`](../messaging/README.md), and
 [`mod.coldcard.scan_action`](../coldcard/types/mod.coldcard.scan_action.md) in
-[`coldcard`](../coldcard/README.md), and
+[`coldcard`](../coldcard/README.md),
 [`mod.services.service_discovery_action`](../services/types/mod.services.service_discovery_action.md)
-in [`services`](../services/README.md).
+in [`services`](../services/README.md), and
+[`mod.shell.shell_action`](../shell/types/mod.shell.shell_action.md) in
+[`shell`](../shell/README.md).
 
 Only `mod.auth.serve_objects_action` and
 `mod.services.service_discovery_action` evaluate a permit's `Constraints`
 bundle.
-Every other action except `mod.auth.sudo_action` refuses a permit carrying
-constraints rather than granting it in full, because an action that does not
-evaluate a constraint is permitted regardless of one.
+Every other action except `mod.auth.sudo_action` and `mod.shell.shell_action`
+refuses a permit carrying constraints rather than granting it in full, because
+an action that does not evaluate a constraint is permitted regardless of one.
 
 [`mod.auth.sudo_action`](types/mod.auth.sudo_action.md) is the exception: a sudo
 permit is always unconstrained. The action does not evaluate constraints, so a
 sudo permit grants the full authority of the identity it names whatever
 `Constraints` it carries, and an expiry or delegation limit on it does not narrow
 what the holder may do as that identity.
+
+[`mod.shell.shell_action`](../shell/types/mod.shell.shell_action.md) is the
+other exception: a shell permit is always unconstrained. The action does not
+evaluate constraints, so a shell permit admits its holder to a full session
+whatever `Constraints` it carries.
 
 [`mod.messaging.read_mailbox_action`](../messaging/types/mod.messaging.read_mailbox_action.md)
 refuses every permit, constrained or not, so no contract carries it: only a

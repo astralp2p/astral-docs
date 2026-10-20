@@ -1,6 +1,6 @@
 # astrald.mod.fs.events.file_added
 
-Emitted when a new file is detected in a watched repository.
+Describes a new file detected in a watched repository. The type is registered, but no node emits it.
 
 ## Fields
 
@@ -14,7 +14,7 @@ Emitted when a new file is detected in a watched repository.
   "Type": "astrald.mod.fs.events.file_added",
   "Object": {
     "Path": "/data/myrepo/photo.jpg",
-    "ObjectID": "data1ybnmhilrpghbrbsqhbsqhbsqhbsqhbsqhbsqhbsqhbsqhbsqhbsqha"
+    "ObjectID": "data1b7s3jaxhj67biqz8ffkwrsaertjw81jfeostx3xgj73cdx43kskxi"
   }
 }
 ```
