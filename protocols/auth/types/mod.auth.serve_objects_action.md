@@ -41,16 +41,17 @@ node-local grant or a signed contract.
 * Action ([`mod.auth.action`](mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID.
 * Role (string8) – The role the call asks for: `describer`, `finder`, `searcher`, or `indexer`.
 
+In JSON the embedded action's fields appear directly in the `Object` value,
+beside `Role`, not under an `Action` key.
+
 ## Example
 
 ```json
 {
   "Type": "mod.auth.serve_objects_action",
   "Object": {
-    "Action": {
-      "Nonce": "a1b2c3d4e5f60718",
-      "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"
-    },
+    "Nonce": "a1b2c3d4e5f60718",
+    "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "Role": "describer"
   }
 }

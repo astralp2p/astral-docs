@@ -40,16 +40,17 @@ for the user. A query it relays for the user reaches the node as the user.
 * Repo (string8) – The repository the call writes into. Empty when the operation names no single repository.
 * Type (string8) – The object type the call writes. Empty when the operation names no single type.
 
+In JSON the embedded action's fields appear directly in the `Object` value,
+beside `Repo` and `Type`, not under an `Action` key.
+
 ## Example
 
 ```json
 {
   "Type": "mod.auth.store_objects_action",
   "Object": {
-    "Action": {
-      "Nonce": "a1b2c3d4e5f60718",
-      "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"
-    },
+    "Nonce": "a1b2c3d4e5f60718",
+    "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "Repo": "main",
     "Type": ""
   }

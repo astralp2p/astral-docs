@@ -42,16 +42,17 @@ an operator's decision, not a default.
 * Repo (string8) – The repository the call modifies. Empty when the operation names no single repository.
 * Path (string8) – The filesystem path the call attaches. Empty when the operation names no path.
 
+In JSON the embedded action's fields appear directly in the `Object` value,
+beside `ObjectID`, `Repo` and `Path`, not under an `Action` key.
+
 ## Example
 
 ```json
 {
   "Type": "mod.auth.admin_objects_action",
   "Object": {
-    "Action": {
-      "Nonce": "a1b2c3d4e5f60718",
-      "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"
-    },
+    "Nonce": "a1b2c3d4e5f60718",
+    "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "ObjectID": null,
     "Repo": "photos",
     "Path": "/srv/photos"

@@ -50,6 +50,9 @@ bundle is non-empty is refused rather than granted in full.
 * Action ([`mod.auth.action`](../../auth/types/mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID. ActorID is the recipient.
 * FromID (identity) – The sender the actor is asking to receive from.
 
+In JSON the embedded action's fields stay under an `Action` key, beside
+`FromID`.
+
 ## Example
 
 ```json

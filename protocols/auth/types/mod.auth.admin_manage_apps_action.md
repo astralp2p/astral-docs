@@ -61,16 +61,17 @@ them mints or reads another identity's credentials.
 
 * Action ([`mod.auth.action`](mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID.
 
+In JSON the embedded action's fields appear directly in the `Object` value, not
+under an `Action` key.
+
 ## Example
 
 ```json
 {
   "Type": "mod.auth.admin_manage_apps_action",
   "Object": {
-    "Action": {
-      "Nonce": "a1b2c3d4e5f60718",
-      "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"
-    }
+    "Nonce": "a1b2c3d4e5f60718",
+    "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"
   }
 }
 ```

@@ -56,6 +56,9 @@ its mailbox exactly as it left it.
 * Action ([`mod.auth.action`](../../auth/types/mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID. ActorID is the reading identity.
 * MailboxID (identity) – The identity whose mailbox the actor is asking to read.
 
+In JSON the embedded action's fields stay under an `Action` key, beside
+`MailboxID`.
+
 ## Example
 
 ```json

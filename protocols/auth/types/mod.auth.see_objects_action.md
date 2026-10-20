@@ -37,16 +37,17 @@ for the user. A query it relays for the user reaches the node as the user.
 * ObjectID (object_id.sha256, optional) – The object the call reads. Absent when the operation names no single object.
 * Repo (string8) – The repository the call reads from. Empty when the operation names no single repository.
 
+In JSON the embedded action's fields appear directly in the `Object` value,
+beside `ObjectID` and `Repo`, not under an `Action` key.
+
 ## Example
 
 ```json
 {
   "Type": "mod.auth.see_objects_action",
   "Object": {
-    "Action": {
-      "Nonce": "a1b2c3d4e5f60718",
-      "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"
-    },
+    "Nonce": "a1b2c3d4e5f60718",
+    "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "ObjectID": "data1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     "Repo": "main"
   }

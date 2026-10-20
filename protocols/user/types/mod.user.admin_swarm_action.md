@@ -22,16 +22,17 @@ This action replaces `mod.user.adopt_action` and `mod.user.expel_action`.
 * Subject (identity) – Identity of the node being adopted, expelled or synced with. Zero for an asset call.
 * ObjectID (object_id) – ID of the asset being added or removed. Zero for a membership call.
 
+In JSON the embedded action's fields appear directly in the `Object` value,
+beside `Subject` and `ObjectID`, not under an `Action` key.
+
 ## Example
 
 ```json
 {
   "Type": "mod.user.admin_swarm_action",
   "Object": {
-    "Action": {
-      "Nonce": "a1b2c3d4e5f60718",
-      "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"
-    },
+    "Nonce": "a1b2c3d4e5f60718",
+    "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "Subject": "037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590",
     "ObjectID": ""
   }

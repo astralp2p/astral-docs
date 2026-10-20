@@ -28,16 +28,17 @@ identity holds the action through a node-local grant with a scope, written by
 * Service (string8) – The service to discover.
 * NodeID (identity) – The node contributing the service.
 
+In JSON the embedded action's fields appear directly in the `Object` value,
+beside `Service` and `NodeID`, not under an `Action` key.
+
 ## Example
 
 ```json
 {
   "Type": "mod.services.service_discovery_action",
   "Object": {
-    "Action": {
-      "Nonce": "a1b2c3d4e5f60718",
-      "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"
-    },
+    "Nonce": "a1b2c3d4e5f60718",
+    "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "Service": "player",
     "NodeID": "02bef8840eb35ef2ae3c83c07cb5779278904f99cb4103f71e37cc69931ae5e15f"
   }
