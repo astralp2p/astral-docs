@@ -25,6 +25,11 @@ default duration is within them.
 
 The operation returns one of:
 * A `mod.auth.contract` ready to be signed.
+* An `error_message` reading
+  `user id missing: pass -user <identity>; the node has no active contract to default from`
+  if `user` is omitted and the node has no active contract.
+* An `error_message` reading `user id missing` if `user` resolves to the
+  anonymous identity, as `anyone` does.
 * An `error_message` if either identity could not be resolved, the duration
   failed to parse, or contract construction failed.
 
