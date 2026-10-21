@@ -75,7 +75,7 @@ above. Otherwise the operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query user.bootstrap -generate -out json
+$ astral-query user.bootstrap -generate true -out json
 {"Type":"mod.user.bootstrap_result","Object":{"Identity":"02a1...","Mnemonic":"penalty stadium garlic ... rifle fitness garage"}}
 ```
 
