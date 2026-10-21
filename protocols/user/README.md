@@ -18,6 +18,13 @@ cold-card path). A user permanently bans a node with `user.expel`, and the list
 of bans is inspectable via `user.list_expelled`. Banned nodes hold a
 `mod.user.signed_expulsion` and are refused new contracts.
 
+Two policies decide unsolicited membership. The swarm join policy decides each
+`user.request_membership`, and the swarm invite policy decides each
+`user.accept_membership`. Both accept everything by default.
+`user.set_swarm_join_policy` and `user.set_swarm_invite_policy` delegate either
+decision to an operation of another identity. Both setters require
+`mod.auth.admin_manage_apps_action`.
+
 Two actions gate the protocol. `mod.user.see_swarm_action` covers every read —
 `user.info`, `user.assets`, `user.sync_assets`, `user.list_siblings`,
 `user.swarm_status` and `user.list_expelled`. `mod.user.admin_swarm_action`
