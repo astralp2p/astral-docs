@@ -5,7 +5,7 @@ Network from the command line.
 
 The syntax is:
 
-`astral-query [target:]<operation> [-<param> <val>] ...`
+`astral-query [target:]<operation> [-<param> <val>] ... [<val>]`
 
 The target can be the hex string of the target identity or its alias.
 
@@ -19,6 +19,28 @@ fails locally with `route_not_found` before reaching the target — exporting th
 token, not changing the query, is the fix. A token issued to a
 [`User`](../core-definitions/user.md) also routes the query as that user, which
 the target may require in order to accept it.
+
+## Arguments
+
+Each `-<param> <val>` pair sets the query argument `<param>` to `<val>`. The
+`<val>` token is taken as is, even when it starts with `-` or contains `=`.
+
+One more token after the pairs, without a leading `-`, sets the argument `arg`,
+the positional argument. `astral-query nat.set_enabled false` and
+`astral-query nat.set_enabled -arg false` send the same query.
+
+`astral-query` exits with status `1`, before it resolves the target or routes
+the query, when a token is one of:
+
+* `<key>=<val>` without a leading `-`. `key=value` is not an argument syntax.
+  The error names the `-<key> <val>` form:
+  `error: unexpected argument user=X: pass it as -user X`.
+* `-<param>` as the last token, with no `<val>`:
+  `error: argument -user has no value`.
+* Any other token without a leading `-` in place of a `-<param>`, other than
+  the last token: `error: unexpected argument <token>`.
+
+A positional value that contains `=` is passed as `-arg <val>`.
 
 ## Encodings and chaining
 
@@ -46,3 +68,32 @@ $ astral-query bip137sig.new_entropy -bits 256 -out json \
 
 See [Op modes & composition](../topics/op-modes.md) for the composition rule and
 its limits.
+
+## Ending input
+
+`astral-query` copies stdin to the query's `Channel`. The end of stdin does not
+close the `Channel`. An `Op` in batch mode reads until an
+[`eos`](../primitive-types/eos.md) or EOF, so the `Op` keeps waiting after stdin
+ends, and `astral-query` does not exit.
+[`objects.store`](../protocols/objects/ops/objects.store.md) and
+[`auth.sign_contract`](../protocols/auth/ops/auth.sign_contract.md) read their
+input in batch mode.
+
+`-eos` makes `astral-query` send an `eos` after stdin ends. A batch-mode `Op`
+answers the `eos` with a final `eos` and returns, and `astral-query` exits.
+`-eos` is a flag of `astral-query` itself and precedes the operation. After the
+operation, `-eos` is read as a `-<param>`.
+
+```shellsession
+$ echo '{"Type":"string8","Object":"hello"}' | astral-query -eos objects.store -in json -out json
+{"Type":"object_id.sha256","Object":"data1brwgb65sy54z9imojxaaof9btx3nujt1rxqyozt9ahxm189hi36e1"}
+{"Type":"eos","Object":null}
+```
+
+Without `-eos`, the same command prints the `object_id.sha256` and does not
+exit. Complete output followed by no exit is the symptom of a missing `-eos`.
+
+`-eos` takes effect only when the query has an input format. The `eos` is
+encoded in that format. A piped or redirected stdin has no input format unless
+`-in <enc>` sets one. A terminal stdin defaults to `text`, or to the format in
+`ASTRAL_DEFAULT_INPUT_FORMAT` when that variable is set.
