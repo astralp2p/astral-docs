@@ -14,7 +14,9 @@ Swarm membership is managed through contract ops: a user adopts a node with
 `user.adopt` or lets it request membership with `user.request_membership`; a
 node accepts an inbound contract with `user.accept_membership`, or activates an
 already-signed contract with `user.accept_contract` (node setup and the
-cold-card path). A user permanently bans a node with `user.expel`, and the list
+cold-card path). `user.bootstrap` claims an unclaimed node in one call: it
+derives the user's key from BIP-39 words, signs the claim contract for both
+parties and activates it. A user permanently bans a node with `user.expel`, and the list
 of bans is inspectable via `user.list_expelled`. Banned nodes hold a
 `mod.user.signed_expulsion` and are refused new contracts.
 

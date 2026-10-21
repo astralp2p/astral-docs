@@ -10,6 +10,8 @@ Activate a fully-signed contract as the node's active contract. Rejected with co
 
 The operation returns one of:
 * An `error_message` object if validation or storage fails.
+* An `error_message` reading `the node has an active contract` if another
+  claim completes after this query is accepted and before this claim.
 * An `ack` object once the contract is stored and set as the active contract.
 
 ## Examples

@@ -38,6 +38,9 @@ The node signs it while all of these hold:
   [`mod.user.swarm_membership_action`](../../user/types/mod.user.swarm_membership_action.md),
   expired contracts included. A failed lookup refuses the contract.
 
+[`user.bootstrap`](../../user/ops/user.bootstrap.md) applies the same rule to
+the claim contract it signs.
+
 [`apphost.register`](../../apphost/ops/apphost.register.md),
 [`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md)
 and [`mcp.create_agent`](../../mcp/ops/mcp.create_agent.md), which mints its
