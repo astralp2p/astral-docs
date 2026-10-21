@@ -19,6 +19,8 @@
   empty `Slice` encode alike.
 * A [`Map`](binary-encoding.md#maps) is encoded as a JSON object. A nil `Map` is encoded as JSON `null`;
   an empty, non-nil `Map` is encoded as `{}`.
+* A [`Bundle`](../core-definitions/bundle.md) is encoded as a JSON array holding
+  one "Type"/"Object" container per member, in `Bundle` order.
 * Field-name lookup during decoding is case-insensitive. This applies to the
   container's own "Type" and "Object" keys and to `Payload` key names alike.
 * A container key other than "Type" and "Object" is an error, and a decoder

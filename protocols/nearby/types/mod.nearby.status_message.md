@@ -12,7 +12,12 @@ The status payload broadcast by a node to nearby peers, carrying a bundle of att
 {
   "Type": "mod.nearby.status_message",
   "Object": {
-    "Attachments": {}
+    "Attachments": [
+      {
+        "Type": "mod.dir.alias",
+        "Object": "alice"
+      }
+    ]
   }
 }
 ```
