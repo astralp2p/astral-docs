@@ -16,7 +16,7 @@ does not need the tokens is `mcp.agent`, which answers per agent and withholds
 them.
 
 **An agent whose participant is gone is left out.**
-[`messaging.delete_identity`](../../messaging/ops/messaging.delete_identity.md)
+[`messaging.delete_mailbox`](../../messaging/ops/messaging.delete_mailbox.md)
 on an agent's identity withdraws the participant and leaves the agent record,
 with a token that no longer authenticates. The node looks each agent's identity
 up in this node's mailbox index. An agent the index no longer names is left out

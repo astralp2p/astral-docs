@@ -1,13 +1,13 @@
-# messaging.identity_credential
+# messaging.mailbox_credential
 
 A participant whose mailbox the node hosts, as the `messaging` module minted it,
 including the access token it authenticates with. Returned by
-[`messaging.create_identity`](../ops/messaging.create_identity.md), and by no
+[`messaging.create_mailbox`](../ops/messaging.create_mailbox.md), and by no
 other operation.
 
 The token is a credential: it is an [`apphost`](../../apphost/README.md) access
 token, and a bearer of it acts as the participant.
-[`messaging.identity_info`](messaging.identity_info.md) is the record without
+[`messaging.mailbox_info`](messaging.mailbox_info.md) is the record without
 the token, and is what a caller reads when it does not hold the participant's
 credentials.
 
@@ -24,7 +24,7 @@ credentials.
 
 ```json
 {
-  "Type": "messaging.identity_credential",
+  "Type": "messaging.mailbox_credential",
   "Object": {
     "Identity": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "Alias": "scout",

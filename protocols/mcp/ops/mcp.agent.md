@@ -10,7 +10,7 @@ authorized, and a refused caller receives no bytes. A query from the network is
 rejected before the action is submitted.
 
 **An agent whose participant is gone is not found.**
-[`messaging.delete_identity`](../../messaging/ops/messaging.delete_identity.md)
+[`messaging.delete_mailbox`](../../messaging/ops/messaging.delete_mailbox.md)
 on an agent's identity withdraws the participant and leaves the agent record.
 The node reads the agent record, then looks the agent's identity up in this
 node's mailbox index. An agent the index no longer names is answered

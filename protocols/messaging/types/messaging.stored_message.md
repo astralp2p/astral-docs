@@ -12,8 +12,8 @@ record a node holds once the delivery lands: the parties the route
 authenticated, the box the row sits in, and the instants that node stamped.
 Neither is derivable from the other. One type carrying both would either put a
 spoofable claim on the wire or leave a reader unable to say who wrote what —
-[`messaging.identity_info`](messaging.identity_info.md) sits beside
-[`messaging.identity_credential`](messaging.identity_credential.md) for the
+[`messaging.mailbox_info`](messaging.mailbox_info.md) sits beside
+[`messaging.mailbox_credential`](messaging.mailbox_credential.md) for the
 same reason.
 
 An operation answers this record without its body, as a
