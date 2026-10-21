@@ -11,7 +11,7 @@ credential, with an inbox and an outbox this node hosts. One node holds the
 agents of many tenants and knows no relation between them.
 
 Four operations manage agent records. `mcp.create_agent` mints an agent through
-the messaging module, as `messaging.create_identity` mints a participant, keeps
+the messaging module, as `messaging.create_mailbox` mints a participant, keeps
 its record, and returns its token. `mcp.agent` reads one record without its
 token. `mcp.list_agents` streams every record with its token while the token
 authenticates as the agent. Both reads leave
@@ -29,7 +29,7 @@ authenticates with its access token as a bearer token, and every tool call acts
 as the authenticated agent identity. The endpoint accepts any unexpired
 [`apphost`](../apphost/README.md) access token and reads no agent record, so a
 participant minted with
-[`messaging.create_identity`](../messaging/ops/messaging.create_identity.md)
+[`messaging.create_mailbox`](../messaging/ops/messaging.create_mailbox.md)
 authenticates as well. The token is checked on every HTTP request: a request
 presenting a revoked or expired token is refused, and a request already running
 is not cut short.

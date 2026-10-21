@@ -8,13 +8,13 @@ when it is denied, before it reads state, walks a tree path, or subscribes the
 caller to the log. A refused caller receives no bytes.
 
 One action covers `tree.get`, `tree.list`, `dir.alias_map`, `dir.filters`,
-`dir.apply_filters`, `mcp.agent`, `messaging.identity` and `log.listen`.
+`dir.apply_filters`, `mcp.agent`, `messaging.mailbox` and `log.listen`.
 
 The action includes the log stream. A holder reads other callers' logged
 activity as well as node metadata.
 
 `mcp.agent` answers an agent's record without its access token, and
-`messaging.identity` answers a participant's record without any credential. The
+`messaging.mailbox` answers a participant's record without any credential. The
 action grants agent and participant metadata and no credential.
 
 The action grants no change to the state it reads.

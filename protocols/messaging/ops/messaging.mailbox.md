@@ -1,4 +1,4 @@
-# messaging.identity
+# messaging.mailbox
 
 Return one participant's record without any credential. Local-only — queries
 from the network are rejected, and so are queries carrying the `mcp` origin.
@@ -28,16 +28,16 @@ The operation returns one of:
   distinguishes a mistyped name from an identity whose mailbox this node does
   not index.
 * An `error_message` object if the index cannot be read.
-* A `messaging.identity_info` object describing the participant.
+* A `messaging.mailbox_info` object describing the participant.
 
 ## Examples
 
 ```shellsession
-$ astral-query messaging.identity -identity scout -out json
-{"Type":"messaging.identity_info","Object":{"Identity":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c","Alias":"scout"}}
+$ astral-query messaging.mailbox -identity scout -out json
+{"Type":"messaging.mailbox_info","Object":{"Identity":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c","Alias":"scout"}}
 ```
 
 ```shellsession
-$ astral-query messaging.identity -identity 026165850492521f4ac8abd9bd8088123446d126f648ca35e60f88177dc149ceb2 -out json
+$ astral-query messaging.mailbox -identity 026165850492521f4ac8abd9bd8088123446d126f648ca35e60f88177dc149ceb2 -out json
 {"Type":"error_message","Object":"identity not found"}
 ```

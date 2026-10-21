@@ -38,10 +38,11 @@ The node signs it while all of these hold:
   [`mod.user.swarm_membership_action`](../../user/types/mod.user.swarm_membership_action.md),
   expired contracts included. A failed lookup refuses the contract.
 
-[`apphost.register`](../../apphost/ops/apphost.register.md) and
-[`messaging.create_identity`](../../messaging/ops/messaging.create_identity.md),
-which [`mcp.create_agent`](../../mcp/ops/mcp.create_agent.md) mints its agents
-through, index a relay contract for each identity they mint, after the
+[`apphost.register`](../../apphost/ops/apphost.register.md),
+[`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md)
+and [`mcp.create_agent`](../../mcp/ops/mcp.create_agent.md), which mints its
+agents through `messaging.create_mailbox`, mint identities this exception
+refuses: each indexes a relay contract for each identity it mints, after the
 identity's private key is indexed. An
 identity whose registration fails between those two steps holds no relay
 contract. The node indexes the node contract of each user it accepts, so the

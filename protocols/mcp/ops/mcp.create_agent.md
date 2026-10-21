@@ -4,7 +4,7 @@ Mint a new agent: a fresh identity with a signed relay contract, a signed
 hosting contract, an optional alias, and the access token the agent presents to
 the MCP endpoint, with a mailbox this node hosts. The agent is minted through
 the [`messaging`](../../messaging/README.md) module, as
-[`messaging.create_identity`](../../messaging/ops/messaging.create_identity.md)
+[`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md)
 mints a participant, so the node signs, indexes and stores the hosting contract
 the agent's identity issues to it. The returned object carries the token.
 `mcp.agent` withholds it, and `mcp.list_agents` is the sole way to recover it
@@ -19,7 +19,7 @@ rejected before the action is submitted.
 **A failed record takes the participant with it.** The messaging module mints
 the participant first, and the agent record is written after it. When the
 record cannot be written, the node deletes the participant again, as
-`messaging.delete_identity` deletes one, and answers the record's error. A
+`messaging.delete_mailbox` deletes one, and answers the record's error. A
 failure of that deletion is logged and changes no answer.
 
 ## Arguments
@@ -35,7 +35,7 @@ failure of that deletion is logged and changes no answer.
 
 The operation returns one of:
 * An `error_message` object if the participant cannot be minted, as
-  [`messaging.create_identity`](../../messaging/ops/messaging.create_identity.md)
+  [`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md)
   answers — the alias already taken reads `alias already taken` — or the agent
   record cannot be stored.
 * An `mcp.agent` object describing the new agent, including its token.

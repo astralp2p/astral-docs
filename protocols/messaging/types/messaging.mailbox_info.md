@@ -1,8 +1,8 @@
-# messaging.identity_info
+# messaging.mailbox_info
 
 A participant's record without any credential: what a caller may read about a
 participant whose credentials it does not hold. Returned by
-[`messaging.identity`](../ops/messaging.identity.md).
+[`messaging.mailbox`](../ops/messaging.mailbox.md).
 
 The token is absent from the type rather than left empty, so a caller never
 reads a withheld token as a participant that has none.
@@ -22,7 +22,7 @@ them.
 
 ```json
 {
-  "Type": "messaging.identity_info",
+  "Type": "messaging.mailbox_info",
   "Object": {
     "Identity": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
     "Alias": "scout"

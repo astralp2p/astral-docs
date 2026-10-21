@@ -47,7 +47,7 @@ mailbox the read names, before
 [`mod.messaging.read_mailbox_action`](mod.messaging.read_mailbox_action.md). It
 is submitted only for an identity the node's mailbox index names with an
 unexpired contract, and never for the node's own identity or the zero identity.
-See [Hosting](../README.md#hosting) for the contract `messaging.create_identity`
+See [Hosting](../README.md#hosting) for the contract `messaging.create_mailbox`
 signs and the index that narrows which mailboxes a node checks.
 
 The permit in a hosting contract carries no constraints and has `Delegation` 0,

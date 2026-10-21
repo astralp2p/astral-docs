@@ -10,8 +10,8 @@ hosts, and the grants that say what an identity may do here.
 The action gates eleven operations — `apphost.create_token`,
 `apphost.list_tokens`, `apphost.delete_token`, `apphost.grant`,
 `apphost.revoke`, `apphost.list_grants`, `mcp.create_agent`,
-`mcp.list_agents`, `mcp.delete_agent`, `messaging.create_identity` and
-`messaging.delete_identity`. Each operation submits the action before it reads
+`mcp.list_agents`, `mcp.delete_agent`, `messaging.create_mailbox` and
+`messaging.delete_mailbox`. Each operation submits the action before it reads
 or changes a credential or a grant, and a refused caller receives no bytes.
 
 Two further operations submit the action as an administrative override rather
@@ -40,8 +40,8 @@ access tokens, so one action covers all three protocols.
 
 `apphost.delete_token`, `apphost.grant`, `apphost.revoke`,
 `apphost.list_grants`, `mcp.create_agent`, `mcp.list_agents`,
-`mcp.delete_agent`, `messaging.create_identity` and
-`messaging.delete_identity` also reject a query that arrived over a
+`mcp.delete_agent`, `messaging.create_mailbox` and
+`messaging.delete_mailbox` also reject a query that arrived over a
 [`Link`](../../../core-definitions/link.md), whatever the caller holds. A grant
 authorizes on one node and travels nowhere, so it is neither written nor
 enumerated over a link.

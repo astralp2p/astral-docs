@@ -10,12 +10,12 @@ plays either: an agent and an account owner are roles a product gives a
 participant, and the node knows neither.
 
 Three operations manage the identities whose mailboxes a node hosts.
-`messaging.create_identity` mints a participant — a fresh identity, a signed
+`messaging.create_mailbox` mints a participant — a fresh identity, a signed
 relay contract, a signed hosting contract, an optional
 [`Alias`](../../core-definitions/alias.md), and an
 [`apphost`](../apphost/README.md) access token the participant authenticates
-with — and returns its token. `messaging.identity` reads one participant without
-its token. `messaging.delete_identity` revokes the participant's tokens and
+with — and returns its token. `messaging.mailbox` reads one participant without
+its token. `messaging.delete_mailbox` revokes the participant's tokens and
 grants, unsets its alias, withdraws the node's hosting of its mailbox, and
 deletes the mail it owns there.
 
@@ -40,7 +40,7 @@ send path — see [Delivery](#delivery).
 
 The [`mcp`](../mcp/README.md) endpoint serves the five mail operations to its
 agents as tools, calling the messaging module directly, and `mcp.create_agent`
-mints every agent as a participant, as `messaging.create_identity` does.
+mints every agent as a participant, as `messaging.create_mailbox` does.
 
 ## Hosting
 
@@ -55,7 +55,7 @@ it.** The hosting contract is a
   with `Delegation` 0 and no constraints.
 * ExpiresAt – The instant the node builds the contract plus ten 365-day years.
 
-`messaging.create_identity` builds the contract, signs it with the keys the node
+`messaging.create_mailbox` builds the contract, signs it with the keys the node
 holds for both parties, indexes it with [`auth`](../auth/README.md), stores it,
 and records it in the node's mailbox index. The node holds the mailbox
 identity's key because it minted the identity, and the issuer is still the
@@ -81,7 +81,7 @@ carrying any constraint is refused.
 **Relay and hosting are separate permits.** The identity's
 [`mod.nodes.relay_for_action`](../nodes/types/mod.nodes.relay_for_action.md)
 permit lets the node relay traffic on the identity's behalf, and the hosting
-permit lets it hold the identity's mailbox. `messaging.create_identity` signs
+permit lets it hold the identity's mailbox. `messaging.create_mailbox` signs
 them as two contracts. A relay permit alone never authorizes hosting, and a
 hosting permit alone never authorizes relaying.
 
@@ -132,14 +132,14 @@ An operation that fails the check after it accepted the query answers
 request that passed runs to its end — see [Expiry](#expiry).
 
 **Only contracts this node provisioned are served.** The index names only the
-hosting contracts this node signed when `messaging.create_identity` provisioned
+hosting contracts this node signed when `messaging.create_mailbox` provisioned
 a mailbox. A hosting contract indexed from elsewhere, through
 [`auth.index`](../auth/ops/auth.index.md) or otherwise, grants
 `mod.messaging.host_mailbox_action`, but the index has no entry for it, so the
 node does not host that mailbox.
 
 **Deletion is a local withdrawal and not a revocation.**
-`messaging.delete_identity` removes the index entry and the mail the identity
+`messaging.delete_mailbox` removes the index entry and the mail the identity
 owns on this node. The signed hosting contract stays valid until its expiry,
 wherever a copy is held. The contract names this node as its subject, so it
 grants nothing on any other node, and [`auth`](../auth/README.md) has no
@@ -152,7 +152,7 @@ nothing and answers `not a messaging participant`.
 
 **Nothing renews a hosting contract.** A hosting contract lasts ten 365-day
 years from the instant the node builds it, the lifetime of the relay contract
-`messaging.create_identity` signs beside it. No operation renews it and no key
+`messaging.create_mailbox` signs beside it. No operation renews it and no key
 changes its length.
 
 **Expiry stops serving and deletes nothing.** Once the contract the index entry
@@ -620,9 +620,9 @@ carries no identity and acts as the node reaches no mailbox. A
 have a mailbox here, the mailbox it names must, and the node's own identity is
 refused as a reader.
 
-`messaging.create_identity` and `messaging.delete_identity` require
+`messaging.create_mailbox` and `messaging.delete_mailbox` require
 [`mod.auth.admin_manage_apps_action`](../auth/types/mod.auth.admin_manage_apps_action.md),
-and `messaging.identity` requires
+and `messaging.mailbox` requires
 [`mod.auth.see_node_state_action`](../auth/types/mod.auth.see_node_state_action.md).
 A participant holds neither by default.
 
@@ -667,7 +667,7 @@ max_read_bytes: 65536
 ```
 
 * `token_duration` – The lifetime of the access token
-  `messaging.create_identity` issues when the caller names no `duration`.
+  `messaging.create_mailbox` issues when the caller names no `duration`.
   Defaults to 8760 hours, 365 days.
 * `delivery_timeout` – Bounds one delivery and one receipt on the sending node,
   and the read of either on the answering node. Defaults to 15 seconds.

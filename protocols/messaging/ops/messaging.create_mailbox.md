@@ -1,9 +1,13 @@
-# messaging.create_identity
+# messaging.create_mailbox
 
-Mint a new participant: a fresh identity with a signed relay contract, a signed
-hosting contract, an optional alias, and an
+Give a new identity a mailbox on this node. The op mints a messaging
+participant: a fresh identity with a signed relay contract, a signed hosting
+contract, an optional alias, and an
 [`apphost`](../../apphost/README.md) access token, with an empty inbox and
-outbox this node hosts. The returned object carries the token, and it is the
+outbox this node hosts. The identity is not a node user: the node holds its
+key, and the node's claim contract is never issued to it (see
+[`auth.sign_contract`](../../auth/ops/auth.sign_contract.md)). Node setup does
+not go through this op. The returned object carries the token, and it is the
 only response of this protocol that does. Local-only — queries from the network
 are rejected, and so are queries carrying the `mcp` origin.
 
@@ -45,17 +49,17 @@ The operation returns one of:
   is already taken (`alias already taken`) or cannot be bound, the token cannot
   be issued, or the mailbox index entry cannot be stored. The index entry is
   written last, so a failed call leaves no mailbox this node serves.
-* A `messaging.identity_credential` object describing the new participant,
+* A `messaging.mailbox_credential` object describing the new participant,
   including its token.
 
 ## Examples
 
 ```shellsession
-$ astral-query messaging.create_identity -alias scout -out json
-{"Type":"messaging.identity_credential","Object":{"Identity":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c","Alias":"scout","Token":"h4d8s2w6y1b9t3n7","ExpiresAt":"2027-08-20T10:00:00Z"}}
+$ astral-query messaging.create_mailbox -alias scout -out json
+{"Type":"messaging.mailbox_credential","Object":{"Identity":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c","Alias":"scout","Token":"h4d8s2w6y1b9t3n7","ExpiresAt":"2027-08-20T10:00:00Z"}}
 ```
 
 ```shellsession
-$ astral-query messaging.create_identity -alias scout -out json
+$ astral-query messaging.create_mailbox -alias scout -out json
 {"Type":"error_message","Object":"alias already taken"}
 ```

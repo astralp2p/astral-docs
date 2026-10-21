@@ -1,4 +1,4 @@
-# messaging.delete_identity
+# messaging.delete_mailbox
 
 Withdraw this node's hosting of a participant's mailbox: revoke every
 [`apphost`](../../apphost/README.md) access token the identity holds, expired
@@ -59,6 +59,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query messaging.delete_identity -identity scout -out json
+$ astral-query messaging.delete_mailbox -identity scout -out json
 {"Type":"ack","Object":null}
 ```
