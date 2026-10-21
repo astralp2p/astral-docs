@@ -18,7 +18,12 @@ Emitted locally when a broadcast arrives, has a valid signature, and is not the 
       "Type": "mod.nearby.status",
       "Object": {
         "Identity": "02bef8840eb35ef2ae3c83c07cb5779278904f99cb4103f71e37cc69931ae5e15f",
-        "Attachments": {}
+        "Attachments": [
+          {
+            "Type": "mod.dir.alias",
+            "Object": "alice"
+          }
+        ]
       }
     }
   }
