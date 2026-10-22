@@ -1,59 +1,12 @@
 # mod.messaging.host_mailbox_action
 
-A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission
-for the actor, a node, to host the mailbox of another
-[`Identity`](../../../core-definitions/identity.md).
+Permission for `ActorID` to host `MailboxID`'s mailbox. The root rule grants
+this action to the nonzero `MailboxID` itself; a hosting contract delegates it
+to the node. Nonempty permit constraints are refused.
 
-The actor is the hosting node, and `MailboxID` is the identity whose mailbox it
-hosts. The action asks one question: may this node host this identity's
-mailbox. It names no correspondent and no operation. Who may write to whom is
-[`mod.messaging.send_action`](mod.messaging.send_action.md) and
-[`mod.messaging.receive_action`](mod.messaging.receive_action.md), and a
-hosting permit answers neither.
-
-**The mailbox identity is the root of the authority.** The
-[`messaging`](../README.md) module gives the [`auth`](../../auth/README.md)
-protocol one rule for this action: the action is granted when `MailboxID` is not
-the zero identity and the actor is `MailboxID` itself. The rule is not
-node-local, so a contract chain reaches it. A node holds the action through a
-[`mod.auth.signed_contract`](../../auth/types/mod.auth.signed_contract.md) whose
-issuer is the mailbox identity, whose subject is the node, and whose permits
-include this action type: `auth` walks the contracts the node is subject to,
-asks the action again with each issuer as actor, and the rule grants it for the
-issuer that is `MailboxID`.
-
-**A permit binds to its issuer's mailbox.** A contract from any other identity,
-the node's own contract to itself included, grants nothing: its issuer is not
-`MailboxID`, and the rule grants the action to `MailboxID` alone. No constraint
-names the mailbox, and none is needed: the contract's issuer is the identity
-whose mailbox it grants.
-
-A [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
-permit from the same identity is a separate authority. It lets the node relay
-traffic on the identity's behalf and grants no hosting, and a hosting permit
-grants no relaying.
-
-The action is submitted by the node that serves a mailbox, with the node's own
-identity as actor, each time a request touching that mailbox starts: a delivery
-or a receipt addressed to the identity, after its path and provenance checks
-and before it is accepted; every mail operation other than
-`messaging.read_messages`, before it is accepted and again when it calls the
-module; `messaging.read_messages` on the caller's own mailbox, once the request
-arrives and before any row is read; every direct call to the module acting on
-the mailbox, before anything is read or written; and a read of the recipient's own
-mailbox that hands out an inbox body, to learn whether the sender's row is on
-this node. A [delegated read](../README.md#delegated-read) submits it for the
-mailbox the read names, before
-[`mod.messaging.read_mailbox_action`](mod.messaging.read_mailbox_action.md). It
-is submitted only for an identity the node's mailbox index names with an
-unexpired contract, and never for the node's own identity or the zero identity.
-See [Hosting](../README.md#hosting) for the contract `messaging.create_mailbox`
-signs and the index that narrows which mailboxes a node checks.
-
-The permit in a hosting contract carries no constraints and has `Delegation` 0,
-so the node hands the authority on to no other identity. A permit whose
-`Constraints` bundle is non-empty is refused rather than granted in full,
-whatever the bundle holds.
+[Mailbox Hosting](../../../topics/mailbox-hosting.md#hosting) defines the
+contract and index checks. This action grants no relay, send, receive, or
+mailbox-read permission.
 
 ## Fields
 

@@ -1,34 +1,22 @@
 # messaging.mailbox
 
-Return one participant's record without any credential. Local-only — queries
-from the network are rejected, and so are queries carrying the `mcp` origin.
+Read a mailbox's identity and alias without credentials. The mailbox index
+is read even when its hosting contract has expired or no longer authorizes.
 
-The caller must hold
-[`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
-The query is rejected before any participant record is read when the caller is
-not authorized, and a refused caller receives no bytes. A query from the network
-or carrying the `mcp` origin is rejected before the action is submitted.
-
-The record is read from this node's mailbox index and never asks the hosting
-check: an entry whose hosting contract has expired or no longer authorizes is
-answered as any other. See [Hosting](../README.md#hosting).
+Requires [`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
+Network and `mcp` origins are rejected before authorization; denied callers
+receive no bytes.
 
 ## Arguments
 
-* identity (string8, required) – The participant, given as a hex public key or a
-  name resolved via the directory.
+* identity (string8, required) – Mailbox identity as a hex public key or directory name.
 
 ## Returned objects
 
-The operation returns one of:
-* An `error_message` object reading `unknown identity` if `identity` resolves to
-  no identity.
-* An `error_message` object reading `identity not found` if the identity
-  resolves but this node's mailbox index has no entry for it. A caller
-  distinguishes a mistyped name from an identity whose mailbox this node does
-  not index.
-* An `error_message` object if the index cannot be read.
-* A `messaging.mailbox_info` object describing the participant.
+* A [`messaging.mailbox_info`](../types/messaging.mailbox_info.md).
+* An `error_message` reading `unknown identity` when the name does not resolve.
+* An `error_message` reading `identity not found` when the identity has no mailbox index entry.
+* An `error_message` if the index cannot be read.
 
 ## Examples
 

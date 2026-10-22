@@ -1,44 +1,24 @@
 # mcp.create_agent
 
-Mint a new agent: a fresh identity with a signed relay contract, a signed
-hosting contract, an optional alias, and the access token the agent presents to
-the MCP endpoint, with a mailbox this node hosts. The agent is minted through
-the [`messaging`](../../messaging/README.md) module, as
-[`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md)
-mints a participant, so the node signs, indexes and stores the hosting contract
-the agent's identity issues to it. The returned object carries the token.
-`mcp.agent` withholds it, and `mcp.list_agents` is the sole way to recover it
-afterwards. Local-only — queries from the network are rejected.
+Create a mailbox through the messaging module and store an agent record with
+its access token. Mailbox creation follows
+[`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md).
+[`mcp.list_agents`](mcp.list_agents.md) can recover the token later.
 
-The caller must hold
-[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-The query is rejected before an identity is minted when the caller is not
-authorized, and a refused caller receives no bytes. A query from the network is
-rejected before the action is submitted.
-
-**A failed record takes the participant with it.** The messaging module mints
-the participant first, and the agent record is written after it. When the
-record cannot be written, the node deletes the participant again, as
-`messaging.delete_mailbox` deletes one, and answers the record's error. A
-failure of that deletion is logged and changes no answer.
+Requires [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+Network queries are rejected before authorization; denied callers receive no
+bytes. If storing the agent record fails, the node attempts to delete the new
+mailbox. Cleanup failure is logged; the record error remains the answer.
 
 ## Arguments
 
-* alias (string) – Alias to bind to the new agent. No alias is bound when
-  empty, and none is generated: an alias is node-global, so a name the caller
-  did not choose contends in a namespace it does not own.
-* duration (duration) – Lifetime of the access token. Zero or absent takes the
-  [`messaging`](../../messaging/README.md#configuration) module's
-  `token_duration`, 8760 hours by default.
+* alias (string) – Alias to bind; empty binds none and generates none.
+* duration (duration) – Token lifetime. Zero or absent uses messaging's `token_duration` (8760h by default).
 
 ## Returned objects
 
-The operation returns one of:
-* An `error_message` object if the participant cannot be minted, as
-  [`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md)
-  answers — the alias already taken reads `alias already taken` — or the agent
-  record cannot be stored.
-* An `mcp.agent` object describing the new agent, including its token.
+* An [`mcp.agent`](../types/mcp.agent.md) with its token.
+* An `error_message` from mailbox creation or agent-record storage. An occupied alias returns `alias already taken`.
 
 ## Examples
 

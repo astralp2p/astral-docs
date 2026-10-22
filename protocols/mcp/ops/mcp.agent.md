@@ -1,39 +1,21 @@
 # mcp.agent
 
-Return one agent's record without its access token. Local-only — queries from
-the network are rejected.
+Read one agent without its token. An agent absent from the mailbox index is
+reported as missing; its record remains. [`mcp.list_agents`](mcp.list_agents.md)
+and [`mcp.delete_agent`](mcp.delete_agent.md) remove such records.
 
-The caller must hold
-[`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
-The query is rejected before any agent record is read when the caller is not
-authorized, and a refused caller receives no bytes. A query from the network is
-rejected before the action is submitted.
-
-**An agent whose participant is gone is not found.**
-[`messaging.delete_mailbox`](../../messaging/ops/messaging.delete_mailbox.md)
-on an agent's identity withdraws the participant and leaves the agent record.
-The node reads the agent record, then looks the agent's identity up in this
-node's mailbox index. An agent the index no longer names is answered
-`agent not found`, and its record stays, because
-`mod.auth.see_node_state_action` grants no change to the state it reads.
-[`mcp.list_agents`](mcp.list_agents.md) and
-[`mcp.delete_agent`](mcp.delete_agent.md) delete that record.
+Requires [`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
+Network queries are rejected before authorization; denied callers receive no bytes.
 
 ## Arguments
 
-* identity (string8, required) – The agent, given as a hex public key or a name
-  resolved via the directory.
+* identity (string8, required) – Agent identity as a hex public key or directory name.
 
 ## Returned objects
 
-The operation returns one of:
-* An `error_message` object reading `unknown identity` if `identity` resolves to
-  no identity.
-* An `error_message` object reading `agent not found` if the identity resolves
-  but no agent is registered under it, this node's mailbox index no longer
-  names it, or the record or the index cannot be read. A caller distinguishes a
-  mistyped name from an identity that is not an agent.
-* An `mcp.agent_info` object describing the agent.
+* An [`mcp.agent_info`](../types/mcp.agent_info.md).
+* An `error_message` reading `unknown identity` when the name does not resolve.
+* An `error_message` reading `agent not found` when the agent record or mailbox index entry is absent, or either cannot be read.
 
 ## Examples
 

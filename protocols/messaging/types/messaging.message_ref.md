@@ -1,26 +1,14 @@
 # messaging.message_ref
 
-One row of the caller's mailbox, named by box and identifier. Named in a
+A message in a selected mailbox, identified by box and ID. Used by
 [`messaging.read_messages_request`](messaging.read_messages_request.md) and
-answered in a [`messaging.read_messages_result`](messaging.read_messages_result.md)
-for a row the caller does not hold.
-
-**The box is not optional and never inferred.** An identifier alone names a row
-in each direction — a participant writing to itself holds both — and the
-archive spans both directions, so a reference names the box an envelope
-reported beside the identifier.
-
-The owner is not a field. It is the mailbox of the read the reference is passed
-to — the caller's own, or the one a
-[delegated read](../README.md#delegated-read) names — so no reference reaches
-mail outside that mailbox.
+its result's `NotFound` list. The box is required: a message to the same
+identity has both an inbox and an outbox row.
 
 ## Fields
 
-* Box (string8) – `inbox` or `outbox`: which of the caller's rows. An archived
-  message is named by the box it sits in.
-* ID ([messaging.message_id](messaging.message_id.md)) – The message's
-  identifier.
+* Box (string8) – `inbox` or `outbox` in the selected mailbox, including for archived messages.
+* ID ([messaging.message_id](messaging.message_id.md)) – Message identifier.
 
 ## Example
 

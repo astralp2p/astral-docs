@@ -1,118 +1,62 @@
 # messaging.list_messages
 
-Stream one of the three lists of a mailbox without the message bodies: the
-caller's own mailbox, or the one `mailbox` names when the caller is authorized
-to read it. A listing hands no body out, so it stamps nothing read and tells no
-sender anything. Local-only — queries from the network are rejected, and so are
-queries carrying the `mcp` origin.
+List a mailbox's envelopes without bodies or read effects. The default mailbox
+is the caller's own; `mailbox` can select an authorized delegated read.
 
-This node must host the mailbox listed. When `mailbox` is absent or names the
-caller, the mailbox is the caller's own, and the query is rejected before
-anything is read when the caller is the zero identity or this node does not host
-the caller's mailbox, as [Hosting](../README.md#hosting) defines it. When
-`mailbox` names another identity, the listing is a
-[delegated read](../README.md#delegated-read), and the query is rejected before
-anything is read when the caller is the zero identity or this node's own
-identity, when this node does not host the named mailbox, or when
+Network and `mcp` origins are rejected first. The node must host the selected
+mailbox. A delegated read checks the caller, hosting, and
 [`mod.messaging.read_mailbox_action`](../types/mod.messaging.read_mailbox_action.md)
-is not granted with the caller as actor and the named mailbox as `MailboxID`,
-checked in that order. The caller of a delegated read need not have a mailbox on
-this node. A refused caller receives no bytes. A query from the network or
-carrying the `mcp` origin is rejected before the caller is checked.
+in that order. Failed admission or an unresolved `mailbox` rejects the query
+without bytes; see [Delegated read](../../../topics/mailbox-hosting.md#delegated-read).
 
-A `mailbox` that resolves to no identity is rejected after the origin check and
-before the caller is checked, and the caller receives no bytes. `from` and `to`
-differ: a correspondent that resolves to no identity is answered an
-`error_message` once the query is accepted.
-
-The list answers the rows of the mailbox listed and no other. The inbox is read
-in the order the node wrote the rows, oldest first; the outbox and the archive
-are histories read newest first. Rows carry no bodies; the bound on bodies is
-on [`messaging.read_messages`](messaging.read_messages.md).
-
-**A listing pages by `before` and `limit`.** `limit` answers at most that many
-rows. `before` answers only rows whose `Cursor` is below it. Under `before`, or
-under `limit` without `since`, the inbox is read newest first, as the outbox
-is, so a page is the newest rows below the position asked. The next older page
-is asked with the smallest `Cursor` of the last one as `before`; a page holding
-fewer rows than `limit` is the last. Under `since` with `limit`, the inbox is
-read oldest first, so a caller draining it forwards misses nothing. Without
-`limit`, the listing answers every row it narrows to.
+The inbox is oldest first, except that `before`, or `limit` without `since`,
+selects newest first. Outbox and archive are newest first. The smallest cursor
+of a full page becomes the next `before`; a short page is the last.
 
 ## Arguments
 
-* list (string8) – Which list to read: `inbox` (what was written to the
-  mailbox), `outbox` (what the mailbox's identity wrote) or `archive` (what the
-  mailbox's identity put away, in either direction). Defaults to `inbox`.
-* from (string8) – Inbox only. Lists only what this correspondent wrote, given
-  as a hex public key or a name resolved via the directory.
-* to (string8) – Outbox only. Lists only what the mailbox's identity wrote to
-  this correspondent, given as a hex public key or a name resolved via the
-  directory.
-* since (uint64) – Inbox only. Lists only the rows written after this cursor: the
-  greatest `Cursor` of an earlier answer, or the `NextSince` of a
-  [`messaging.wait_result`](../types/messaging.wait_result.md). Defaults to 0,
-  which narrows nothing.
-* unread_only (bool) – Inbox only. When true, lists only the messages whose body
-  has not been handed out. Defaults to false.
-* awaiting_pickup (bool) – Outbox only. When true, lists only the sends the
-  recipient's node stored and has not handed out. Defaults to false.
-* before (uint64) – Inbox and outbox. Lists only the rows written before this
-  cursor: the smallest `Cursor` of an earlier page. Defaults to 0, which
-  narrows nothing.
-* limit (uint64) – Lists at most this many rows, from 1 to 100. Defaults to 0,
-  which answers every row.
-* mailbox (string8) – The mailbox to list, given as a hex public key or a name
-  resolved via the directory. Absent, or naming the caller, lists the caller's
-  own mailbox. Another identity makes the listing a
-  [delegated read](../README.md#delegated-read) of a mailbox this node hosts. A
-  name that resolves to no identity is rejected.
+* list (string8) – `inbox` (default), `outbox`, or `archive`. Archive includes both directions.
+* from (string8) – Inbox sender, as a hex public key or directory name.
+* to (string8) – Outbox recipient, as a hex public key or directory name.
+* since (uint64) – Inbox rows after this cursor. Zero (default) applies no bound.
+* unread_only (bool) – Inbox messages not yet read. Defaults to false.
+* awaiting_pickup (bool) – Outbox messages stored by the recipient's node but not collected. Defaults to false.
+* before (uint64) – Inbox/outbox rows below this cursor. Zero (default) applies no bound.
+* limit (uint64) – Maximum rows, 1–100; zero (default) returns all matching rows.
+* mailbox (string8) – Mailbox identity or directory name. Absent or naming the caller selects its own mailbox.
 
 ## Returned objects
 
-Once the query is accepted, the operation checks again that this node hosts
-the mailbox listed, then checks `since`, `before` and `limit`, resolves `from`
-and `to`, and checks `list` and its narrowings, in that order. The first
-failure is the answer.
+A stream of [`messaging.envelope`](../types/messaging.envelope.md), followed by
+`eos`. After acceptance, validation checks hosting, `since`, `before`, `limit`,
+correspondent resolution, then list/filter combinations. The first failure
+returns `error_message`:
 
-The operation returns one of:
-* An `error_message` object reading `not a messaging participant` if this node
-  stopped hosting the mailbox listed after the query was accepted.
-* An `error_message` object reading
-  `since is a cursor a previous answer gave you, not <since>` if `since` is
-  over 9223372036854775807.
-* An `error_message` object reading
-  `before is a cursor a previous answer gave you, not <before>` if `before` is
-  over 9223372036854775807.
-* An `error_message` object reading `limit is at most 100, not <limit>` if
-  `limit` is over 100.
-* An `error_message` object reading
-  `since and before page in opposite directions` if both are given.
-* An `error_message` object reading `no such list: <list>` if `list` names none
-  of the three.
-* An `error_message` object reading
-  `that filter does not apply to this list: <reason>` if a narrowing cannot
-  apply to the named list. A narrowing is refused rather than ignored. The
-  reason is one of:
-  * `awaiting_pickup asks about what you sent` – `awaiting_pickup` on the inbox.
-  * `an inbox is narrowed by from, not to` – `to` on the inbox.
-  * `since pages the inbox; the outbox is a history, read newest first` –
-    `since` on the outbox.
-  * `unread_only asks about what you received` – `unread_only` on the outbox.
-  * `you are the sender of everything here; narrow by to` – `from` on the
-    outbox.
-  * `since pages the inbox; the archive is a history, read newest first` –
-    `since` on the archive.
-  * `the archive spans both directions` – `unread_only` or `awaiting_pickup` on
-    the archive.
-  * `the archive spans both directions, so neither from nor to picks one` –
-    `from` or `to` on the archive.
-  * `before pages by cursor; the archive is read by time` – `before` on the
-    archive.
-* An `error_message` object reading `unknown correspondent: <name>` if `from` or
-  `to` resolves to no identity.
-* An `error_message` object if the rows cannot be read.
-* A stream of `messaging.envelope` objects, followed by an `eos` object.
+| Error | Condition |
+| --- | --- |
+| `not a messaging participant` | Hosting ended after acceptance. |
+| `since is a cursor a previous answer gave you, not <since>` | `since` exceeds 9223372036854775807. |
+| `before is a cursor a previous answer gave you, not <before>` | `before` exceeds 9223372036854775807. |
+| `limit is at most 100, not <limit>` | `limit` exceeds 100. |
+| `since and before page in opposite directions` | Both cursors are nonzero. |
+| `no such list: <list>` | Unknown list. |
+| `unknown correspondent: <name>` | `from` or `to` does not resolve. |
+
+Invalid filter combinations return `that filter does not apply to this list: <reason>`:
+
+| Combination | Reason |
+| --- | --- |
+| Inbox + `awaiting_pickup` | `awaiting_pickup asks about what you sent` |
+| Inbox + `to` | `an inbox is narrowed by from, not to` |
+| Outbox + `since` | `since pages the inbox; the outbox is a history, read newest first` |
+| Outbox + `unread_only` | `unread_only asks about what you received` |
+| Outbox + `from` | `you are the sender of everything here; narrow by to` |
+| Archive + `since` | `since pages the inbox; the archive is a history, read newest first` |
+| Archive + `unread_only` or `awaiting_pickup` | `the archive spans both directions` |
+| Archive + `from` or `to` | `the archive spans both directions, so neither from nor to picks one` |
+| Archive + `before` | `before pages by cursor; the archive is read by time` |
+
+Storage read failures also return `error_message`.
 
 ## Examples
 
@@ -125,10 +69,4 @@ $ astral-query messaging.list_messages -unread_only true -out json
 ```shellsession
 $ astral-query messaging.list_messages -list outbox -from scout -out json
 {"Type":"error_message","Object":"that filter does not apply to this list: you are the sender of everything here; narrow by to"}
-```
-
-```shellsession
-$ astral-query messaging.list_messages -mailbox scout -list outbox -out json
-{"Type":"messaging.envelope","Object":{"Cursor":97,"ID":"3b9e07d15a6c4f28e1a0d74c5b62f839","Box":"outbox","Sender":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c","Recipient":"03a7c1f5b9d4e62a8f730ce15d2b4a9c11e8d77c3b5f04a6d92e1b8f72c4d3e5a6","ParentID":"00000000000000000000000000000000","CreatedAt":"2026-09-02T22:20:31.518204Z","ArchivedAt":null,"ReadAt":null,"ReceiptDueAt":null,"ReceiptStoredAt":null,"LandedAt":"2026-09-02T22:20:31.602117Z","FailedAt":null,"FetchedAt":null,"Err":null}}
-{"Type":"eos","Object":null}
 ```

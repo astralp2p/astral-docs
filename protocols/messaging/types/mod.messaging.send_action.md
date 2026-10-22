@@ -1,32 +1,11 @@
 # mod.messaging.send_action
 
-A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission
-for the actor to send a message to another identity.
+Permission for `ActorID`, the sender, to send to `ToID`. The sending node
+checks it after hosting, before writing the outbox. Denial returns
+`unknown recipient: <to>` and writes nothing.
 
-The actor is the sending participant, and the action asks what that participant
-is permitted to reach. What the recipient is permitted to receive is a separate
-action, [`mod.messaging.receive_action`](mod.messaging.receive_action.md). A
-message is stored only when both are granted, and neither party's permission
-decides the other's.
-
-The action is submitted where a send starts — the
-[`messaging`](../README.md) module, reached by
-[`messaging.send_message`](../ops/messaging.send_message.md) and by the
-`send_message` tool of the [`mcp`](../../mcp/README.md) endpoint alike — after
-the module finds that it hosts the sender's mailbox and before anything is
-written. A denied sender is answered as it is for a recipient that
-resolves to no [`Identity`](../../../core-definitions/identity.md),
-`unknown recipient`, and no row is written: it learns that it cannot reach the
-recipient, and not whether the recipient exists.
-
-Whether the action is granted is the [`auth`](../../auth/README.md) protocol's
-decision — a registered handler, or an active
-[`mod.auth.signed_contract`](../../auth/types/mod.auth.signed_contract.md)
-whose permits include this action type. A node holding neither denies every
-send.
-
-A permit for this action carries no constraints. A permit whose `Constraints`
-bundle is non-empty is refused rather than granted in full.
+Send and receive permissions are separate. Nonempty permit constraints are
+refused. See [Authorization](../../../topics/mailbox-hosting.md#authorization).
 
 ## Fields
 

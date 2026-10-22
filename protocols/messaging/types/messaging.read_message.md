@@ -1,28 +1,14 @@
 # messaging.read_message
 
-One message a read answers, with what the read decided about it: the message
-without its body, the body when the answer carries it, and the identifiers of
-its direct replies. Carried by a
-[`messaging.read_messages_result`](messaging.read_messages_result.md).
-
-**The body is a separate field so that its absence is visible.** A body left out
-is absent rather than empty, and `Truncated` says whether it was left out for
-room or because the caller asked for envelopes.
+A message returned by [`messaging.read_messages`](../ops/messaging.read_messages.md),
+with metadata, an optional body, and direct reply IDs.
 
 ## Fields
 
-* Envelope ([messaging.envelope](messaging.envelope.md)) – The message without
-  its body.
-* Content (optional string32) – The body. Absent when the answer does not carry
-  it: a reply answered as an envelope, or a message whose body was left out
-  because the answer was already full.
-* ChildIDs ([]messaging.message_id) – The identifiers of the message's direct
-  replies that have not been put away, oldest first — the whole set, whatever
-  the answer carries of them. Set on each message the caller named; a reply
-  carries none.
-* Truncated (bool) – The body was left out because the answer was already full,
-  rather than because envelopes were asked for. The message read on its own
-  answers its body.
+* Envelope ([messaging.envelope](messaging.envelope.md)) – Message metadata.
+* Content (optional string32) – Body; null for envelope-only replies or when omitted for space.
+* ChildIDs ([]messaging.message_id) – All unarchived direct reply IDs, oldest first. Set on named messages; replies carry none.
+* Truncated (bool) – Body omitted for space. False for envelope-only replies.
 
 ## Example
 

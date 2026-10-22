@@ -1,10 +1,7 @@
 # mcp.agent_info
 
-An agent's record without its access token: what a caller may read about an
-agent whose credentials it does not hold. Returned by `mcp.agent`.
-
-The token is absent from the type rather than left empty, so a caller never
-reads a withheld token as an agent that has none.
+An agent record without its token. Returned by
+[`mcp.agent`](../ops/mcp.agent.md).
 
 ## Fields
 

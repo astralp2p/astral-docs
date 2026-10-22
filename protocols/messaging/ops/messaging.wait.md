@@ -1,62 +1,30 @@
 # messaging.wait
 
-Park until the caller's inbox holds a message it has not put away, and answer
-what the park found, without the bodies. Nothing is stamped and nothing is
-taken: the park and the read are separate acts, and two callers waiting at once
-are answered the same messages. Local-only — queries from the network are
-rejected, and so are queries carrying the `mcp` origin.
+Wait for matching, unarchived inbox envelopes without reading bodies or changing
+stamps. Concurrent waiters can receive the same messages.
 
-This node must host the caller's mailbox. The query is rejected before
-anything is read when the caller is the zero identity or this node does not host
-the caller's mailbox, as [Hosting](../README.md#hosting) defines it, and a
-refused caller receives no bytes. A query from the network or carrying the `mcp`
-origin is rejected before the caller is checked.
+Network and `mcp` origins are rejected first. The caller must have a
+[hosted mailbox](../../../topics/mailbox-hosting.md#hosting); otherwise the query
+is rejected without bytes. After acceptance, the node checks hosting again,
+validates `since`, resolves `from`, then waits.
 
-**The query is accepted before the park begins.** A park lasts minutes, so the
-caller holds an open channel while the node waits for mail rather than a query
-that is not yet answered. The park ends when the inbox holds a matching message,
-when the granted window closes, or when the caller closes the channel. The
-expiry of the caller's hosting contract does not end a park — see
-[Expiry](../README.md#expiry). A park the caller ended is answered nothing. The node reads and discards whatever the
-caller writes after the query, so only the end of the channel ends the park
-early. The node looks at the inbox again when a message lands in it or one is
-put back with `undo`, and every ten seconds besides.
-
-**The window is granted, never refused.** A caller naming no window is granted
-the module's `wait_default`, 2 minutes by default. An ask over the module's
-`wait_max`, 15 minutes by default, is granted `wait_max`: a refusal would make
-the deployment's ceiling part of every client's configuration, where a clamp is
-read off the answer's `Granted`.
+The wait ends on a match, timeout, or channel close. Closing returns no answer;
+other input is discarded. The inbox is rechecked on arrival, archive undo, and
+every ten seconds. Hosting expiry does not interrupt an admitted wait.
 
 ## Arguments
 
-* from (string8) – Waits only for what this correspondent writes, given as a hex
-  public key or a name resolved via the directory.
-* since (uint64) – Waits only for what is written after this cursor: the
-  `NextSince` of an earlier answer, or the greatest `Cursor` a listing answered.
-  Defaults to 0, which narrows nothing.
-* timeout (duration) – The window to park for. Zero, negative or absent takes
-  the module's `wait_default`, and an ask over the module's `wait_max` is
-  granted `wait_max`.
+* from (string8) – Sender to match, as a hex public key or directory name.
+* since (uint64) – Match only cursors above this value; zero (default) applies no bound.
+* timeout (duration) – Requested window. Zero, negative, or absent uses `wait_default` (2m); all windows are capped at `wait_max` (15m).
 
 ## Returned objects
 
-Once the query is accepted, the operation checks again that this node hosts
-the caller's mailbox, then checks `since` and resolves `from`, in that order,
-before it parks.
-
-The operation returns one of:
-* An `error_message` object reading `not a messaging participant` if this node
-  stopped hosting the caller's mailbox after the query was accepted.
-* An `error_message` object reading
-  `since is a cursor a previous answer gave you, not <since>` if `since` is
-  over 9223372036854775807.
-* An `error_message` object reading `unknown correspondent: <from>` if `from`
-  resolves to no identity.
-* An `error_message` object if the inbox cannot be read.
-* A `messaging.wait_result` object carrying the messages found, the cursor to
-  pass back as `since`, whether the window closed with nothing new, the window
-  granted, and the time the park was held.
+* A [`messaging.wait_result`](../types/messaging.wait_result.md) with matching envelopes, next cursor, timeout flag, and granted/elapsed duration.
+* An `error_message` reading `not a messaging participant` if hosting ended after acceptance.
+* An `error_message` reading `since is a cursor a previous answer gave you, not <since>` if `since` exceeds 9223372036854775807.
+* An `error_message` reading `unknown correspondent: <from>` if `from` does not resolve.
+* An `error_message` if the inbox cannot be read.
 
 ## Examples
 

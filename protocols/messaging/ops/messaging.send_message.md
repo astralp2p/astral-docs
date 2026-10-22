@@ -1,80 +1,52 @@
 # messaging.send_message
 
-Send one message from the caller to another identity and return the identifier
-it is stored under. The message is written to the caller's outbox before
-delivery is attempted, then delivered as a `messaging.message` query to the
-recipient's identity; the operation answers once the recipient's node has
-stored it or the delivery has failed. Local-only — queries from the network are
-rejected, and so are queries carrying the `mcp` origin.
+Send a message as the caller. The node writes the outbox before delivery and
+answers when the recipient's node acknowledges storage or delivery fails.
 
-This node must host the caller's mailbox. The query is rejected before
-anything is read when the caller is the zero identity or this node does not host
-the caller's mailbox, as [Hosting](../README.md#hosting) defines it, and a
-refused caller receives no bytes. A query from the network or carrying the `mcp`
-origin is rejected before the caller is checked.
-
-The caller must also hold
+Network and `mcp` origins are rejected first. The caller must have a
+[hosted mailbox](../../../topics/mailbox-hosting.md#hosting); otherwise the
+query is rejected without bytes. Sending also requires
 [`mod.messaging.send_action`](../types/mod.messaging.send_action.md) for the
-recipient. A send the action refuses is answered as one naming a recipient that
-resolves to no identity, and no row is written.
+recipient. Denial returns `unknown recipient: <to>` and writes nothing.
 
-Once the query is accepted, the operation reads the request, then checks in
-this order: that this node still hosts the caller's mailbox, the recipient, the
-body's length and the parent, before it writes the outbox row. The node then
-routes the delivery as itself, with the caller as the query's caller and the
-recipient as its target — see [Delivery](../README.md#delivery).
+After accepting the request, the node checks hosting, recipient, body size,
+and parent before writing. [Message Delivery](../../../topics/message-delivery.md)
+describes routing and receipts.
 
 ## Arguments
 
-* (stream) – One
-  [`messaging.send_message_request`](../types/messaging.send_message_request.md)
-  naming the recipient, the body, and the message it answers.
+* (stream) – One [`messaging.send_message_request`](../types/messaging.send_message_request.md).
 
 ## Returned objects
 
-The operation returns one of:
-* An `error_message` object reading `not a messaging participant` if this node
-  stopped hosting the caller's mailbox after the query was accepted, or
-  withdrew it before the outbox row was written. No row is written.
-* An `error_message` object reading `unexpected object: <type>` if the input is
-  an object of another type.
-* An `error_message` object reading `unknown recipient: <to>` if `To` resolves
-  to no identity, resolves to the zero identity, or names a recipient the
-  caller may not reach. The three are one answer, and no row is written.
-* An `error_message` object reading `content is over <n> bytes` if the body is
-  longer than the module's `max_payload_bytes`, 65536 by default. No row is
-  written.
-* An `error_message` object reading `cannot answer a message you do not hold`
-  if `ParentID` names a message the caller holds in neither box. No row is
-  written.
-* An `error_message` object reading `delivery failed: <cause>` if the outbox row
-  was written and the delivery did not land. The cause is one of:
-  * `the recipient does not take messages from you` – the recipient's node,
-    this node or another, rejected the delivery with `RejectNotAdmitted`,
-    code 5 — see [Authorization](../README.md#authorization). The outbox row is
-    stamped failed and carries these words.
-  * `the recipient took nothing; they may not exist, or their node may be
-    unreachable` – no node took the delivery: no node reached hosts the
-    recipient's mailbox, or the node hosting it could not be reached. The
-    outbox row is stamped failed and carries no words.
-  * `the message did not leave this node: <reason>` – the message could not be
-    written to the delivery. The outbox row is stamped failed.
-  * `the recipient's node refused it: <words>` – the recipient's node answered
-    the delivery with an error, such as `message too large`,
-    `the message answers one this node does not hold`,
-    `a message is already stored under that id`, or
-    `not a messaging participant`. The outbox row is stamped failed and carries
-    these words.
-  * `the message left and nothing came back: <reason>` – no acknowledgement
-    came back: the delivery ran past the module's `delivery_timeout`, the
-    connection closed before an answer, or the answer was neither an `ack` nor
-    an error (`<reason>` then reads `answered <type>`). The recipient's node may
-    have stored the message, and the outbox row is left unstamped.
-* An `error_message` object if the input is not one
-  `messaging.send_message_request`, or the outbox row cannot be written.
-* A `messaging.message_id` object: the identifier the message is stored under,
-  in the caller's outbox and the recipient's inbox alike. A later message names
-  it as its `ParentID` to answer this one.
+A successful send returns a [`messaging.message_id`](../types/messaging.message_id.md),
+shared by the outbox and inbox copies. Failures return `error_message`:
+
+| Error | Condition |
+| --- | --- |
+| `not a messaging participant` | Hosting ended after acceptance or before the outbox write. |
+| `unexpected object: <type>` | Wrong input object type. |
+| `unknown recipient: <to>` | Unresolved or zero recipient, or denied send. |
+| `content is over <n> bytes` | Body exceeds `max_payload_bytes` (65536 by default). |
+| `cannot answer a message you do not hold` | Parent absent from both caller's boxes. |
+
+These failures write no outbox row. Invalid input streams and storage failures
+also return `error_message`.
+
+After the outbox write, a delivery error reads `delivery failed: <cause>`:
+
+| Cause | Outbox effect |
+| --- | --- |
+| `the recipient does not take messages from you` | Receive denied with code 5; `FailedAt` and `Err` set. |
+| `the recipient took nothing; they may not exist, or their node may be unreachable` | No route or hosted recipient; `FailedAt` set, no `Err`. |
+| `the message did not leave this node: <reason>` | Delivery write failed; `FailedAt` set. |
+| `the recipient's node refused it: <words>` | Remote `error_message`; `FailedAt` and `Err` set. |
+| `the message left and nothing came back: <reason>` | Outcome unknown; no delivery stamp. |
+
+The last case includes timeout, connection loss, and an unexpected answer
+(`answered <type>`). The recipient may have stored the message.
+[Delivery errors](../../../topics/message-delivery.md#delivery) lists the
+recipient's validation failures.
 
 ## Examples
 

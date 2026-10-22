@@ -1,36 +1,17 @@
 # messaging.message
 
-One message a participant sends to another participant. Carried by the
-`messaging.message` query, which the recipient's node answers by storing the
-message in the recipient's inbox. That node takes the query only over a link or
-from its own send path, and [Delivery](../README.md#delivery) lists its checks
-and its answers.
+The body carried by a `messaging.message` delivery query. The query's caller
+is the sender and its target is the recipient. The receiving node stores a
+[`messaging.stored_message`](messaging.stored_message.md).
 
-**This is the frame, not the record.** It crosses a link and names neither
-party, because the route already does.
-[`messaging.stored_message`](messaging.stored_message.md) is what a node holds
-once the delivery lands: the parties the route authenticated, the box the row
-sits in, and the instants that node stamped.
-
-A field is only ever appended. The frame is positional and carries no version
-marker, so a slot that changes meaning is read as the field that used to be
-there, without an error to notice it.
-
-The message names neither party. The sender is the query's caller and the
-recipient its target, both authenticated by the route, so a field naming either
-would be a second claim about a fact the route already holds.
+[Message Delivery](../../../topics/message-delivery.md#delivery) defines
+admission, replies, and the positional wire layout.
 
 ## Fields
 
-* ID ([messaging.message_id](messaging.message_id.md)) – The message's
-  identifier, minted by the sender. It names the message on both sides, and a
-  delivery repeated under it is stored once.
-* Content (string32) – The message body.
-* ParentID ([messaging.message_id](messaging.message_id.md)) – The one message
-  this message answers. The zero value answers none. The recipient's node
-  refuses a parent the recipient does not hold, in either box and whether or
-  not it was put away, so a parent is a message between exactly these two
-  parties. A message naming itself is refused as the same rule's cheapest case.
+* ID ([messaging.message_id](messaging.message_id.md)) – Nonzero sender-minted identifier; repeated deliveries from that sender are stored once.
+* Content (string32) – Message body, bounded by `max_payload_bytes`.
+* ParentID ([messaging.message_id](messaging.message_id.md)) – Message this answers; zero means none. Both parties must hold the parent in either box, archived or not; it cannot equal `ID`.
 
 ## Example
 

@@ -1,16 +1,7 @@
 # messaging.mailbox_info
 
-A participant's record without any credential: what a caller may read about a
-participant whose credentials it does not hold. Returned by
+A mailbox identity and alias, without credentials. Returned by
 [`messaging.mailbox`](../ops/messaging.mailbox.md).
-
-The token is absent from the type rather than left empty, so a caller never
-reads a withheld token as a participant that has none.
-
-The record names no expiry either. A participant may hold any number of
-[`apphost`](../../apphost/README.md) access tokens, each with its own expiry,
-and [`apphost.list_tokens`](../../apphost/ops/apphost.list_tokens.md) answers
-them.
 
 ## Fields
 
