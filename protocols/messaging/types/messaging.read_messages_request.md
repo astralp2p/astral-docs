@@ -1,37 +1,16 @@
 # messaging.read_messages_request
 
-What a caller asks
-[`messaging.read_messages`](../ops/messaging.read_messages.md) to read: the
-mailbox, the messages it names there, and how much of each one's direct replies
-to answer beside it. Read from the operation's input stream.
-
-**The mailbox is the caller's own unless the request names another.** A
-`Mailbox` that is null, or that is the caller's own identity, reads the caller's
-own mailbox. Any other identity makes the read a
-[delegated read](../README.md#delegated-read): this node must host that mailbox,
-the caller must hold
-[`mod.messaging.read_mailbox_action`](mod.messaging.read_mailbox_action.md) for
-it, and the read stamps nothing.
-
-A repeated reference is dropped rather than refused, and the bound on a read
-counts distinct messages. Charging a repeat twice would spend a budget the
-caller cannot see.
+The input to [`messaging.read_messages`](../ops/messaging.read_messages.md).
+Repeated `(Box, ID)` references are removed before checking the count.
+A [delegated read](../../../topics/mailbox-hosting.md#delegated-read) selects
+another mailbox and changes no read or collection stamps.
 
 ## Fields
 
-* Refs ([]messaging.message_ref) – The messages to read, each a
-  [`messaging.message_ref`](messaging.message_ref.md) naming a box and an
-  identifier. At least one and at most 20 distinct messages.
-* Children (string8) – How much of each named message's direct replies the
-  answer carries: `none` answers no replies, `envelopes` answers them without
-  their bodies, and `full` answers them with their bodies. Empty means
-  `envelopes`.
-* MaxChildren (uint16) – How many replies of each named message the answer
-  carries, oldest first. Zero means 10, and a value over 10 is clamped to 10.
-* Mailbox (optional [identity](../../../primitive-types/identity.md)) – The
-  mailbox to read. Null, or the caller's own identity, reads the caller's own
-  mailbox. Another identity names a mailbox this node hosts that the caller is
-  authorized to read.
+* Refs ([]messaging.message_ref) – 1–20 distinct [box-and-ID references](messaging.message_ref.md), with no null entries.
+* Children (string8) – `none`, `envelopes`, or `full`; empty means `envelopes`.
+* MaxChildren (uint16) – Replies per named message, oldest first. Zero means 10; values over 10 are clamped to 10.
+* Mailbox (optional [identity](../../../primitive-types/identity.md)) – Mailbox to read. Null or the caller's identity selects its own; another identity requires delegated-read authority.
 
 ## Example
 

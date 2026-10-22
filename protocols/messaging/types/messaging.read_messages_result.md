@@ -1,37 +1,15 @@
 # messaging.read_messages_result
 
-What one read answers: the messages the caller named that the mailbox read
-holds, their direct replies, and the references the mailbox does not hold. The
-mailbox read is the caller's own, or the one a
-[delegated read](../README.md#delegated-read) names. Returned by
-[`messaging.read_messages`](../ops/messaging.read_messages.md).
-
-**The replies are a flat set beside the messages.** The edge is on the reply,
-which names its parent in `ParentID`, so a nested answer would carry the same
-edge twice. The read goes one level, and the `ChildIDs` on every named message
-are what let a reader walk on.
-
-**A reference the mailbox does not hold is reported rather than refused.** One
-wrong identifier does not cost the rest of the batch, and the report does not
-say whether the identifier exists anywhere else.
-
-**Only a read of the caller's own mailbox stamps.** A
-[delegated read](../README.md#delegated-read) stamps no message and no reply
-read, and tells no sender a body was collected.
+The result of [`messaging.read_messages`](../ops/messaging.read_messages.md).
+Replies are one level deep; each reply's `ParentID` identifies its parent.
+Missing references do not fail the batch. Read effects and byte limits are
+specified by the operation.
 
 ## Fields
 
-* Messages ([]messaging.read_message) – The messages the caller named that the
-  mailbox read holds, in the order the caller named them. In a read of the
-  caller's own mailbox, each inbox message among them is stamped read, one whose
-  body was left out for room included.
-* Replies ([]messaging.read_message) – Their direct replies that have not been
-  put away, each message's oldest first, as many as `MaxChildren` allows. Empty
-  when `Children` is `none`. In a read of the caller's own mailbox with
-  `Children` `full`, each inbox reply among them is stamped read, one whose body
-  was left out for room included.
-* NotFound ([]messaging.message_ref) – The references the mailbox read does not
-  hold.
+* Messages ([]messaging.read_message) – Found messages, in reference order.
+* Replies ([]messaging.read_message) – Unarchived direct replies, oldest first per named message, limited by `MaxChildren`. Empty when `Children` is `none`.
+* NotFound ([]messaging.message_ref) – References absent from the selected mailbox.
 
 ## Example
 
@@ -59,36 +37,16 @@ read, and tells no sender a body was collected.
           "Err": null
         },
         "Content": "the index is rebuilt",
-        "ChildIDs": ["0196f3c2a8e47b1d9c05e3a7f2b64d18"],
+        "ChildIDs": [],
         "Truncated": false
       }
     ],
-    "Replies": [
-      {
-        "Envelope": {
-          "Cursor": 418,
-          "ID": "0196f3c2a8e47b1d9c05e3a7f2b64d18",
-          "Box": "outbox",
-          "Sender": "026165850492521f4ac8abd9bd8088123446d126f648ca35e60f88177dc149ceb2",
-          "Recipient": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
-          "ParentID": "7f3a1c9e5b024d6810af2e7c94b5d3a6",
-          "CreatedAt": "2026-09-02T22:21:03.518204Z",
-          "ArchivedAt": null,
-          "ReadAt": null,
-          "ReceiptDueAt": null,
-          "ReceiptStoredAt": null,
-          "LandedAt": "2026-09-02T22:21:03.602117Z",
-          "FailedAt": null,
-          "FetchedAt": null,
-          "Err": null
-        },
-        "Content": null,
-        "ChildIDs": null,
-        "Truncated": false
-      }
-    ],
+    "Replies": [],
     "NotFound": [
-      {"Box": "inbox", "ID": "0d41e6b28c5a4f9137be0a62d85c7f14"}
+      {
+        "Box": "inbox",
+        "ID": "0d41e6b28c5a4f9137be0a62d85c7f14"
+      }
     ]
   }
 }

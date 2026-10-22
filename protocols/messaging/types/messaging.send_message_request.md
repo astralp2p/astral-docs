@@ -1,12 +1,7 @@
 # messaging.send_message_request
 
-What a participant asks
-[`messaging.send_message`](../ops/messaging.send_message.md) to send: the
-recipient, the body, and the message it answers. Read from the operation's
-input stream.
-
-The sender is not a field. It is the query's caller, so no value here sends as
-anyone else.
+The input to [`messaging.send_message`](../ops/messaging.send_message.md).
+The query's caller is the sender.
 
 ## Fields
 

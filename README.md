@@ -76,8 +76,8 @@ Contents:
   * [dir](protocols/dir/README.md) - alias management, identity resolution
   * [ether](protocols/ether/README.md) - LAN UDP broadcast for node presence and discovery
   * [lna](protocols/lna/README.md) - lightning network analytics
-  * [mcp](protocols/mcp/README.md) - AI agent registration and the MCP endpoint serving agents their mail and the deployment's declared tools
-  * [messaging](protocols/messaging/README.md) - participant identities, the hosting contracts a node holds their mailboxes under, and the mail between them: delivery, receipts, listing, reading, waiting, archiving
+  * [mcp](protocols/mcp/README.md) - AI agents, mail tools, and declared queries over MCP
+  * [messaging](protocols/messaging/README.md) - hosted mailboxes and mail between identities
   * [nat](protocols/nat/README.md) - NAT traversal via UDP hole punching
   * [nodes](protocols/nodes/README.md) - encrypted links and multiplexed sessions between nodes
   * [objects](protocols/objects/README.md) - typed object storage, retrieval, and provider discovery
@@ -97,6 +97,10 @@ Contents:
     * [Object Discovery](topics/object-discovery.md) - how a node answers search, describe, and find by fanning out across registered providers
     * [External Providers](topics/external-providers.md) - how apps register as searchers, describers, and finders, and what they serve in return
     * [Services](topics/services.md) - how apps advertise services, how other apps discover them on the node and across the swarm, and who may
+    * [Messaging](topics/messaging.md) - mailbox use, replies, cursors, and configuration
+    * [Mailbox Hosting](topics/mailbox-hosting.md) - hosting contracts, access, expiry, and deletion
+    * [Message Delivery](topics/message-delivery.md) - routing, delivery results, and receipts
+    * [MCP Endpoint](topics/mcp-endpoint.md) - authentication, mail tools, declared queries, and configuration
   * Wire mechanics
     * [Binary Encoding](topics/binary-encoding.md) - default payload encoding: big-endian, two's complement, payload bytes only
     * [JSON Encoding](topics/json-encoding.md) - optional JSON container encoding for typed objects

@@ -1,49 +1,11 @@
 # mod.messaging.receive_action
 
-A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission
-for the actor to receive a message from another identity.
+Permission for `ActorID`, the recipient, to receive from `FromID`. The
+recipient's node checks it after delivery provenance and hosting, before
+accepting the message. Denial returns `RejectNotAdmitted` (code 5).
 
-**The actor is the recipient, not the sender.** Every action type names what its
-actor does, and receiving is the recipient's act. The distinction is not only a
-name: the [`auth`](../../auth/README.md) protocol resolves an action it cannot
-grant directly by walking the contracts the actor is subject to, so an action
-naming the sender as actor would search the sender's delegations for a
-permission the recipient holds.
-
-What the sender is permitted to reach is a separate action,
-[`mod.messaging.send_action`](mod.messaging.send_action.md). A message is stored
-only when both are granted, and neither party's permission decides the other's.
-
-The action is submitted where a delivery arrives — the recipient's node, for a
-query addressed to an identity whose mailbox that node hosts — after the path,
-provenance and hosting checks and before the query is accepted or anything is
-read from it. A delivery that neither arrived over a link nor came from the
-node's own send path is rejected before the action would be asked, so the
-action is never the only check between an unasked send and an inbox — see
-[Delivery](../README.md#delivery). A denied
-delivery is rejected with `RejectNotAdmitted`, reject code 5. It is a separate
-answer from `route_not_found`, which the node answers for an identity whose
-mailbox it does not host: a sender turned away stops and asks whoever owns it,
-and a sender that found nobody retries later. The sender reads the code as
-`the recipient does not take messages from you`, whichever node hosts the
-recipient's mailbox. See [Authorization](../README.md#authorization).
-
-A grant of this action is not hosting authority, and hosting authority is not a
-grant of this action: [`mod.messaging.host_mailbox_action`](mod.messaging.host_mailbox_action.md)
-is a separate question, asked of the node first. See
-[Hosting](../README.md#hosting).
-
-A [`messaging.receipt`](messaging.receipt.md) asks no action. The sender's
-outbox row is its permission.
-
-Whether the action is granted is the [`auth`](../../auth/README.md) protocol's
-decision — a registered handler, or an active
-[`mod.auth.signed_contract`](../../auth/types/mod.auth.signed_contract.md)
-whose permits include this action type. A node holding neither admits no
-message.
-
-A permit for this action carries no constraints. A permit whose `Constraints`
-bundle is non-empty is refused rather than granted in full.
+Send and receive permissions are separate. Nonempty permit constraints are
+refused. See [Authorization](../../../topics/mailbox-hosting.md#authorization).
 
 ## Fields
 

@@ -1,11 +1,8 @@
 # mcp.agent
 
-A structure describing an agent registered with the `mcp` module, including the
-access token the agent presents to the MCP endpoint. Returned by
-`mcp.create_agent` and `mcp.list_agents`.
-
-The token is a credential. `mcp.agent_info` is the same record without it, and
-is what a caller reads when it does not hold the agent's credentials.
+An agent record with its apphost bearer token. Returned by
+[`mcp.create_agent`](../ops/mcp.create_agent.md) and
+[`mcp.list_agents`](../ops/mcp.list_agents.md).
 
 ## Fields
 

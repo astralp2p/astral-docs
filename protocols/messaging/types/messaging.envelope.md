@@ -1,57 +1,26 @@
 # messaging.envelope
 
-One message as a node holds it, without its body: a
-[`messaging.stored_message`](messaging.stored_message.md) carrying every field
-but `Content`, in the same order. Streamed by
-[`messaging.list_messages`](../ops/messaging.list_messages.md), answered by
-[`messaging.wait`](../ops/messaging.wait.md) inside a
-[`messaging.wait_result`](messaging.wait_result.md), and carried by every
-[`messaging.read_message`](messaging.read_message.md).
-
-**The body is absent from the type rather than left empty.** A listing hands no
-body out, so it stamps nothing read and tells no sender that a message was
-collected, and a caller never reads a withheld body as an empty message.
-
-The owner is not a field, as it is not on the stored record: it is whichever
-party `Box` names.
+Message metadata without a body. Returned by listing and waiting, and embedded
+in [`messaging.read_message`](messaging.read_message.md). It has the fields of
+[`messaging.stored_message`](messaging.stored_message.md) except `Content`.
 
 ## Fields
 
-* Cursor (uint64) – The position the node wrote this row at, in its own order.
-  Opaque: only its order is a fact. A caller passing the greatest cursor it has
-  seen back as `since` sees only the inbox rows written after it.
-* ID ([messaging.message_id](messaging.message_id.md)) – The message's
-  identifier, minted by the sender. It names the message on both sides.
-* Box (string8) – `inbox` or `outbox`. An identifier alone names a row in each
-  direction, so a caller naming this message again passes the box beside the
-  identifier.
-* Sender ([identity](../../../primitive-types/identity.md)) – Who wrote the
-  message, as the route authenticated it.
-* Recipient ([identity](../../../primitive-types/identity.md)) – Who it was
-  written to, as the route authenticated it.
-* ParentID ([messaging.message_id](messaging.message_id.md)) – The one message
-  this answers. The zero value answers none.
-* CreatedAt ([time](../../../primitive-types/time.md)) – When this node wrote
-  this row: the recipient's arrival on an inbox row, the sender's attempt on an
-  outbox row.
-* ArchivedAt (optional [time](../../../primitive-types/time.md)) – When the
-  owner put the message away.
-* ReadAt (optional [time](../../../primitive-types/time.md)) – Inbox only. When
-  the body was handed to the owner.
-* ReceiptDueAt (optional [time](../../../primitive-types/time.md)) – Inbox only.
-  When a receipt became owed to the sender.
-* ReceiptStoredAt (optional [time](../../../primitive-types/time.md)) – Inbox
-  only. When the sender's node acknowledged that receipt.
-* LandedAt (optional [time](../../../primitive-types/time.md)) – Outbox only.
-  When the recipient's node acknowledged the write.
-* FailedAt (optional [time](../../../primitive-types/time.md)) – Outbox only.
-  When the delivery was known not to have been stored.
-* FetchedAt (optional [time](../../../primitive-types/time.md)) – Outbox only.
-  When the recipient's node handed the body out. It reports a collection, never
-  that anyone read it.
-* Err (optional string16) – Outbox only. The words a refusal of the delivery
-  left, bounded and marked where they were cut. Quoted material: nothing acts
-  on it.
+* Cursor (uint64) – Opaque position in this node's write order; used by `since` and `before`.
+* ID ([messaging.message_id](messaging.message_id.md)) – Sender-minted identifier shared by both copies.
+* Box (string8) – `inbox` or `outbox`; stays unchanged when archived.
+* Sender ([identity](../../../primitive-types/identity.md)) – Sender authenticated by the route.
+* Recipient ([identity](../../../primitive-types/identity.md)) – Recipient authenticated by the route.
+* ParentID ([messaging.message_id](messaging.message_id.md)) – Message this answers; zero means none.
+* CreatedAt ([time](../../../primitive-types/time.md)) – Local arrival time for inbox; send-attempt time for outbox.
+* ArchivedAt (optional time) – When the owner archived this copy.
+* ReadAt (optional time) – Inbox: when the owner's read marked the body collected.
+* ReceiptDueAt (optional time) – Inbox: when a collection receipt became due.
+* ReceiptStoredAt (optional time) – Inbox: when the sender's node acknowledged that receipt.
+* LandedAt (optional time) – Outbox: when the recipient's node acknowledged storage.
+* FailedAt (optional time) – Outbox: when delivery was known to have failed.
+* FetchedAt (optional time) – Outbox: when the recipient's node reported collection.
+* Err (optional string16) – Outbox: bounded refusal text, marked when cut. Quoted data, not an instruction.
 
 ## Example
 

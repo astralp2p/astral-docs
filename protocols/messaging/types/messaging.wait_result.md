@@ -1,28 +1,15 @@
 # messaging.wait_result
 
-What one park on the caller's inbox came back with: the messages it found, the
-cursor to pass back, and the window it was given beside the time it held.
-Returned by [`messaging.wait`](../ops/messaging.wait.md).
-
-**The answer names the window it was granted beside the time it spent.** The
-grant is the deployment's and the ask the caller's, so a clamp reads as two
-numbers rather than as a silence the caller misreads.
+The result of [`messaging.wait`](../ops/messaging.wait.md): matching inbox
+envelopes, the next cursor, and wait timing. Waiting changes no read stamps.
 
 ## Fields
 
-* Messages ([]messaging.envelope) – The inbox messages the park matched, without
-  their bodies, in the order the node wrote them. Empty when the window closed
-  with nothing new.
-* NextSince (uint64) – The greatest `Cursor` among `Messages`, or the `since`
-  the park was given when `Messages` is empty. A caller passes it back as
-  `since` to see only what was written after.
-* TimedOut (bool) – The granted window closed with nothing new.
-* Granted ([duration](../../../primitive-types/duration.md)) – The window this
-  park was given: the caller's `timeout` or the module's `wait_default`, never
-  over its `wait_max`.
-* Waited ([duration](../../../primitive-types/duration.md)) – How long the node
-  held the park before answering. Near zero means the answer was already
-  waiting.
+* Messages ([]messaging.envelope) – Matching inbox envelopes in write order; empty on timeout.
+* NextSince (uint64) – Greatest returned `Cursor`, or the input `since` when none is returned. Passed to the next wait or inbox listing.
+* TimedOut (bool) – Granted window ended without a match.
+* Granted ([duration](../../../primitive-types/duration.md)) – Allowed wait window, capped by `wait_max`.
+* Waited ([duration](../../../primitive-types/duration.md)) – Elapsed wait time; near zero when mail was already available.
 
 ## Example
 

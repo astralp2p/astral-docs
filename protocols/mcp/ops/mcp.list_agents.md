@@ -1,35 +1,16 @@
 # mcp.list_agents
 
-Stream every registered agent, access tokens included. Local-only — queries
-from the network are rejected.
+Stream registered agents with their valid access tokens. This enumerates
+credentials across tenants; [`mcp.agent`](mcp.agent.md) reads one record
+without credentials.
 
-The caller must hold
-[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-The query is rejected before any agent record is read when the caller is not
-authorized, and a refused caller receives no bytes.
+Requires [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+Network queries are rejected before authorization; denied callers receive no bytes.
 
-The token is streamed by design: `mcp.create_agent` returns a token once, and
-this operation is the only way to recover one that was lost. The response is
-therefore a credential-bearing enumeration of every tenant's agents on the
-node, and its output must be treated as the tokens themselves are. A read that
-does not need the tokens is `mcp.agent`, which answers per agent and withholds
-them.
-
-**An agent whose participant is gone is left out.**
-[`messaging.delete_mailbox`](../../messaging/ops/messaging.delete_mailbox.md)
-on an agent's identity withdraws the participant and leaves the agent record,
-with a token that no longer authenticates. The node looks each agent's identity
-up in this node's mailbox index. An agent the index no longer names is left out
-of the stream, and its record is deleted. A failure of that deletion is logged
-and changes no answer.
-
-**A token that no longer authenticates is withheld.** The agent record keeps
-the token `mcp.create_agent` issued.
-[`apphost.delete_token`](../../apphost/ops/apphost.delete_token.md) revokes that
-token and leaves the record, and the token stops authenticating at its
-`ExpiresAt`. The node checks each record's token with the `apphost` module. An
-agent whose token does not authenticate as the agent's identity is streamed
-with an empty `Token`. A check that fails withholds the token.
+An agent absent from the mailbox index is omitted and its record deleted;
+deletion failure is logged without changing the answer. A token that no longer
+authenticates as the agent, or whose check fails, is returned as an empty
+`Token`. The record's expiry remains unchanged.
 
 ## Arguments
 
@@ -37,9 +18,9 @@ This operation takes no arguments.
 
 ## Returned objects
 
-The operation returns a stream of `mcp.agent` objects, followed by an `eos`
-object. An `error_message` object is returned instead if the records or the
-mailbox index cannot be read.
+A stream of [`mcp.agent`](../types/mcp.agent.md), followed by `eos`.
+An `error_message` is returned instead if the records or mailbox index cannot
+be read.
 
 ## Examples
 

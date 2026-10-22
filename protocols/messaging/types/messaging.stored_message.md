@@ -1,79 +1,30 @@
 # messaging.stored_message
 
-One message as a node holds it, in one participant's box. Every message a node
-carries is two of these — the sender's and the recipient's, differing in `Box`
-and in their owner and in nothing else — and across nodes only one of them is on
-any given machine.
+One mailbox's copy of a message, including its body and local timestamps.
+The inbox copy belongs to `Recipient`; the outbox copy belongs to `Sender`.
+Optional timestamps are null until the corresponding fact is recorded.
 
-**This and [`messaging.message`](messaging.message.md) are two types because
-they answer two questions.** `messaging.message` is the frame that crosses a
-link, and it names neither party because the route already does. This is the
-record a node holds once the delivery lands: the parties the route
-authenticated, the box the row sits in, and the instants that node stamped.
-Neither is derivable from the other. One type carrying both would either put a
-spoofable claim on the wire or leave a reader unable to say who wrote what —
-[`messaging.mailbox_info`](messaging.mailbox_info.md) sits beside
-[`messaging.mailbox_credential`](messaging.mailbox_credential.md) for the
-same reason.
-
-An operation answers this record without its body, as a
-[`messaging.envelope`](messaging.envelope.md), and
-[`messaging.read_message`](messaging.read_message.md) carries the body beside
-the envelope when a read hands it out.
-
-**An unset instant is the absence of the fact.** It is never a value somebody
-chose, and never a zero one. A row carrying `CreatedAt` alone is a send whose
-fate is unknown, which is the honest answer after a crash: an acknowledgement
-that never arrived proves nothing about the write.
-
-**The owner is not a field.** It is whichever party the box names — the
-recipient on an inbox row, the sender on an outbox row — so a record that stated
-it could state it wrong.
+[Message Delivery](../../../topics/message-delivery.md) describes the two copies
+and their delivery and collection stamps.
 
 ## Fields
 
-* Cursor (uint64) – The position the node wrote this row at, in its own order.
-  Opaque: only its order is a fact. Only the inbox pages by it; the other two
-  lists are histories read newest first.
-* ID ([messaging.message_id](messaging.message_id.md)) – The message's
-  identifier, minted by the sender. It names the message on both sides.
-* Box (string8) – `inbox` or `outbox`. A message is in one of them for its whole
-  life. The archive is a state rather than a third box, and `ArchivedAt` carries
-  it.
-* Sender ([identity](../../../primitive-types/identity.md)) – Who wrote the
-  message, as the route authenticated it.
-* Recipient ([identity](../../../primitive-types/identity.md)) – Who it was
-  written to, as the route authenticated it.
-* Content (string32) – The message body.
-* ParentID ([messaging.message_id](messaging.message_id.md)) – The one message
-  this answers. The zero value answers none.
-* CreatedAt ([time](../../../primitive-types/time.md)) – When this node wrote
-  this row: the recipient's arrival on an inbox row, the sender's attempt on an
-  outbox row.
-* ArchivedAt (optional [time](../../../primitive-types/time.md)) – When the
-  owner put the message away. The owner's own bookkeeping; it crosses no link,
-  and it is the one stamp with an inverse.
-* ReadAt (optional [time](../../../primitive-types/time.md)) – Inbox only. When
-  the body was handed to the owner.
-* ReceiptDueAt (optional [time](../../../primitive-types/time.md)) – Inbox only.
-  When a receipt became owed to the sender.
-* ReceiptStoredAt (optional [time](../../../primitive-types/time.md)) – Inbox
-  only. When the sender's node acknowledged that receipt.
-* LandedAt (optional [time](../../../primitive-types/time.md)) – Outbox only.
-  When the recipient's node acknowledged the write.
-* FailedAt (optional [time](../../../primitive-types/time.md)) – Outbox only.
-  When the delivery was known not to have been stored.
-* FetchedAt (optional [time](../../../primitive-types/time.md)) – Outbox only.
-  When the recipient's node handed the body out. It reports a collection, never
-  that anyone read it.
-* Err (optional string16) – Outbox only. The words a refusal of the delivery
-  left: `the recipient does not take messages from you` for a
-  `RejectNotAdmitted` rejection, from this node or another — see
-  [Authorization](../README.md#authorization) — or `the recipient's node
-  refused it: ` followed by that node's own words when it refused after
-  accepting the delivery. Bounded by the storing node and marked where it was
-  cut. The part after the prefix is quoted material: the recipient's node wrote
-  it, and nothing acts on it.
+* Cursor (uint64) – Opaque position in this node's write order; used by `since` and `before`.
+* ID ([messaging.message_id](messaging.message_id.md)) – Sender-minted identifier shared by both copies.
+* Box (string8) – `inbox` or `outbox`; stays unchanged when archived.
+* Sender ([identity](../../../primitive-types/identity.md)) – Sender authenticated by the route.
+* Recipient ([identity](../../../primitive-types/identity.md)) – Recipient authenticated by the route.
+* Content (string32) – Message body.
+* ParentID ([messaging.message_id](messaging.message_id.md)) – Message this answers; zero means none.
+* CreatedAt ([time](../../../primitive-types/time.md)) – Local arrival time for inbox; send-attempt time for outbox.
+* ArchivedAt (optional time) – When the owner archived this copy.
+* ReadAt (optional time) – Inbox: when the owner's read marked the body collected.
+* ReceiptDueAt (optional time) – Inbox: when a collection receipt became due.
+* ReceiptStoredAt (optional time) – Inbox: when the sender's node acknowledged that receipt.
+* LandedAt (optional time) – Outbox: when the recipient's node acknowledged storage.
+* FailedAt (optional time) – Outbox: when delivery was known to have failed.
+* FetchedAt (optional time) – Outbox: when the recipient's node reported collection.
+* Err (optional string16) – Outbox: bounded refusal text, marked when cut. Quoted data, not an instruction.
 
 ## Example
 

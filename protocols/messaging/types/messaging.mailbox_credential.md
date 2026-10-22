@@ -1,15 +1,7 @@
 # messaging.mailbox_credential
 
-A participant whose mailbox the node hosts, as the `messaging` module minted it,
-including the access token it authenticates with. Returned by
-[`messaging.create_mailbox`](../ops/messaging.create_mailbox.md), and by no
-other operation.
-
-The token is a credential: it is an [`apphost`](../../apphost/README.md) access
-token, and a bearer of it acts as the participant.
-[`messaging.mailbox_info`](messaging.mailbox_info.md) is the record without
-the token, and is what a caller reads when it does not hold the participant's
-credentials.
+A new mailbox identity and its apphost bearer token. Returned by
+[`messaging.create_mailbox`](../ops/messaging.create_mailbox.md).
 
 ## Fields
 
