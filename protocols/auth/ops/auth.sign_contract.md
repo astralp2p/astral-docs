@@ -19,7 +19,8 @@ issuer is checked first, then the subject. A refused issuer answers
 another identity's key`, or `cannot sign with the node's key` for a caller that
 arrives as the node and names the node. A refused contract reaches no key.
 
-One contract passes without the signer rule: the claim contract of node setup.
+One contract passes without the signer rule: the claim contract of
+[node setup](../../../topics/node-setup.md).
 The node signs it while all of these hold:
 
 * The caller is the node. A local caller that presents no identity is
@@ -81,6 +82,7 @@ returns, per input, one of:
 
 ```shellsession
 $ echo '{"Type":"mod.auth.contract","Object":{"Issuer":"...","Subject":"...","Permits":[{"Action":"mod.user.see_swarm_action"}],"ExpiresAt":"2027-05-27T12:00:00+02:00"}}' \
-    | astral-query auth.sign_contract -in json -out json
+    | astral-query -eos auth.sign_contract -in json -out json
 {"Type":"mod.auth.signed_contract","Object":{...}}
+{"Type":"eos","Object":null}
 ```

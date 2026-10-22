@@ -63,7 +63,7 @@ with no error message is the symptom of a typo. Because the streams carry typed
 $ astral-query bip137sig.new_entropy -bits 256 -out json \
   | astral-query bip137sig.mnemonic   -in json -out json \
   | astral-query bip137sig.seed       -in json -out json \
-  | astral-query bip137sig.derive_key -in json -out json -path "m/44'/0'/0'/0/0"
+  | astral-query bip137sig.derive_key -in json -out json -path "m/1791'/0'/0'/0/0"
 ```
 
 See [Op modes & composition](../topics/op-modes.md) for the composition rule and
@@ -75,7 +75,8 @@ its limits.
 close the `Channel`. An `Op` in batch mode reads until an
 [`eos`](../primitive-types/eos.md) or EOF, so the `Op` keeps waiting after stdin
 ends, and `astral-query` does not exit.
-[`objects.store`](../protocols/objects/ops/objects.store.md) and
+[`objects.store`](../protocols/objects/ops/objects.store.md),
+[`crypto.public_key`](../protocols/crypto/ops/crypto.public_key.md) and
 [`auth.sign_contract`](../protocols/auth/ops/auth.sign_contract.md) read their
 input in batch mode.
 

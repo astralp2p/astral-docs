@@ -24,6 +24,7 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ echo '{"Type":"string8","Object":"hello"}' | astral-query objects.store -in json -out json
+$ echo '{"Type":"string8","Object":"hello"}' | astral-query -eos objects.store -in json -out json
 {"Type":"object_id.sha256","Object":"data1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+{"Type":"eos","Object":null}
 ```
