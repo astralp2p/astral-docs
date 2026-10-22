@@ -9,7 +9,7 @@ validates the contract, stores and indexes the user's private key, stores the
 contract, and sets the contract as the active contract. The reply is a
 [`mod.user.bootstrap_result`](../types/mod.user.bootstrap_result.md).
 
-`user.bootstrap` is the one-call form of node setup. It claims the node with the
+`user.bootstrap` is the one-call form of [node setup](../../../topics/node-setup.md). It claims the node with the
 same contract as the chain
 [`bip137sig.seed`](../../bip137sig/ops/bip137sig.seed.md),
 [`bip137sig.derive_key`](../../bip137sig/ops/bip137sig.derive_key.md),
