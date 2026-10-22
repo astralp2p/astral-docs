@@ -106,14 +106,18 @@ What happens on the wire:
 Notes:
 
 - One query per WS. Multiple concurrent queries means multiple WSes.
-- `caller` defaults to the connection's `guestID`; passing `null`
-  explicitly suppresses it (the host then fills in its own node identity,
-  which is rarely what you want).
-- an unauthenticated web guest may call only the operations on the node's
-  claim-state allowlist — the setup-ceremony operations while the node is
-  unclaimed, otherwise a minimal identity-acquisition set. [Operations](../core-definitions/op.md) outside
-  it are rejected. Authenticating lifts the restriction. See the apphost
-  protocol.
+- `caller` defaults to the connection's `guestID`. A `null` caller from an
+  authenticated session is routed as its `guestID`; a `null` caller from an
+  unauthenticated session is routed as the node.
+- an unauthenticated session may call only the operations on the node's
+  claim-state allowlist, the same list an IPC guest has: `user.info`,
+  `user.derive_identity`, `user.bootstrap`, `user.join`, `crypto.list_keys`
+  and `apphost.register` while the node is unclaimed, and `user.info` and
+  `apphost.register` afterwards. While the node is unclaimed, a page whose
+  origin `trusted_web_sources` does not list may call none.
+  [Operations](../core-definitions/op.md) outside the list are refused with
+  `error_msg{denied}`. Authenticating lifts the restriction. See
+  [apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token).
 - JSON mode auto-injects `out=json&in=json` server-side so responder
   frames are JSON-encoded `astral.JSONAdapter` objects. Override by
   putting `in=`/`out=` in `queryString` yourself. Responders that bypass

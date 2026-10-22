@@ -9,7 +9,8 @@ node logs `this node runs without a user` at startup.
 
 Node setup runs in one call ([`user.bootstrap`](#one-call)) or
 [step by step](#step-by-step). Both claim the node with the same contract and the
-same rules.
+same rules. A node also joins an existing swarm from its own side
+([`user.join`](#joining-a-swarm-from-the-new-node)).
 
 ## The user key
 
@@ -25,9 +26,28 @@ same rules.
 
 ## Who may set up a node
 
-* Setup runs on the node, from a local session. A local caller that presents no
-  identity acts as the node.
-* [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md) and
+* Setup runs on the node, from a local session.
+* A session without a token reaches
+  [`user.info`](../protocols/user/ops/user.info.md),
+  [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md),
+  [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md) and
+  [`user.join`](../protocols/user/ops/user.join.md) while the node is unclaimed,
+  and no other setup operation
+  ([apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token)).
+  A local caller that presents no identity acts as the node.
+* A WebSocket session without a token reaches those operations only from a
+  browser origin listed in `trusted_web_sources`. Any page open in a local
+  browser reaches the WebSocket endpoint.
+* The step-by-step operations run with the node's token: a token that
+  `tokens:` in `apphost.yaml` maps to `localnode`. A session authenticated with
+  it acts as the node.
+
+```yaml
+tokens:
+  "<node token>": localnode
+```
+
+* `user.derive_identity`, `user.bootstrap`, `user.join` and
   [`auth.sign_contract`](../protocols/auth/ops/auth.sign_contract.md) reject a
   query of origin `network`, `mcp` or any other origin than local.
 * The node signs the claim contract for its own session only, and only under the
@@ -40,36 +60,56 @@ same rules.
     [`messaging.create_mailbox`](../protocols/messaging/ops/messaging.create_mailbox.md)
     or [`mcp.create_agent`](../protocols/mcp/ops/mcp.create_agent.md);
   * a `User` the node has had, even after that user's contract has expired.
+* Once the node is claimed, a session without a token reaches `user.info` and
+  [`apphost.register`](../protocols/apphost/ops/apphost.register.md) only. Until
+  [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md)
+  names a delegate, any local program that registers receives the permits it
+  asks for.
 
 ## One call
 
 [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md) derives the key,
-signs the claim contract as both parties, stores the key and activates the
-contract. It answers a
+signs the claim contract as both parties, stores the key, activates the
+contract and issues an access token for the user. It answers a
 [`mod.user.bootstrap_result`](../protocols/user/types/mod.user.bootstrap_result.md).
+The token authenticates the claiming app as the user.
 
-New identity: the node generates 24 words and returns them in the reply.
+[`user.derive_identity`](../protocols/user/ops/user.derive_identity.md) previews
+the claim. It answers the identity that words derive, with the derivation of
+`user.bootstrap`, and changes nothing on the node. A client takes the identity
+from the node and derives no key itself.
+
+New identity: the node generates 24 words, the user records them, and the same
+words claim the node.
 
 ```shellsession
-$ astral-query user.bootstrap -generate true -out json
-{"Type":"mod.user.bootstrap_result","Object":{"Identity":"02e96bd9...","Mnemonic":"penalty stadium garlic ... rifle fitness garage"}}
+$ astral-query user.derive_identity -generate true -out json
+{"Type":"mod.user.derive_identity_result","Object":{"Identity":"02e96bd9...","Mnemonic":"penalty stadium garlic ... rifle fitness garage"}}
+$ echo '{"Type":"string16","Object":"penalty stadium garlic ... rifle fitness garage"}' \
+    | astral-query user.bootstrap -in json -out json
+{"Type":"mod.user.bootstrap_result","Object":{"Identity":"02e96bd9...","Mnemonic":"","Token":"b9c2e1a3d4f5867a"}}
 ```
 
-The generated words appear in this reply only. A reply lost after the claim
-leaves the node owned by a user whose words exist nowhere. A client that confirms
-the user's backup before the claim generates the words with the first two steps
-of [Step by step](#step-by-step) and then sends them to `user.bootstrap`.
+The generated words appear in the first reply only. `user.bootstrap -generate
+true` generates the words and claims in one call; a reply lost after that claim
+leaves the node owned by a user whose words exist nowhere.
 
-Existing identity: the words arrive in the input stream. The reply carries an
-empty `Mnemonic`.
+Existing identity: the user's words preview the identity, and the same words
+claim the node. The replies carry an empty `Mnemonic`.
 
 ```shellsession
-$ echo '{"Type":"string16","Object":"horse soldier ... term change"}' \
-    | astral-query user.bootstrap -in json -out json
-{"Type":"mod.user.bootstrap_result","Object":{"Identity":"02564ba7...","Mnemonic":""}}
+$ echo '{"Type":"string16","Object":"horse soldier ... term change"}' > words.json
+$ astral-query user.derive_identity -in json -out json < words.json
+{"Type":"mod.user.derive_identity_result","Object":{"Identity":"02564ba7...","Mnemonic":""}}
+$ astral-query user.bootstrap -in json -out json < words.json
+{"Type":"mod.user.bootstrap_result","Object":{"Identity":"02564ba7...","Mnemonic":"","Token":"b9c2e1a3d4f5867a"}}
 ```
 
 ## Step by step
+
+Every step runs on a session authenticated with the node's token
+([Who may set up a node](#who-may-set-up-a-node)). A session without a token is
+refused steps 1 to 8.
 
 | Step | Op | Input | Result |
 |------|----|-------|--------|
@@ -95,6 +135,7 @@ $ echo '{"Type":"string16","Object":"horse soldier ... term change"}' \
 New identity:
 
 ```shellsession
+$ export ASTRALD_APPHOST_TOKEN=<node token>
 $ astral-query bip137sig.new_entropy -bits 256 -out json \
     | astral-query bip137sig.mnemonic -in json -out json > words.json
 $ astral-query bip137sig.seed -in json -out json < words.json \
@@ -133,6 +174,31 @@ input in batch mode. Each one needs `-eos` before the operation name. Without
 batch-mode result ends with an `eos` line, which the next single-mode op does not
 read: `head -1` keeps the result alone.
 
+## Joining a swarm from the new node
+
+A node of an existing swarm brings a new node under its user in one of two ways:
+
+* The swarm node adopts the new node:
+  [`user.adopt`](../protocols/user/ops/user.adopt.md) on the swarm node sends a
+  membership contract to the new node's
+  [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md).
+  The new node calls `user.info` until the claim lands.
+* The new node asks to join:
+  [`user.join`](../protocols/user/ops/user.join.md) `-node <swarm node>` on the
+  new node sends
+  [`user.request_membership`](../protocols/user/ops/user.request_membership.md)
+  to the swarm node, as the new node. The reply is the membership contract the
+  new node now holds as its active contract.
+
+```shellsession
+$ astral-query user.join -node 03b1... -out json
+{"Type":"mod.auth.signed_contract","Object":{...}}
+```
+
+The swarm node's join policy decides a request, and the new node's invite
+policy decides an invitation. Both accept everything by default
+([user](../protocols/user/README.md)).
+
 ## Refusals
 
 | Answer | Cause | Remedy |
@@ -144,3 +210,6 @@ read: `head -1` keeps the result alone.
 | `user.bootstrap`: `query rejected (4)` | The caller is not the node. | Call from a local session without a token, or with the node's own token. |
 | `user.bootstrap`: `claim refused: the claim rule of auth.sign_contract refuses this user` | The claim rule refuses the user. | As for `auth.sign_contract` above. |
 | `user.bootstrap`: `invalid mnemonic` | The words fail the BIP-39 checksum. | Check the words. |
+| any operation: `denied` | A session without a token sent an operation outside the active `anonymous_allowlist`, or a web page whose origin `trusted_web_sources` does not list sent one before the claim. | Authenticate with a token, or list the origin in `trusted_web_sources`. |
+| `user.join`: `query rejected (3)` | `node` does not resolve, or names this node. | Name a node of the swarm. |
+| `user.join`: `request declined` | The swarm node's join policy declines the request. | Approve the request on the swarm node, or adopt the node from it. |

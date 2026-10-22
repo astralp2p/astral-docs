@@ -43,14 +43,16 @@ After step 1 the guest is *anonymous*; after a successful step 2 the session
 is bound to `GuestID`. Anonymous guests:
 
 - may send queries only if the host's `AllowAnonymous` config is on (default);
+- may send only the operations of the host's `anonymous_allowlist` for the
+  node's claim state, else `error_msg{denied}`
+  ([apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token));
 - have the network [`Zone`](../core-definitions/zone.md) (`ZoneNetwork`) stripped from their queries, so they cannot reach other nodes;
 - may not register handlers.
 
-A query with a zero `Caller` is routed as the node's own identity. The host
-tags every query from a token-less session as anonymous so an operation can
-tell an anonymous caller apart from the node itself once the caller is resolved.
-IPC guests carry no web origin and are not subject to the web-guest operation
-allowlist that applies to browser guests (see the apphost protocol).
+A query with a zero `Caller` from an anonymous guest is routed as the node's own
+identity, and an operation cannot tell it from the node. The allowlist bounds
+what an anonymous guest reaches as the node. A query with a zero `Caller` from a
+guest bound to `GuestID` is routed as `GuestID`.
 
 The guest may then send any of `RouteQueryMsg`, `RegisterServiceMsg`,
 `AttachQueryMsg` (the last only on a fresh sub-connection answering an
@@ -90,7 +92,9 @@ host  → guest: one of:
 
 Caller authorization:
 
-- zero `Caller` → anonymous;
+- zero `Caller` from an anonymous guest → routed as the node, within the
+  allowlist;
+- zero `Caller` from a guest bound to `GuestID` → set to `GuestID`;
 - `Caller == GuestID` → allowed;
 - otherwise the guest must hold a `SudoAction` for `Caller`, else
   `error_msg{denied}`.

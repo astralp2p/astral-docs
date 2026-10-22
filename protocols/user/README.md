@@ -16,7 +16,9 @@ node accepts an inbound contract with `user.accept_membership`, or activates an
 already-signed contract with `user.accept_contract` (node setup and the
 cold-card path). `user.bootstrap` claims an unclaimed node in one call: it
 derives the user's key from BIP-39 words, signs the claim contract for both
-parties and activates it. A user permanently bans a node with `user.expel`, and the list
+parties, activates it and issues an access token for the user.
+`user.derive_identity` answers the user that words derive and changes nothing.
+`user.join` makes an unclaimed node request membership from a node of a swarm. A user permanently bans a node with `user.expel`, and the list
 of bans is inspectable via `user.list_expelled`. Banned nodes hold a
 `mod.user.signed_expulsion` and are refused new contracts.
 

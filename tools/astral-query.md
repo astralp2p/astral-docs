@@ -16,7 +16,10 @@ which only an authenticated caller has. Export an access token first:
 
 Without it the call is anonymous, the `Network` zone is stripped, and the query
 fails locally with `route_not_found` before reaching the target — exporting the
-token, not changing the query, is the fix. A token issued to a
+token, not changing the query, is the fix. An anonymous call reaches only the
+operations of the node's anonymous allowlist
+([apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token));
+any other operation answers `denied`. A token issued to a
 [`User`](../core-definitions/user.md) also routes the query as that user, which
 the target may require in order to accept it.
 
