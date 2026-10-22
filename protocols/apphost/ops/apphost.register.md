@@ -21,6 +21,14 @@ the register policy. The policy receives the request as a
 The permits a trusted web origin is entitled to join the contract request, not
 the grant request.
 
+A session without a token reaches `apphost.register` on an unclaimed and on a
+claimed node ([Sessions without a token](../README.md#sessions-without-a-token)).
+Until `apphost.set_app_register_policy` names a delegate, the default policy
+writes every permit an app asks for,
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
+included. Any local program that registers before a delegate is set holds what
+it asks for.
+
 Every registration also asks for a node-local grant of
 [`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md)
 for the new identity, whatever the app asked for. The register policy decides
