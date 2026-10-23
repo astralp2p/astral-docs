@@ -44,6 +44,32 @@ operation an offering lists checks its own permission when it runs.
 Services state lives only as long as the node process: a node restart ends every
 binding and every discovery stream, and providers and consumers open new ones.
 
+## Protocol rules
+
+These rules hold for every provider and every consumer. The
+[Services topic](../../topics/services.md#provider-rules) gathers them with
+examples, and its [outcome table](../../topics/services.md#reading-the-outcome)
+sets the consumer's cases side by side.
+
+* The provider of `services.advertise` is the caller, and the caller must hold
+  [`mod.auth.serve_apps_action`](../auth/types/mod.auth.serve_apps_action.md).
+  An app holds it through the grant
+  [`apphost.register`](../apphost/ops/apphost.register.md) asks for. The node
+  identity is rejected as a provider, so a provider never runs on the node's
+  token ([Session Identity](../../topics/session-identity.md)).
+* `Update.Name` in a [`services.answer`](types/services.answer.md) equals the
+  service the [`services.ask`](types/services.ask.md) named. An answer naming any
+  other service fails the binding: the node closes it, and every offering it
+  showed is removed.
+* `Available` false is an answer: the provider offers nothing to this caller.
+  A refused `services.discover` is not an answer: it is an `error_message`
+  before any offering, because the caller may not discover a requested
+  service.
+* A [`services.incomplete`](types/services.incomplete.md) before the `eos` is
+  not a failure. Some contribution did not resolve: it ran out of the node's
+  budget, lost its provider, or could not be reached. Every offering already
+  received is valid.
+
 ## Types
 
 * [`services.update`](types/services.update.md) – one complete offering

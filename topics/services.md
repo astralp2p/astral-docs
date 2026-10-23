@@ -63,6 +63,28 @@
   is rejected, and so is the `Node`'s own `Identity`: an `App` advertises on the `Node` that hosts
   it.
 
+### Provider rules
+
+Every provider relies on these rules. Each is part of the protocol, not of one implementation.
+
+* **The provider is a permitted `App` `Identity`.** `services.advertise` takes the provider from the
+  caller, and the caller must hold
+  [`mod.auth.serve_apps_action`](../protocols/auth/types/mod.auth.serve_apps_action.md). A provider
+  therefore runs on the token [`apphost.register`](../protocols/apphost/ops/apphost.register.md)
+  returned, which asks for that grant — see [Session Identity](session-identity.md).
+  * A session without a token is refused by apphost with `error_msg{denied}` before the `Op` runs.
+  * A session on the node's token is the `Node` `Identity`, and is rejected.
+  * A query over a `Link`, or from an `Identity` without the action, is rejected.
+  * Each rejection is a bare reject with no payload; astrald sends code 1 for all three.
+* **`Update.Name` equals the asked `Service`.** Every
+  [`services.answer`](../protocols/services/types/services.answer.md) echoes the ask's `RequestID`,
+  and its `Update.Name` is the `Service` the [`services.ask`](../protocols/services/types/services.ask.md)
+  named, exactly. An answer naming any other `Service` fails the binding: the `Node` closes the
+  channel, every consumer shown one of its offerings receives a `services.removed`, and every
+  initial evaluation it still owed ends `services.incomplete`. The name is never inferred.
+* **`Available` false is an answer.** A provider that offers nothing to a caller answers
+  `Available` false. It is not an error, and the binding stays open.
+
 A Go provider built on astral-go advertises from its app's registration and answers each caller:
 
 ```go
@@ -103,7 +125,7 @@ binding.change(bob);
   * a bare `eos` — every provider answered, including those that offered nothing;
   * [`services.incomplete`](../protocols/services/types/services.incomplete.md) then `eos` — some
     provider did not answer within the `Node`'s budget; the object names the affected `Services`,
-    never a provider or a `Node`;
+    never a provider or a `Node`. The discovery has not failed: every offering received is valid;
   * a requested `Service` with no provider owes nothing: the `eos` arrives at once.
 * Without `follow` the channel closes after the `eos`; a channel that closes before the `eos` is a
   failure, not an empty result. With `follow` it stays open and carries a new `services.update`
@@ -125,6 +147,30 @@ for range w.Changed() {
 	render(w.Offerings())
 }
 ```
+
+### Reading the outcome
+
+Several outcomes look alike to a consumer and mean different things. This table is the reference
+the `services` pages link to.
+
+| The consumer sees | Meaning | Offerings received |
+|-------------------|---------|--------------------|
+| `services.update` with `Available` true | the provider offers this caller the `Service` | valid |
+| no `services.update` from a provider, and no `services.incomplete` naming the `Service` | the provider answered `Available` false: nothing for this caller | — |
+| `services.update` with `Available` false, after a `follow` showed that key | the provider withdrew its offering; its own answer | that key withdrawn |
+| `services.removed` | the provider, or the swarm member that contributed it, was lost | listed keys withdrawn |
+| bare `eos` | the initial attempt completed: every contribution answered | valid |
+| `services.incomplete`, then `eos` | the initial attempt is incomplete, not failed: some contribution ran out of the `Node`'s budget, lost its provider, or could not be reached | valid; only the named `Services` may lack offerings |
+| `error_message`, then close, before any `services.update` | the request is refused: an invalid list or `reach`, or the caller may not discover a named `Service` | none; the request was never evaluated |
+| apphost `error_msg{denied}` | the session has no token and the `Op` is outside its allowlist ([Session Identity](session-identity.md)) | none |
+| channel closes before the `eos` | the discovery failed | not an empty result |
+
+* `Available` false is a provider's answer about this caller. A refusal says the caller may not ask
+  at all. The first is decided by the provider for each caller; the second by the `Node`, from the
+  caller's permits, before any provider is asked.
+* A `services.incomplete` names `Services`, never a provider or a `Node`. A consumer keeps the
+  offerings it received. With `follow`, an answer that arrives after the budget still reaches the
+  stream as a `services.update`.
 
 ### Who may discover
 
