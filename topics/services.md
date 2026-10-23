@@ -1,91 +1,66 @@
 # Services
 
-* A `Service` is a capability an [`App`](../core-definitions/app.md) offers to other `Apps`, under a
-  free-text name chosen by whoever defines its contract: `player`, `bitcoin-wallet`,
-  `contacts-backend`. A `Service` name is not an [`Op`](../core-definitions/op.md) namespace and
-  carries no permission of its own.
-* The [`services`](../protocols/services/README.md) protocol answers one question for an `App`:
-  which providers offer it which services, and what they offer it. A provider is an `App` that
-  advertises a `Service`, or the [`Node`](../core-definitions/node.md) itself for a `Service` the
-  `Node` offers, such as `nat` or `gateway`.
-* An offering is caller-specific. A provider evaluates every caller on its own and answers with a
-  complete [`services.update`](../protocols/services/types/services.update.md) for that caller: two
-  `Apps` asking the same provider for the same `Service` can be offered different
-  [`Ops`](../core-definitions/op.md), or nothing.
-* An offering is keyed by its provider `Identity` and its `Service` name
-  ([`services.offering_key`](../protocols/services/types/services.offering_key.md)). Its `Info`
-  bundle carries what the contract defines, typically a
-  [`services.operations_list`](../protocols/services/types/services.operations_list.md) naming
-  the `Ops` the caller may address to the provider.
-* An offering grants nothing. Every `Op` it lists checks the caller's permission when it runs.
-* A `Node` caches no offering. Every view a consumer receives is a fresh answer from the provider
-  for that consumer.
+The [`services`](../protocols/services/README.md) protocol discovers what providers
+offer a caller. A provider is an [App](../core-definitions/app.md), or a
+[Node](../core-definitions/node.md) offering a native service such as `nat` or
+`gateway`. A service name identifies a contract, such as `player`; it need not
+match an operation namespace.
+
+An [offering](../protocols/services/types/services.update.md) is a complete,
+caller-specific answer keyed by `(ProviderID, Name)`. Its `Info` bundle carries
+service-defined terms, typically an
+[operations list](../protocols/services/types/services.operations_list.md).
+Different callers can receive different offerings. Discovery evaluates providers
+afresh; an offering grants no permission to run its operations.
 
 ```text
- provider app                       node                           consumer app
- ────────────                       ────                           ────────────
- services.advertise player ───────► binding: (provider, player)
-                                                       ◄────────── services.discover player
- ◄──────────── services.ask (caller = consumer, player)
- services.answer (available, ops) ─►
-                                    services.update ────────────► offering: provider, player, ops
-                                                                   eos (initial attempt done)
- services.change (callers) ────────► re-asks the consumer ...  ──► newer services.update
+Provider app                  Node                         Consumer app
+     |-- advertise player ---->|                                |
+     |<-- ack -----------------|<-- discover player ------------|
+     |<-- ask(caller, player) --|                                |
+     |-- answer(update) ------>|-- update, if available -------->|
+     |                         |-- eos ------------------------>|
+     |                         |                initial attempt ends
+     |-- change(callers) ----->|                with follow:
+     |<-- ask(caller, player) --|                                |
+     |-- answer(update) ------>|-- update --------------------->|
 ```
 
 ## Advertising a service
 
-* An `App` provisions itself with `apphost.register`, which grants
-  [`mod.auth.serve_apps_action`](../protocols/auth/types/mod.auth.serve_apps_action.md) — the
-  permission to advertise itself. A provider advertises no `Identity` but its own: the
-  [`services.advertise`](../protocols/services/ops/services.advertise.md) `Op` takes the provider
-  from the caller.
-* `services.advertise` names a fixed set of `Services`, comma-separated, at most 64. The `Node`
-  claims every (provider, name) pair of the set, or none: a pair that a live binding already holds
-  refuses the whole set with an `error_message`. On success the `Node` answers `ack`, and the
-  channel stays open as the binding.
-* While the binding is open:
-  * the `Node` sends [`services.ask`](../protocols/services/types/services.ask.md) — evaluate one
-    `Service` for one caller. It sends at most one ask per caller at a time.
-  * the provider answers each ask with
-    [`services.answer`](../protocols/services/types/services.answer.md), echoing its `RequestID`
-    and carrying the caller's complete offering. `Available` false is an answer: nothing for this
-    caller.
-  * the provider sends [`services.change`](../protocols/services/types/services.change.md) when the
-    offerings of some callers, or of all, may have changed. The `Node` re-asks every caller that
-    follows a `Service` of the binding; the provider never pushes an offering on its own.
-* Closing the channel ends the binding. Every consumer that was shown one of its offerings receives
-  a [`services.removed`](../protocols/services/types/services.removed.md) for it. Re-advertising
-  opens a new binding, evaluated from scratch.
-* The binding fails on anything else the provider sends: another object, an undecodable frame, an
-  answer for the wrong `Service` or provider, or a change selecting no caller.
-* `services.advertise` is local-only. A query arriving over a [`Link`](../core-definitions/link.md)
-  is rejected, and so is the `Node`'s own `Identity`: an `App` advertises on the `Node` that hosts
-  it.
+[`services.advertise`](../protocols/services/ops/services.advertise.md) binds the
+calling app to a fixed set of names on its hosting node. Admission claims every
+`(provider, name)` pair or none; an existing binding for any pair refuses the
+whole set. The initial `ack` confirms readiness.
 
 ### Provider rules
 
-Every provider relies on these rules. Each is part of the protocol, not of one implementation.
+* **Identity and permission:** the caller must be an app identity holding
+  [`mod.auth.serve_apps_action`](../protocols/auth/types/mod.auth.serve_apps_action.md).
+  [`apphost.register`](../protocols/apphost/ops/apphost.register.md) requests that
+  grant; registration policy decides whether to issue it. A query over a link,
+  the node identity, or a caller without the permit is rejected with code 1 and
+  no payload. With default apphost settings, a token-less session is denied
+  before routing. See [Session Identity](session-identity.md).
+* **Answer correlation:** each [`services.ask`](../protocols/services/types/services.ask.md)
+  names one caller and service. The provider's
+  [`services.answer`](../protocols/services/types/services.answer.md) echoes
+  `RequestID`; `Update.Name` must equal the asked `Service`. A mismatched name
+  fails the binding, removes its shown offerings, and marks its unresolved
+  initial evaluations incomplete. The node supplies `ProviderID`.
+* **Unavailable is an answer:** `Available: false` means nothing is offered to
+  this caller. The binding stays open.
+* **Changes trigger evaluation:** [`services.change`](../protocols/services/types/services.change.md)
+  selects callers whose followed services need re-evaluation. The node sends
+  new asks; providers do not push unsolicited offerings.
 
-* **The provider is a permitted `App` `Identity`.** `services.advertise` takes the provider from the
-  caller, and the caller must hold
-  [`mod.auth.serve_apps_action`](../protocols/auth/types/mod.auth.serve_apps_action.md). A provider
-  therefore runs on the token [`apphost.register`](../protocols/apphost/ops/apphost.register.md)
-  returned, which asks for that grant — see [Session Identity](session-identity.md).
-  * A session without a token is refused by apphost with `error_msg{denied}` before the `Op` runs.
-  * A session on the node's token is the `Node` `Identity`, and is rejected.
-  * A query over a `Link`, or from an `Identity` without the action, is rejected.
-  * Each rejection is a bare reject with no payload; astrald sends code 1 for all three.
-* **`Update.Name` equals the asked `Service`.** Every
-  [`services.answer`](../protocols/services/types/services.answer.md) echoes the ask's `RequestID`,
-  and its `Update.Name` is the `Service` the [`services.ask`](../protocols/services/types/services.ask.md)
-  named, exactly. An answer naming any other `Service` fails the binding: the `Node` closes the
-  channel, every consumer shown one of its offerings receives a `services.removed`, and every
-  initial evaluation it still owed ends `services.incomplete`. The name is never inferred.
-* **`Available` false is an answer.** A provider that offers nothing to a caller answers
-  `Available` false. It is not an error, and the binding stays open.
+Closing the binding releases its names and removes its shown offerings.
+Re-advertising starts fresh. The
+[operation reference](../protocols/services/ops/services.advertise.md#the-binding)
+defines malformed-message and timeout handling. Native node services use an
+internal evaluator; they do not call `services.advertise` as the node identity.
 
-A Go provider built on astral-go advertises from its app's registration and answers each caller:
+A Go provider uses its app registration; the SDK constructs the answer envelope:
 
 ```go
 p := servicescli.NewProvider(map[string]servicescli.OfferingFunc{
@@ -101,44 +76,28 @@ p.Change(caller) // this caller's offering may have changed
 p.ChangeAll()    // every following caller's
 ```
 
-An astral-js provider does the same on a connected host:
+An astral-js provider evaluates callers on a connected host:
 
 ```ts
 const binding = await advertise(host, {
-  'chat-room': (caller) => (members.has(caller) ? { info: [] } : null), // null: nothing for this caller
+  'chat-room': (caller) => (members.has(caller) ? { info: [] } : null), // null: unavailable
 });
 binding.change(bob);
 ```
 
-* A `Node` offers its own `Services` through the same machinery: a module registers names and an
-  evaluator inside the `Node`, and its offerings carry the `Node` `Identity` as `ProviderID`.
-
 ## Discovering services
 
-* An `App` asks its own `Node` with
-  [`services.discover`](../protocols/services/ops/services.discover.md), naming the `Services` it
-  wants, at most 64. There is no "discover everything".
-* On admission the `Node` fixes the providers that hold a requested `Service`, asks each of them
-  once for the caller, and streams each offering as it arrives. A provider offering nothing to the
-  caller is not shown.
-* An `eos` ends the initial attempt:
-  * a bare `eos` — every provider answered, including those that offered nothing;
-  * [`services.incomplete`](../protocols/services/types/services.incomplete.md) then `eos` — some
-    provider did not answer within the `Node`'s budget; the object names the affected `Services`,
-    never a provider or a `Node`. The discovery has not failed: every offering received is valid;
-  * a requested `Service` with no provider owes nothing: the `eos` arrives at once.
-* Without `follow` the channel closes after the `eos`; a channel that closes before the `eos` is a
-  failure, not an empty result. With `follow` it stays open and carries a new `services.update`
-  whenever an offering changes, a provider of a requested `Service` starts, or a shown offering is
-  withdrawn (`Available` false), and a `services.removed` when a provider is lost.
-* A slow consumer receives the latest offering of each key, not every intermediate one. A consumer
-  that stops reading is disconnected.
+[`services.discover`](../protocols/services/ops/services.discover.md) requests named
+services from the app's node; there is no discover-all operation. Admission fixes
+the initial contributions: local providers for the requested services, plus swarm
+members when `reach=swarm`. The node evaluates them for the caller and streams
+available offerings as they arrive.
 
-```shellsession
-$ astral-query services.discover -services player -out json
-{"Type":"services.update","Object":{"Available":true,"Name":"player","ProviderID":"02bef8…","Info":[…]}}
-{"Type":"eos","Object":null}
-```
+An `eos` ends the initial attempt. Without `follow`, the channel then closes.
+With `follow`, it stays open for updated offerings, withdrawals, new providers,
+and provider removals. Updates replace the complete offering for a key; slow
+readers receive the latest value, not every intermediate value. A write timeout
+disconnects the consumer.
 
 ```go
 w, _ := servicescli.Watch(ctx, []string{"player"}) // follow, keeping the current set
@@ -150,91 +109,80 @@ for range w.Changed() {
 
 ### Reading the outcome
 
-Several outcomes look alike to a consumer and mean different things. This table is the reference
-the `services` pages link to.
+| Signal | Meaning and consumer action |
+|--------|-----------------------------|
+| `services.update`, `Available: true` | Add or replace the offering for `(ProviderID, Name)`. |
+| `services.update`, `Available: false` | The provider withdraws a previously shown offering; remove that key. An initially unavailable offering is not sent. |
+| [`services.removed`](../protocols/services/types/services.removed.md) | A provider or contributing swarm member was lost; remove the listed keys. |
+| `eos` without `services.incomplete` | Initial evaluation completed, including unavailable answers. No offerings can mean no providers or no available answers. |
+| [`services.incomplete`](../protocols/services/types/services.incomplete.md), then `eos` | Some initial work timed out, lost its provider, or failed at a swarm member. Keep current offerings; the named services may lack results. |
+| `error_message`, then close before any update | Invalid arguments or missing discovery permission; no provider was evaluated. |
+| apphost `error_msg{denied}` | Session admission failed; a token-less session cannot discover under the default allowlist. |
+| Close before `eos` | Discovery failed; this is not a successful empty result. |
 
-| The consumer sees | Meaning | Offerings received |
-|-------------------|---------|--------------------|
-| `services.update` with `Available` true | the provider offers this caller the `Service` | valid |
-| no `services.update` from a provider, and no `services.incomplete` naming the `Service` | the provider answered `Available` false: nothing for this caller | — |
-| `services.update` with `Available` false, after a `follow` showed that key | the provider withdrew its offering; its own answer | that key withdrawn |
-| `services.removed` | the provider, or the swarm member that contributed it, was lost | listed keys withdrawn |
-| bare `eos` | the initial attempt completed: every contribution answered | valid |
-| `services.incomplete`, then `eos` | the initial attempt is incomplete, not failed: some contribution ran out of the `Node`'s budget, lost its provider, or could not be reached | valid; only the named `Services` may lack offerings |
-| `error_message`, then close, before any `services.update` | the request is refused: an invalid list or `reach`, or the caller may not discover a named `Service` | none; the request was never evaluated |
-| apphost `error_msg{denied}` | the session has no token and the `Op` is outside its allowlist ([Session Identity](session-identity.md)) | none |
-| channel closes before the `eos` | the discovery failed | not an empty result |
-
-* `Available` false is a provider's answer about this caller. A refusal says the caller may not ask
-  at all. The first is decided by the provider for each caller; the second by the `Node`, from the
-  caller's permits, before any provider is asked.
-* A `services.incomplete` names `Services`, never a provider or a `Node`. A consumer keeps the
-  offerings it received. With `follow`, an answer that arrives after the budget still reaches the
-  stream as a `services.update`.
+`Available: false` is a provider's answer. Permission refusal prevents asking
+providers. `services.incomplete` is partial completion, not discovery failure;
+it names services, never providers or nodes. A follow can receive later updates
+after an incomplete initial attempt.
 
 ### Who may discover
 
-* Discovering a `Service` requires
-  [`mod.services.service_discovery_action`](../protocols/services/types/mod.services.service_discovery_action.md)
-  for that `Service` on each contributing `Node`. A request naming one `Service` the caller may not
-  discover is refused with an `error_message` before any provider is asked; a request is never
-  narrowed.
-* The [`User`](../core-definitions/user.md) holds the action for every `Service`. A member of the
-  [`Local Swarm`](../core-definitions/local-swarm.md) holds it for every `Service` on every other
-  member. The `Node`'s own `Identity` holds none.
-* Any other `App` holds it through a grant scoped by a
-  [`mod.services.discovery_scope`](../protocols/services/types/mod.services.discovery_scope.md),
-  which pairs `Services` with the `Nodes` they may be discovered on. An unconstrained permit covers
-  nothing, so an `App` cannot grant itself discovery at registration. The `User` grants it once, on
-  the `Node` the `App` asks:
+Admission requires
+[`mod.services.service_discovery_action`](../protocols/services/types/mod.services.service_discovery_action.md)
+for every requested service on every contributing node. One denied pair refuses
+the whole request. The user holds the action for all services; swarm members
+hold it on other members. The node has no default grant for its own identity.
+
+An app needs a scoped grant or contract. A
+[`mod.services.discovery_scope`](../protocols/services/types/mod.services.discovery_scope.md)
+pairs services with allowed nodes; an unconstrained permit allows nothing.
+An app cannot grant itself discovery at registration. The user can grant it on
+the app's node:
 
 ```shellsession
 $ echo '{"Type":"bundle","Object":[{"Type":"mod.services.discovery_scope","Object":{"Rules":[{"Services":["player"]}]}}]}' \
     | astral-query apphost.grant -identity <app> -action mod.services.service_discovery_action -constrained true -in json
 ```
 
-A rule with no `Nodes` allows its `Services` on every `Node` the discovery reaches.
+A rule with no `Nodes` allows its services on every node within discovery's reach.
 
 ## Discovering across the swarm
 
-* `reach=swarm` makes the `Node` carry the discovery to every member of its `Local Swarm`, in the
-  `App`'s name, and merge their offerings into the one stream. `reach` defaults to `local`, the
-  providers the `Node` hosts.
-* The `Node` first checks the `App`'s permission for every requested `Service` on every member.
-  It then pushes the `App`'s relay `Contract` to each member and queries it as itself, naming the
-  `App` in `for`.
-* The member admits the query when the asking `Node` may relay for the `App`
-  ([`mod.nodes.relay_for_action`](../protocols/nodes/types/mod.nodes.relay_for_action.md)) and may
-  discover the `Services` there. It asks its providers for the `App` — never for the asking
-  `Node` — and answers from the providers it hosts. A query with `for` is never carried further.
-* Each member counts as one contribution to the initial attempt. A member that cannot be reached,
-  refuses, does not finish within the budget, or reports its own `services.incomplete` makes the
-  outcome incomplete for the requested `Services`.
-* A member lost during a follow has its shown offerings removed. The `Node` asks it again when a
-  `Link` to it comes up, and otherwise retries with a capped backoff while the follow is open.
+`reach=local` uses hosted providers. `reach=swarm` also queries every other
+[Local Swarm](../core-definitions/local-swarm.md) member and merges the results:
 
-```ts
-const w = await watch(host, ['player'], { reach: 'swarm' }); // every player on the user's devices
+```text
+App -- discover(reach=swarm) --> Hosting node
+                                  |-- evaluate local providers for App
+                                  +-- discover(for=App, reach=local) --> Member
+                                                                         |
+                                             evaluate member's providers for App
 ```
+
+The hosting node checks the app's scope across all contributing nodes. It pushes
+the app's relay contract before querying a member as itself with `for=App`.
+The member checks the sending node's
+[`relay_for_action`](../protocols/nodes/types/mod.nodes.relay_for_action.md) and
+discovery permission, then evaluates providers for the app. Forwarding stops
+there. The [discovery reference](../protocols/services/ops/services.discover.md)
+defines member failure, incomplete results, and follow retries.
 
 ## Using an offering
 
-* An offering's `ProviderID` is the `Target` of the provider's `Ops`. The consumer addresses them
-  like any other query: `<ProviderID>:player.play`.
-* A provider on the consumer's own `Node` is reached directly. A provider `App` on another `Node`
-  is reached through its host, by the relay `Contract` the provider signed with that host — see
-  [`App Routing`](app-routing.md). A `Node` learns its members' relay `Contracts` when a `Link` to
-  each member first comes up; an `App` registered while the two `Nodes` are already linked becomes
-  reachable from the other at the next first `Link`.
-* A `Service` the `Node` offers itself is addressed to the `Node` `Identity`, over the `Link`.
+The consumer addresses an offered operation to `ProviderID`, for example
+`<ProviderID>:player.play`. Local providers are reached directly; remote apps
+are reached through their hosting node under a relay contract. Native node
+services are addressed to the node identity. [App Routing](app-routing.md)
+defines these routes. Each operation checks permission when invoked.
 
 ## Lifetimes and limits
 
-* `Services` state lives as long as the `Node` process. A restart ends every binding and every
-  discovery stream; providers advertise again and consumers discover again.
-* A (provider, name) pair has at most one live binding. A provider restarting before its `Node`
-  has noticed the old binding closing is refused as already advertised, and retries.
-* A `Service` name is non-empty, holds no comma and no leading or trailing whitespace, and fits a
-  `string8`; one call names at most 64.
-* Budgets and timeouts are the `Node`'s own. astrald waits 5 s for an initial attempt, 10 s for one
-  answer, and 10 s for a write to a consumer; the values are not part of the protocol.
+The [advertise reference](../protocols/services/ops/services.advertise.md) limits
+one binding to 1–64 distinct names: each name is non-empty, contains no comma
+or surrounding whitespace, and fits `string8`. Only one live binding owns each
+`(provider, name)` pair; a reconnect can conflict until the old binding closes.
+
+A node restart ends all bindings and discovery streams. Providers advertise
+again; consumers discover again. astrald's initial budget is 5 s, request timeout
+10 s, and consumer write timeout 10 s. These values are implementation settings,
+not protocol constants.

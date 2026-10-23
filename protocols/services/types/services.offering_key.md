@@ -1,8 +1,7 @@
 # services.offering_key
 
-The key of one offering: a provider identity and a service name. One provider
-can offer several services, and several providers can offer one service, so an
-offering is identified by both.
+The `(ProviderID, Name)` key of an offering. A provider can offer several
+services; a service can have several providers.
 
 ## Fields
 

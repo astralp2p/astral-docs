@@ -1,20 +1,13 @@
 # services.ask
 
-A request from a node to a provider app, sent on an open
-[`services.advertise`](../ops/services.advertise.md) binding: evaluate one
-registered service for one caller and return the complete offering in a
-[`services.answer`](services.answer.md).
+A node's request on a [`services.advertise`](../ops/services.advertise.md)
+binding to evaluate one registered service for `CallerID`. The provider returns
+a complete [`services.answer`](services.answer.md); its `Update.Name` must equal
+`Service`, or the binding fails.
 
-The node sends at most one `services.ask` per binding and caller at a time.
-`Service` names a service the binding registered. The answer's `Update.Name`
-must equal it; any other name fails the binding
-([`services.answer`](services.answer.md)). `CallerID` is the identity the
-node validated for the discovering query; the provider evaluates that identity,
-never the node.
-
-`RequestID` correlates the answer. The node draws it at random, never draws
-zero, and never issues the same value twice on one binding. A request ID is not
-a revision and grants nothing.
+At most one ask is outstanding per binding and caller. `CallerID` is the
+validated discovery identity. `RequestID` is random, nonzero, and never reused
+on the binding; it correlates the answer and grants no permission.
 
 ## Fields
 

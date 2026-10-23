@@ -1,13 +1,11 @@
 # services.removed
 
 A notice on a [`services.discover`](../ops/services.discover.md) stream that
-offerings the stream had shown are no longer valid because their provider was
-lost, for example when its advertisement binding closed, or when the swarm
-member that contributed them was lost.
+listed offerings lost their provider or contributing swarm member. It contains
+only keys previously shown as available.
 
-`Offerings` lists only keys previously sent on this stream as available. A
-removal is distinct from a [`services.update`](services.update.md) with
-`Available` false, which is the provider's own answer.
+A [`services.update`](services.update.md) with `Available: false` instead
+withdraws an offering by the provider's own answer.
 
 ## Fields
 

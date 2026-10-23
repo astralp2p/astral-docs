@@ -1,17 +1,13 @@
 # services.change
 
-A notice from a provider app, sent on an open
-[`services.advertise`](../ops/services.advertise.md) binding, that the
-offerings of some callers may have changed. It carries no new offering: the node
-re-evaluates by sending [`services.ask`](services.ask.md).
+A provider's notice on a [`services.advertise`](../ops/services.advertise.md)
+binding that selected callers' offerings may have changed. It carries no
+offering; the node sends new [`services.ask`](services.ask.md) requests for each
+selected caller's followed services on this binding.
 
-With `All` false, `Callers` names the affected callers and is non-empty. With
-`All` true, `Callers` is ignored and the notice covers every caller following a
-service of the binding. A notice with `All` false and no callers fails the
-binding.
-
-For each selected caller the node re-evaluates every service of the binding the
-caller follows. A notice never reaches another binding.
+`All: true` selects every following caller and ignores `Callers`.
+Otherwise `Callers` must be non-empty; an empty selection fails the binding.
+Other bindings are unaffected.
 
 ## Fields
 

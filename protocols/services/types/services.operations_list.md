@@ -1,11 +1,8 @@
 # services.operations_list
 
-The operations a provider exposes to one caller, carried in the `Info` bundle of
-a [`services.update`](services.update.md).
-
-Listing an operation grants nothing: the operation checks the caller's
-permission when it runs. Whether the list is complete, and what an absent list
-means, belongs to the service contract.
+Operation names in a [`services.update`](services.update.md) `Info` bundle.
+Each operation checks permission when invoked. The service contract defines
+whether the list is complete and what an absent list means.
 
 ## Fields
 

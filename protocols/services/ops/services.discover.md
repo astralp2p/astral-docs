@@ -1,92 +1,80 @@
 # services.discover
 
-Evaluate the requested services for the caller and stream the offerings. With
-`follow` the stream stays open and delivers later changes.
-
-An app asks only its own node. With `reach=local`, the default, the node answers
-from the providers it hosts. With `reach=swarm` the node also carries the
-discovery to every member of its local swarm, in the app's name, and merges
-their offerings into the one stream.
+The operation evaluates named services for the caller and streams their
+offerings. `follow` keeps the stream open for later changes.
 
 ## Admission
 
+`reach=local` (default) uses hosted providers. `reach=swarm` also queries every
+other local swarm member for the app and merges their offerings. Swarm discovery
+starts at the app's hosting node; `reach=swarm` over a
+[Link](../../../core-definitions/link.md) is refused.
+
 The caller must hold
 [`mod.services.service_discovery_action`](../types/mod.services.service_discovery_action.md)
-for every requested service on every contributing node: this node, and with
-`reach=swarm` every swarm member. A request naming any service on any node the
-caller may not discover is refused with an `error_message` before any provider
-is evaluated. A request is never narrowed.
+for every requested service on every contributing node. One denied pair refuses
+the entire request with `error_message`, before any provider is evaluated.
+Invalid names or `reach` values also return `error_message`.
 
-A refusal is not an answer. `Available` false is a provider's answer about this
-caller; a refused request was never put to any provider. See
-[Services § Reading the outcome](../../../topics/services.md#reading-the-outcome).
-
-A query arriving over a [`Link`](../../../core-definitions/link.md) is checked
-the same way, for the identity that sent it.
-
-A `reach` other than `local` or `swarm` is refused with an `error_message`, and
-so is `reach=swarm` arriving over a `Link`: an app asks only its own node.
+A direct query over a link with `reach=local` checks the sending identity.
+Permission refusal differs from a provider's `Available: false` answer; see
+[consumer outcomes](../../../topics/services.md#reading-the-outcome).
 
 ## Discovery in an app's name
 
-A node that carries a discovery to a swarm member queries the member as itself
-and names the app in `for`. The member admits the query only when:
+A hosting node pushes the app's relay contract to a swarm member, then queries
+as itself with `for` naming the app. The member requires:
 
-* it arrives over a `Link`;
-* the sending node holds
+* a query over a link with `reach=local` and a valid app identity in `for`;
+* the sending node's
   [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
-  for the app, which the sending node shows by pushing the app's relay contract
-  first;
-* the sending node holds `mod.services.service_discovery_action` for every
-  requested service on the member;
-* `reach` is `local`.
+  for that app;
+* the sending node's discovery permission for every requested service there.
 
-The member then evaluates its providers for the app, not for the sending node,
-and answers from the providers it hosts. A query with `for` is never carried
-further.
+Providers evaluate the named app. The member returns only its hosted providers'
+offerings; a query with `for` is never forwarded. Invalid or unauthorized `for`
+requests return `error_message` before evaluation.
 
 ## The initial attempt
 
-On admission the node fixes the set of contributions: each provider it hosts
-that offers a requested service, and with `reach=swarm` each swarm member. It
-asks each of them once for the caller and streams each offering as it arrives.
-A provider that offers nothing to the caller is not shown.
+Admission fixes the initial contributions: hosted providers for each requested
+service and, with `reach=swarm`, each other swarm member. Each contribution is
+evaluated for the caller. Available offerings are streamed as they arrive;
+initially unavailable offerings are omitted.
 
-An `eos` ends the initial attempt. If every contribution answered, the `eos`
-arrives alone. A [`services.incomplete`](../types/services.incomplete.md)
-naming the affected services arrives immediately before the `eos` when a
-provider did not answer before the node's budget expired or its binding closed,
-or when a swarm member could not be reached, refused the query, did not finish
-its own initial attempt in time, or reported its own `services.incomplete`. A
-requested service with no contribution owes no work: an attempt with nothing to
-ask ends at once with a bare `eos`. With `reach=swarm` and no other swarm member
-the result is the local one.
+```text
+Admission
+  +-- refused --> error_message --> close
+  +-- allowed --> offerings --> [services.incomplete] --> eos
+                                                          +-- follow=false --> close
+                                                          +-- follow=true ---> later changes
+```
 
-A `services.incomplete` is not a failure. Every offering received before it is
-valid; only the services it names may lack offerings.
+`eos` ends the initial attempt. A bare `eos` means all initial work completed,
+including unavailable answers. With no contributions it arrives immediately;
+`reach=swarm` with no other members behaves as local discovery.
 
-Without `follow` the channel closes after the `eos`. A channel that closes
-before the `eos` reports a failure, not an empty result.
+[`services.incomplete`](../types/services.incomplete.md) precedes `eos` when
+initial evaluation times out, a provider is lost, or a swarm member is
+unreachable, refuses, times out, or reports incomplete work. It names affected
+services and preserves received offerings; it is not discovery failure.
+Closing before `eos` is failure, not a successful empty result.
 
 ## Following
 
-With `follow` the channel stays open after the `eos`, whether the initial
-attempt was complete or not, and carries:
+With `follow`, the stream stays open after either a complete or incomplete
+initial attempt. It carries:
 
-* a [`services.update`](../types/services.update.md) whenever an offering for
-  the caller changes, a provider of a requested service starts, or a shown
-  offering is withdrawn (`Available` false);
-* a [`services.removed`](../types/services.removed.md) when the provider of
-  shown offerings is lost, or the swarm member that contributed them is lost.
+* [`services.update`](../types/services.update.md): a new or changed offering,
+  including `Available: false` to withdraw a previously shown key;
+* [`services.removed`](../types/services.removed.md): previously shown keys
+  whose provider or contributing swarm member was lost.
 
-Each update is the complete current offering. A slow reader receives the latest
-offering of each key, not every intermediate one. A reader that stops reading
-until a write exceeds the node's write timeout is disconnected: the channel
-closes.
+Each update replaces the complete offering. Slow readers receive the latest
+value per key; a write exceeding the node's timeout closes the channel.
 
-A lost swarm member is asked again when a link to it is created, and otherwise
-retried with a capped backoff, for as long as the follow is open. Its offerings
-then arrive as updates.
+A lost swarm member is retried when a link appears, or with capped backoff
+while the follow remains open. Recovered offerings arrive as updates.
 
 ## Arguments
 
@@ -99,9 +87,10 @@ then arrive as updates.
 
 ## Returned objects
 
-The operation returns one of:
-* An `error_message` object if the list or `reach` is invalid, or a requested service is not permitted.
-* A stream of `services.update` objects, an optional `services.incomplete`, and an `eos`; with `follow`, further `services.update` and `services.removed` objects until the channel closes.
+* `error_message`, then close: invalid arguments or denied admission.
+* `services.update` objects, optional `services.incomplete`, then `eos`;
+  with `follow`, later updates and removals until closure. Provider loss can
+  also remove a shown offering before `eos`.
 
 ## Examples
 

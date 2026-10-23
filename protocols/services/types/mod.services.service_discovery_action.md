@@ -1,26 +1,23 @@
 # mod.services.service_discovery_action
 
-A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting
-permission for the actor to discover one service on one contributing node.
-[`services.discover`](../ops/services.discover.md) submits one action per
-requested service before it evaluates any provider.
+A [`mod.auth.action`](../../auth/types/mod.auth.action.md) authorizing one
+service on one contributing node.
+[`services.discover`](../ops/services.discover.md) checks every requested
+`(Service, NodeID)` pair before evaluating providers. Discovery grants no
+permission to invoke offered operations.
 
-Discovering a service grants nothing beyond learning its offering: every
-operation the offering lists checks its own permission when it runs.
+The permit's `Constraints` bundle must contain exactly one
+[`mod.services.discovery_scope`](mod.services.discovery_scope.md) that allows
+the pair. Missing constraints, an empty bundle, multiple objects, or another
+object type allow nothing.
 
-The action evaluates a permit's `Constraints` bundle. The bundle holds exactly
-one [`mod.services.discovery_scope`](mod.services.discovery_scope.md), and the
-permit covers the action when the scope allows its `Service` on its `NodeID`. A
-permit with no constraints, an empty bundle, more than one object, or an object
-of any other type covers nothing: discovery is always granted per service.
+The user has default permission for all services. Local swarm members have
+default permission on other members, allowing them to carry app discoveries.
+The hosting node checks the app's own scope first. The node has no default
+grant for its own identity.
 
-The user identity holds this action by default for every service. A member of
-the local swarm holds it by default for every service on every other member, so
-a node can carry an app's discovery to the swarm; what the app may reach is
-limited by the app's own grant on its node. The node's own identity holds none: a local caller that presents no identity acts as the
-node, so a default for the node would reach every such caller. Any other
-identity holds the action through a node-local grant with a scope, written by
-[`apphost.grant`](../../apphost/ops/apphost.grant.md), or a signed contract.
+Other identities need a scoped node-local grant from
+[`apphost.grant`](../../apphost/ops/apphost.grant.md) or a signed contract.
 
 ## Fields
 
