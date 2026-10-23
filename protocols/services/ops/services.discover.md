@@ -17,6 +17,10 @@ for every requested service on every contributing node: this node, and with
 caller may not discover is refused with an `error_message` before any provider
 is evaluated. A request is never narrowed.
 
+A refusal is not an answer. `Available` false is a provider's answer about this
+caller; a refused request was never put to any provider. See
+[Services § Reading the outcome](../../../topics/services.md#reading-the-outcome).
+
 A query arriving over a [`Link`](../../../core-definitions/link.md) is checked
 the same way, for the identity that sent it.
 
@@ -57,6 +61,9 @@ its own initial attempt in time, or reported its own `services.incomplete`. A
 requested service with no contribution owes no work: an attempt with nothing to
 ask ends at once with a bare `eos`. With `reach=swarm` and no other swarm member
 the result is the local one.
+
+A `services.incomplete` is not a failure. Every offering received before it is
+valid; only the services it names may lack offerings.
 
 Without `follow` the channel closes after the `eos`. A channel that closes
 before the `eos` reports a failure, not an empty result.

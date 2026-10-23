@@ -6,7 +6,9 @@ registered service for one caller and return the complete offering in a
 [`services.answer`](services.answer.md).
 
 The node sends at most one `services.ask` per binding and caller at a time.
-`Service` names a service the binding registered. `CallerID` is the identity the
+`Service` names a service the binding registered. The answer's `Update.Name`
+must equal it; any other name fails the binding
+([`services.answer`](services.answer.md)). `CallerID` is the identity the
 node validated for the discovering query; the provider evaluates that identity,
 never the node.
 
