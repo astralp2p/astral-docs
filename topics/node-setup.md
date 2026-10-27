@@ -35,6 +35,8 @@ same rules. A node also joins an existing swarm from its own side
   and no other setup operation
   ([apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token)).
   A local caller that presents no identity acts as the node.
+* A session without a token also reaches `.spec`, before and after the claim.
+  `.spec` lists the node's operations and changes nothing.
 * A WebSocket session without a token reaches those operations only from a
   browser origin listed in `trusted_web_sources`. Any page open in a local
   browser reaches the WebSocket endpoint.
@@ -60,8 +62,9 @@ tokens:
     [`messaging.create_mailbox`](../protocols/messaging/ops/messaging.create_mailbox.md)
     or [`mcp.create_agent`](../protocols/mcp/ops/mcp.create_agent.md);
   * a `User` the node has had, even after that user's contract has expired.
-* Once the node is claimed, a session without a token reaches `user.info` and
-  [`apphost.register`](../protocols/apphost/ops/apphost.register.md) only. Until
+* Once the node is claimed, a session without a token reaches `user.info`,
+  [`apphost.register`](../protocols/apphost/ops/apphost.register.md) and `.spec`
+  only. Until
   [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md)
   names a delegate, any local program that registers receives the permits it
   asks for.

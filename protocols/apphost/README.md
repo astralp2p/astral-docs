@@ -30,20 +30,23 @@ it.
 
 | List | Default operations |
 |------|--------------------|
-| `unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register` |
-| `claimed` | `user.info`, `apphost.register` |
+| `unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`, `.spec` |
+| `claimed` | `user.info`, `apphost.register`, `.spec` |
 
 * While the node is unclaimed, a WebSocket session without a token is refused
   every operation unless its browser origin is a key of `trusted_web_sources`.
   A WebSocket client that sends no `Origin` header is confined as an IPC
   session is.
+* `.spec` lists the node's operations and changes nothing. A session without a
+  token learns the operations before it holds a token.
 * `allow_anonymous: false` refuses every query of a session without a token.
 * A session with a token is not confined by the lists. apphost routes a query
   with a zero caller from such a session as the session's identity.
-* `apphost.yaml` replaces either list:
+* `apphost.yaml` replaces either list. A replacing list admits `.spec` only if
+  it names `.spec`:
 
 ```yaml
 anonymous_allowlist:
-  unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register]
-  claimed: [user.info, apphost.register]
+  unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register, .spec]
+  claimed: [user.info, apphost.register, .spec]
 ```

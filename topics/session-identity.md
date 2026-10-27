@@ -21,13 +21,14 @@ The [IPC handshake](astral-ipc.md#session-handshake) and
 
 ## What a session without a token reaches
 
-By default, astrald admits only setup and registration queries without a token.
+By default, astrald admits only setup, registration and `.spec` queries without
+a token. `.spec` lists the node's operations and changes nothing.
 The node's claim state selects the
 [apphost allowlist](../protocols/apphost/README.md#sessions-without-a-token):
 
 | Node state | Allowed operations |
 |------------|--------------------|
-| claimed | [`user.info`](../protocols/user/ops/user.info.md), [`apphost.register`](../protocols/apphost/ops/apphost.register.md) |
+| claimed | [`user.info`](../protocols/user/ops/user.info.md), [`apphost.register`](../protocols/apphost/ops/apphost.register.md), `.spec` |
 | unclaimed | the claimed list plus [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md) |
 
 apphost refuses other operations with `error_msg{denied}` before routing.
@@ -39,7 +40,7 @@ These `apphost.yaml` settings control admission:
 | Setting | Default | Effect |
 |---------|---------|--------|
 | `allow_anonymous` | `true` | `false` refuses all queries without a token, including setup and registration. |
-| `anonymous_allowlist` | the lists above | Replaces either the `unclaimed` or `claimed` list. |
+| `anonymous_allowlist` | the lists above | Replaces either the `unclaimed` or `claimed` list. A replacing list admits `.spec` only if it names `.spec`. |
 | `trusted_web_sources` | one test origin | On an unclaimed node, a token-less WebSocket session with an `Origin` header requires a listed origin. Each origin also supplies registration permit requests. |
 
 A WebSocket session without an `Origin` header follows the IPC admission rules.
