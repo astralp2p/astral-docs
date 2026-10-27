@@ -8,6 +8,10 @@ The syntax is:
 `astral-query [target:]<operation> [-<param> <val>] ... [<val>]`
 
 The target can be the hex string of the target identity or its alias.
+`localnode` names the node that `astral-query` connects to. `astral-query`
+takes that identity from the apphost connection and sends no `dir.resolve`, so
+`localnode:` works without a token. `astral-query` resolves every other alias
+with `dir.resolve`, which needs a token.
 
 A `target:` that names another node needs the [`Network` zone](../core-definitions/zone.md),
 which only an authenticated caller has. Export an access token first:
@@ -18,8 +22,8 @@ Without it the call is anonymous, the `Network` zone is stripped, and the query
 fails locally with `route_not_found` before reaching the target — exporting the
 token, not changing the query, is the fix. An anonymous call reaches only the
 operations of the node's anonymous allowlist
-([apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token));
-any other operation answers `denied`. A token issued to a
+([apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token)),
+`.spec` included by default; any other operation answers `denied`. A token issued to a
 [`User`](../core-definitions/user.md) also routes the query as that user, which
 the target may require in order to accept it.
 
