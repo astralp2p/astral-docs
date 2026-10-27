@@ -30,7 +30,7 @@ it.
 
 | List | Default operations |
 |------|--------------------|
-| `unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `crypto.list_keys`, `apphost.register` |
+| `unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register` |
 | `claimed` | `user.info`, `apphost.register` |
 
 * While the node is unclaimed, a WebSocket session without a token is refused
@@ -44,6 +44,6 @@ it.
 
 ```yaml
 anonymous_allowlist:
-  unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, crypto.list_keys, apphost.register]
+  unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register]
   claimed: [user.info, apphost.register]
 ```
