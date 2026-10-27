@@ -1,57 +1,61 @@
 # Session Identity
 
-* Every [`Query`](../core-definitions/query.md) a [`Node`](../core-definitions/node.md) runs has a
-  caller [`Identity`](../core-definitions/identity.md), and an [`Op`](../core-definitions/op.md)
-  authorizes that `Identity`. An `Identity` is the first thing a local program needs: without one
-  it reaches almost nothing.
-* A local program obtains its `Identity` with
-  [`apphost.register`](../protocols/apphost/ops/apphost.register.md). The `Node` mints an
-  [`App`](../core-definitions/app.md) `Identity`, grants it the permits the register policy allows,
-  and returns an access token. A session authenticated with that token speaks as the `App`; a
-  `Query` it sends with a zero caller runs as the `App`, never as the `Node`.
-* A session without a token has no `Identity` of its own. The `Node` routes its zero caller as the
-  `Node` `Identity`, and an `Op` cannot tell such a `Query` from the `Node`'s own. apphost therefore
-  refuses every `Op` of such a session with `error_msg{denied}` before routing it, except the few of
-  the `anonymous_allowlist`.
+A local program needs an authenticated [Identity](../core-definitions/identity.md)
+for ordinary queries and handlers. Each operation checks that identity's permits;
+a token establishes identity, not permission.
+
+[`apphost.register`](../protocols/apphost/ops/apphost.register.md) creates an app
+identity, grants the permits allowed by registration policy, and returns its token.
+For a query with an empty caller, the session determines the effective identity:
+
+```text
+app token --> app identity ------------------> operation's permit checks
+node token -> node identity -----------------> operation's permit checks
+no token ---> allowlist --> node identity ----> operation's permit checks
+                  |
+                  +-- absent op ------------> error_msg{denied}
+```
+
+The [IPC handshake](astral-ipc.md#session-handshake) and
+[WebSocket transport](ws-transport.md) define authentication and caller handling.
 
 ## What a session without a token reaches
 
-The defaults below are those of astrald. The rule, both lists and the WebSocket case are specified
-in [apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token).
+By default, astrald admits only setup and registration queries without a token.
+The node's claim state selects the
+[apphost allowlist](../protocols/apphost/README.md#sessions-without-a-token):
 
-| Node state | Ops | Purpose |
-|------------|-----|---------|
-| claimed | [`user.info`](../protocols/user/ops/user.info.md), [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | learn the claim state; obtain an `Identity` |
-| unclaimed | the claimed list, plus [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `crypto.list_keys` | claim the node — see [Node Setup](node-setup.md) |
+| Node state | Allowed operations |
+|------------|--------------------|
+| claimed | [`user.info`](../protocols/user/ops/user.info.md), [`apphost.register`](../protocols/apphost/ops/apphost.register.md) |
+| unclaimed | the claimed list plus [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `crypto.list_keys` |
 
-* `apphost.register` is on both lists: it is how a program without an `Identity` obtains one.
-* A session without a token never reaches another `Node`: its network
-  [`Zone`](../core-definitions/zone.md) is stripped.
+apphost refuses other operations with `error_msg{denied}` before routing.
+It also strips the network [Zone](../core-definitions/zone.md), preventing access
+to other nodes. [Node Setup](node-setup.md) describes the claim operations.
 
-Three `apphost.yaml` settings change this surface:
+These `apphost.yaml` settings control admission:
 
 | Setting | Default | Effect |
 |---------|---------|--------|
-| `allow_anonymous` | `true` | `false` refuses every `Query` of a session without a token, both lists included. |
-| `anonymous_allowlist` | the table above | replaces the `unclaimed` or `claimed` list. |
-| `trusted_web_sources` | one test origin | while the node is unclaimed, a WebSocket session without a token is refused every `Op` unless its browser origin is listed. Each origin also names the permits an `App` registered from it is entitled to. |
+| `allow_anonymous` | `true` | `false` refuses all queries without a token, including setup and registration. |
+| `anonymous_allowlist` | the lists above | Replaces either the `unclaimed` or `claimed` list. |
+| `trusted_web_sources` | one test origin | On an unclaimed node, a token-less WebSocket session with an `Origin` header requires a listed origin. Each origin also supplies registration permit requests. |
+
+A WebSocket session without an `Origin` header follows the IPC admission rules.
 
 ## The node's token
 
-* `tokens:` in `apphost.yaml` can map a token to `localnode`. A session authenticated with it speaks
-  as the `Node` `Identity`. The step-by-step flow of
-  [Node Setup](node-setup.md#who-may-set-up-a-node) runs with it.
-* It is not an `App` `Identity`. [`services.advertise`](../protocols/services/ops/services.advertise.md)
-  rejects the `Node` `Identity` as its caller, so a provider started with the node's token cannot
-  advertise.
+A `tokens:` entry mapping a token to `localnode` authenticates as the node.
+It supports [node setup](node-setup.md#who-may-set-up-a-node), but
+[`services.advertise`](../protocols/services/ops/services.advertise.md) rejects
+that identity. A service provider uses its app token and needs the advertising
+permit.
 
 ## Choosing a session
 
-| The program | Session |
-|-------------|---------|
-| claims a node | without a token, or with the node's token — [Node Setup](node-setup.md) |
-| obtains its `Identity` | without a token: `apphost.register` |
-| does anything else — queries, handlers, [`Services`](services.md) | the token `apphost.register` returned |
-
-The session handshake and caller rules are wire-level details of [Astral IPC](astral-ipc.md#session-handshake)
-and the [WebSocket Transport](ws-transport.md).
+| Purpose | Session |
+|---------|---------|
+| Claim a node | No token, subject to the setup rules, or the node's token. |
+| Obtain an app identity | No token: `apphost.register`. |
+| Run app queries, handlers, or [services](services.md) | The app's token, with the required permits. |

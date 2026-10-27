@@ -1,10 +1,8 @@
 # mod.services.discovery_rule
 
-One rule of a [`mod.services.discovery_scope`](mod.services.discovery_scope.md):
-the services a holder may discover, on the nodes it may discover them on.
-
-A rule with an empty `Services` list allows nothing. A rule with an empty
-`Nodes` list allows its services on any node within the discovery's reach.
+One rule in a [`mod.services.discovery_scope`](mod.services.discovery_scope.md),
+pairing allowed services with contributing nodes. Empty `Services` allows
+nothing; empty `Nodes` allows those services on any node within discovery's reach.
 
 ## Fields
 

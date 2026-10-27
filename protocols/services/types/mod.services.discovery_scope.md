@@ -1,13 +1,12 @@
 # mod.services.discovery_scope
 
-The constraint that narrows a permit for
-[`mod.services.service_discovery_action`](mod.services.service_discovery_action.md)
-to pairs of service and contributing node.
+A constraint on
+[`mod.services.service_discovery_action`](mod.services.service_discovery_action.md).
+A `(service, node)` pair is allowed when one rule matches both values; lists
+from different rules are never combined.
 
-The scope allows a pair when one of its rules allows it. Rules keep their
-service and node lists paired: a scope with a rule for `player` on any node and
-a rule for `bitcoin-wallet` on one node does not allow `bitcoin-wallet` on any
-other node.
+The example allows `player` on any node within reach and `bitcoin-wallet` only
+on the named node.
 
 ## Fields
 

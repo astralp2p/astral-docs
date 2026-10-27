@@ -1,27 +1,21 @@
 # services.answer
 
-A provider's reply to one [`services.ask`](services.ask.md): the complete
-offering of the asked service for the asked caller.
+A provider's complete answer to a [`services.ask`](services.ask.md).
+`RequestID` must echo the ask. Answers without an outstanding request, including
+late answers, are ignored.
 
-`RequestID` echoes the ask exactly.
+For a matching request:
 
-`Update.Name` must equal the `Service` of the ask. This is a rule of the
-protocol, not a convention: the node never fills or corrects the name. An
-answer whose `Update.Name` differs from the asked service fails the binding.
-The node closes the channel, every discovery stream shown one of the binding's
-offerings receives a [`services.removed`](services.removed.md), and every
-initial evaluation the binding still owed ends in a
+* `Update` is required; `Update.Name` must equal the asked `Service` exactly.
+* `Update.ProviderID` is empty or equals the binding's provider. The node fills
+  it with that identity.
+* `Update.Available: false` means nothing is offered to the caller. The binding
+  stays open; this differs from [discovery refusal](../../../topics/services.md#reading-the-outcome).
+
+A missing update, mismatched name, or different provider fails the binding.
+Closure sends [`services.removed`](services.removed.md) for shown offerings
+and marks unresolved initial evaluations in
 [`services.incomplete`](services.incomplete.md).
-
-`Update.ProviderID` is left empty; the node sets it to the binding's provider
-identity. A non-empty `ProviderID` that differs from that identity, or a
-missing `Update`, also fails the binding. An answer whose `RequestID` matches
-no outstanding ask is ignored.
-
-`Update.Available` false means the provider offers nothing to this caller. It is
-an answer, not a failure, and the binding stays open. It differs from a refused
-query, which means the caller may not ask at all — see
-[Services § Reading the outcome](../../../topics/services.md#reading-the-outcome).
 
 ## Fields
 
