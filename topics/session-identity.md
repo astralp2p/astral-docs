@@ -28,7 +28,7 @@ The node's claim state selects the
 | Node state | Allowed operations |
 |------------|--------------------|
 | claimed | [`user.info`](../protocols/user/ops/user.info.md), [`apphost.register`](../protocols/apphost/ops/apphost.register.md) |
-| unclaimed | the claimed list plus [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `crypto.list_keys` |
+| unclaimed | the claimed list plus [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md) |
 
 apphost refuses other operations with `error_msg{denied}` before routing.
 It also strips the network [Zone](../core-definitions/zone.md), preventing access
