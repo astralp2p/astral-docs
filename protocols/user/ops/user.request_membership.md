@@ -1,6 +1,6 @@
 # user.request_membership
 
-Request swarm membership from this node on behalf of the calling node. Rejected with code `2` if the node has no active contract. The swarm join-request policy is applied to the caller; if declined, an `error_message` is returned. On approval, a membership contract is issued for the caller, indexed, stored, and pushed to the local swarm asynchronously.
+Request swarm membership from this node on behalf of the calling node. Answers an `error_message` reading `no active contract` if the node has no active contract. The swarm join-request policy is applied to the caller; if declined, an `error_message` is returned. On approval, a membership contract is issued for the caller, indexed, stored, and pushed to the local swarm asynchronously.
 
 ## Arguments
 

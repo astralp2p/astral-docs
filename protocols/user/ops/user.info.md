@@ -5,8 +5,8 @@ and node, and the active contract the node operates under.
 
 The caller must hold `mod.user.see_swarm_action`; the user (issuer of the
 active contract) and every node in the same local swarm hold it by default.
-Rejected with code `2` if the node has no active contract, and with code `4` if
-the caller is not authorized.
+Answers an `error_message` reading `no active contract` if the node has no active contract.
+Rejected with code `4` if the caller is not authorized.
 
 ## Arguments
 

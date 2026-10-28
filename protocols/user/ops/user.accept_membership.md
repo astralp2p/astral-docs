@@ -1,6 +1,6 @@
 # user.accept_membership
 
-Accept a swarm membership contract sent by the issuer on the input stream. Rejected with code `2` if the node already has an active contract. The contract is validated for subject identity match, an issuer distinct from the subject, minimum remaining validity, and a swarm-membership permit, then passed to the swarm invite policy; if approved, the node signs the contract and stores it as the active contract.
+Accept a swarm membership contract sent by the issuer on the input stream. Answers an `error_message` reading `node already claimed` if the node already has an active contract. The contract is validated for subject identity match, an issuer distinct from the subject, minimum remaining validity, and a swarm-membership permit, then passed to the swarm invite policy; if approved, the node signs the contract and stores it as the active contract.
 
 ## Arguments
 
