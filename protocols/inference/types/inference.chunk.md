@@ -3,8 +3,9 @@
 One delta of an answer.
 
 `Index` orders the chunks of one response, starting at 0 and increasing by one.
-A consumer that renders text appends it; a consumer that records an answer keeps
-the order the indexes give it, not the order frames arrived.
+Chunks travel on the channel in that order, so a consumer appends each piece as
+it arrives. A chunk whose `Index` is not the next one breaks the answer, as the
+[stream rules](../ops/inference.complete.md#stream-rules) say.
 
 A chunk may carry any mix of `Reasoning`, `Text` and `ToolCalls`; a model that
 thinks, says a word and starts a call within one server event delivers all three

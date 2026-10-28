@@ -30,6 +30,10 @@ then `eos`. A refusal or a failure is an
   is what came before: a chunk with a `FinishReason`, or an `inference.error`.
   A channel that ends with neither carries an answer that broke off — the
   provider or a link went away — and the caller treats it as a failure.
+* **Broken order.** A chunk whose `Index` is not the next one, a chunk after the
+  one with a `FinishReason`, and an `inference.usage` before that chunk or after
+  another `inference.usage` break the answer too. The caller treats it as a
+  failure and closes the channel.
 * **Non-streaming** (`Stream: false`). One chunk, `Index` 0, carries the whole
   `Text`, the whole `Reasoning`, every tool call and the `FinishReason`. Each
   call is a single delta holding its ID, name and all of its arguments. Usage
