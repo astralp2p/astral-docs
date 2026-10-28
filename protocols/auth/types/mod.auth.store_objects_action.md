@@ -8,8 +8,8 @@ One action covers every write that adds to node state — `objects.store`,
 `objects.create`, `objects.echo`, `objects.new_mem` and
 `indexing.enable_repo`. Registering a blueprint answers to
 [`mod.auth.use_blueprints_action`](mod.auth.use_blueprints_action.md).
-Indexing state is node-wide: enabling a repository indexes every object in it from then on, so
-it is a write to node state.
+Indexing state is node-wide: enabling a repository indexes every object in it
+from then on, so it is a write to node state.
 
 This action does not cover `objects.push`. `objects.push` names no action, and
 its receivers decide per object.
