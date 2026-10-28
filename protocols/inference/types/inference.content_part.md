@@ -23,7 +23,7 @@ model then reads as separate pieces.
   "Object": {
     "Kind": "image",
     "Text": "",
-    "Media": {"Kind": "object", "ObjectID": "data1aaaa…", "MIME": "image/png"}
+    "Media": {"Kind": "object", "ObjectID": "data1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "MIME": "image/png"}
   }
 }
 ```

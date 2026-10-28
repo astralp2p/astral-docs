@@ -107,8 +107,8 @@ A streamed answer:
 
 ```shellsession
 $ astral-query 02c00992…:inference.complete -in json -out json <<'JSON'
-{"Type":"inference.request","Object":{"Model":"atlas-32b","Effort":"off","Stream":true,
- "Messages":[{"Role":"user","Parts":[{"Kind":"text","Text":"why is the sky blue?"}]}]}}
+{"Type":"inference.request","Object":{"Model":"atlas-32b","Effort":"off",
+ "Messages":[{"Role":"user","Parts":[{"Kind":"text","Text":"why is the sky blue?"}]}],"Stream":true}}
 JSON
 {"Type":"inference.chunk","Object":{"Index":0,"Text":"Sunlight ","Reasoning":"","ToolCalls":[],"FinishReason":"","Model":"atlas-32b"}}
 {"Type":"inference.chunk","Object":{"Index":1,"Text":"scatters ","Reasoning":"","ToolCalls":[],"FinishReason":"","Model":"atlas-32b"}}
@@ -121,10 +121,11 @@ An answer that thinks, then calls a tool, its arguments split across chunks:
 
 ```shellsession
 $ astral-query 02c00992…:inference.complete -in json -out json <<'JSON'
-{"Type":"inference.request","Object":{"Model":"atlas-32b","Effort":"low","Stream":true,
+{"Type":"inference.request","Object":{"Model":"atlas-32b","Effort":"low",
  "Messages":[{"Role":"user","Parts":[{"Kind":"text","Text":"is it warm in Lisbon?"}]}],
  "Tools":[{"Name":"get_weather","Description":"the current weather in one city",
-  "Parameters":"{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"}},\"required\":[\"city\"]}"}]}}
+  "Parameters":"{\"type\":\"object\",\"properties\":{\"city\":{\"type\":\"string\"}},\"required\":[\"city\"]}"}],
+ "Stream":true}}
 JSON
 {"Type":"inference.chunk","Object":{"Index":0,"Text":"","Reasoning":"I should check the weather.","ToolCalls":[],"FinishReason":"","Model":"atlas-32b"}}
 {"Type":"inference.chunk","Object":{"Index":1,"Text":"","Reasoning":"","ToolCalls":[{"Index":0,"ID":"call_1","Name":"get_weather","Arguments":"{\"city\":\"Lis"}],"FinishReason":"","Model":"atlas-32b"}}
