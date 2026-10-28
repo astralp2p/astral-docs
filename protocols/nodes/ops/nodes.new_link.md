@@ -18,11 +18,10 @@ bytes.
 ## Returned objects
 
 The operation returns one of:
-* A query rejection with code `2` if `identity` cannot be resolved or the endpoint format is invalid.
-* A query rejection with code `3` if the endpoint cannot be parsed.
-* A query rejection with code `4` if the context is cancelled or endpoint resolution fails.
+* An `error_message` reading `unknown identity` if `identity` does not resolve.
+* An `error_message` reading `invalid endpoint` if `endpoint` is not `network:address` or does not parse, and `unsupported network` if no parser serves its network.
 * A query rejection with code `5` if the link task cannot be scheduled.
-* An `error_message` object if linking fails for another reason.
+* An `error_message` object if linking fails, including when endpoint resolution fails.
 * A `mod.nodes.link_info` object describing the newly created link.
 
 ## Examples

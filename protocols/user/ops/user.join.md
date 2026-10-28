@@ -22,8 +22,10 @@ The node refuses the query in these cases, in this order:
   `node already claimed`.
 * The caller is not the node: rejected with code `4`. A local caller that
   presents no identity is rewritten to the node's identity.
-* `node` does not resolve, resolves to the anonymous identity, or names this
-  node: rejected with code `3`.
+* `node` does not resolve: answered with an `error_message` reading
+  `unknown identity`.
+* `node` resolves to the anonymous identity: answered with `zero identity`.
+* `node` names this node: answered with `cannot join self`.
 
 The node adds the `Network` zone to its own query. A session without a token
 reaches no other node, and still joins through this operation.
@@ -40,9 +42,9 @@ everything by default ([user](../README.md)).
 
 ## Returned objects
 
-The query is rejected with code `3` or `4`, or without a code, or answered with
-`node already claimed`, in the cases above. Otherwise the operation returns one
-of:
+The query is rejected with code `4`, or without a code, or answered with one of
+the `error_message` objects named, in the cases above. Otherwise the operation
+returns one of:
 * A `mod.auth.signed_contract` holding the membership contract. The node holds
   it as its active contract.
 * An `error_message` reading `request declined` if the swarm node's join policy

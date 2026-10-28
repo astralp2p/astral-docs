@@ -8,6 +8,10 @@
 * An `Op Parameter` has a `Parameter Name` and an [`Object Type`](object-type.md) it takes.
 * Only `Object Types` that support type-specific [`Text Encoding`](../topics/text-encoding.md) can be used as
   `Op Parameters`.
+* A `Query` that omits a required `Op Parameter` is accepted and answered with one
+  `error_message` reading `argument required: <name>`.
+* A `Query` whose `Op Parameter` value does not parse is accepted and answered with
+  one `error_message` reading `invalid argument: <name>: <cause>`.
 * When run over an accepted [`Query`](query.md)'s [`Channel`](channel.md), an `Op`
   reads input [`Objects`](object.md) and writes result `Objects` back. It runs in
   single or batch mode, and single-mode `Ops` compose into pipelines — see

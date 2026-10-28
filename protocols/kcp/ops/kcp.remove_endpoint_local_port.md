@@ -1,6 +1,6 @@
 # kcp.remove_endpoint_local_port
 
-Remove the local UDP port mapping for a remote KCP endpoint. The query is rejected immediately if `endpoint` cannot be parsed.
+Remove the local UDP port mapping for a remote KCP endpoint. The operation answers an `error_message` reading `invalid kcp endpoint` if `endpoint` cannot be parsed.
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
@@ -14,6 +14,7 @@ the caller is not authorized, and a refused caller receives no bytes.
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` reading `invalid kcp endpoint` if `endpoint` cannot be parsed.
 * An `error_message` object if the mapping does not exist or cannot be removed.
 * An `ack` object if the mapping was removed successfully.
 

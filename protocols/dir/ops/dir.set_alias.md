@@ -24,9 +24,8 @@ The operation returns one of:
 * An `error_message` object if there was an error.
 * An `ack` object if the operation was successful.
 
-A missing required argument is not reported this way. The check runs before the
-query is accepted, so the caller sees a bare rejection rather than an
-`error_message` naming the argument.
+A missing required argument is answered with an `error_message` reading
+`argument required: <name>`, as for every [`Op`](../../../core-definitions/op.md).
 
 ## Examples
 

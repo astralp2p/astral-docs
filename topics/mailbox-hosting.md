@@ -101,7 +101,7 @@ query without an answer. Neither path returns bytes or reads rows on denial.
 
 All messaging operations reject `network` and `mcp` origins before checking the
 caller or submitting an action. Missing required arguments and malformed
-argument types are rejected earlier with generic reject code 1.
+argument types are answered earlier with an `error_message` naming the argument.
 
 Own-mailbox operations require a hosted caller. Listing, sending, waiting, and
 archiving check hosting before accepting the query and again on entering the
