@@ -11,8 +11,9 @@ to all linked siblings.
 * id (object_id, required) – ID of the object to remove.
 
 The `id` is an [`Object ID`](../../../core-definitions/object-id.md) with a
-nonzero `Size`. The operation rejects an `Object ID` whose `Size` is 0 with
-code `2` and writes nothing. The node logs no error for that rejection.
+nonzero `Size`. The operation answers an `Object ID` whose `Size` is 0 with an
+`error_message` reading `partial object id` and writes nothing. The node logs
+no error for that refusal.
 
 An asset is recorded under an `Object ID` with a nonzero `Size`, because
 [`user.add_asset`](user.add_asset.md) refuses any other. No asset is reachable
@@ -21,13 +22,13 @@ removal given one logs a tombstone matching no asset and replicates it to every
 linked sibling.
 
 The `Object ID` of the `Empty Object` has a `Size` of 0, so this operation
-rejects it too.
+refuses it too.
 
 ## Returned objects
 
 The operation returns one of:
 * An `ack` if the asset was removed.
-* Rejected with code `2` if `id` is a `Partial Object ID`.
+* An `error_message` reading `partial object id` if `id` is a `Partial Object ID`.
 * Rejected with the internal-error code if the database write failed.
 
 ## Examples

@@ -14,7 +14,7 @@ authorized, and a refused caller receives no bytes.
 
 ## Returned objects
 
-The operation returns a stream of `mod.nodes.endpoint_with_ttl` objects, terminated by `eos`. If the identity cannot be resolved the operation is rejected with code `2`; if resolver lookup fails internally the operation is rejected with an internal error code.
+The operation returns a stream of `mod.nodes.endpoint_with_ttl` objects, terminated by `eos`. If `identity` does not resolve the operation answers an `error_message` reading `unknown identity`, and `zero identity` if it resolves to the anonymous identity; if resolver lookup fails internally the operation is rejected with an internal error code.
 
 ## Examples
 

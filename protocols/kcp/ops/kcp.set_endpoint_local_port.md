@@ -1,6 +1,6 @@
 # kcp.set_endpoint_local_port
 
-Map a remote KCP endpoint to a local UDP port. The query is rejected immediately if `endpoint` cannot be parsed; otherwise the operation fails if a mapping already exists and `replace` is false.
+Map a remote KCP endpoint to a local UDP port. The operation answers an `error_message` reading `invalid kcp endpoint` if `endpoint` cannot be parsed; otherwise the operation fails if a mapping already exists and `replace` is false.
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
@@ -16,6 +16,7 @@ the caller is not authorized, and a refused caller receives no bytes.
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` reading `invalid kcp endpoint` if `endpoint` cannot be parsed.
 * An `error_message` object if the mapping already exists (and `replace` is false) or the mapping cannot be set.
 * An `ack` object if the mapping was set successfully.
 
