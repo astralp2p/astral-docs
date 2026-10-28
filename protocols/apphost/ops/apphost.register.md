@@ -37,6 +37,10 @@ can register a handler with
 [`apphost.register_handler`](apphost.register_handler.md) and advertise itself
 with [`services.advertise`](../../services/ops/services.advertise.md).
 
+The new identity cannot claim a node: registration indexes a relay contract
+for it, and that contract excludes it from the claim exception of
+[`auth.sign_contract`](../../auth/ops/auth.sign_contract.md).
+
 ## Arguments
 
 * grant_permits (string8) – Actions the app asks to hold as node-local grants,

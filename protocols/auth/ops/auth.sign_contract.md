@@ -46,12 +46,12 @@ the claim contract it signs.
 [`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md)
 and [`mcp.create_agent`](../../mcp/ops/mcp.create_agent.md), which mints its
 agents through `messaging.create_mailbox`, mint identities this exception
-refuses: each indexes a relay contract for each identity it mints, after the
-identity's private key is indexed. An
-identity whose registration fails between those two steps holds no relay
-contract. The node indexes the node contract of each user it accepts, so the
-claim contract is never signed again for a user the node has had, even after
-the node's active contract is cleared or has expired.
+refuses: each indexes a relay contract for each identity it mints before it
+stores the identity's private key. A registration that fails before the relay
+contract is indexed leaves no private key on the node. The node indexes the
+node contract of each user it accepts, so the claim contract is never signed
+again for a user the node has had, even after the node's active contract is
+cleared or has expired.
 
 An authorized contract is signed as the issuer, then as the subject. The node
 must hold the private keys of both parties. A missing issuer key fails with
