@@ -9,7 +9,15 @@
 * Only `Object Types` that support type-specific [`Text Encoding`](../topics/text-encoding.md) can be used as
   `Op Parameters`.
 * A `Query` that omits a required `Op Parameter` is accepted and answered with one
-  `error_message` reading `argument required: <name>`.
+  `error_message` reading `argument required: <names>`. `<names>` lists every
+  omitted required `Op Parameter` in declaration order, separated by `, `.
+* When that `Query` also carries keys no `Op Parameter` declares, the
+  `error_message` continues with `; unknown argument: <keys>`, sorted and
+  separated by `, `. At most 8 keys are named; more end the list with `…`.
+  `in` and `out` are never named unknown. Example:
+  `argument required: identity; unknown argument: id`.
+* A `Query` that omits no required `Op Parameter` skips the keys no
+  `Op Parameter` declares.
 * A `Query` whose `Op Parameter` value does not parse is accepted and answered with
   one `error_message` reading `invalid argument: <name>: <cause>`.
 * When run over an accepted [`Query`](query.md)'s [`Channel`](channel.md), an `Op`
