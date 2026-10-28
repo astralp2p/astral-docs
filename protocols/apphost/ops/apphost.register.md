@@ -37,9 +37,9 @@ can register a handler with
 [`apphost.register_handler`](apphost.register_handler.md) and advertise itself
 with [`services.advertise`](../../services/ops/services.advertise.md).
 
-The new identity cannot claim a node: registration indexes a relay contract
-for it, and that contract excludes it from the claim exception of
-[`auth.sign_contract`](../../auth/ops/auth.sign_contract.md).
+The new identity cannot claim the node: registration indexes a relay contract
+for it, and that contract makes the claim rule of
+[`auth.sign_contract`](../../auth/ops/auth.sign_contract.md) refuse it.
 
 ## Arguments
 

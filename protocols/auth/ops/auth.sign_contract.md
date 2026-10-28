@@ -47,7 +47,7 @@ the claim contract it signs.
 and [`mcp.create_agent`](../../mcp/ops/mcp.create_agent.md), which mints its
 agents through `messaging.create_mailbox`, mint identities this exception
 refuses: each indexes a relay contract for each identity it mints before it
-stores the identity's private key. A registration that fails before the relay
+stores the identity's private key. A call that fails before the relay
 contract is indexed leaves no private key on the node. The node indexes the
 node contract of each user it accepts, so the claim contract is never signed
 again for a user the node has had, even after the node's active contract is
