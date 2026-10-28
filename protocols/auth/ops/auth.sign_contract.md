@@ -54,9 +54,15 @@ again for a user the node has had, even after the node's active contract is
 cleared or has expired.
 
 An authorized contract is signed as the issuer, then as the subject. The node
-must hold the private keys of both parties. A missing issuer key fails with
-`sign as issuer: unsupported`. A missing subject key fails with
-`sign as subject: unsupported`.
+must hold the private keys of both parties. A missing issuer key fails with:
+
+```
+sign as issuer: no signing scheme available for key secp256k1:<hex>: the node holds no usable private key for it; a key is held as an indexed mod.crypto.private_key object or on a connected signing device
+```
+
+`secp256k1:<hex>` is the issuer's public key. A missing subject key fails with
+the same text after a `sign as subject: ` prefix in place of
+`sign as issuer: `, naming the subject's public key.
 
 ## Arguments
 
