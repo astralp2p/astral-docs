@@ -4,8 +4,8 @@ List all nodes currently in the user's swarm, with their alias and link
 status. A node belongs to the swarm if it holds an active SwarmAccess contract
 issued by the same user as this node.
 
-The caller must hold `mod.user.see_swarm_action`. Rejected with code `2` if
-this node has no active contract, and with code `4` if the caller is not
+The caller must hold `mod.user.see_swarm_action`. Answers an `error_message` reading `no active contract` if
+this node has no active contract. Rejected with code `4` if the caller is not
 authorized.
 
 ## Arguments

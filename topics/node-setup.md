@@ -4,8 +4,8 @@ A [`Node`](../core-definitions/node.md) starts without a
 [`User`](../core-definitions/user.md). Node setup claims the node for a `User`:
 afterwards the node holds the user's private key and an active node contract
 that the user issues to the node. Until then
-[`user.info`](../protocols/user/ops/user.info.md) rejects with code `2`, and the
-node logs `this node runs without a user` at startup.
+[`user.info`](../protocols/user/ops/user.info.md) answers `no active contract`,
+and the node logs `this node runs without a user` at startup.
 
 Node setup runs in one call ([`user.bootstrap`](#one-call)) or
 [step by step](#step-by-step). Both claim the node with the same contract and the
@@ -206,10 +206,10 @@ policy decides an invitation. Both accept everything by default
 
 | Answer | Cause | Remedy |
 |--------|-------|--------|
-| `user.info`: `query rejected (2)` | The node has no active contract. | Run node setup. |
+| `user.info`: `no active contract` | The node has no active contract. | Run node setup. |
 | `auth.sign_contract`: `sign as issuer: unsupported` | The node does not hold the user's private key. | Store the key with `objects.store`, then sign again. |
 | `auth.sign_contract`: `authorize issuer: cannot sign with another identity's key` | The claim rule refuses: the node has an active contract, the node minted the identity, or the node had this user before. | Use an identity derived from BIP-39 words, on an unclaimed node that never had this user. |
-| `user.bootstrap`: `query rejected (2)` | The node has an active contract. | — |
+| `user.bootstrap`: `node already claimed` | The node has an active contract. | — |
 | `user.bootstrap`: `query rejected (4)` | The caller is not the node. | Call from a local session without a token, or with the node's own token. |
 | `user.bootstrap`: `claim refused: the claim rule of auth.sign_contract refuses this user` | The claim rule refuses the user. | As for `auth.sign_contract` above. |
 | `user.bootstrap`: `invalid mnemonic` | The words fail the BIP-39 checksum. | Check the words. |

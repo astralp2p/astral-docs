@@ -6,6 +6,8 @@ The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
 The query is rejected before any puncher socket is opened when the caller is not
 authorized, and a refused caller receives no bytes.
+An authorized caller receives an `error_message` reading `nat disabled`, and
+nothing else, when this node does not traverse NAT.
 
 ## Arguments
 
