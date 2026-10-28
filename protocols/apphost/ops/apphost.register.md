@@ -37,14 +37,15 @@ can register a handler with
 [`apphost.register_handler`](apphost.register_handler.md) and advertise itself
 with [`services.advertise`](../../services/ops/services.advertise.md).
 
-Registration grants no service discovery. `grant_permits` and
-`contract_permits` carry no constraints, and an unconstrained
+What an app asks for at registration grants no service discovery.
+`grant_permits`, `contract_permits` and the permits of a trusted web origin
+carry no constraints, and an unconstrained
 [`mod.services.service_discovery_action`](../../services/types/mod.services.service_discovery_action.md)
-permit allows nothing. The user grants discovery afterwards with
-[`apphost.grant`](apphost.grant.md): the action
-`mod.services.service_discovery_action` with `-constrained true` and a
+permit allows nothing. Only a delegated register policy that returns a
+constrained permit, or a later [`apphost.grant`](apphost.grant.md), grants it:
+the action `mod.services.service_discovery_action` with `-constrained true` and
+a bundle holding one
 [`mod.services.discovery_scope`](../../services/types/mod.services.discovery_scope.md)
-in the bundle
 ([Who may discover](../../../topics/services.md#who-may-discover)).
 
 The new identity cannot claim the node: registration indexes a relay contract

@@ -25,7 +25,7 @@ The operation returns one of:
 * An `ack` object if the operation was successful.
 
 A missing required argument is answered with an `error_message` reading
-`argument required: <name>`, as for every [`Op`](../../../core-definitions/op.md).
+`argument required: <names>`, as for every [`Op`](../../../core-definitions/op.md).
 
 ## Examples
 
