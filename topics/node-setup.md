@@ -207,7 +207,7 @@ policy decides an invitation. Both accept everything by default
 | Answer | Cause | Remedy |
 |--------|-------|--------|
 | `user.info`: `no active contract` | The node has no active contract. | Run node setup. |
-| `auth.sign_contract`: `sign as issuer: unsupported` | The node does not hold the user's private key. | Store the key with `objects.store`, then sign again. |
+| `auth.sign_contract`: `sign as issuer: no signing scheme available for key secp256k1:<hex>: …` | The node does not hold the user's private key. | Store the key with `objects.store`, then sign again. |
 | `auth.sign_contract`: `authorize issuer: cannot sign with another identity's key` | The claim rule refuses: the node has an active contract, the node minted the identity, or the node had this user before. | Use an identity derived from BIP-39 words, on an unclaimed node that never had this user. |
 | `user.bootstrap`: `node already claimed` | The node has an active contract. | — |
 | `user.bootstrap`: `query rejected (4)` | The caller is not the node. | Call from a local session without a token, or with the node's own token. |
