@@ -113,12 +113,14 @@ names and what that asks of a running node.
   message word for word and how long to wait. A bare string would leave the
   consumer only one move: give up.
 
-* **Streaming is the default.** [`inference.complete`](ops/inference.complete.md)
+* **Every answer is a stream.** [`inference.complete`](ops/inference.complete.md)
   is a channel operation: the caller sends one request and reads
   [`inference.chunk`](types/inference.chunk.md) deltas in `Index` order, then an
   [`inference.usage`](types/inference.usage.md) when the far side reported one,
   then `eos`. A chunk with a non-empty `FinishReason` is the last of the answer,
-  and a failure is an `inference.error`, then `eos`. The
+  and a failure is an `inference.error`, then `eos`. A request whose `Stream` is
+  false, its zero value, is answered the same way, with the whole answer in one
+  chunk. The
   [stream rules](ops/inference.complete.md#stream-rules) give the whole
   contract. Per [op modes](../../topics/op-modes.md), a client never blocks
   waiting for `eos`: EOF is a legitimate end of any response.
