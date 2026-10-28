@@ -61,8 +61,8 @@ sign as issuer: no signing scheme available for key secp256k1:<hex>: the node ho
 ```
 
 `secp256k1:<hex>` is the issuer's public key. A missing subject key fails with
-the same text, prefixed `sign as subject: ` and naming the subject's public
-key.
+the same text after a `sign as subject: ` prefix in place of
+`sign as issuer: `, naming the subject's public key.
 
 ## Arguments
 
