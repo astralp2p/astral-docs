@@ -181,9 +181,13 @@ or consumer since it started.**
 
 ### Blueprint guard
 
-Every provider and consumer guards against a node that missed the restart.
-After pushing its blueprints, on each connection to its node, it compares each
-`inference.*` blueprint the node holds with its own by
+Every provider and consumer guards against a node that missed the restart. It
+pushes its blueprints with
+[`objects.register_blueprint`](../objects/ops/objects.register_blueprint.md),
+which needs
+[`mod.auth.store_objects_action`](../auth/types/mod.auth.store_objects_action.md).
+After the push, on each connection to its node, it compares each `inference.*`
+blueprint the node holds with its own by
 [`Object ID`](../../core-definitions/object-id.md): it fetches the node's with
 [`objects.get_blueprint`](../objects/ops/objects.get_blueprint.md)
 `-type <name>`, which needs
@@ -197,6 +201,11 @@ node {id} holds an older {type}; restart the node
 
 `{id}` is the node's identity and `{type}` the type whose shapes differ. One
 query per type turns a silent corruption into a failure that names its cure.
+
+An app asks for both permits when it registers, and a provider that admits the
+user's swarm apps also for `mod.user.see_swarm_action`. Without
+`mod.auth.store_objects_action` the node rejects every push, and a node that
+holds no `inference.*` type cannot decode an offering or an answer.
 
 ## Operations
 
