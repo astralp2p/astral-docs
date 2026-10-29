@@ -94,6 +94,9 @@ Caller authorization:
 
 - zero `Caller` from an anonymous guest → routed as the node, within the
   allowlist;
+- nonzero `Caller` from an anonymous guest → `error_msg{denied}`, the node's
+  identity included; the anonymous identity holds no `SudoAction`
+  ([`mod.auth.action`](../protocols/auth/types/mod.auth.action.md));
 - zero `Caller` from a guest bound to `GuestID` → set to `GuestID`;
 - `Caller == GuestID` → allowed;
 - otherwise the guest must hold a `SudoAction` for `Caller`, else
