@@ -27,8 +27,9 @@
   * `4` — internal error.
   * `6` — timeout: the `Query` was not answered in time.
   * `7` — unavailable: the `Target` or the next hop could not be reached.
-* `5` is not a generic code. [`messaging`](../protocols/messaging/README.md)
-  sends it when a receiving `Node` does not admit a delivery.
+* `5` is not a generic code. A [`messaging`](../protocols/messaging/README.md)
+  `Node` that predates the `not admitted` answer sends it when it does not admit
+  a delivery.
 * Values from 8 up are `Operation` specific.
 * The `Target` can accept the `Query`, which begins a new [`Channel`](channel.md) between
   the `Caller` and the `Target`.
