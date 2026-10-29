@@ -207,7 +207,7 @@ default ([user](../protocols/user/README.md)).
 | `auth.sign_contract`: `authorize issuer: cannot sign with another identity's key` | The claim rule refuses: the node has an active contract, or the contract is not the claim contract `user.new_node_contract` writes. | Claim an unclaimed node with the contract `user.new_node_contract` writes. |
 | `user.bootstrap`: `node already claimed` | The node has an active contract. | — |
 | `user.bootstrap`: `query rejected (4)` | The caller is not the node. | Call from a local session without a token, or with the node's own token. |
-| `user.bootstrap`: `claim refused: the claim rule of auth.sign_contract refuses this user` | The claim rule refuses the user. | As for `auth.sign_contract` above. |
+| `user.bootstrap`: `claim refused: the claim rule of auth.sign_contract refuses this user` | The node was claimed while the claim was signed. | — |
 | `user.bootstrap`: `invalid mnemonic` | The words fail the BIP-39 checksum. | Check the words. |
 | any operation: `denied` | A session without a token sent an operation outside the active `anonymous_allowlist`, or a web page whose origin `trusted_web_sources` does not list sent one before the claim. | Authenticate with a token, or list the origin in `trusted_web_sources`. |
 | `user.join`: `unknown identity`, `zero identity` or `cannot join self` | `node` does not resolve, resolves to the anonymous identity, or names this node. | Name a node of the swarm. |
