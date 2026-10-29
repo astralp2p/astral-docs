@@ -29,17 +29,16 @@ writes every permit an app asks for,
 included. Any local program that registers before a delegate is set holds what
 it asks for.
 
-Every registration also asks for a node-local grant of
+Every registration also asks for node-local grants of
 [`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md)
+and
+[`mod.auth.use_blueprints_action`](../../auth/types/mod.auth.use_blueprints_action.md)
 for the new identity, whatever the app asked for. The register policy decides
-whether the grant is written, and the default policy writes it, so a new app
-can register a handler with
-[`apphost.register_handler`](apphost.register_handler.md) and advertise itself
-with [`services.advertise`](../../services/ops/services.advertise.md).
-
-Registration asks for no
-[`mod.auth.use_blueprints_action`](../../auth/types/mod.auth.use_blueprints_action.md).
-An app that syncs its blueprints with the node asks for it in `grant_permits`.
+whether the grants are written, and the default policy writes them, so a new
+app can register a handler with
+[`apphost.register_handler`](apphost.register_handler.md), advertise itself
+with [`services.advertise`](../../services/ops/services.advertise.md), and sync
+its blueprints with the node.
 
 What an app asks for at registration grants no service discovery.
 `grant_permits`, `contract_permits` and the permits of a trusted web origin
