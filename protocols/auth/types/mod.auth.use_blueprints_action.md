@@ -26,9 +26,9 @@ identity. An app, a node member, or any other identity holds it through a
 node-local grant or a signed contract. A local caller carrying no identity is
 routed as the node's own identity.
 
-[`apphost.register`](../../apphost/ops/apphost.register.md) does not grant this
-action by default. An app that syncs its blueprints asks for it in
-`grant_permits`.
+Every [`apphost.register`](../../apphost/ops/apphost.register.md) asks for a
+node-local grant of this action for the new app. The register policy decides
+whether it is written, and the default policy writes it.
 
 ## Fields
 
