@@ -100,13 +100,12 @@ the query without an answer. Neither path reads rows on denial.
 ## Origin and admission
 
 All messaging operations refuse `network` and `mcp` origins before checking the
-caller or submitting an action. `read_messages` and the admin operations answer
-`origin not allowed: <origin>`; listing, sending, waiting and archiving answer
-`not permitted`, as for an unhosted caller. Missing required arguments and malformed
-argument types are answered earlier with an `error_message` naming the argument.
+caller or submitting an action, and answer `origin not allowed: <origin>`.
+Missing required arguments and malformed argument types are answered earlier
+with an `error_message` naming the argument.
 
 Own-mailbox operations require a hosted caller. Listing, sending, waiting, and
-archiving check hosting before accepting the query and again on entering the
+archiving check hosting after the origin check and again on entering the
 module. `read_messages` answers `not permitted` to the zero and node identities before
 reading its request;
 after reading its request it checks hosting and returns

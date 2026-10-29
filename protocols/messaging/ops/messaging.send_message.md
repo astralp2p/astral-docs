@@ -3,9 +3,9 @@
 Send a message as the caller. The node writes the outbox before delivery and
 answers when the recipient's node acknowledges storage or delivery fails.
 
-A `network` or `mcp` query, or a caller without a
-[hosted mailbox](../../../topics/mailbox-hosting.md#hosting), is answered with
-an `error_message` reading `not permitted` before the request is read. Sending
+A `network` or `mcp` query is answered `origin not allowed: <origin>`. A caller
+without a [hosted mailbox](../../../topics/mailbox-hosting.md#hosting) is
+answered `not permitted`. Both answers come before the request is read. Sending
 also requires
 [`mod.messaging.send_action`](../types/mod.messaging.send_action.md) for the
 recipient. Denial returns `unknown recipient: <to>` and writes nothing.
