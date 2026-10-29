@@ -16,6 +16,11 @@ object type. Action types may additionally implement `Constrainable` to
 evaluate the permit's `Constraints` bundle; action types that do not are
 permitted unconditionally by any permit naming their type.
 
+The auth module refuses every action whose `ActorID` is the anonymous identity,
+the zero identity that `anyone` and the empty name resolve to. The anonymous
+identity is not a party, so no handler, contract or external authority grants
+it an action.
+
 ## Example
 
 ```json

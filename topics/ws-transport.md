@@ -108,7 +108,8 @@ Notes:
 - One query per WS. Multiple concurrent queries means multiple WSes.
 - `caller` defaults to the connection's `guestID`. A `null` caller from an
   authenticated session is routed as its `guestID`; a `null` caller from an
-  unauthenticated session is routed as the node.
+  unauthenticated session is routed as the node. An unauthenticated session
+  that names a caller is refused with `error_msg{denied}`.
 - an unauthenticated session may call only the operations on the node's
   claim-state allowlist, the same list an IPC guest has: `user.info`,
   `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`
