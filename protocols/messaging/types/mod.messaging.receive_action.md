@@ -2,7 +2,8 @@
 
 Permission for `ActorID`, the recipient, to receive from `FromID`. The
 recipient's node checks it after delivery provenance and hosting, before
-accepting the message. Denial returns `RejectNotAdmitted` (code 5).
+reading the message. Denial answers the delivery with an `error_message`
+reading `not admitted`.
 
 Send and receive permissions are separate. Nonempty permit constraints are
 refused. See [Authorization](../../../topics/mailbox-hosting.md#authorization).

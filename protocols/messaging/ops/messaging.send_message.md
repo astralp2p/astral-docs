@@ -38,7 +38,7 @@ After the outbox write, a delivery error reads `delivery failed: <cause>`:
 
 | Cause | Outbox effect |
 | --- | --- |
-| `the recipient does not take messages from you` | Receive denied with code 5; `FailedAt` and `Err` set. |
+| `the recipient does not take messages from you` | Receive denied with `not admitted`, or code 5 from an older node; `FailedAt` and `Err` set. |
 | `the recipient took nothing; they may not exist, or their node may be unreachable` | No route or hosted recipient; `FailedAt` set, no `Err`. |
 | `the message did not leave this node: <reason>` | Delivery write failed; `FailedAt` set. |
 | `the recipient's node refused it: <words>` | Remote `error_message`; `FailedAt` and `Err` set. |
