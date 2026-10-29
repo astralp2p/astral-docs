@@ -1,19 +1,11 @@
 # objects.read
 
-Stream the bytes of an object. The operation has two modes:
-
-* Without `out`, the response body is the object payload itself, with no
-  astral framing.
-* With `out`, the operation accepts the query and answers on a channel in that
-  format: one `error_message`, or the payload as `bytes32` chunks ended by
-  `eos`.
+Stream the raw bytes of an object. Unlike most ops, the response body is the object payload itself rather than a stream of typed objects.
 
 The caller must hold
 [`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
-Without `out`, the query is rejected before any repository is opened when the
-caller is not authorized, and a refused caller receives no bytes. With `out`,
-the operation answers an `error_message` reading `not permitted` before any
-repository is opened.
+The query is rejected before any repository is opened when the caller is not
+authorized, and a refused caller receives no bytes.
 
 ## Arguments
 
@@ -22,7 +14,6 @@ repository is opened.
 * limit (uint64) – Maximum number of bytes to read. Defaults to 0 (no limit).
 * repo (string8) – Repository to read from. Without it, the bytes come from the candidates the finders name.
 * zone (zone) – Limits the query's routing zone and never widens it. Without it, the routing zone stands.
-* out (string) – Output format of the framed mode (e.g. `bin`, `json`). Without it, the operation streams raw bytes.
 
 ## Sources
 
@@ -72,27 +63,12 @@ out-of-bounds window is a failed read.
 
 ## Returned objects
 
-A lookup of a `Partial Object ID` fails when a repository that stores objects
-itself does not support lookup by `Hash`.
+The operation rejects the query if the caller is not authorized, the repository is missing, the read fails, or no candidate delivers the object. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`. On success the raw bytes of the object are written directly to the response stream (no astral framing).
 
-Without `out`, the operation rejects the query if the caller is not
-authorized, the repository is missing, the read fails, or no candidate delivers
-the object. A rejection carries no reason. On success the raw bytes of the
-object are written directly to the response stream (no astral framing).
-
-With `out`, the operation answers one of:
-
-* An `error_message` reading `not permitted` if the caller is not authorized.
-* An `error_message` reading `repository not found` if `repo` names no
-  repository.
-* An `error_message` reading `object not found` if no candidate delivers the
-  object, or the read error's text if the read fails.
-* The object's bytes as `bytes32` objects of at most 32768 bytes each, in
-  order, followed by `eos`. Their concatenation is the payload of the raw mode.
-  A failure after the first chunk ends the stream with an `error_message`
-  instead of `eos`.
-
-A candidate other than this node is always read in the raw mode.
+The operation has no `error_message`: every failure is a rejection with the
+generic [`Reject Code`](../../../core-definitions/query.md) `1`, and it carries
+no reason. A caller that needs the reason for a failed lookup uses
+[`objects.load`](objects.load.md), which answers with an `error_message`.
 
 ## Examples
 
@@ -104,10 +80,4 @@ hello world
 ```shellsession
 $ astral-query objects.read -id data1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -offset 6 -limit 5
 world
-```
-
-```shellsession
-$ astral-query objects.read -id data1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -out json
-{"Type":"bytes32","Object":"aGVsbG8gd29ybGQK"}
-{"Type":"eos","Object":null}
 ```
