@@ -3,11 +3,12 @@
 List a mailbox's envelopes without bodies or read effects. The default mailbox
 is the caller's own; `mailbox` can select an authorized delegated read.
 
-Network and `mcp` origins are rejected first. The node must host the selected
+A `network` or `mcp` query is refused first. The node must host the selected
 mailbox. A delegated read checks the caller, hosting, and
 [`mod.messaging.read_mailbox_action`](../types/mod.messaging.read_mailbox_action.md)
-in that order. Failed admission or an unresolved `mailbox` rejects the query
-without bytes; see [Delegated read](../../../topics/mailbox-hosting.md#delegated-read).
+in that order. A refused origin, failed admission or an unresolved `mailbox` is
+answered with an `error_message` reading `not permitted`; see
+[Delegated read](../../../topics/mailbox-hosting.md#delegated-read).
 
 The inbox is oldest first, except that `before`, or `limit` without `since`,
 selects newest first. Outbox and archive are newest first. The smallest cursor

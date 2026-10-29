@@ -1,13 +1,13 @@
 # apphost.register_handler
 
 Register an IPC query handler for the caller's identity. The host forwards
-inbound queries targeting the caller to the given endpoint. Local-only —
-queries from the network are rejected.
+inbound queries targeting the caller to the given endpoint. Local-only — a query
+from the network is answered `origin not allowed: network`.
 
 The caller must hold
 [`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md).
-The query is rejected before any handler is installed when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before any
+handler is installed when the caller is not authorized.
 
 The handler records the guest session that registered it, alongside the
 identity it answers for. The two differ when the session registers under an
@@ -31,8 +31,8 @@ The operation returns one of:
 * An `error_message` object if there was an error.
 * An `ack` object if the handler was registered.
 
-The operation is rejected outright if the query arrives from the network or the
-caller is not authorized.
+The operation answers `origin not allowed: network` if the query arrives from
+the network, and `not permitted` if the caller is not authorized.
 
 ## Examples
 

@@ -4,9 +4,9 @@ Establish a new link to the named node, either by dialing a specific endpoint or
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
-The query is rejected before `identity` is resolved or any link task is
-scheduled when the caller is not authorized, and a refused caller receives no
-bytes.
+The operation answers an `error_message` reading `not permitted` before
+`identity` is resolved or any link task is scheduled when the caller is not
+authorized.
 
 ## Arguments
 
@@ -20,7 +20,7 @@ bytes.
 The operation returns one of:
 * An `error_message` reading `unknown identity` if `identity` does not resolve.
 * An `error_message` reading `invalid endpoint` if `endpoint` is not `network:address` or does not parse, and `unsupported network` if no parser serves its network.
-* A query rejection with code `5` if the link task cannot be scheduled.
+* An `error_message` if the link task cannot be scheduled.
 * An `error_message` object if linking fails, including when endpoint resolution fails.
 * A `mod.nodes.link_info` object describing the newly created link.
 

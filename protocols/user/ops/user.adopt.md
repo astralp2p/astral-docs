@@ -1,6 +1,6 @@
 # user.adopt
 
-Issue a swarm membership contract for the named node and return the signed result. The caller must hold `mod.user.admin_swarm_action`; the active contract's issuer holds it by default. Answers an `error_message` reading `no active contract` if the node has no active contract. Answers an `error_message` reading `unknown identity` if `identity` does not resolve, and `zero identity` if it resolves to the anonymous identity. Rejected with code `4` if the caller is not authorized. After indexing, the signed contract is pushed to the local swarm asynchronously and a sync task is scheduled for the new member.
+Issue a swarm membership contract for the named node and return the signed result. The caller must hold `mod.user.admin_swarm_action`; the active contract's issuer holds it by default. Answers an `error_message` reading `no active contract` if the node has no active contract. Answers an `error_message` reading `unknown identity` if `identity` does not resolve, and `zero identity` if it resolves to the anonymous identity. Answers `not permitted` if the caller is not authorized. After indexing, the signed contract is pushed to the local swarm asynchronously and a sync task is scheduled for the new member.
 
 ## Arguments
 

@@ -1,11 +1,11 @@
 # objects.register_searcher
 
-Register the caller as an external searcher. The module proxies `objects.search` calls back to the caller's identity until the registration's lease expires. Network-originated queries are rejected.
+Register the caller as an external searcher. The module proxies `objects.search` calls back to the caller's identity until the registration's lease expires. A network-originated query is answered `origin not allowed: network`.
 
 The caller must hold
 [`mod.auth.serve_objects_action`](../../auth/types/mod.auth.serve_objects_action.md)
-for the `searcher` role. The query is rejected when the caller is not
-authorized.
+for the `searcher` role. The operation answers an `error_message` reading
+`not permitted` when the caller is not authorized.
 
 Registration is leased. The node clamps the requested `duration` to its
 configured maximum and answers with the granted

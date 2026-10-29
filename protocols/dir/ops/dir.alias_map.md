@@ -4,8 +4,8 @@ Return the complete alias-to-identity mapping as a single `mod.dir.alias_map` ob
 
 The caller must hold
 [`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
-The query is rejected before the alias map is read when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before the
+alias map is read when the caller is not authorized.
 
 ## Returned objects
 

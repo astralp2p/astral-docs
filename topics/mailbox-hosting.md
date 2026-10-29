@@ -93,19 +93,22 @@ A delegated read changes no `ReadAt`, `ReceiptDueAt`, or `FetchedAt`, sends no
 receipt, and follows the usual read bounds. It permits no sending, waiting, or
 archiving. MCP mail tools expose no delegated read.
 
-A denied listing rejects the query. A read learns `Mailbox` from its input
-after accepting the query; denied hosting or read authority then closes the
-query without an answer. Neither path returns bytes or reads rows on denial.
+A denied listing is answered `not permitted`. A read learns `Mailbox` from its
+input after accepting the query; denied hosting or read authority then closes
+the query without an answer. Neither path reads rows on denial.
 
 ## Origin and admission
 
-All messaging operations reject `network` and `mcp` origins before checking the
-caller or submitting an action. Missing required arguments and malformed
+All messaging operations refuse `network` and `mcp` origins before checking the
+caller or submitting an action. `read_messages` and the admin operations answer
+`origin not allowed: <origin>`; listing, sending, waiting and archiving answer
+`not permitted`, as for an unhosted caller. Missing required arguments and malformed
 argument types are answered earlier with an `error_message` naming the argument.
 
 Own-mailbox operations require a hosted caller. Listing, sending, waiting, and
 archiving check hosting before accepting the query and again on entering the
-module. `read_messages` rejects the zero and node identities before accepting;
+module. `read_messages` answers `not permitted` to the zero and node identities before
+reading its request;
 after reading its request it checks hosting and returns
 `not a messaging participant` for an unhosted own mailbox. Hosting checks
 precede all mailbox reads and writes.

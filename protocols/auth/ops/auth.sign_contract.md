@@ -5,7 +5,7 @@ held by the node. The contract is read from the input stream and a
 `mod.auth.signed_contract` carrying both signatures is returned.
 
 A query whose origin is `network`, `mcp` or any origin other than local is
-rejected before a contract is read. A command of a
+answered `origin not allowed: <origin>` before a contract is read. A command of a
 [`shell.shell`](../../shell/ops/shell.shell.md) session carries no origin and is
 checked as local, with the session's identity as the caller.
 
@@ -15,9 +15,10 @@ caller and is not the node, or the caller is another identity that holds
 [`mod.auth.sudo_action`](../types/mod.auth.sudo_action.md) for the party. The
 issuer is checked first, then the subject. A refused issuer answers
 `authorize issuer: ` followed by the reason. A refused subject answers
-`authorize subject: ` followed by the reason. The reason is `cannot sign with
-another identity's key`, or `cannot sign with the node's key` for a caller that
-arrives as the node and names the node. A refused contract reaches no key.
+`authorize subject: ` followed by the reason. The reason is
+`cannot sign with another identity's key`, or `cannot sign with the node's key`
+for a caller that arrives as the node and names the node. A refused contract
+reaches no key.
 
 One contract passes without the signer rule: the claim contract of
 [node setup](../../../topics/node-setup.md).
@@ -62,8 +63,8 @@ the same text after a `sign as subject: ` prefix in place of
 
 ## Returned objects
 
-The query is rejected when its origin is not local. Otherwise the operation
-returns, per input, one of:
+A query whose origin is not local is answered `origin not allowed: <origin>`.
+Otherwise the operation returns, per input, one of:
 * An `error_message` reading `invalid contract` if the contract has no issuer
   or no subject.
 * An `error_message` reading `authorize issuer: ` or `authorize subject: `

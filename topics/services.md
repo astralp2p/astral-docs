@@ -38,9 +38,9 @@ whole set. The initial `ack` confirms readiness.
 * **Identity and permission:** the caller must be an app identity holding
   [`mod.auth.serve_apps_action`](../protocols/auth/types/mod.auth.serve_apps_action.md).
   [`apphost.register`](../protocols/apphost/ops/apphost.register.md) requests that
-  grant; registration policy decides whether to issue it. A query over a link,
-  the node identity, or a caller without the permit is rejected with code 1 and
-  no payload. With default apphost settings, a token-less session is denied
+  grant; registration policy decides whether to issue it. A query over a link is
+  answered `origin not allowed: network`; the node identity, or a caller without
+  the permit, is answered `not permitted`. With default apphost settings, a token-less session is denied
   before routing. See [Session Identity](session-identity.md).
 * **Answer correlation:** each [`services.ask`](../protocols/services/types/services.ask.md)
   names one caller and service. The provider's
@@ -72,9 +72,8 @@ p := servicescli.NewProvider(map[string]servicescli.OfferingFunc{
 })
 apps.Serve(ctx, router, apps.WithServices(p)) // advertises on every (re)registration
 
-p.Change(caller) // this caller's offering may have changed
-p.ChangeAll()    // every following caller's
-```
+p.Change(caller) // this caller's offering may have changed p.ChangeAll()    //
+every following caller's ```
 
 An astral-js provider evaluates callers on a connected host:
 

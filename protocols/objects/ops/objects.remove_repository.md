@@ -6,8 +6,8 @@ Removing a repository saved by [`fs.new_repo`](../../fs/ops/fs.new_repo.md) or [
 
 The caller must hold
 [`mod.auth.admin_objects_action`](../../auth/types/mod.auth.admin_objects_action.md).
-The query is rejected before the repository is looked up when the caller is not
-authorized.
+The operation answers an `error_message` reading `not permitted` before the
+repository is looked up when the caller is not authorized.
 
 ## Arguments
 

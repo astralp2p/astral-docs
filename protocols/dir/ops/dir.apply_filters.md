@@ -4,8 +4,8 @@ Apply a set of named filters to an identity and return whether any filter matche
 
 The caller must hold
 [`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
-The query is rejected before any filter is applied when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before any
+filter is applied when the caller is not authorized.
 
 ## Arguments
 

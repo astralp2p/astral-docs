@@ -23,11 +23,11 @@ permits of `user.new_node_contract` and expires 365 days after the call.
 The node refuses the query in these cases, in this order:
 
 * The query's origin is `network`, `mcp` or any origin other than local:
-  rejected without a code.
+  answered with an `error_message` reading `origin not allowed: <origin>`.
 * The node has an active contract: answered with an `error_message` reading
   `node already claimed`.
-* The caller is not the node: rejected with code `4`. A local caller that
-  presents no identity is rewritten to the node's identity.
+* The caller is not the node: answered with `not permitted`. A local caller
+  that presents no identity is rewritten to the node's identity.
 
 The claim contract passes the claim rule of
 [`auth.sign_contract`](../../auth/ops/auth.sign_contract.md) before any
@@ -67,9 +67,8 @@ the node claimed.
 
 ## Returned objects
 
-The query is rejected with code `4`, or without a code, or answered with
-`node already claimed`, in the cases above. Otherwise the operation returns one
-of:
+The query is answered with the `error_message` named in the cases above.
+Otherwise the operation returns one of:
 * A `mod.user.bootstrap_result` once the node is claimed. Its `Mnemonic` holds
   the generated words, and is empty when the caller sent the words. Its `Token`
   holds the user's access token.

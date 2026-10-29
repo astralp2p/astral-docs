@@ -4,8 +4,10 @@ Stream registered agents with their valid access tokens. This enumerates
 credentials across tenants; [`mcp.agent`](mcp.agent.md) reads one record
 without credentials.
 
-Requires [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-Network queries are rejected before authorization; denied callers receive no bytes.
+Requires
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+A network query is answered `origin not allowed: network` before authorization;
+a denied caller is answered `not permitted`.
 
 An agent absent from the mailbox index is omitted and its record deleted;
 deletion failure is logged without changing the answer. A token that no longer

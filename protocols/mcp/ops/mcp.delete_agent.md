@@ -4,8 +4,10 @@ Delete an agent's mailbox through
 [`messaging.delete_mailbox`](../../messaging/ops/messaging.delete_mailbox.md),
 then delete its agent record. Correspondents' mail and signed contracts remain.
 
-Requires [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-Network queries are rejected before authorization; denied callers receive no bytes.
+Requires
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+A network query is answered `origin not allowed: network` before authorization;
+a denied caller is answered `not permitted`.
 
 A missing mailbox does not prevent record deletion. Other mailbox-deletion
 failures preserve the agent record for retry. A record already removed during

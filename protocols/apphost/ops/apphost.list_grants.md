@@ -13,10 +13,10 @@ holds authority this operation does not report.
 
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-The query is rejected before any grant is read when the caller is not
-authorized, and a refused caller receives no bytes. The operation also rejects
-a query that arrived over a [`Link`](../../../core-definitions/link.md),
-whatever the caller holds.
+The operation answers an `error_message` reading `not permitted` before any
+grant is read when the caller is not authorized. The operation also answers
+`origin not allowed: network` to a query that arrived over a
+[`Link`](../../../core-definitions/link.md), whatever the caller holds.
 
 ## Arguments
 

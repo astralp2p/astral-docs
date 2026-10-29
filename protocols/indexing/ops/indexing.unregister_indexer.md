@@ -1,6 +1,6 @@
 # indexing.unregister_indexer
 
-Unregister the indexer identified by `nonce`. The node deletes the indexer's registration and its per-repository progress cursors. Stored objects are unchanged. A later `indexing.register_indexer` with the same name starts a new registration with a new nonce and no progress. Network-originated queries are rejected.
+Unregister the indexer identified by `nonce`. The node deletes the indexer's registration and its per-repository progress cursors. Stored objects are unchanged. A later `indexing.register_indexer` with the same name starts a new registration with a new nonce and no progress. A network-originated query is answered `origin not allowed: network`.
 
 The owner of the registration unregisters it without a permit. Any other caller must hold
 [`mod.auth.admin_objects_action`](../../auth/types/mod.auth.admin_objects_action.md).

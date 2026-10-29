@@ -3,9 +3,9 @@
 A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
 read the node's state: tree values and listings, the directory's alias map and
 filters, agent and participant metadata, and the node's log stream. Every
-operation the action guards submits it before it acts, and rejects the query
-when it is denied, before it reads state, walks a tree path, or subscribes the
-caller to the log. A refused caller receives no bytes.
+operation the action guards submits it before it acts, and answers
+`not permitted` when it is denied, before it reads state, walks a tree path, or
+subscribes the caller to the log.
 
 One action covers `tree.get`, `tree.list`, `dir.alias_map`, `dir.filters`,
 `dir.apply_filters`, `mcp.agent`, `messaging.mailbox` and `log.listen`.

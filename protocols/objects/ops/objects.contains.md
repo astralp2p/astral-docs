@@ -4,8 +4,8 @@ Check whether a repository might contain an object method nature is probabilisti
 
 The caller must hold
 [`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
-The query is rejected before any repository is opened when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before any
+repository is opened when the caller is not authorized.
 
 ## Arguments
 

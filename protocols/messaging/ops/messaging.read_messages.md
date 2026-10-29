@@ -5,8 +5,9 @@ read of the owner's inbox marks named messages read and reports collection;
 `Children=full` also does so for inbox replies. `peek` and delegated reads
 change no stamps and send no receipts.
 
-Network and `mcp` origins, the zero caller, and the node identity are rejected
-before acceptance, with no bytes returned. After the request arrives, hosting
+A `network` or `mcp` query is answered `origin not allowed: <origin>`, and the
+zero caller or the node identity is answered `not permitted`, before the request
+is read. After the request arrives, hosting
 is checked first; another mailbox also requires
 [`mod.messaging.read_mailbox_action`](../types/mod.messaging.read_mailbox_action.md).
 A denied [delegated read](../../../topics/mailbox-hosting.md#delegated-read)

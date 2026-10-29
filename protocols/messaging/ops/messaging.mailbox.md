@@ -3,9 +3,10 @@
 Read a mailbox's identity and alias without credentials. The mailbox index
 is read even when its hosting contract has expired or no longer authorizes.
 
-Requires [`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
-Network and `mcp` origins are rejected before authorization; denied callers
-receive no bytes.
+Requires
+[`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
+A `network` or `mcp` query is answered `origin not allowed: <origin>` before
+authorization; a denied caller is answered `not permitted`.
 
 ## Arguments
 

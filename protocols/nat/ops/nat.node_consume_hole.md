@@ -4,8 +4,8 @@ Hand a hole out of the local pool through a two-phase lock-then-take handshake. 
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
-The query is rejected before any hole leaves the pool when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before any hole
+leaves the pool when the caller is not authorized.
 
 ## Arguments
 

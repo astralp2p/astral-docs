@@ -4,11 +4,14 @@ Remove a mailbox: revoke all its apphost tokens and local grants, unset its
 alias, and delete its index entry and owned mail, including archived mail.
 Correspondents' copies and signed contracts remain.
 
-Requires [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-Network and `mcp` origins are rejected before authorization; denied callers
-receive no bytes. [Deletion and retry behavior](../../../topics/mailbox-hosting.md#expiry-and-deletion)
-defines partial failures and in-flight sends. An MCP agent is removed through
-[`mcp.delete_agent`](../../mcp/ops/mcp.delete_agent.md), which also deletes its record.
+Requires
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+A `network` or `mcp` query is answered `origin not allowed: <origin>` before
+authorization; a denied caller is answered `not permitted`. [Deletion and retry
+behavior](../../../topics/mailbox-hosting.md#expiry-and-deletion) defines
+partial failures and in-flight sends. An MCP agent is removed through
+[`mcp.delete_agent`](../../mcp/ops/mcp.delete_agent.md), which also deletes its
+record.
 
 ## Arguments
 

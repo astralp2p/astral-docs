@@ -1,8 +1,8 @@
 # apphost.hold_object
 
-Place a hold on an object on behalf of the calling app, preventing it from
-being purged for the hold's duration. Local-only — queries from the network
-are rejected.
+Place a hold on an object on behalf of the calling app, preventing it from being
+purged for the hold's duration. Local-only — a query from the network is
+answered `origin not allowed: network`.
 
 ## Arguments
 

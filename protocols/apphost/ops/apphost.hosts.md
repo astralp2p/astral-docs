@@ -6,9 +6,9 @@ contract the app issued; this node is listed when it hosts the app.
 
 The caller must hold
 [`mod.user.see_swarm_action`](../../user/types/mod.user.see_swarm_action.md).
-The query is rejected with code `1` when the caller is not authorized. The
-operation also rejects a query that arrived over a
-[`Link`](../../../core-definitions/link.md), whatever the caller holds.
+The operation answers `not permitted` when the caller is not authorized. The
+operation also answers `origin not allowed: network` to a query that arrived
+over a [`Link`](../../../core-definitions/link.md), whatever the caller holds.
 
 A sibling node's app is known once its relay contract reached this node: at the
 first link, at the app's registration, or when the app runs swarm discovery.
