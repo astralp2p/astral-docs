@@ -25,6 +25,10 @@
   * `2` — invalid query.
   * `3` — canceled.
   * `4` — internal error.
-* Values above the reserved range are `Operation` specific.
+  * `6` — timeout: the `Query` was not answered in time.
+  * `7` — unavailable: the `Target` or the next hop could not be reached.
+* `5` is not a generic code. [`messaging`](../protocols/messaging/README.md)
+  sends it when a receiving `Node` does not admit a delivery.
+* Values from 8 up are `Operation` specific.
 * The `Target` can accept the `Query`, which begins a new [`Channel`](channel.md) between
   the `Caller` and the `Target`.
