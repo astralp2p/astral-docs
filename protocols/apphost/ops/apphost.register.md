@@ -37,6 +37,10 @@ can register a handler with
 [`apphost.register_handler`](apphost.register_handler.md) and advertise itself
 with [`services.advertise`](../../services/ops/services.advertise.md).
 
+Registration asks for no
+[`mod.auth.use_blueprints_action`](../../auth/types/mod.auth.use_blueprints_action.md).
+An app that syncs its blueprints with the node asks for it in `grant_permits`.
+
 What an app asks for at registration grants no service discovery.
 `grant_permits`, `contract_permits` and the permits of a trusted web origin
 carry no constraints, and an unconstrained

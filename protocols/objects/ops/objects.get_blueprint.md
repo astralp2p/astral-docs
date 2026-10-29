@@ -7,9 +7,9 @@ referenced type itself. The operation returns an `error_message` if the named
 type is primitive (primitives have no blueprint) or is unknown.
 
 The caller must hold
-[`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
-The query is rejected before any repository is opened when the caller is not
-authorized, and a refused caller receives no bytes.
+[`mod.auth.use_blueprints_action`](../../auth/types/mod.auth.use_blueprints_action.md).
+The query is rejected when the caller is not authorized, and a refused caller
+receives no bytes.
 
 ## Arguments
 

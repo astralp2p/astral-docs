@@ -8,10 +8,11 @@ refused caller receives no bytes.
 
 One action covers every read — `objects.read`, `objects.load`,
 `objects.contains`, `objects.probe`, `objects.describe`, `objects.scan`,
-`objects.search`, `objects.find`, `objects.repositories`,
-`objects.blueprints` and `objects.get_blueprint`. Reading bytes and enumerating
-ids are not separated: a caller that can enumerate a repository already holds
-what guarding a single object would protect.
+`objects.search`, `objects.find` and `objects.repositories`. Reading bytes and
+enumerating ids are not separated: a caller that can enumerate a repository
+already holds what guarding a single object would protect. Reading blueprints
+answers to
+[`mod.auth.use_blueprints_action`](mod.auth.use_blueprints_action.md).
 
 ObjectID and Repo declare the nouns the call touches. Neither is evaluated. An
 operation that names no single object leaves ObjectID absent; one that names no
