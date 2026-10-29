@@ -32,8 +32,8 @@ The zero identity and the node's own identity cannot have hosted mailboxes.
 The action's root rule grants it to `MailboxID` itself; contract authorization
 lets the hosting node reach that rule through the mailbox issuer. A contract
 from another identity grants no authority over this mailbox. Constrained
-hosting permits are refused. Indexing a contract through `auth.index` alone
-does not provision a mailbox.
+hosting permits are refused. An indexed contract alone does not provision a
+mailbox.
 
 ## Expiry and deletion
 
