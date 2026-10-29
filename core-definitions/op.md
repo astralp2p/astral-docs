@@ -20,6 +20,9 @@
   `Op Parameter` declares.
 * A `Query` whose `Op Parameter` value does not parse is accepted and answered with
   one `error_message` reading `invalid argument: <name>: <cause>`.
+* An `Op` that streams raw bytes declares neither `in` nor `out`. Its `Query`
+  is rejected with code `2` (invalid query) in both cases above, and no
+  `error_message` is sent.
 * An `Op` refuses a `Caller` by accepting the `Query` and answering one
   `error_message`: `not permitted` when the `Caller` lacks the permission the
   `Op` requires, and `origin not allowed: <origin>` when the `Op` does not admit
