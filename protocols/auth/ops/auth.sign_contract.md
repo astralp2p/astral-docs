@@ -33,25 +33,15 @@ The node signs it while all of these hold:
   1 hour from now. 365 days is the default validity of
   `user.new_node_contract`.
 * The node is unclaimed: the node holds no active contract.
-* The node has indexed no contract from the issuer to the node carrying
-  [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
-  or
-  [`mod.user.swarm_membership_action`](../../user/types/mod.user.swarm_membership_action.md),
-  expired contracts included. A failed lookup refuses the contract.
+
+The rule reads nothing of the issuer's history. A user the node has had
+re-claims it once its contract is cleared or has expired. An identity the node
+minted through [`apphost.register`](../../apphost/ops/apphost.register.md),
+[`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md) or
+[`mcp.create_agent`](../../mcp/ops/mcp.create_agent.md) passes as issuer.
 
 [`user.bootstrap`](../../user/ops/user.bootstrap.md) applies the same rule to
 the claim contract it signs.
-
-[`apphost.register`](../../apphost/ops/apphost.register.md),
-[`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md)
-and [`mcp.create_agent`](../../mcp/ops/mcp.create_agent.md), which mints its
-agents through `messaging.create_mailbox`, mint identities this exception
-refuses: each indexes a relay contract for each identity it mints before it
-stores the identity's private key. A call that fails before the relay
-contract is indexed leaves no private key on the node. The node indexes the
-node contract of each user it accepts, so the claim contract is never signed
-again for a user the node has had, even after the node's active contract is
-cleared or has expired.
 
 An authorized contract is signed as the issuer, then as the subject. The node
 must hold the private keys of both parties. A missing issuer key fails with:
