@@ -22,11 +22,13 @@ parties, activates it and issues an access token for the user.
 of bans is inspectable via `user.list_expelled`. Banned nodes hold a
 `mod.user.signed_expulsion` and are refused new contracts.
 
-Two policies decide unsolicited membership. The swarm join policy decides each
-`user.request_membership`, and the swarm invite policy decides each
-`user.accept_membership`. Both accept everything by default.
-`user.set_swarm_join_policy` and `user.set_swarm_invite_policy` delegate either
-decision to an operation of another identity. Both setters require
+Three policies decide membership from outside the node. The swarm join policy
+decides each `user.request_membership`, the swarm invite policy decides each
+`user.accept_membership`, and the contract accept policy decides each
+`user.accept_contract`. All three accept everything by default, so a node out
+of the box is claimable. `user.set_swarm_join_policy`,
+`user.set_swarm_invite_policy` and `user.set_contract_accept_policy` delegate
+each decision to an operation of another identity. Every setter requires
 `mod.auth.admin_manage_apps_action`.
 
 Two actions gate the protocol. `mod.user.see_swarm_action` covers every read —
