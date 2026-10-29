@@ -32,8 +32,8 @@ The node refuses the query in these cases, in this order:
 The claim contract passes the claim rule of
 [`auth.sign_contract`](../../auth/ops/auth.sign_contract.md) before any
 signature. A user the rule refuses is answered with an `error_message`, and the
-node is unchanged. The rule refuses a user the node has had, even after its
-contract has expired, and an identity the node minted.
+node is unchanged. A user the node has had re-claims it with the same words once
+its contract has expired or is cleared.
 
 The words never appear in a log line or a stored object. Words the caller sends
 never appear in a reply. Generated words appear in one reply only, and the node

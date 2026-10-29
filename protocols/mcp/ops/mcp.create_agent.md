@@ -5,9 +5,6 @@ its access token. Mailbox creation follows
 [`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md).
 [`mcp.list_agents`](mcp.list_agents.md) can recover the token later.
 
-The agent identity cannot claim the node: its relay contract makes the claim
-rule of [`auth.sign_contract`](../../auth/ops/auth.sign_contract.md) refuse it.
-
 Requires [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
 Network queries are rejected before authorization; denied callers receive no
 bytes. If storing the agent record fails, the node attempts to delete the new

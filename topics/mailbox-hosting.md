@@ -18,8 +18,8 @@ subject. Each lasts ten 365-day years and has one unconstrained permit with
   permits hosting its mailbox.
 
 The node holds the new identity's key and signs for both parties. The identity
-is a mailbox participant, not a node user; it never receives the node's claim
-contract. Neither contract grants permission to send or receive mail.
+is a mailbox participant, not a node user; creating the mailbox signs it no
+claim contract. Neither contract grants permission to send or receive mail.
 
 The node indexes and stores the contracts, then records the hosting contract's
 object ID and expiry in its mailbox index. Hosting requires all three:
