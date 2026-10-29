@@ -4,9 +4,9 @@ Archive one of the caller's messages, or restore it with `undo`. Archived mail
 is excluded from inbox/outbox listings and waits; its original box is unchanged.
 Archiving changes only this owner's copy and sends no notification.
 
-A `network` or `mcp` query, or a caller without a
-[hosted mailbox](../../../topics/mailbox-hosting.md#hosting), is answered with
-an `error_message` reading `not permitted`.
+A `network` or `mcp` query is answered `origin not allowed: <origin>`. A caller
+without a [hosted mailbox](../../../topics/mailbox-hosting.md#hosting) is
+answered `not permitted`.
 
 ## Arguments
 

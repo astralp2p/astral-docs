@@ -3,9 +3,9 @@
 Wait for matching, unarchived inbox envelopes without reading bodies or changing
 stamps. Concurrent waiters can receive the same messages.
 
-A `network` or `mcp` query, or a caller without a
-[hosted mailbox](../../../topics/mailbox-hosting.md#hosting), is answered with
-an `error_message` reading `not permitted`. Otherwise the node checks hosting again,
+A `network` or `mcp` query is answered `origin not allowed: <origin>`. A caller
+without a [hosted mailbox](../../../topics/mailbox-hosting.md#hosting) is
+answered `not permitted`. Otherwise the node checks hosting again,
 validates `since`, resolves `from`, then waits.
 
 The wait ends on a match, timeout, or channel close. Closing returns no answer;
