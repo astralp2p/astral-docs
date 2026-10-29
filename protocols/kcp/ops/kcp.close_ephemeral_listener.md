@@ -4,8 +4,8 @@ Stop an ephemeral KCP listener running on the given UDP port. The operation fail
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
-The query is rejected before any listener is closed when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before any
+listener is closed when the caller is not authorized.
 
 ## Arguments
 

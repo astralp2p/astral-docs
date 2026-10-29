@@ -3,9 +3,9 @@
 Scan for connected Coldcard hardware wallets and update the module's device state.
 
 The caller must hold
-[`mod.coldcard.scan_action`](../types/mod.coldcard.scan_action.md).
-The query is rejected before any device is scanned when the caller is not
-authorized, and a refused caller receives no bytes.
+[`mod.coldcard.scan_action`](../types/mod.coldcard.scan_action.md). The
+operation answers an `error_message` reading `not permitted` before any device
+is scanned when the caller is not authorized.
 
 ## Arguments
 

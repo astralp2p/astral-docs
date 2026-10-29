@@ -4,8 +4,8 @@ Resolve all known endpoints for an identity by querying every registered endpoin
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
-The query is rejected before the identity is resolved when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before the
+identity is resolved when the caller is not authorized.
 
 ## Arguments
 
@@ -14,7 +14,7 @@ authorized, and a refused caller receives no bytes.
 
 ## Returned objects
 
-The operation returns a stream of `mod.nodes.endpoint_with_ttl` objects, terminated by `eos`. If `identity` does not resolve the operation answers an `error_message` reading `unknown identity`, and `zero identity` if it resolves to the anonymous identity; if resolver lookup fails internally the operation is rejected with an internal error code.
+The operation returns a stream of `mod.nodes.endpoint_with_ttl` objects, terminated by `eos`. If `identity` does not resolve the operation answers an `error_message` reading `unknown identity`, and `zero identity` if it resolves to the anonymous identity; if resolver lookup fails internally the operation answers the error.
 
 ## Examples
 

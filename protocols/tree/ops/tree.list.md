@@ -4,8 +4,8 @@ List the child keys at a path.
 
 The caller must hold
 [`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
-The query is rejected before any path is walked when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before any path
+is walked when the caller is not authorized.
 
 ## Arguments
 

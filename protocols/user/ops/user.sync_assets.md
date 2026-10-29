@@ -8,8 +8,8 @@ Each entry is a `mod.user.op_update` carrying the nonce, the object ID, and
 whether the entry is a removal (tombstone).
 
 The caller must hold `mod.user.see_swarm_action`; sibling nodes sync as the
-user, who holds it by default. Rejected with code `2` if the database read
-failed, and with code `4` if the caller is not authorized.
+user, who holds it by default. Answers an `error_message` if the
+database read failed, and `not permitted` if the caller is not authorized.
 
 ## Arguments
 

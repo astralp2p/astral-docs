@@ -1,12 +1,12 @@
 # apphost.create_token
 
-Create a new access token for an identity. Local-only — queries from the
-network are rejected.
+Create a new access token for an identity. Local-only — a query from the network
+is answered `origin not allowed: network`.
 
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-The query is rejected before a token is issued when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before a token
+is issued when the caller is not authorized.
 
 ## Arguments
 

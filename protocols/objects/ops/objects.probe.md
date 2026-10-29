@@ -4,8 +4,8 @@ Probe an object to determine its astral type, MIME type, host repository, read l
 
 The caller must hold
 [`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md).
-The query is rejected before any repository is opened when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before any
+repository is opened when the caller is not authorized.
 
 ## Arguments
 

@@ -4,8 +4,10 @@ Read one agent without its token. An agent absent from the mailbox index is
 reported as missing; its record remains. [`mcp.list_agents`](mcp.list_agents.md)
 and [`mcp.delete_agent`](mcp.delete_agent.md) remove such records.
 
-Requires [`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
-Network queries are rejected before authorization; denied callers receive no bytes.
+Requires
+[`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
+A network query is answered `origin not allowed: network` before authorization;
+a denied caller is answered `not permitted`.
 
 ## Arguments
 

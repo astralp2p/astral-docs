@@ -4,10 +4,10 @@ Reserve an idle connection to a registered node. The caller receives a `mod.gate
 
 The caller must hold
 [`mod.auth.use_gateway_action`](../../auth/types/mod.auth.use_gateway_action.md),
-which every caller holds while the gateway is enabled. The query is rejected
-before any connection is reserved or connector state is allocated when the
-gateway is disabled or the caller is not authorized, and a refused caller
-receives no bytes.
+which every caller holds while the gateway is enabled. The operation answers an
+`error_message` reading `not permitted` before any connection is reserved or
+connector state is allocated when the gateway is disabled or the caller is not
+authorized.
 
 ## Arguments
 
@@ -15,7 +15,7 @@ receives no bytes.
 
 ## Returned objects
 
-The operation rejects the query if the gateway is disabled or the caller is not authorized. Otherwise it returns one of:
+The operation answers `not permitted` if the gateway is disabled or the caller is not authorized. Otherwise it returns one of:
 * An `error_message` object if `identity` does not resolve.
 * An `error_message` object reading `missing identity` if `identity` resolves to the anonymous identity.
 * An `error_message` object if no idle connection is available for the named node.

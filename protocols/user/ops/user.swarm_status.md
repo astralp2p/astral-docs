@@ -5,7 +5,7 @@ status. A node belongs to the swarm if it holds an active SwarmAccess contract
 issued by the same user as this node.
 
 The caller must hold `mod.user.see_swarm_action`. Answers an `error_message` reading `no active contract` if
-this node has no active contract. Rejected with code `4` if the caller is not
+this node has no active contract. Answers `not permitted` if the caller is not
 authorized.
 
 ## Arguments

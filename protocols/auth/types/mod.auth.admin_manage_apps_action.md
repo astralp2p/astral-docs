@@ -12,7 +12,8 @@ The action gates eleven operations — `apphost.create_token`,
 `apphost.revoke`, `apphost.list_grants`, `mcp.create_agent`,
 `mcp.list_agents`, `mcp.delete_agent`, `messaging.create_mailbox` and
 `messaging.delete_mailbox`. Each operation submits the action before it reads
-or changes a credential or a grant, and a refused caller receives no bytes.
+or changes a credential or a grant, and answers a refused caller with an
+`error_message` reading `not permitted`.
 
 Two further operations submit the action as an administrative override rather
 than a gate. [`apphost.bind`](../../apphost/ops/apphost.bind.md) and
@@ -41,8 +42,9 @@ access tokens, so one action covers all three protocols.
 `apphost.delete_token`, `apphost.grant`, `apphost.revoke`,
 `apphost.list_grants`, `mcp.create_agent`, `mcp.list_agents`,
 `mcp.delete_agent`, `messaging.create_mailbox` and
-`messaging.delete_mailbox` also reject a query that arrived over a
-[`Link`](../../../core-definitions/link.md), whatever the caller holds. A grant
+`messaging.delete_mailbox` also answer `origin not allowed: network` to a query
+that arrived over a [`Link`](../../../core-definitions/link.md), whatever the
+caller holds. A grant
 authorizes on one node and travels nowhere, so it is neither written nor
 enumerated over a link.
 

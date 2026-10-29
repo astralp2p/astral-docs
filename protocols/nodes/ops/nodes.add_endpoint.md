@@ -4,8 +4,8 @@ Register a network endpoint for a given identity. The endpoint is stored with a 
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
-The query is rejected before the endpoint is parsed or stored when the caller is
-not authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before the
+endpoint is parsed or stored when the caller is not authorized.
 
 ## Arguments
 

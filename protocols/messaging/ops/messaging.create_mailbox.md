@@ -4,10 +4,12 @@ Create a mailbox with a fresh identity, optional alias, apphost token, and
 signed relay and hosting contracts. The node holds the identity's key. This
 creates a messaging participant, not a node user or a node claim.
 
-Requires [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-Network and `mcp` origins are rejected before authorization; denied callers
-receive no bytes. [Mailbox Hosting](../../../topics/mailbox-hosting.md#hosting)
-defines the contracts and the separate send/receive permissions.
+Requires
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+A `network` or `mcp` query is answered `origin not allowed: <origin>` before
+authorization; a denied caller is answered `not permitted`. [Mailbox
+Hosting](../../../topics/mailbox-hosting.md#hosting) defines the contracts and
+the separate send/receive permissions.
 
 ## Arguments
 

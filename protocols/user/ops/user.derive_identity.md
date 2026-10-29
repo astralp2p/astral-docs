@@ -15,8 +15,8 @@ identity, and sends the same words to `user.bootstrap` once the user has
 recorded them. A client that restores a user sends the user's words and shows
 the identity before the claim. The client derives no key itself.
 
-The query is rejected before it is accepted when its origin is `network`, `mcp`
-or any origin other than local.
+A query whose origin is `network`, `mcp` or any origin other than local is
+answered with an `error_message` reading `origin not allowed: <origin>`.
 
 The words never appear in a log line or a stored object. Words the caller sends
 never appear in a reply. Generated words appear in one reply only, and the node
@@ -35,8 +35,8 @@ keeps no copy of them.
 
 ## Returned objects
 
-The query is rejected without a code in the case above. Otherwise the operation
-returns one of:
+The query is answered `origin not allowed: <origin>` in the case above.
+Otherwise the operation returns one of:
 * A `mod.user.derive_identity_result`. Its `Mnemonic` holds the generated
   words, and is empty when the caller sent the words.
 * An `error_message` reading `invalid mnemonic` or

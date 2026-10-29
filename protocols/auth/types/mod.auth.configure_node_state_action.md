@@ -9,8 +9,8 @@ The action gates every operation that changes that state — `tree.set`,
 streaming mode, `tree.delete` with and without `recursive`, and `dir.set_alias`
 removing an alias as well as setting one.
 
-Each operation submits the action before it accepts the query. A refused caller
-receives no bytes.
+Each operation submits the action before it reads input or changes state. A
+refused caller is answered with an `error_message` reading `not permitted`.
 
 Reading the same state answers to `mod.auth.see_node_state_action`. Neither
 action implies the other.

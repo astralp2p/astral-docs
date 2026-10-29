@@ -4,8 +4,8 @@ Return the IP address of the default network gateway.
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
-The query is rejected before the gateway is read when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before the
+gateway is read when the caller is not authorized.
 
 ## Arguments
 

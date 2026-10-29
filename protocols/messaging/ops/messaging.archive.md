@@ -4,9 +4,9 @@ Archive one of the caller's messages, or restore it with `undo`. Archived mail
 is excluded from inbox/outbox listings and waits; its original box is unchanged.
 Archiving changes only this owner's copy and sends no notification.
 
-Network and `mcp` origins are rejected first. The caller must have a
-[hosted mailbox](../../../topics/mailbox-hosting.md#hosting); otherwise the query
-is rejected without bytes.
+A `network` or `mcp` query, or a caller without a
+[hosted mailbox](../../../topics/mailbox-hosting.md#hosting), is answered with
+an `error_message` reading `not permitted`.
 
 ## Arguments
 

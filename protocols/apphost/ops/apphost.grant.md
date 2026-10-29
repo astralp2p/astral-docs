@@ -14,10 +14,10 @@ identity.
 
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-The query is rejected before the grant is written when the caller is not
-authorized, and a refused caller receives no bytes. The operation also rejects
-a query that arrived over a [`Link`](../../../core-definitions/link.md),
-whatever the caller holds.
+The operation answers an `error_message` reading `not permitted` before the
+grant is written when the caller is not authorized. The operation also answers
+`origin not allowed: network` to a query that arrived over a
+[`Link`](../../../core-definitions/link.md), whatever the caller holds.
 
 The recorded permit carries no delegation: a grant is not portable evidence,
 so a hop count on it would describe authority it cannot carry.

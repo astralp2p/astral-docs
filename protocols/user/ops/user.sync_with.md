@@ -12,7 +12,7 @@ when the sync completes.
 
 The caller must hold `mod.user.admin_swarm_action`. Answers an `error_message`
 reading `unknown identity` if `identity` does not resolve, and `zero identity` if
-it resolves to the anonymous identity. Rejected with code `4` if the caller is
+it resolves to the anonymous identity. Answers `not permitted` if the caller is
 not authorized. `identity` is resolved before the caller is
 authorized. The op changes what this node carries, as `user.add_asset` and
 `user.remove_asset` do — the node named in the call decides the entries this

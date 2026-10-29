@@ -4,8 +4,8 @@ Encode typed astral objects and write them as new repository entries. The id of 
 
 The caller must hold
 [`mod.auth.store_objects_action`](../../auth/types/mod.auth.store_objects_action.md).
-The query is rejected before any repository is opened when the caller is not
-authorized.
+The operation answers an `error_message` reading `not permitted` before any
+repository is opened when the caller is not authorized.
 
 ## Arguments
 

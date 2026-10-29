@@ -88,9 +88,10 @@ $ echo '{"Type":"string16","Object":"penalty stadium garlic ... rifle fitness ga
 {"Type":"mod.user.bootstrap_result","Object":{"Identity":"02e96bd9...","Mnemonic":"","Token":"b9c2e1a3d4f5867a"}}
 ```
 
-The generated words appear in the first reply only. `user.bootstrap -generate
-true` generates the words and claims in one call; a reply lost after that claim
-leaves the node owned by a user whose words exist nowhere.
+The generated words appear in the first reply only.
+`user.bootstrap -generate true` generates the words and claims in one call; a
+reply lost after that claim leaves the node owned by a user whose words exist
+nowhere.
 
 Existing identity: the user's words preview the identity, and the same words
 claim the node. The replies carry an empty `Mnemonic`.
@@ -206,7 +207,7 @@ default ([user](../protocols/user/README.md)).
 | `auth.sign_contract`: `sign as issuer: no signing scheme available for key secp256k1:<hex>: …` | The node does not hold the user's private key. | Store the key with `objects.store`, then sign again. |
 | `auth.sign_contract`: `authorize issuer: cannot sign with another identity's key` | The claim rule refuses: the node has an active contract, or the contract is not the claim contract `user.new_node_contract` writes. | Claim an unclaimed node with the contract `user.new_node_contract` writes. |
 | `user.bootstrap`: `node already claimed` | The node has an active contract. | — |
-| `user.bootstrap`: `query rejected (4)` | The caller is not the node. | Call from a local session without a token, or with the node's own token. |
+| `user.bootstrap`: `not permitted` | The caller is not the node. | Call from a local session without a token, or with the node's own token. |
 | `user.bootstrap`: `claim refused: the claim rule of auth.sign_contract refuses this user` | The node was claimed while the claim was signed. | — |
 | `user.bootstrap`: `invalid mnemonic` | The words fail the BIP-39 checksum. | Check the words. |
 | any operation: `denied` | A session without a token sent an operation outside the active `anonymous_allowlist`, or a web page whose origin `trusted_web_sources` does not list sent one before the claim. | Authenticate with a token, or list the origin in `trusted_web_sources`. |

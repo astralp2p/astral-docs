@@ -4,8 +4,8 @@ Map a remote KCP endpoint to a local UDP port. The operation answers an `error_m
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
-The query is rejected before `endpoint` is parsed or any mapping changes when
-the caller is not authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before
+`endpoint` is parsed or any mapping changes when the caller is not authorized.
 
 ## Arguments
 

@@ -4,8 +4,8 @@ Enable or disable NAT hole-punching on the node. The value is stored as a node s
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
-The query is rejected before the setting changes when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before the
+setting changes when the caller is not authorized.
 
 ## Arguments
 

@@ -1,7 +1,7 @@
 # apphost.unhold_object
 
-Release the calling app's hold on an object. Local-only — queries from the
-network are rejected.
+Release the calling app's hold on an object. Local-only — a query from the
+network is answered `origin not allowed: network`.
 
 ## Arguments
 

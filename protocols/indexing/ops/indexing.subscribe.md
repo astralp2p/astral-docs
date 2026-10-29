@@ -2,10 +2,12 @@
 
 Deliver pending index changes to a registered indexer identified by `nonce`. The op streams an `indexing.index` or `indexing.unindex` message for each pending change, waits for the caller to acknowledge each with an `indexing.ack`, then advances the indexer's stored state. When the indexer is caught up the op blocks until a new change arrives or the context is cancelled. Delivery is retried with exponential back-off (1 s initial, 1 min cap, factor 2) when the caller signals `ErrIndexingTemporarilyFailed`.
 
-Network-originated queries are rejected. The caller must hold
+A network-originated query is answered `origin not allowed: network`. The caller
+must hold
 [`mod.auth.serve_objects_action`](../../auth/types/mod.auth.serve_objects_action.md)
-for the `indexer` role. The query is rejected when the caller is not
-authorized. The node checks the permit when the subscription starts.
+for the `indexer` role. The operation answers an `error_message` reading
+`not permitted` when the caller is not authorized. The node checks the permit
+when the subscription starts.
 
 Only the owner of the registration subscribes to it, because each
 acknowledgement advances the owner's stored state. Any other caller, including

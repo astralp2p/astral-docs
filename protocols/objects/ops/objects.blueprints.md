@@ -4,8 +4,8 @@ Stream every registered type name in dependency order: compile-time prototypes f
 
 The caller must hold
 [`mod.auth.use_blueprints_action`](../../auth/types/mod.auth.use_blueprints_action.md).
-The query is rejected when the caller is not authorized, and a refused caller
-receives no bytes.
+The operation answers an `error_message` reading `not permitted` when the caller
+is not authorized.
 
 ## Arguments
 

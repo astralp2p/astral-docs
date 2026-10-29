@@ -4,8 +4,8 @@ Return the names of all registered identity filters. The op streams one `string8
 
 The caller must hold
 [`mod.auth.see_node_state_action`](../../auth/types/mod.auth.see_node_state_action.md).
-The query is rejected before any filter name is read when the caller is not
-authorized, and a refused caller receives no bytes.
+The operation answers an `error_message` reading `not permitted` before any
+filter name is read when the caller is not authorized.
 
 ## Returned objects
 

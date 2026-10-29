@@ -1,7 +1,7 @@
 # apphost.list_held_objects
 
-List objects currently held by the calling app. Local-only — queries from the
-network are rejected.
+List objects currently held by the calling app. Local-only — a query from the
+network is answered `origin not allowed: network`.
 
 ## Arguments
 

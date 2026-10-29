@@ -49,8 +49,8 @@ A WebSocket session without an `Origin` header follows the IPC admission rules.
 
 A `tokens:` entry mapping a token to `localnode` authenticates as the node.
 It supports [node setup](node-setup.md#who-may-set-up-a-node), but
-[`services.advertise`](../protocols/services/ops/services.advertise.md) rejects
-that identity. A service provider uses its app token and needs the advertising
+[`services.advertise`](../protocols/services/ops/services.advertise.md) answers
+that identity `not permitted`. A service provider uses its app token and needs the advertising
 permit.
 
 ## Choosing a session

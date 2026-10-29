@@ -1,11 +1,11 @@
 # indexing.register_indexer
 
-Register a new indexer with a human-readable name for the caller and return its assigned nonce. The nonce is used in subsequent `indexing.subscribe` and `indexing.unregister_indexer` calls. Network-originated queries are rejected.
+Register a new indexer with a human-readable name for the caller and return its assigned nonce. The nonce is used in subsequent `indexing.subscribe` and `indexing.unregister_indexer` calls. A network-originated query is answered `origin not allowed: network`.
 
 The caller must hold
 [`mod.auth.serve_objects_action`](../../auth/types/mod.auth.serve_objects_action.md)
-for the `indexer` role. The query is rejected when the caller is not
-authorized.
+for the `indexer` role. The operation answers an `error_message` reading
+`not permitted` when the caller is not authorized.
 
 The registration belongs to the caller. A name is unique on the node. When the caller already owns a registration with the name, the op returns that registration's nonce. When another identity owns it, the op returns an error and no nonce.
 

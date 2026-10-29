@@ -1,6 +1,6 @@
 # user.expel
 
-Permanently ban the named node from the swarm and return the signed expulsion. The caller must hold `mod.user.admin_swarm_action`; the active contract's issuer holds it by default. Answers an `error_message` reading `no active contract` if the node has no active contract. Answers an `error_message` reading `unknown identity` if `identity` does not resolve, and `zero identity` if it resolves to the anonymous identity. Rejected with code `4` if the caller is not authorized. The ban is identity-level and irreversible.
+Permanently ban the named node from the swarm and return the signed expulsion. The caller must hold `mod.user.admin_swarm_action`; the active contract's issuer holds it by default. Answers an `error_message` reading `no active contract` if the node has no active contract. Answers an `error_message` reading `unknown identity` if `identity` does not resolve, and `zero identity` if it resolves to the anonymous identity. Answers `not permitted` if the caller is not authorized. The ban is identity-level and irreversible.
 
 ## Arguments
 

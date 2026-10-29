@@ -3,9 +3,10 @@
 Send a message as the caller. The node writes the outbox before delivery and
 answers when the recipient's node acknowledges storage or delivery fails.
 
-Network and `mcp` origins are rejected first. The caller must have a
-[hosted mailbox](../../../topics/mailbox-hosting.md#hosting); otherwise the
-query is rejected without bytes. Sending also requires
+A `network` or `mcp` query, or a caller without a
+[hosted mailbox](../../../topics/mailbox-hosting.md#hosting), is answered with
+an `error_message` reading `not permitted` before the request is read. Sending
+also requires
 [`mod.messaging.send_action`](../types/mod.messaging.send_action.md) for the
 recipient. Denial returns `unknown recipient: <to>` and writes nothing.
 

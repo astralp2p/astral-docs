@@ -5,10 +5,12 @@ its access token. Mailbox creation follows
 [`messaging.create_mailbox`](../../messaging/ops/messaging.create_mailbox.md).
 [`mcp.list_agents`](mcp.list_agents.md) can recover the token later.
 
-Requires [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-Network queries are rejected before authorization; denied callers receive no
-bytes. If storing the agent record fails, the node attempts to delete the new
-mailbox. Cleanup failure is logged; the record error remains the answer.
+Requires
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+A network query is answered `origin not allowed: network` before authorization;
+a denied caller is answered `not permitted`. If storing the agent record fails,
+the node attempts to delete the new mailbox. Cleanup failure is logged; the
+record error remains the answer.
 
 ## Arguments
 

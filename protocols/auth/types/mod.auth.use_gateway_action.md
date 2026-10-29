@@ -6,11 +6,13 @@ reserve a connection to a registered node, and forward a routed connection
 through the node.
 
 The action gates `gateway.node_register`, `gateway.node_connect`, and the
-forwarding branch of `gateway.node_route`. Each rejects the query when the
+forwarding branch of `gateway.node_route`. Each refuses the query when the
 gateway is disabled. Otherwise each submits the action with the query's caller
-as the actor, and rejects the query when the action is denied. Both refusals
-happen before the query is accepted or any state changes. A refused caller
-receives no bytes.
+as the actor, and refuses the query when the action is denied. Both refusals
+happen before any state changes. `gateway.node_register` and
+`gateway.node_connect` answer an `error_message` reading `not permitted`.
+`gateway.node_route` carries a raw stream, so it rejects the query and its
+caller receives no bytes.
 
 `gateway.node_route` addressed to the node itself is inbound-link admission, not
 gateway use: it keeps its link handshake and submits no action.

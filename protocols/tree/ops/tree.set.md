@@ -4,9 +4,9 @@ Set the value at a path. The value is passed as a typed object via the input str
 
 The caller must hold
 [`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md).
-The query is rejected before it is accepted when the caller is not authorized,
-in single-value and streaming mode alike, and a refused caller receives no
-bytes.
+The operation answers an `error_message` reading `not permitted` before it
+reads any input when the caller is not authorized, in single-value and
+streaming mode alike.
 
 ## Arguments
 

@@ -2,7 +2,8 @@
 
 Bind the lifetime of registered IPC handlers to the query session. The host
 acknowledges, then waits for a `mod.apphost.bind_msg` containing the token of
-the handlers to bind. Local-only — queries from the network are rejected.
+the handlers to bind. Local-only — a query from the network is answered
+`origin not allowed: network`.
 
 When the session closes, the host removes the handlers matching both that token
 and the session that bound. A handler records the guest session that registered

@@ -9,8 +9,9 @@ nothing until a provider answers an evaluation request.
 
 The caller is the provider and must hold
 [`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md).
-A query over a [Link](../../../core-definitions/link.md), the node identity,
-or a caller without that permit is rejected with code 1 and no payload.
+A query over a [Link](../../../core-definitions/link.md) is answered
+`origin not allowed: network`. The node identity, or a caller without that
+permit, is answered `not permitted`.
 
 [`apphost.register`](../../apphost/ops/apphost.register.md) returns an app token
 and requests the advertising grant, subject to registration policy. The node's

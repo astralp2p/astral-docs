@@ -1,6 +1,6 @@
 # user.list_expelled
 
-Stream all signed expulsions issued by the active contract's issuer, terminated by `eos`. The caller must hold `mod.user.see_swarm_action`. Answers an `error_message` reading `no active contract` if the node has no active contract. Rejected with code `4` if the caller is not authorized.
+Stream all signed expulsions issued by the active contract's issuer, terminated by `eos`. The caller must hold `mod.user.see_swarm_action`. Answers an `error_message` reading `no active contract` if the node has no active contract. Answers `not permitted` if the caller is not authorized.
 
 ## Arguments
 

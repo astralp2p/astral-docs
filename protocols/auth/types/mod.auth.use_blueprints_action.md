@@ -5,9 +5,8 @@ read and register the node's [blueprints](../../../topics/blueprints.md).
 
 One action covers every blueprint operation — `objects.blueprints`,
 `objects.get_blueprint` and `objects.register_blueprint`. Each submits the
-action with the query's caller as the actor and rejects the query when the
-action is denied, before it reads or registers a blueprint. A refused caller
-receives no bytes.
+action with the query's caller as the actor and answers `not permitted` when
+the action is denied, before it reads or registers a blueprint.
 
 The action reads no object and writes no object.
 [`mod.auth.see_objects_action`](mod.auth.see_objects_action.md) and
