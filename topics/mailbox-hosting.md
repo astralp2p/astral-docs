@@ -66,9 +66,9 @@ With no grant, no message is sent or admitted. Nonempty permit constraints are
 refused for both actions. Permission changes apply to subsequent checks.
 
 A denied send returns `unknown recipient: <to>` and writes no outbox row. A
-denied receive rejects with `RejectNotAdmitted` (code 5); the sender reads
-`the recipient does not take messages from you`. This rejection reveals that
-the answering node hosts the mailbox, but carries no reason for the denial.
+denied receive is answered `not admitted`; the sender reads
+`the recipient does not take messages from you`. This answer reveals that the
+answering node hosts the mailbox, but carries no reason for the denial.
 An unhosted target returns `route_not_found`. [Message Delivery](message-delivery.md)
 describes how those results reach the sender.
 

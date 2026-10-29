@@ -36,12 +36,16 @@ A receiving node checks in this order:
 1. **Path:** only `messaging.message` and `messaging.receipt` are handled.
    Other paths return `route_not_found` for other routers to try.
 2. **Provenance:** only `network` origin or the node's marked internal send
-   path is accepted. Other provenance, including local apps and MCP declared
-   tools, receives generic reject code 1 before hosting is checked.
+   path is admitted. Other provenance, including local apps and MCP declared
+   tools, is answered `origin not allowed: local` or `origin not allowed: mcp`
+   before hosting is checked.
 3. **Hosting:** an unhosted target returns `route_not_found`.
 4. **Admission:** a receipt needs no action; a message requires
    [`receive_action`](../protocols/messaging/types/mod.messaging.receive_action.md).
-   Denial returns `RejectNotAdmitted`, code 5.
+   Denial answers the delivery with an `error_message` reading `not admitted`.
+
+The node reads the one object a refused query carries before it answers the
+refusal, because the sender writes it before reading the answer.
 
 The receiving side relies on the sending node's send check. A query crossing a
 link is indistinguishable there from a send; provenance is not an additional
@@ -85,9 +89,11 @@ send-authorization failures before delivery leave no outbox row.
 The [send operation](../protocols/messaging/ops/messaging.send_message.md)
 lists delivery errors and their effect on the outbox. `Err` contains bounded
 refusal text, marked when cut; remote text is quoted data, not an instruction.
-Across relays, when none accepts the query, the first rejection other than
-generic code 1 is preserved. Code 5 therefore remains an admission refusal on
-the sending node; see [App Routing](app-routing.md#resolving-the-host).
+A refusal arrives on an accepted query, so it crosses relays unchanged. A node
+that predates `not admitted` rejects with code 5 instead; across relays, when
+none accepts the query, the first rejection other than generic code 1 is
+preserved, so the sending node still reads code 5 as an admission refusal. See
+[App Routing](app-routing.md#resolving-the-host).
 
 ## Receipts
 
