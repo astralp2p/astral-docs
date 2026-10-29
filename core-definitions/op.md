@@ -27,6 +27,10 @@
   instead.
 * An `Op` that closes its `Channel` closes both directions. A later write by
   the `Caller` fails.
+* A `Query` an `Op` neither accepts nor rejects within 5 seconds is rejected
+  with code `6` (timeout).
+* An `Op` that ends without accepting or rejecting its `Query` rejects it with
+  code `4` (internal error).
 * When run over an accepted [`Query`](query.md)'s [`Channel`](channel.md), an `Op`
   reads input [`Objects`](object.md) and writes result `Objects` back. It runs in
   single or batch mode, and single-mode `Ops` compose into pipelines — see
