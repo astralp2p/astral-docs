@@ -112,7 +112,9 @@ Notes on the payload layouts:
   in `ping`/`pong` where it correlates a probe with its reply.
 * `query.Query` and `data.Payload` carry their own 16-bit (`uint16`) length
   prefix inside the frame payload, so each is capped at 65 535 bytes on the wire.
-  A single `query` string or `data` chunk never exceeds that.
+  A single `query` string or `data` chunk never exceeds that. A query string
+  over the cap is rejected before any frame is sent, with
+  [*Reject Code*](../core-definitions/query.md) `2` (invalid query).
 * `relay_query.Query` is the *payload* of a `query` frame embedded inline (the
   three fields `Nonce`, `Buffer`, `Query`); it carries no type tag of its own,
   because the outer `relay_query` frame already announced the type.
