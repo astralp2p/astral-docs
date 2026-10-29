@@ -199,8 +199,9 @@ $ astral-query user.join -node 03b1... -out json
 ```
 
 The swarm node's join policy decides a request, and the new node's invite
-policy decides an invitation. Both accept everything by default
-([user](../protocols/user/README.md)).
+policy decides an invitation. The new node's contract accept policy decides a
+contract activated with `user.accept_contract`. All three accept everything by
+default ([user](../protocols/user/README.md)).
 
 ## Refusals
 
@@ -216,3 +217,4 @@ policy decides an invitation. Both accept everything by default
 | any operation: `denied` | A session without a token sent an operation outside the active `anonymous_allowlist`, or a web page whose origin `trusted_web_sources` does not list sent one before the claim. | Authenticate with a token, or list the origin in `trusted_web_sources`. |
 | `user.join`: `unknown identity`, `zero identity` or `cannot join self` | `node` does not resolve, resolves to the anonymous identity, or names this node. | Name a node of the swarm. |
 | `user.join`: `request declined` | The swarm node's join policy declines the request. | Approve the request on the swarm node, or adopt the node from it. |
+| `user.accept_contract`: `contract declined` | The node's contract accept policy declines the contract, or its delegate does not answer. | Approve the contract on the delegate, or clear the delegate with `user.set_contract_accept_policy`. |
