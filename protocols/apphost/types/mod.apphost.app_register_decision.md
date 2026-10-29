@@ -29,7 +29,8 @@ policy may move a permit between the two lists or drop it.
   "Object": {
     "Allow": true,
     "GrantPermits": [
-      { "Action": "mod.auth.serve_apps_action" }
+      { "Action": "mod.auth.serve_apps_action" },
+      { "Action": "mod.auth.use_blueprints_action" }
     ],
     "ContractPermits": [
       { "Action": "mod.user.see_swarm_action" }
