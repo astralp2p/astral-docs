@@ -4,8 +4,8 @@ A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
 read objects, object metadata, or the repository namespace. Every read operation
 in the objects module submits this action before it acts, and answers
 `not permitted` when it is denied, before it opens a repository.
-[`objects.read`](../../objects/ops/objects.read.md) streams raw bytes, so it
-rejects the query instead.
+[`objects.read`](../../objects/ops/objects.read.md) without `out` streams raw
+bytes, so it rejects the query instead.
 
 One action covers every read — `objects.read`, `objects.load`,
 `objects.contains`, `objects.probe`, `objects.describe`, `objects.scan`,
