@@ -2,7 +2,8 @@
 
 This page lists the surfaces a fresh astrald node opens, who reaches each
 surface, and the setting that opens or closes it. The values are astrald
-defaults at commit `0f7da199`, checked on a throwaway node. A setting lives in
+defaults at commit `0f7da199`, checked on a throwaway node; the rule for
+settings set through the tree is from commit `5f17900d`. A setting lives in
 `<name>.yaml` in the node's config directory.
 
 ## Surfaces
