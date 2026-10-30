@@ -27,6 +27,7 @@ an operation submits its action before it acts.
 * [`mod.auth.admin_manage_apps_action`](types/mod.auth.admin_manage_apps_action.md) – issue, list, and delete app access tokens and MCP agents, and create and delete messaging participants
 * [`mod.auth.configure_node_state_action`](types/mod.auth.configure_node_state_action.md) – change the node's tree and its identity aliases
 * [`mod.auth.serve_apps_action`](types/mod.auth.serve_apps_action.md) – host an app handler and a service advertisement on the node
+* [`mod.auth.register_signer_action`](types/mod.auth.register_signer_action.md) – claim a key on a [`crypto.register_signer`](../crypto/ops/crypto.register_signer.md) binding
 * [`mod.auth.see_node_state_action`](types/mod.auth.see_node_state_action.md) – read the node's tree, directory aliases and filters, agent and participant metadata, and log stream
 * [`mod.auth.use_gateway_action`](types/mod.auth.use_gateway_action.md) – register with the node's gateway, reserve a connection through it, and be forwarded by it
 * [`mod.auth.use_blueprints_action`](types/mod.auth.use_blueprints_action.md) – read and register the node's blueprints
