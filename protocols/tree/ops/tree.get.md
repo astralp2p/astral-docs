@@ -16,7 +16,7 @@ is walked when the caller is not authorized.
 
 The operation returns one of:
 * An `error_message` object if the path does not exist or there was an error.
-* A `nil` object, followed by an `eos` object, when the path exists but holds no value; a module setting then follows the module's built-in default.
+* A `nil` object, followed by an `eos` object (or a stream of updates if `follow` is true), when the path exists but holds no value; a module setting then follows the module's built-in default.
 * A typed object containing the stored value, followed by an `eos` object (or a stream of updates if `follow` is true).
 
 ## Examples

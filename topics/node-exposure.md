@@ -31,8 +31,9 @@ settings set through the tree is from commit `5f17900d`. A setting lives in
   follows the built-in default. A value the file wrote stays in the tree after
   the key is removed, so removing `mode: 1` from `nearby.yaml` leaves a claimed
   node Visible. A `tree.set` of a `nil` object returns the setting to the
-  built-in default. A `tree.set` of an unset value needs an explicit `type`,
-  for example `-type bool -value false`.
+  built-in default. A `tree.set -value` of an unset tcp or kcp `listen` needs
+  an explicit type, for example `-type bool -value false`. The nearby mode has
+  no text form, so it is set with a JSON object on the input stream.
 * `listen` and `dial` in `tor.yaml`, or their built-in defaults, write
   `/mod/tor/settings/listen` and `/mod/tor/settings/dial` at every start. A
   runtime change of either lasts until the next start.
