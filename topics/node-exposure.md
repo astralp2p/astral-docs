@@ -23,11 +23,14 @@ defaults at commit `0f7da199`, checked on a throwaway node. A setting lives in
 * "Without a token" means a session that presents no token, or a peer that
   holds no grant. [Session Identity](session-identity.md) lists both
   allowlists.
-* `listen` in `tcp.yaml`, `kcp.yaml` and `tor.yaml`, and `mode` in
-  `nearby.yaml`, write the tree values `/mod/tcp/settings/listen`,
-  `/mod/kcp/settings/listen`, `/mod/tor/settings/listen` and
-  `/mod/nearby/mode` at every start. A runtime change through the tree lasts
-  until the next start.
+* `listen` in `tcp.yaml` and `kcp.yaml`, and `mode` in `nearby.yaml`, write
+  the tree values `/mod/tcp/settings/listen`, `/mod/kcp/settings/listen` and
+  `/mod/nearby/mode` at every start when the file states the key. Otherwise a
+  value set through the tree persists across restarts, and an unset value
+  follows the built-in default.
+* `listen` and `dial` in `tor.yaml`, or their built-in defaults, write
+  `/mod/tor/settings/listen` and `/mod/tor/settings/dial` at every start. A
+  runtime change of either lasts until the next start.
 * `listen` in `ether.yaml` takes effect at the next start.
 * A registering app holds the permits it asks for. The bundled register policy
   accepts every registration until
