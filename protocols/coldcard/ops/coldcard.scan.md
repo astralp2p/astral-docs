@@ -1,11 +1,11 @@
 # coldcard.scan
 
-Scan for connected Coldcard hardware wallets and update the module's device state.
+Enumerate the attached Coldcard hardware wallets now, read each device's key, and
+update the keys the app claims. The query targets the app's identity.
 
-The caller must hold
-[`mod.coldcard.scan_action`](../types/mod.coldcard.scan_action.md). The
-operation answers an `error_message` reading `not permitted` before any device
-is scanned when the caller is not authorized.
+The caller must be the local [`User`](../../../core-definitions/user.md) or the local
+[`Node`](../../../core-definitions/node.md). The operation answers an `error_message`
+reading `not permitted` before any device is scanned when it is not.
 
 ## Arguments
 
@@ -21,6 +21,6 @@ The operation returns one of:
 ## Examples
 
 ```shellsession
-$ astral-query coldcard.scan -out json
+$ astral-query app-identity:coldcard.scan -out json
 {"Type":"ack","Object":null}
 ```
