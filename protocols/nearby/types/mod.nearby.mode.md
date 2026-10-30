@@ -11,9 +11,9 @@ Controls how the node broadcasts its presence on the local network.
   nodes broadcast.
 * `1` – Visible: the node broadcasts its status, answers scans and scans; the
   attachments depend on the contract state.
-* `2` – Stealth: the node broadcasts its status, answers scans and scans with a
-  `mod.nearby.stealth_hint` that hides the user–node association. A status
-  with no attachments is not sent.
+* `2` – Stealth: the node broadcasts its status and answers scans with a
+  `mod.nearby.stealth_hint` that hides the user–node association. It also
+  scans. A status with no attachments is not sent.
 
 The stored mode is the tree value `/mod/nearby/mode`. `mode` in `nearby.yaml`
 writes it at each start; the default is `2` (Stealth).
@@ -26,7 +26,7 @@ claim.
 
 * A node in mode `1` (Visible) attaches its endpoints: TCP and KCP endpoints,
   its Tor onion endpoint when tor listens, and its gateway endpoints. It also
-  attaches its alias.
+  attaches its alias when one is set.
 * An unclaimed node in mode `1` (Visible) also attaches a `mod.nearby.flag`
   reading `adoptable` and a `mod.nearby.public_profile` with its node identity
   and alias.
