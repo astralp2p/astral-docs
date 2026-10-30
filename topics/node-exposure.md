@@ -11,13 +11,13 @@ defaults at commit `0f7da199`, checked on a throwaway node. A setting lives in
 |---|---|---|---|---|---|
 | TCP links | `:1791`, all interfaces | host, LAN, internet | any identity links; see [Linked peers](#linked-peers) | same | `tcp.yaml` `listen`, `listen_port` |
 | KCP links | `:1792` UDP, all interfaces | host, LAN, internet | as TCP links | as TCP links | `kcp.yaml` `listen`, `listen_port` |
-| Tor onion service | off | internet through Tor | as TCP links, when on | as TCP links, when on | `tor.yaml` `listen: true`; needs a Tor control port at `127.0.0.1:9051` |
+| Tor onion service | off | internet through Tor | as TCP links, when on | as TCP links, when on | `tor.yaml` `listen: true`; needs a Tor control port at `control_addr` (default `127.0.0.1:9051`) |
 | ether discovery | `:8822` UDP, all interfaces | LAN | carries nearby | carries nearby | `ether.yaml` `listen`, `udp_port` |
-| nearby status and scan reply | over ether | LAN | `adoptable` flag, public profile, endpoints, alias | stealth hint only | `nearby.yaml` `mode`; `0` sends nothing |
+| nearby status and scan reply | over ether | LAN | node identity as the signed source; `adoptable` flag, public profile, endpoints, alias | node identity as the signed source; stealth hint | `nearby.yaml` `mode`; `0` sends nothing |
 | apphost IPC | `tcp:127.0.0.1:8625`, `unix:~/.apphost.sock` | host | the unclaimed allowlist | the claimed allowlist | `apphost.yaml` `listen`, `allow_anonymous`, `anonymous_allowlist` |
-| apphost HTTP | `tcp:127.0.0.1:8624` | host, and any page open in a local browser | `/.ws`: the unclaimed allowlist, any `Origin`; other paths answer `401` | `/.ws`: the claimed allowlist, any `Origin`; other paths answer `401` | `apphost.yaml` `bind_http`, `allow_anonymous`, `anonymous_allowlist` |
+| apphost HTTP | `tcp:127.0.0.1:8624` | host, and any page open in a local browser | `/.ws`: the unclaimed allowlist, any `Origin`; other paths answer `401`, except `OPTIONS` | `/.ws`: the claimed allowlist, any `Origin`; other paths answer `401`, except `OPTIONS` | `apphost.yaml` `bind_http`, `allow_anonymous`, `anonymous_allowlist`; `/.ws` answers `403` to a non-loopback client whatever `bind_http` is |
 | MCP | `tcp:127.0.0.1:8626` | host | none: a request needs a bearer token | same | `mcp.yaml` `bind_mcp`; empty disables the server |
-| gateway | serves no node; registers with no gateway | none | none | none | `gateway.yaml` `gateway.enabled`, `gateways`, `visibility` |
+| gateway | serves no node; registers with no gateway | none | none | none | `gateway.yaml` `gateway.enabled` with a port under `gateway.networks`, `gateways`, `visibility` |
 | fwd forwards | none | per forward | each TCP client runs the `astral://` target query as the node, or as the `caller@` the target names | same | `fwd.yaml` `forwards` |
 
 * "Without a token" means a session that presents no token, or a peer that
@@ -69,6 +69,13 @@ that the peer fails under the default config.
 
 ## Reset
 
-Removing the data directory resets the node. The node gets a new identity and
-a new onion address, and its claim, issued tokens and grants are removed. No
-operation resets a node in place.
+Removing the data directory resets the node. The node gets a new identity, and
+its claim, issued tokens and grants are removed. A node whose tor listens gets a
+new onion address. A token that `tokens:` in `apphost.yaml` lists returns at the
+next start when its identity resolves without the database: `localnode`, a
+public key or a DNS name. On macOS and Windows the data directory is the config
+directory, so a reset there also removes the `<name>.yaml` settings.
+
+No operation resets a node in place. An expulsion that names the node clears
+its active contract, and the node then acts as unclaimed; its identity, tokens
+and grants stay.
