@@ -11,8 +11,8 @@ worthless off this node. A signed node→app contract is portable evidence
 another node verifies, durable until it expires. A permit is the same clause on
 either record.
 
-Asking is not receiving: the node's register policy decides what the new
-identity actually holds of what the app asked for. The answer carries the token
+Asking is not receiving: the node's register policy decides which of the
+asked-for permits the new identity holds. The answer carries the token
 alone, so an app learns what it was granted by using it.
 [`apphost.set_app_register_policy`](apphost.set_app_register_policy.md) selects
 the register policy. The policy receives the request as a
