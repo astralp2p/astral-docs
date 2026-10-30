@@ -16,7 +16,9 @@ Controls how the node broadcasts its presence on the local network.
   scans. A status with no attachments is not sent.
 
 The stored mode is the tree value `/mod/nearby/mode`. `mode` in `nearby.yaml`
-writes it at each start; the default is `2` (Stealth).
+writes it at each start when the file states the key. Otherwise a mode set
+through the tree persists across restarts. An unset stored mode reads as `2`
+(Stealth) on a claimed node.
 
 While no user identity is set, the node acts in mode `1` (Visible) unless the
 stored mode is `0` (Silent). A stored `0` (Silent) applies before and after the
