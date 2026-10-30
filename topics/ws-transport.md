@@ -18,11 +18,13 @@ The `/.ws` upgrade negotiates one of two subprotocols via the
 The connection is closed with `StatusPolicyViolation` (1008) if neither
 subprotocol is offered.
 
-Any `Origin` is accepted at the WebSocket layer — the endpoint is
-loopback-only at the network layer, so a remote page cannot reach it
-regardless of `Origin`. The HTTP `Authorization: Bearer` header used by the
-rest of the HTTP bridge is not consulted for `/.ws`; authentication uses the
-in-protocol auth token message.
+Any `Origin` is accepted at the WebSocket layer. The endpoint is
+loopback-only at the network layer, which keeps other hosts out, but any
+page open in a local browser connects from loopback and reaches it,
+whatever its `Origin`. Without a token, that page reaches the node's
+claim-state allowlist, `user.bootstrap` included before the claim. The HTTP
+`Authorization: Bearer` header used by the rest of the HTTP bridge is not
+consulted for `/.ws`; authentication uses the in-protocol auth token message.
 
 ## Endpoint and framing
 
@@ -116,8 +118,7 @@ Notes:
   claim-state allowlist, the same list an IPC guest has: `user.info`,
   `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`
   and `.spec` while the node is unclaimed, and `user.info`,
-  `apphost.register` and `.spec` afterwards. While the node is unclaimed, a page whose
-  origin `trusted_web_sources` does not list may call none.
+  `apphost.register` and `.spec` afterwards, whatever the page's `Origin`.
   [Operations](../core-definitions/op.md) outside the list are refused with
   `error_msg{denied}`. Authenticating lifts the restriction. See
   [apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token).

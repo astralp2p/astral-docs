@@ -37,9 +37,9 @@ same rules. A node also joins an existing swarm from its own side
   A local caller that presents no identity acts as the node.
 * A session without a token also reaches `.spec`, before and after the claim.
   `.spec` lists the node's operations and changes nothing.
-* A WebSocket session without a token reaches those operations only from a
-  browser origin listed in `trusted_web_sources`. Any page open in a local
-  browser reaches the WebSocket endpoint.
+* A WebSocket session without a token reaches those operations from any
+  browser origin. Any page open in a local browser can claim an unclaimed node.
+  [Node Exposure](node-exposure.md) lists every surface a fresh node opens.
 * The step-by-step operations run with the node's token: a token that
   `tokens:` in `apphost.yaml` maps to `localnode`. A session authenticated with
   it acts as the node.
@@ -210,7 +210,7 @@ default ([user](../protocols/user/README.md)).
 | `user.bootstrap`: `not permitted` | The caller is not the node. | Call from a local session without a token, or with the node's own token. |
 | `user.bootstrap`: `claim refused: the claim rule of auth.sign_contract refuses this user` | The node was claimed while the claim was signed. | — |
 | `user.bootstrap`: `invalid mnemonic` | The words fail the BIP-39 checksum. | Check the words. |
-| any operation: `denied` | A session without a token sent an operation outside the active `anonymous_allowlist`, or a web page whose origin `trusted_web_sources` does not list sent one before the claim. | Authenticate with a token, or list the origin in `trusted_web_sources`. |
+| any operation: `denied` | A session without a token sent an operation outside the active `anonymous_allowlist`. | Authenticate with a token. |
 | `user.join`: `unknown identity`, `zero identity` or `cannot join self` | `node` does not resolve, resolves to the anonymous identity, or names this node. | Name a node of the swarm. |
 | `user.join`: `request declined` | The swarm node's join policy declines the request. | Approve the request on the swarm node, or adopt the node from it. |
 | `user.accept_contract`: `contract declined` | The node's contract accept policy declines the contract, or its delegate does not answer. | Approve the contract on the delegate, or clear the delegate with `user.set_contract_accept_policy`. |

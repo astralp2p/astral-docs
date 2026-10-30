@@ -11,24 +11,20 @@ worthless off this node. A signed node→app contract is portable evidence
 another node verifies, durable until it expires. A permit is the same clause on
 either record.
 
-Asking is not receiving: the node joins what the caller's origin is entitled to
-with what the app asked for, and its register policy decides what the new
-identity actually holds. The answer carries the token alone, so an app learns
-what it was granted by using it.
+Asking is not receiving: the node's register policy decides which of the
+asked-for permits the new identity holds. The answer carries the token
+alone, so an app learns what it was granted by using it.
 [`apphost.set_app_register_policy`](apphost.set_app_register_policy.md) selects
 the register policy. The policy receives the request as a
 [`mod.apphost.app_register_request`](../types/mod.apphost.app_register_request.md).
-
-The permits a trusted web origin is entitled to join the contract request, not
-the grant request.
 
 A session without a token reaches `apphost.register` on an unclaimed and on a
 claimed node ([Sessions without a token](../README.md#sessions-without-a-token)).
 Until `apphost.set_app_register_policy` names a delegate, the default policy
 writes every permit an app asks for,
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
-included. Any local program that registers before a delegate is set holds what
-it asks for.
+included. Any local program, or any page open in a local browser, that
+registers before a delegate is set holds what it asks for.
 
 Every registration also asks for node-local grants of
 [`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md)
@@ -42,9 +38,8 @@ with [`services.advertise`](../../services/ops/services.advertise.md), and sync
 its blueprints with the node.
 
 What an app asks for at registration grants no service discovery.
-`grant_permits`, `contract_permits` and the permits of a trusted web origin
-carry no constraints, and an unconstrained
-[`mod.services.service_discovery_action`](../../services/types/mod.services.service_discovery_action.md)
+`grant_permits` and `contract_permits` carry no constraints, and an
+unconstrained [`mod.services.service_discovery_action`](../../services/types/mod.services.service_discovery_action.md)
 permit allows nothing. Only a delegated register policy that returns a
 constrained permit, or a later [`apphost.grant`](apphost.grant.md), grants it:
 the action `mod.services.service_discovery_action` with `-constrained true` and
