@@ -27,7 +27,11 @@ defaults at commit `0f7da199`, checked on a throwaway node. A setting lives in
   the tree values `/mod/tcp/settings/listen`, `/mod/kcp/settings/listen` and
   `/mod/nearby/mode` at every start when the file states the key. Otherwise a
   value set through the tree persists across restarts, and an unset value
-  follows the built-in default.
+  follows the built-in default. A value the file wrote stays in the tree after
+  the key is removed, so removing `mode: 1` from `nearby.yaml` leaves a claimed
+  node Visible. A `tree.set` of a `nil` object returns the setting to the
+  built-in default. A `tree.set` of an unset value needs an explicit `type`,
+  for example `-type bool -value false`.
 * `listen` and `dial` in `tor.yaml`, or their built-in defaults, write
   `/mod/tor/settings/listen` and `/mod/tor/settings/dial` at every start. A
   runtime change of either lasts until the next start.
@@ -75,11 +79,12 @@ that the peer fails under the default config.
 ## Reset
 
 Removing the data directory resets the node. The node gets a new identity, and
-its claim, issued tokens and grants are removed. A node whose tor listens gets a
-new onion address. A token that `tokens:` in `apphost.yaml` lists returns at the
-next start when its identity resolves without the database: `localnode`, a
-public key or a DNS name. By default on macOS and Windows, the data directory is
-the config directory, so a reset there also removes the `<name>.yaml` settings.
+its claim, issued tokens, grants and the settings set through the tree are
+removed. A node whose tor listens gets a new onion address. A token that
+`tokens:` in `apphost.yaml` lists returns at the next start when its identity
+resolves without the database: `localnode`, a public key or a DNS name. By
+default on macOS and Windows, the data directory is the config directory, so a
+reset there also removes the `<name>.yaml` settings.
 
 No operation resets a node in place. An expulsion that names the node clears
 its active contract, and the node then acts as unclaimed; its identity, tokens
