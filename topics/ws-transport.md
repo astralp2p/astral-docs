@@ -69,7 +69,9 @@ Handshake on every WS opened by the library:
 4. The WS is now ready for one query or one registration.
 
 Per-query WSes opened by `IncomingQuery.accept()` skip step 3 — the
-unguessable `QueryID` is the pairing token.
+unguessable `QueryID` is the pairing token. The host picks a fresh `QueryID`
+for each notification and sends it only on the registration WS; it is not the
+query's nonce.
 
 ## Sending queries (outbound)
 
@@ -169,7 +171,8 @@ Two WSes are involved:
   by `s.close()`.
 - `q.reject(code = 1)` sends `mod.apphost.reject_incoming_msg`
   → `{ QueryID, Code }` on the **registration** WS — no per-query WS is
-  opened. `code` must be in the range 1–255.
+  opened. The host ignores a reject sent on any other WS. `code` must be in
+  the range 1–255.
 - `accept` and `reject` are one-shot; either must occur within the host's
   5-second attach timeout, otherwise the caller sees `route_not_found`.
 

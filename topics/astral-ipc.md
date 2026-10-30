@@ -112,8 +112,11 @@ closes the connection. One **accepted** query per connection — a guest may
 issue any number of `RouteQueryMsg`s on one connection so long as each is
 refused; the first acceptance consumes it.
 
-A query in flight can be cancelled by opening a separate session and routing
-`apphost.cancel?query_id=<Nonce>` to the host.
+A query in flight can be cancelled by a separate session authenticated as the
+same identity, routing
+[`apphost.cancel`](../protocols/apphost/ops/apphost.cancel.md)`?query_id=<Nonce>`
+to the host. A query launched without a token is cancellable only under
+[`mod.auth.admin_manage_apps_action`](../protocols/auth/types/mod.auth.admin_manage_apps_action.md).
 
 ## Receiving queries
 
@@ -144,6 +147,10 @@ host → guest: mod.apphost.incoming_query_msg {
               }
 ```
 
+`QueryID` is a fresh nonce the host picks for this notification and sends only
+on the registration connection. It is not the query's `Nonce`, which the caller
+chooses.
+
 Within `QueryAttachTimeout` (5 s) the guest must do one of:
 
 - **Accept** — open a *new* IPC connection, complete the handshake (no
@@ -164,7 +171,9 @@ Within `QueryAttachTimeout` (5 s) the guest must do one of:
   guest → host: mod.apphost.reject_incoming_msg { QueryID, Code: Uint8 }
   ```
 
-  The caller observes `query_rejected_msg{Code}`.
+  The caller observes `query_rejected_msg{Code}`. The host ignores a
+  `reject_incoming_msg` that arrives on any other connection, as it ignores an
+  unknown `QueryID`.
 
 - **Ignore** — after the timeout the caller observes `route_not_found`.
 
