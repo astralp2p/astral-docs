@@ -17,7 +17,7 @@ defaults at commit `0f7da199`, checked on a throwaway node. A setting lives in
 | apphost IPC | `tcp:127.0.0.1:8625`, `unix:~/.apphost.sock` | host | the unclaimed allowlist | the claimed allowlist | `apphost.yaml` `listen`, `allow_anonymous`, `anonymous_allowlist` |
 | apphost HTTP | `tcp:127.0.0.1:8624` | host, and any page open in a local browser | `/.ws`: the unclaimed allowlist, any `Origin`; other paths answer `401`, except `OPTIONS` | `/.ws`: the claimed allowlist, any `Origin`; other paths answer `401`, except `OPTIONS` | `apphost.yaml` `bind_http`, `allow_anonymous`, `anonymous_allowlist`; `/.ws` answers `403` to a non-loopback client whatever `bind_http` is |
 | MCP | `tcp:127.0.0.1:8626` | host | none: a request needs a bearer token | same | `mcp.yaml` `bind_mcp`; empty disables the server |
-| gateway | serves no node; registers with no gateway | none | none | none | `gateway.yaml` `gateway.enabled` with a port under `gateway.networks`, `gateways`, `visibility` |
+| gateway | serves no node; registers with no gateway | none | none | none | `gateway.yaml` `gateway.enabled` with a `tcp` port under `gateway.networks`, `gateways`, `visibility` |
 | fwd forwards | none | per forward | each TCP client runs the `astral://` target query as the node, or as the `caller@` the target names | same | `fwd.yaml` `forwards` |
 
 * "Without a token" means a session that presents no token, or a peer that
@@ -55,8 +55,10 @@ link. A linked peer that holds no grant reaches these operations:
   `objects.push`, `secp256k1.new`, `shell.spec`, `.spec`, and
   `gateway.node_route` naming the node itself.
 * On an unclaimed node only:
-  [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md) and
-  [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md).
+  [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md),
+  [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md),
+  and [`user.info`](../protocols/user/ops/user.info.md), which answers
+  `no active contract`.
   A linked peer can claim an unclaimed node under the bundled invite policy.
 * On a claimed node only:
   [`user.request_membership`](../protocols/user/ops/user.request_membership.md).
@@ -73,8 +75,8 @@ Removing the data directory resets the node. The node gets a new identity, and
 its claim, issued tokens and grants are removed. A node whose tor listens gets a
 new onion address. A token that `tokens:` in `apphost.yaml` lists returns at the
 next start when its identity resolves without the database: `localnode`, a
-public key or a DNS name. On macOS and Windows the data directory is the config
-directory, so a reset there also removes the `<name>.yaml` settings.
+public key or a DNS name. By default on macOS and Windows, the data directory is
+the config directory, so a reset there also removes the `<name>.yaml` settings.
 
 No operation resets a node in place. An expulsion that names the node clears
 its active contract, and the node then acts as unclaimed; its identity, tokens
