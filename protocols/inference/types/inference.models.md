@@ -21,8 +21,8 @@ caller may not use, not one the provider lacks.
   "Type": "inference.models",
   "Object": {
     "Models": [
-      {"ID": "gpt-4o-mini", "ContextWindow": 128000, "MaxOutput": 16384, "Modalities": ["text", "image"], "Streams": true},
-      {"ID": "gpt-4o", "ContextWindow": 128000, "MaxOutput": 16384, "Modalities": ["text", "image"], "Streams": true}
+      {"ID": "atlas-8b", "ContextWindow": 32768, "MaxOutput": 4096, "Modalities": ["text"], "Streams": true, "Tools": true},
+      {"ID": "atlas-32b", "ContextWindow": 131072, "MaxOutput": 8192, "Modalities": ["text", "image"], "Streams": true, "DefaultEffort": "low", "Tools": true}
     ]
   }
 }

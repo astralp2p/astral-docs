@@ -75,7 +75,7 @@ Contents:
   * [crypto](protocols/crypto/README.md) - signing and verifying hashes and text, public key derivation
   * [dir](protocols/dir/README.md) - alias management, identity resolution
   * [ether](protocols/ether/README.md) - LAN UDP broadcast for node presence and discovery
-  * [inference](protocols/inference/README.md) - model inference: inventory via discovery, streamed completions
+  * [inference](protocols/inference/README.md) - model inference: inventory via discovery, streamed completions with tool calls
   * [lna](protocols/lna/README.md) - lightning network analytics
   * [mcp](protocols/mcp/README.md) - AI agents, mail tools, and declared queries over MCP
   * [messaging](protocols/messaging/README.md) - hosted mailboxes and mail between identities
