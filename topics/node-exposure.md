@@ -52,7 +52,7 @@ link. A linked peer that holds no grant reaches these operations:
   `crypto.public_key`, `crypto.verify_hash_signature`,
   `crypto.verify_text_signature`, `dir.get_alias`, `dir.resolve`,
   `gateway.node_list`, `gateway.node_unregister`, `objects.new`,
-  `objects.push`, `secp256k1.new`, `shell.spec`, `user.info`, `.spec`, and
+  `objects.push`, `secp256k1.new`, `shell.spec`, `.spec`, and
   `gateway.node_route` naming the node itself.
 * On an unclaimed node only:
   [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md) and
@@ -64,8 +64,8 @@ link. A linked peer that holds no grant reaches these operations:
   contract. A swarm member passes the checks that admit the user's nodes, such
   as [`mod.auth.admin_network_action`](../protocols/auth/types/mod.auth.admin_network_action.md).
 
-Every other operation refuses a network caller, or requires a grant that the
-peer does not hold.
+Every other operation refuses a network caller, or requires an authorization
+that the peer fails under the default config.
 
 ## Reset
 
