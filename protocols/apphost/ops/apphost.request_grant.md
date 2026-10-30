@@ -38,9 +38,8 @@ The operation answers `not permitted` to any query that does not come from an
 IPC or WebSocket session with a token, such as a query over the
 [HTTP transport](../../../topics/http-transport.md) or a query the node issues
 itself. A bearer token on an HTTP request does not make it such a session. The
-operation also answers
-`origin not allowed: network` to a query that arrived over a
-[`Link`](../../../core-definitions/link.md).
+operation also answers `origin not allowed: network` to a query that arrived
+over a [`Link`](../../../core-definitions/link.md).
 
 ## Arguments
 
