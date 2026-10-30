@@ -1,6 +1,8 @@
 # crypto.sign_hash
 
-Sign a hash with a private key held by the node. The signer key defaults to the caller's identity; pass `key` (or send a `mod.crypto.public_key` on the stream) to select a different public key whose corresponding private key the node owns.
+Sign a hash with a private key held by the node, or through the app that holds a [`crypto.register_signer`](crypto.register_signer.md) binding for the key. The signer key defaults to the caller's identity; pass `key` (or send a `mod.crypto.public_key` on the stream) to select a different public key.
+
+A local private key signs first. A signature from a binding may wait for a person to approve it, for up to `signer_timeout` (`crypto.yaml`, default 5 minutes).
 
 Signing under any key other than the caller's identity requires
 [`mod.auth.sudo_action`](../../auth/types/mod.auth.sudo_action.md) for the
