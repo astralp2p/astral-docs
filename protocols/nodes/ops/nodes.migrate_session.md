@@ -7,6 +7,14 @@ The caller must hold
 The operation answers an `error_message` reading `not permitted` before the
 session or the link is looked up when the caller is not authorized.
 
+Without `start`, the operation is the responder side of a migration that the
+node across the session's current [`Link`](../../../core-definitions/link.md)
+initiates. After the session and that link are found, the operation answers
+`not permitted` unless the caller is the remote identity of that link. The
+session's peer passes only when it is that node, so an app that relayed the
+session in, or the app the session is routed to, is refused. With `start`,
+`mod.auth.admin_network_action` is the only permission check.
+
 ## Arguments
 
 * session_id (nonce64, required) – The id of the session to migrate.
@@ -17,7 +25,7 @@ session or the link is looked up when the caller is not authorized.
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the session or link cannot be found, the session is in an invalid state, or the session is already on the target link.
+* An `error_message` object if the caller is not permitted, the session or link cannot be found, the session is in an invalid state, or the session is already on the target link.
 * An `ack` object when `start=true` and the manual migration completes successfully.
 * A sequence of `mod.nodes.migrate_signal` objects (`switched`, then `done`) interleaved with peer signals (`ready`, `resume`) when running the negotiated handshake.
 

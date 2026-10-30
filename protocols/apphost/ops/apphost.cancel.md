@@ -9,16 +9,16 @@ and no other does. The record names the session's authenticated
 second connection authenticating with the same token cancels the query too. A
 caller-supplied identity establishes no ownership.
 
-A query launched by a token-less session records no owner. Such a query stays
-cancellable by any local session.
+A query launched by a token-less session records no owner. No session owns
+such a query, so only the administrative path below cancels it.
 
 A caller holding
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
-cancels a query owned by another session. The action carries the requesting
-session's authenticated identity as its actor, so a token-less session never
-reaches this path.
+cancels a query owned by another session or by none. The action carries the
+requesting session's authenticated identity as its actor, so a token-less
+session never reaches this path.
 
-A query owned by another session is answered as a query that is not en route.
+A query the caller may not cancel is answered as a query that is not en route.
 The two responses are identical, so a caller learns nothing about the nonces
 other apps hold.
 

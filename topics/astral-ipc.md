@@ -144,6 +144,10 @@ host → guest: mod.apphost.incoming_query_msg {
               }
 ```
 
+`QueryID` is a fresh nonce the host picks for this notification and sends only
+on the registration connection. It is not the query's `Nonce`, which the caller
+chooses.
+
 Within `QueryAttachTimeout` (5 s) the guest must do one of:
 
 - **Accept** — open a *new* IPC connection, complete the handshake (no
@@ -164,7 +168,9 @@ Within `QueryAttachTimeout` (5 s) the guest must do one of:
   guest → host: mod.apphost.reject_incoming_msg { QueryID, Code: Uint8 }
   ```
 
-  The caller observes `query_rejected_msg{Code}`.
+  The caller observes `query_rejected_msg{Code}`. The host ignores a
+  `reject_incoming_msg` that arrives on any other connection, as it ignores an
+  unknown `QueryID`.
 
 - **Ignore** — after the timeout the caller observes `route_not_found`.
 
