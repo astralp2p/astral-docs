@@ -7,11 +7,11 @@ by a registered app or agent that needs an action it did not ask for at
 The grantee is the identity of the session's access token. A query the session
 makes as another identity under a
 [`mod.auth.sudo_action`](../../auth/types/mod.auth.sudo_action.md) permit still
-grants to the session's identity. Any session with a token may ask. Asking
-needs no permit.
+grants to the session's identity. Any IPC or WebSocket session with a token
+may ask. Asking needs no permit.
 
 Asking is not receiving: the node's grant request policy decides the request as
-a whole. Either every permit asked for is granted or none is.
+a whole. The policy approves every permit asked for or none of them.
 [`apphost.set_grant_request_policy`](apphost.set_grant_request_policy.md)
 selects the policy. The policy receives the request as a
 [`mod.apphost.grant_request`](../types/mod.apphost.grant_request.md), which
@@ -23,15 +23,23 @@ An approved request writes one node-local grant per permit, the record
 [`apphost.grant`](apphost.grant.md) writes. Each recorded permit carries no
 constraints and no delegation, and lasts until
 [`apphost.revoke`](apphost.revoke.md) withdraws it. A grant replaces whatever
-the identity held for the same action, so an approval replaces a narrower grant
-of that action. A grant allows its action before any authorizer is asked, so it
-takes precedence over an authorizer assignment recorded for the identity.
+the identity held for the same action. A grant that allows its action does so
+before any authorizer is asked, so it takes precedence over an authorizer
+assignment recorded for the identity. An unconstrained
+[`mod.services.service_discovery_action`](../../services/types/mod.services.service_discovery_action.md)
+permit allows nothing, so an approved request for it replaces a constrained
+discovery grant with one that allows nothing.
+[`apphost.grant`](apphost.grant.md) with `-constrained true` records a
+constrained discovery grant.
 
-A session without a token is refused before routing
-([Sessions without a token](../README.md#sessions-without-a-token)). The
-operation answers `not permitted` to any other query that does not come from a
-session with a token, such as a query the node issues itself. The operation
-also answers `origin not allowed: network` to a query that arrived over a
+The default `anonymous_allowlist` refuses a session without a token before
+routing ([Sessions without a token](../README.md#sessions-without-a-token)).
+The operation answers `not permitted` to any query that does not come from an
+IPC or WebSocket session with a token, such as a query over the
+[HTTP transport](../../../topics/http-transport.md) or a query the node issues
+itself. A bearer token on an HTTP request does not make it such a session. The
+operation also answers
+`origin not allowed: network` to a query that arrived over a
 [`Link`](../../../core-definitions/link.md).
 
 ## Arguments
@@ -48,7 +56,8 @@ The operation returns one of:
 * An `error_message` object reading `origin not allowed: network` if the query
   arrived over a link.
 * An `error_message` object reading `not permitted` if the query does not come
-  from a session with a token.
+  from an IPC or WebSocket session with a token, including a query over the
+  HTTP transport.
 * An `error_message` object reading `missing permits` if `permits` names no
   action.
 * An `error_message` object reading `grant declined` if the node's grant
