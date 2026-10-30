@@ -4,6 +4,12 @@ Place a hold on an object on behalf of the calling app, preventing it from being
 purged for the hold's duration. Local-only — a query from the network is
 answered `origin not allowed: network`.
 
+The caller must hold
+[`mod.auth.store_objects_action`](../../auth/types/mod.auth.store_objects_action.md).
+The operation answers an `error_message` reading `not permitted` when the caller
+is not authorized, before it reads any input, in single and batch mode. It places
+no hold. The action names no repository and no type.
+
 ## Arguments
 
 * id (object_id.sha256) – The object to hold. When omitted the op enters batch mode and reads object IDs from the input stream.
@@ -34,7 +40,7 @@ so this operation refuses it with the text `partial object id`.
 ## Returned objects
 
 With `id` set, the operation returns one of:
-* An `error_message` object if the caller is missing an identity, the object id is missing, the object id is a `Partial Object ID`, or the database call failed.
+* An `error_message` object if the caller is missing an identity, the caller is not authorized, the object id is missing, the object id is a `Partial Object ID`, or the database call failed.
 * An `ack` object if the hold was placed.
 
 In batch mode the operation returns one `ack` or `error_message` per input, in input order; a failed input does not end the batch, and an input of an unexpected type is answered with an `error_message`. An explicit EOS input is answered with a final EOS; a stream ended by EOF is not.
