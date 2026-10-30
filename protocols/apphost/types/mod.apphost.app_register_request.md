@@ -13,8 +13,7 @@ reads one from its input stream for each
   node-local grants. The list always begins with
   `mod.auth.serve_apps_action` and `mod.auth.use_blueprints_action`.
 * ContractPermits ([]mod.auth.permit) – The permits the app asks to hold in a
-  signed node→app contract, joined with the permits the caller's web origin is
-  entitled to.
+  signed node→app contract.
 
 ## Example
 

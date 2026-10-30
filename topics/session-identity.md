@@ -41,9 +41,10 @@ These `apphost.yaml` settings control admission:
 |---------|---------|--------|
 | `allow_anonymous` | `true` | `false` refuses all queries without a token, including setup and registration. |
 | `anonymous_allowlist` | the lists above | Replaces either the `unclaimed` or `claimed` list. A replacing list admits `.spec` only if it names `.spec`. |
-| `trusted_web_sources` | one test origin | On an unclaimed node, a token-less WebSocket session with an `Origin` header requires a listed origin. Each origin also supplies registration permit requests. |
 
-A WebSocket session without an `Origin` header follows the IPC admission rules.
+A WebSocket session follows the IPC admission rules, whatever its `Origin`
+header. Any page open in a local browser reaches the allowed operations in both
+node states.
 
 ## The node's token
 
