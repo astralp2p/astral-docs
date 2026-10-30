@@ -33,10 +33,9 @@ it.
 | `unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`, `.spec` |
 | `claimed` | `user.info`, `apphost.register`, `.spec` |
 
-* While the node is unclaimed, a WebSocket session without a token is refused
-  every operation unless its browser origin is a key of `trusted_web_sources`.
-  A WebSocket client that sends no `Origin` header is confined as an IPC
-  session is.
+* A WebSocket session without a token is confined as an IPC session is,
+  whatever its `Origin` header. Any page open in a local browser reaches the
+  operations of the active list.
 * `.spec` lists the node's operations and changes nothing. A session without a
   token learns the operations before it holds a token.
 * `allow_anonymous: false` refuses every query of a session without a token.

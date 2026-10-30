@@ -116,8 +116,7 @@ Notes:
   claim-state allowlist, the same list an IPC guest has: `user.info`,
   `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`
   and `.spec` while the node is unclaimed, and `user.info`,
-  `apphost.register` and `.spec` afterwards. While the node is unclaimed, a page whose
-  origin `trusted_web_sources` does not list may call none.
+  `apphost.register` and `.spec` afterwards, whatever the page's `Origin`.
   [Operations](../core-definitions/op.md) outside the list are refused with
   `error_msg{denied}`. Authenticating lifts the restriction. See
   [apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token).
