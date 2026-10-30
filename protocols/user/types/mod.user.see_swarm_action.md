@@ -9,7 +9,9 @@ matches a permit to the action by object type.
 One action gates every read op in the `user` protocol — `user.info`,
 `user.assets`, `user.sync_assets`, `user.list_siblings`, `user.swarm_status`
 and `user.list_expelled`. Between them they answer one question: who and what
-belongs to this swarm.
+belongs to this swarm. `user.new_node_contract` asks it when `user` is omitted on
+a node with an active contract, since its default user is the active contract's
+issuer.
 
 A permit carrying constraints is refused. This action evaluates no constraint,
 so honouring a narrowed permit would grant it in full.

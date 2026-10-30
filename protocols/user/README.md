@@ -33,7 +33,8 @@ each decision to an operation of another identity. Every setter requires
 
 Two actions gate the protocol. `mod.user.see_swarm_action` covers every read —
 `user.info`, `user.assets`, `user.sync_assets`, `user.list_siblings`,
-`user.swarm_status` and `user.list_expelled`. `mod.user.admin_swarm_action`
+`user.swarm_status` and `user.list_expelled` — and `user.new_node_contract`
+when `user` is omitted on a claimed node. `mod.user.admin_swarm_action`
 covers every change to what the swarm holds — `user.adopt`, `user.expel`,
 `user.add_asset`, `user.remove_asset` and `user.sync_with`, which applies
 another node's entries to this one. A node contract issued to a management node

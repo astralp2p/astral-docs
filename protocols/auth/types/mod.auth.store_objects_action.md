@@ -1,12 +1,13 @@
 # mod.auth.store_objects_action
 
 A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
-write objects into the node: storing bytes, adding a repository, and turning
-indexing of a repository on or off.
+write objects into the node: storing bytes, adding a repository, turning
+indexing of a repository on or off, and holding an object against purge.
 
 One action covers every write that adds to node state — `objects.store`,
-`objects.create`, `objects.echo`, `objects.new_mem` and
-`indexing.enable_repo`. Registering a blueprint answers to
+`objects.create`, `objects.echo`, `objects.new_mem`,
+`indexing.enable_repo` and `apphost.hold_object`. A hold keeps an object from
+`objects.purge`, so it is a write to node state. Registering a blueprint answers to
 [`mod.auth.use_blueprints_action`](mod.auth.use_blueprints_action.md).
 Indexing state is node-wide: enabling a repository indexes every object in it
 from then on, so it is a write to node state.
