@@ -15,6 +15,9 @@ When `user` is omitted on a node with an active contract, the caller must hold
 [`mod.user.see_swarm_action`](../types/mod.user.see_swarm_action.md), the action
 `user.info` asks for the same identity. The operation answers `not permitted`
 when the caller is not authorized. A caller that names `user` needs no action.
+The check mirrors `user.info` and keeps the user identity from no local app:
+[`dir.resolve`](../../dir/ops/dir.resolve.md) answers `localuser` with it
+without an action, and `user=localuser` names it here.
 
 [`auth.sign_contract`](../../auth/ops/auth.sign_contract.md) signs this
 contract, unmodified, for the node's own session while the node is unclaimed

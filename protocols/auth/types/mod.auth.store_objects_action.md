@@ -1,8 +1,8 @@
 # mod.auth.store_objects_action
 
 A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
-write objects into the node: storing bytes, adding a repository, and turning
-indexing of a repository on or off.
+write objects into the node: storing bytes, adding a repository, turning
+indexing of a repository on or off, and holding an object against purge.
 
 One action covers every write that adds to node state — `objects.store`,
 `objects.create`, `objects.echo`, `objects.new_mem`,
