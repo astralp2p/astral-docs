@@ -39,6 +39,7 @@ same rules. A node also joins an existing swarm from its own side
   `.spec` lists the node's operations and changes nothing.
 * A WebSocket session without a token reaches those operations from any
   browser origin. Any page open in a local browser can claim an unclaimed node.
+  [Node Exposure](node-exposure.md) lists every surface a fresh node opens.
 * The step-by-step operations run with the node's token: a token that
   `tokens:` in `apphost.yaml` maps to `localnode`. A session authenticated with
   it acts as the node.
