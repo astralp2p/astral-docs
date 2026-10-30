@@ -3,6 +3,7 @@
 Provision a fresh guest identity end-to-end: generate a new keypair, sign and
 store an app contract between the new identity and the node, and issue an
 access token. Used by apps/agents to bootstrap themselves on first run.
+Local-only — a query from the network is answered `origin not allowed: network`.
 
 An app may ask for the actions it needs to hold, and names the record each one
 is written into. A node-local grant is revocable by deleting its row and is
@@ -70,6 +71,8 @@ naming one registers successfully and holds nothing it asked for.
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` object reading `origin not allowed: network` if the query
+  arrived over a link.
 * An `error_message` object reading `registration declined` if the node's
   register policy refuses the registration, cannot decide it, or returns a
   decision the node cannot apply.
