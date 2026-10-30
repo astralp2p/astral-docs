@@ -112,8 +112,11 @@ closes the connection. One **accepted** query per connection — a guest may
 issue any number of `RouteQueryMsg`s on one connection so long as each is
 refused; the first acceptance consumes it.
 
-A query in flight can be cancelled by opening a separate session and routing
-`apphost.cancel?query_id=<Nonce>` to the host.
+A query in flight can be cancelled by a separate session authenticated as the
+same identity, routing
+[`apphost.cancel`](../protocols/apphost/ops/apphost.cancel.md)`?query_id=<Nonce>`
+to the host. A query launched without a token is cancellable only under
+[`mod.auth.admin_manage_apps_action`](../protocols/auth/types/mod.auth.admin_manage_apps_action.md).
 
 ## Receiving queries
 

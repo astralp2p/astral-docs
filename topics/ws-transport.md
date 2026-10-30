@@ -70,7 +70,7 @@ Handshake on every WS opened by the library:
 
 Per-query WSes opened by `IncomingQuery.accept()` skip step 3 — the
 unguessable `QueryID` is the pairing token. The host picks a fresh `QueryID`
-for each inbound query and sends it only on the registration WS; it is not the
+for each notification and sends it only on the registration WS; it is not the
 query's nonce.
 
 ## Sending queries (outbound)

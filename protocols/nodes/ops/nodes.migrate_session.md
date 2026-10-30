@@ -7,13 +7,16 @@ The caller must hold
 The operation answers an `error_message` reading `not permitted` before the
 session or the link is looked up when the caller is not authorized.
 
-Without `start`, the operation is the responder side of a migration that the
-node across the session's current [`Link`](../../../core-definitions/link.md)
-initiates. After the session and that link are found, the operation answers
-`not permitted` unless the caller is the remote identity of that link. The
-session's peer passes only when it is that node, so an app that relayed the
-session in, or the app the session is routed to, is refused. With `start`,
-`mod.auth.admin_network_action` is the only permission check.
+Without `start`, the operation is the responder side of a migration initiated
+across the session's current [`Link`](../../../core-definitions/link.md). After
+the session and that link are found, the operation answers `not permitted`
+unless the caller is the link's `RemoteIdentity`
+([`mod.nodes.link_info`](../types/mod.nodes.link_info.md)). The session's
+`RemoteIdentity` ([`mod.nodes.session_info`](../types/mod.nodes.session_info.md))
+does not pass in its place: for a session the link's `RemoteIdentity` relays in
+for an app, or a session routed to an app, it names that app, and that app is
+refused. With `start`, `mod.auth.admin_network_action` is the only permission
+check.
 
 ## Arguments
 
