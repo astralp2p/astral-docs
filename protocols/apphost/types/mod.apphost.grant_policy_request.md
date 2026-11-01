@@ -1,4 +1,4 @@
-# mod.apphost.grant_request
+# mod.apphost.grant_policy_request
 
 The request a grant request policy decides. A delegate set by
 [`apphost.set_grant_request_policy`](../ops/apphost.set_grant_request_policy.md)
@@ -11,19 +11,22 @@ reads one from its input stream for each
   receives the grants.
 * Origin (string8) – The session's web origin. Empty for a local IPC caller.
 * Permits ([]mod.auth.permit) – The permits the session asks to hold as
-  node-local grants. Each permit carries no constraints.
+  node-local grants, with their constraints as sent.
+* Duration (duration) – The lifetime the session asks for each grant. Zero
+  asks for grants that last until revoked.
 
 ## Example
 
 ```json
 {
-  "Type": "mod.apphost.grant_request",
+  "Type": "mod.apphost.grant_policy_request",
   "Object": {
     "Requester": "03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f",
     "Origin": "",
     "Permits": [
       { "Action": "mod.auth.see_objects_action" }
-    ]
+    ],
+    "Duration": 0
   }
 }
 ```

@@ -19,8 +19,9 @@ it is saved. The grant request policy is independent of the policy
 selects.
 
 For each request, the node queries `operation` on `identity` as itself, sends
-one [`mod.apphost.grant_request`](../types/mod.apphost.grant_request.md), and
-reads one object back. The delegate answers with a
+one
+[`mod.apphost.grant_policy_request`](../types/mod.apphost.grant_policy_request.md),
+and reads one object back. The delegate answers with a
 [`mod.apphost.grant_decision`](../types/mod.apphost.grant_decision.md). A
 delegate that cannot be reached, answers nothing within `timeout`, or answers
 any other object refuses the request. The wait also ends, and the request is

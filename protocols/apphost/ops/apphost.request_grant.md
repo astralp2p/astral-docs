@@ -14,10 +14,10 @@ Asking is not receiving: the node's grant request policy decides the request as
 a whole. The policy approves every permit asked for or none of them.
 [`apphost.set_grant_request_policy`](apphost.set_grant_request_policy.md)
 selects the policy. The policy receives the request as a
-[`mod.apphost.grant_request`](../types/mod.apphost.grant_request.md), which
-carries the session's identity, its web origin and the permits asked for. Until
-`apphost.set_grant_request_policy` names a delegate, the default policy refuses
-every request.
+[`mod.apphost.grant_policy_request`](../types/mod.apphost.grant_policy_request.md),
+which carries the session's identity, its web origin and the permits asked
+for. Until `apphost.set_grant_request_policy` names a delegate, the default
+policy refuses every request.
 
 An approved request writes one node-local grant per permit, the record
 [`apphost.grant`](apphost.grant.md) writes. Each recorded permit carries no
