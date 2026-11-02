@@ -69,7 +69,7 @@ Contents:
   * [zone](primitive-types/zone.md)
 * Protocols
   * [Basics](protocols/README.md) – protocol documentation structure
-  * [apphost](protocols/apphost/README.md) - on-device API for local apps (tokens, handlers, contracts, holds)
+  * [apphost](protocols/apphost/README.md) - on-device API for local apps (tokens, handlers, contracts, grants, holds)
   * [auth](protocols/auth/README.md) - capability contracts, signing, and action authorization
   * [bip137sig](protocols/bip137sig/README.md) - BIP-39/32/137 seed, key derivation, and message signing
   * [crypto](protocols/crypto/README.md) - signing and verifying hashes and text, public key derivation
