@@ -4,7 +4,7 @@ Select the policy that decides each
 [`apphost.request_grant`](apphost.request_grant.md) call. The node applies one
 of three modes: `accept_all` approves every request, `reject_all` refuses every
 request, and a delegate decides each request in an operation of another
-identity. Unset selects `reject_all`.
+identity. Unset selects `accept_all`.
 
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
@@ -18,7 +18,7 @@ given without `identity`, `operation` and `timeout`.
 
 Naming `identity` and `operation` delegates the decision and clears the mode.
 Naming one alone is an error. Omitting `mode`, `identity` and `operation`
-clears both the delegate and the mode and restores `reject_all`, and `timeout`
+clears both the delegate and the mode and restores `accept_all`, and `timeout`
 is then ignored.
 
 The delegate is persisted in the node's tree at
@@ -27,8 +27,9 @@ The delegate is persisted in the node's tree at
 the choice is saved. A stored delegate decides whatever the mode holds, so a
 delegate stored before the modes existed keeps deciding. Setting a mode clears
 the delegate before it writes the mode, so a failed mode write leaves no
-delegate in force. The grant request policy is independent of the policy
-[`apphost.set_app_register_policy`](apphost.set_app_register_policy.md)
+delegate in force. A stored mode value other than `accept_all` refuses every
+request, as `reject_all` does. The grant request policy is independent of the
+policy [`apphost.set_app_register_policy`](apphost.set_app_register_policy.md)
 selects.
 
 For each request under a delegate, the node queries `operation` on `identity`
@@ -97,7 +98,7 @@ $ astral-query apphost.set_grant_request_policy -identity 0282fee8775757cdd8fda8
 {"Type":"ack","Object":null}
 ```
 
-Restoring the default policy, `reject_all`:
+Restoring the default policy, `accept_all`:
 
 ```shellsession
 $ astral-query apphost.set_grant_request_policy -out json
