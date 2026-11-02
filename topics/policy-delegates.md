@@ -42,6 +42,10 @@ A setter takes `identity` and `operation`, and an optional `timeout`:
   `apphost.decide_app_register`.
 * `timeout` bounds the wait for one answer. Omitted, zero or negative waits 10
   minutes. A value above 10 minutes is refused.
+* `mode`, taken by `apphost.set_grant_request_policy` alone, selects
+  `accept_all` or `reject_all`. A mode is given without `identity`,
+  `operation` and `timeout`. A mode clears the delegate, and a delegate clears
+  the mode.
 * A setter without `identity` and `operation`, and for the grant request policy
   without `mode`, clears the delegate and restores the bundled policy.
 
