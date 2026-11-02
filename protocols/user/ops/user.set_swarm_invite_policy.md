@@ -28,6 +28,9 @@ object declines, and `user.accept_membership` answers an `error_message` reading
 `invitation declined`. A question already asked keeps the delegate it was asked
 of when the policy changes.
 
+[Policy Delegates](../../../topics/policy-delegates.md) compares the five
+admission policies and describes approval apps.
+
 ## Arguments
 
 * identity (string8) – The identity whose operation decides, given as a hex

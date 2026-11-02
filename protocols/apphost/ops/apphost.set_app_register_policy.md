@@ -25,6 +25,9 @@ A delegate that cannot be reached, answers nothing within `timeout`, or answers
 any other object refuses the registration. A question already asked keeps the
 delegate it was asked of when the policy changes.
 
+[Policy Delegates](../../../topics/policy-delegates.md) compares the five
+admission policies and describes approval apps.
+
 ## Arguments
 
 * identity (string8) – The identity whose operation decides registrations,

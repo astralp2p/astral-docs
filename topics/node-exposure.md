@@ -41,7 +41,7 @@ settings set through the tree is from commit `5f17900d`. A setting lives in
 * A registering app holds the permits it asks for. The bundled register policy
   accepts every registration until
   [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md)
-  names a delegate.
+  names a delegate ([Policy Delegates](policy-delegates.md)).
 * Any page open in a local browser reaches `/.ws`. On an unclaimed node, that
   page can claim the node. On a claimed node, that page can register an app.
 * [`mod.nearby.mode`](../protocols/nearby/types/mod.nearby.mode.md) lists what
@@ -68,7 +68,8 @@ link. A linked peer that holds no grant reaches these operations:
   [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md),
   and [`user.info`](../protocols/user/ops/user.info.md), which answers
   `no active contract`.
-  A linked peer can claim an unclaimed node under the bundled invite policy.
+  A linked peer can claim an unclaimed node under the bundled invite policy
+  ([Policy Delegates](policy-delegates.md#after-the-claim)).
 * On a claimed node only:
   [`user.request_membership`](../protocols/user/ops/user.request_membership.md).
   Under the bundled join policy, the node signs the peer a swarm membership

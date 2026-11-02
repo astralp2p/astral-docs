@@ -62,7 +62,8 @@ tokens:
   only. Until
   [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md)
   names a delegate, any local program that registers receives the permits it
-  asks for.
+  asks for. [Policy Delegates](policy-delegates.md#after-the-claim) gives the
+  steps that hand the decision to an approval app.
 
 ## One call
 
@@ -198,6 +199,8 @@ The swarm node's join policy decides a request, and the new node's invite
 policy decides an invitation. The new node's contract accept policy decides a
 contract activated with `user.accept_contract`. All three accept everything by
 default ([user](../protocols/user/README.md)).
+[Policy Delegates](policy-delegates.md) describes how an approval app decides
+them instead.
 
 ## Refusals
 
