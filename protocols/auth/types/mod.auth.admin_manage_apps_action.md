@@ -61,20 +61,17 @@ identity. Any other identity holds the action through a node-local grant, which
 or through a [`mod.auth.signed_contract`](mod.auth.signed_contract.md) the node
 has indexed.
 
-An app, an agent or another participant holds this action only through a grant
-or a contract it receives, and the bundled policies grant it to whoever asks:
+The default policies grant this action on request:
 
-* Until
+* Any local program or browser page can obtain it through `apphost.register`'s
+  `GrantPermits` until
   [`apphost.set_app_register_policy`](../../apphost/ops/apphost.set_app_register_policy.md)
-  names a delegate, any local program, or any page open in a local browser,
-  obtains it by naming it in the `GrantPermits` of
-  [`apphost.register`](../../apphost/ops/apphost.register.md).
-* While the grant request policy is `accept_all`, as it is until
-  [`apphost.set_grant_request_policy`](../../apphost/ops/apphost.set_grant_request_policy.md)
-  selects `reject_all` or a delegate, any app with a token obtains it with
-  [`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md).
+  sets a delegate.
+* Any app with a token can obtain it through `apphost.request_grant` while the
+  [grant request policy](../../apphost/ops/apphost.set_grant_request_policy.md)
+  is `accept_all`, the default.
 
-Either holder then mints or reads another identity's credentials.
+A holder can then mint or read another identity's credentials.
 
 ## Fields
 

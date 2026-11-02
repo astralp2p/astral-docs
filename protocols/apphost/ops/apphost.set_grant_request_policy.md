@@ -1,46 +1,39 @@
 # apphost.set_grant_request_policy
 
-Select the policy that decides each
-[`apphost.request_grant`](apphost.request_grant.md) call. The node applies one
-of three modes: `accept_all` approves every request, `reject_all` refuses every
-request, and a delegate decides each request in an operation of another
-identity. Unset selects `accept_all`.
+Select how the node decides
+[`apphost.request_grant`](apphost.request_grant.md): `accept_all` (the default),
+`reject_all`, or a delegate.
+
+`accept_all` approves every request that passes the [permit check](../README.md#grants).
+Any app with a token can obtain the permits it requests. `reject_all` refuses
+every request. A delegate decides each request through its decision operation.
 
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
-The operation answers an `error_message` reading `not permitted` before the
-policy is changed when the caller is not authorized.
+An unauthorized caller receives `error_message` reading `not permitted`;
+the policy stays unchanged.
 
-`mode` selects `accept_all` or `reject_all` and clears the delegate. Under
-`accept_all`, any app with a token grants itself any action it names; only the
-permit check of [Grants](../README.md#grants) refuses a request. `mode` is
-given without `identity`, `operation` and `timeout`.
+* `mode` selects `accept_all` or `reject_all` and clears the delegate. It cannot
+  be combined with `identity`, `operation` or `timeout`.
+* `identity` and `operation` set a delegate and clear the mode. Both are required.
+* Omitting `mode`, `identity` and `operation` clears both stored values and
+  restores `accept_all`. `timeout` is then ignored.
 
-Naming `identity` and `operation` delegates the decision and clears the mode.
-Naming one alone is an error. Omitting `mode`, `identity` and `operation`
-clears both the delegate and the mode and restores `accept_all`, and `timeout`
-is then ignored.
+The node stores the delegate at `/mod/apphost/policy/grant_request` and the
+mode at `/mod/apphost/policy/grant_request_mode`. It returns `ack` after saving.
+A delegate takes precedence over any stored mode. Without a delegate, an unset
+mode or `accept_all` accepts; any other stored value refuses every request.
+Setting a mode clears the delegate first; a failed mode write leaves it cleared.
+This policy is independent of the
+[app register policy](apphost.set_app_register_policy.md).
 
-The delegate is persisted in the node's tree at
-`/mod/apphost/policy/grant_request` and the mode at
-`/mod/apphost/policy/grant_request_mode`. The operation answers `ack` only once
-the choice is saved. A stored delegate decides whatever the mode holds, so a
-delegate stored before the modes existed keeps deciding. Setting a mode clears
-the delegate before it writes the mode, so a failed mode write leaves no
-delegate in force. A stored mode value other than `accept_all` refuses every
-request, as `reject_all` does. The grant request policy is independent of the
-policy [`apphost.set_app_register_policy`](apphost.set_app_register_policy.md)
-selects.
-
-For each request under a delegate, the node queries `operation` on `identity`
-as itself, sends one
+For each delegated request, the node queries `operation` on `identity` as
+itself, sends one
 [`mod.apphost.grant_policy_request`](../types/mod.apphost.grant_policy_request.md),
-and reads one object back. The delegate answers with a
-[`mod.apphost.grant_decision`](../types/mod.apphost.grant_decision.md). A
-delegate that cannot be reached, answers nothing within `timeout`, or answers
-any other object refuses the request. The wait also ends, and the request is
-refused, when the `apphost.request_grant` caller disconnects. A question
-already asked keeps the delegate it was asked of when the policy changes.
+and expects one [`mod.apphost.grant_decision`](../types/mod.apphost.grant_decision.md).
+An unreachable delegate, a timeout or an unexpected response object refuses
+the request. The caller's disconnection also ends the wait and refuses it.
+Changing the policy does not change the delegate for a pending request.
 
 [Policy Delegates](../../../topics/policy-delegates.md) compares the five
 admission policies and describes approval apps.

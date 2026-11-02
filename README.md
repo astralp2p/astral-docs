@@ -94,7 +94,7 @@ Contents:
     * [Node Setup](topics/node-setup.md) - claiming a node for a user: the user key, who may set up a node, `user.derive_identity` and `user.bootstrap`, the step-by-step flow, and `user.join`
     * [Session Identity](topics/session-identity.md) - every query runs as an identity: what a session without a token reaches, the settings that change it, and the node's token
     * [Node Exposure](topics/node-exposure.md) - what a fresh node opens: each surface's default bind, who reaches it before and after the claim, what a linked peer reaches, and the setting that closes it
-    * [Policy Delegates](topics/policy-delegates.md) - the five admission policies, their bundled accept-all defaults, how a setter names a delegate, approval apps such as Control Plane, and the steps after the claim
+    * [Policy Delegates](topics/policy-delegates.md) - admission defaults, delegation to approval apps, and setup after claiming a node
     * [Network Architecture](topics/network-architecture.md) - how identities, nodes, links, swarms, and contracts compose at runtime
     * [App Routing](topics/app-routing.md) - how a query addressed to an app reaches it, on its own node and on another
     * [Blueprints](topics/blueprints.md) - runtime wire-structure schemas that let a node encode and decode typed objects without compiled code

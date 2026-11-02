@@ -17,18 +17,14 @@ one `Duration` for every grant. A zero `Duration` asks for grants that last
 until [`apphost.revoke`](apphost.revoke.md) withdraws them. The operation
 checks every permit before the policy is asked ([Grants](../README.md#grants)).
 
-Asking is not receiving: the node's grant request policy decides the request as
-a whole. The policy approves every permit asked for or none of them. The policy
-is asked on every request, also when the identity already holds every permit
-asked for.
+The grant request policy approves all requested permits or refuses the whole
+request. It decides every request, even if the identity already holds the permits.
 [`apphost.set_grant_request_policy`](apphost.set_grant_request_policy.md)
-selects the policy: `accept_all` approves every request that passes the check,
-`reject_all` refuses every request, and a delegate decides each request. Unset
-selects `accept_all`. Under `accept_all`, any app with a token grants itself
-any action it names. A delegate receives the request as a
+selects `accept_all` (the default), `reject_all`, or a delegate. `accept_all`
+approves every request that passes the check; any token holder can obtain its
+requested permits. `reject_all` refuses every request. A delegate receives a
 [`mod.apphost.grant_policy_request`](../types/mod.apphost.grant_policy_request.md),
-which carries the session's identity, its web origin, the permits asked for and
-the `Duration`.
+containing the session's identity, web origin, permits and `Duration`.
 
 An approved request writes one node-local grant per permit, the record
 [`apphost.grant`](apphost.grant.md) writes, in one transaction. Each recorded
