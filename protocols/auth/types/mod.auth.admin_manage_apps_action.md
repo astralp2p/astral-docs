@@ -59,10 +59,18 @@ identity. Any other identity holds the action through a node-local grant, which
 [`apphost.register`](../../apphost/ops/apphost.register.md) or an approved
 [`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md) records,
 or through a [`mod.auth.signed_contract`](mod.auth.signed_contract.md) the node
-has indexed. Under the `accept_all` grant request policy, any app with a token
-grants itself this action.
-An app, an agent or another participant holds nothing by default, so none of
-them mints or reads another identity's credentials.
+has indexed.
+
+An app, an agent or another participant is granted nothing it does not ask for.
+Until a delegate decides, the bundled policies grant what is asked:
+[`apphost.register`](../../apphost/ops/apphost.register.md) writes every permit
+an app asks for until
+[`apphost.set_app_register_policy`](../../apphost/ops/apphost.set_app_register_policy.md)
+names a delegate, and the grant request policy is `accept_all` until
+[`apphost.set_grant_request_policy`](../../apphost/ops/apphost.set_grant_request_policy.md)
+selects `reject_all` or a delegate. While either bundled policy applies, a local
+program obtains this action by asking for it, and then mints or reads another
+identity's credentials.
 
 ## Fields
 
