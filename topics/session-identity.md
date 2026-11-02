@@ -5,7 +5,8 @@ for ordinary queries and handlers. Each operation checks that identity's permits
 a token establishes identity, not permission.
 
 [`apphost.register`](../protocols/apphost/ops/apphost.register.md) creates an app
-identity, grants the permits allowed by registration policy, and returns its token.
+identity, grants the permits allowed by the
+[registration policy](policy-delegates.md), and returns its token.
 For a query with an empty caller, the session determines the effective identity:
 
 ```text

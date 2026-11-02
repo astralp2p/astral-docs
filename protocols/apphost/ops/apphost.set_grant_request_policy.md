@@ -42,6 +42,9 @@ any other object refuses the request. The wait also ends, and the request is
 refused, when the `apphost.request_grant` caller disconnects. A question
 already asked keeps the delegate it was asked of when the policy changes.
 
+[Policy Delegates](../../../topics/policy-delegates.md) compares the five
+admission policies and describes approval apps.
+
 ## Arguments
 
 * mode (string8) – `accept_all` or `reject_all`.
