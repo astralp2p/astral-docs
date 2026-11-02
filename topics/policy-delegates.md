@@ -16,7 +16,8 @@ names it the policy's delegate. The node then asks the approval app every time.
 | Swarm invite | each [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md), an invitation to an unclaimed node | [`user.set_swarm_invite_policy`](../protocols/user/ops/user.set_swarm_invite_policy.md) | `/mod/user/policy/swarm_invite` | [`mod.user.swarm_invite_request`](../protocols/user/types/mod.user.swarm_invite_request.md) | [`mod.user.swarm_invite_decision`](../protocols/user/types/mod.user.swarm_invite_decision.md) | `invitation declined` |
 | Contract accept | each [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md), a signed contract the node activates | [`user.set_contract_accept_policy`](../protocols/user/ops/user.set_contract_accept_policy.md) | `/mod/user/policy/contract_accept` | [`mod.user.contract_accept_request`](../protocols/user/types/mod.user.contract_accept_request.md) | [`mod.user.contract_accept_decision`](../protocols/user/types/mod.user.contract_accept_decision.md) | `contract declined` |
 
-While a policy names no delegate, the node applies the bundled policy, which
+While a policy names no delegate, and for the grant request policy no mode
+other than `accept_all` is stored, the node applies the bundled policy, which
 accepts:
 
 * The app register policy writes every permit an app asks for,
@@ -41,8 +42,8 @@ A setter takes `identity` and `operation`, and an optional `timeout`:
   `apphost.decide_app_register`.
 * `timeout` bounds the wait for one answer. Omitted, zero or negative waits 10
   minutes. A value above 10 minutes is refused.
-* A setter without `identity` and `operation` clears the delegate and restores
-  the bundled policy.
+* A setter without `identity` and `operation`, and for the grant request policy
+  without `mode`, clears the delegate and restores the bundled policy.
 
 Every setter requires
 [`mod.auth.admin_manage_apps_action`](../protocols/auth/types/mod.auth.admin_manage_apps_action.md).
@@ -55,7 +56,9 @@ sends one request object and reads one object back:
 
 * A decision object with `Allow` true accepts. A
   [`mod.apphost.app_register_decision`](../protocols/apphost/types/mod.apphost.app_register_decision.md)
-  also lists the permits the node writes for the new app.
+  also lists the permits the node writes for the new app. It refuses even with
+  `Allow` true when an entry in its `Authorizers` is null, invalid or names an
+  `Actor`.
 * A decision object with `Allow` false refuses.
 * A delegate that cannot be reached, answers nothing within `timeout`, or
   answers any other object refuses.
@@ -94,9 +97,9 @@ A node that is to ask before it admits takes these steps after
 
 1. The approval app registers and serves its decision ops.
 2. The approval app, or the user, names it the delegate of the app register
-   policy.
-3. The approval app, or the user, names it the delegate of the grant request and
-   swarm join policies it decides.
+   and grant request policies.
+3. The approval app, or the user, names it the delegate of the swarm join
+   policy, if it decides joins.
 4. The user reviews the apps that registered before step 2, with
    [`apphost.list_tokens`](../protocols/apphost/ops/apphost.list_tokens.md) and
    [`apphost.list_grants`](../protocols/apphost/ops/apphost.list_grants.md), and
@@ -106,14 +109,18 @@ A node that is to ask before it admits takes these steps after
 
 Until step 2, any local program, and any page open in a local browser, that
 registers holds what it asks for
-([`apphost.register`](../protocols/apphost/ops/apphost.register.md)). An app
-that holds `mod.auth.admin_manage_apps_action` can call the setters and name
-another delegate, so step 4 matters.
+([`apphost.register`](../protocols/apphost/ops/apphost.register.md)), and any
+app with a token grants itself what it asks for with
+[`apphost.request_grant`](../protocols/apphost/ops/apphost.request_grant.md).
+An app that holds `mod.auth.admin_manage_apps_action` can call the setters and
+name another delegate, so step 4 matters.
 
 The swarm invite and contract accept policies decide only while the node has no
-active contract: before the claim, and again once the active contract expires or
-is cleared. A linked peer can claim an unclaimed node under the bundled swarm
-invite policy ([Node Exposure](node-exposure.md#linked-peers)). A holder of
+active contract: before the claim, and again once the active contract is
+cleared, as after an expulsion or at a start that finds it expired. A running
+node keeps an expired active contract until it restarts. A linked peer can claim
+an unclaimed node under the bundled swarm invite policy
+([Node Exposure](node-exposure.md#linked-peers)). A holder of
 `mod.auth.admin_manage_apps_action`, such as a session with the node's token,
 can delegate both policies before the claim. A delegate named while the node is
 claimed stays in the tree and decides once the node is unclaimed again.
@@ -137,7 +144,10 @@ claimed stays in the tree and decides once the node is unclaimed again.
 
 ## Reading the current policy
 
-[`tree.get`](../protocols/tree/ops/tree.get.md) on a tree path of the table
-reads a policy's delegate as a `policy.delegate` object. An absent value means
-the bundled policy. `tree.get` requires
+[`tree.get`](../protocols/tree/ops/tree.get.md) on a delegate path of the table
+reads a policy's delegate as a `policy.delegate` object, and on
+`/mod/apphost/policy/grant_request_mode` reads the grant request mode as a
+`string8`. An absent delegate means the bundled policy, except for the grant
+request policy, where an absent delegate leaves the decision to the mode.
+`tree.get` requires
 [`mod.auth.see_node_state_action`](../protocols/auth/types/mod.auth.see_node_state_action.md).
