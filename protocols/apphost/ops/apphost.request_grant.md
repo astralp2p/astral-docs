@@ -10,27 +10,34 @@ makes as another identity under a
 grants to the session's identity. Any IPC or WebSocket session with a token
 may ask. Asking needs no permit.
 
+After accepting the query, the operation reads one
+[`mod.apphost.request_grant_request`](../types/mod.apphost.request_grant_request.md)
+from the channel. The request carries the permits, with their constraints, and
+one `Duration` for every grant. A zero `Duration` asks for grants that last
+until [`apphost.revoke`](apphost.revoke.md) withdraws them. The operation
+checks every permit before the policy is asked ([Grants](../README.md#grants)).
+
 Asking is not receiving: the node's grant request policy decides the request as
-a whole. The policy approves every permit asked for or none of them.
+a whole. The policy approves every permit asked for or none of them. The policy
+is asked on every request, also when the identity already holds every permit
+asked for.
 [`apphost.set_grant_request_policy`](apphost.set_grant_request_policy.md)
-selects the policy. The policy receives the request as a
+selects the policy: `accept_all` approves every request that passes the check,
+`reject_all` refuses every request, and a delegate decides each request. Unset
+selects `reject_all`. Under `accept_all`, any app with a token grants itself
+any action it names. A delegate receives the request as a
 [`mod.apphost.grant_policy_request`](../types/mod.apphost.grant_policy_request.md),
-which carries the session's identity, its web origin and the permits asked
-for. Until `apphost.set_grant_request_policy` names a delegate, the default
-policy refuses every request.
+which carries the session's identity, its web origin, the permits asked for and
+the `Duration`.
 
 An approved request writes one node-local grant per permit, the record
-[`apphost.grant`](apphost.grant.md) writes. Each recorded permit carries no
-constraints and no delegation, and lasts until
-[`apphost.revoke`](apphost.revoke.md) withdraws it. A grant replaces whatever
-the identity held for the same action. A grant that allows its action does so
-before any authorizer is asked, so it takes precedence over an authorizer
-assignment recorded for the identity. An unconstrained
-[`mod.services.service_discovery_action`](../../services/types/mod.services.service_discovery_action.md)
-permit allows nothing, so an approved request for it replaces a constrained
-discovery grant with one that allows nothing.
-[`apphost.grant`](apphost.grant.md) with `-constrained true` records a
-constrained discovery grant.
+[`apphost.grant`](apphost.grant.md) writes, in one transaction. Each recorded
+permit keeps its constraints, carries no delegation, and lasts for the
+requested `Duration`. Each grant is added beside the grants the identity
+already holds ([Grants](../README.md#grants)). A permit identical to a held one
+is stored once, and its expiry is set to the new value. A grant that allows its
+action does so before any authorizer is asked, so it takes precedence over an
+authorizer assignment recorded for the identity.
 
 The default `anonymous_allowlist` refuses a session without a token before
 routing ([Sessions without a token](../README.md#sessions-without-a-token)).
@@ -43,11 +50,16 @@ over a [`Link`](../../../core-definitions/link.md).
 
 ## Arguments
 
-* permits (string8, required) – Actions the session asks to hold as node-local
-  grants, comma-separated (e.g. `mod.auth.see_objects_action`). An action name
-  carries no comma. Blank entries are dropped.
 * in (string8) – Input format.
 * out (string8) – Output format.
+
+The request travels as the channel's single input object. The argument
+`permits` is removed. A query that names it is answered
+`unknown argument: permits`, and the policy is not asked.
+
+A channel that closes before the input object arrives receives no answer, and
+the policy is not asked. `astral-query` keeps the channel open after stdin ends
+([Ending input](../../../tools/astral-query.md#ending-input)).
 
 ## Returned objects
 
@@ -57,12 +69,21 @@ The operation returns one of:
 * An `error_message` object reading `not permitted` if the query does not come
   from an IPC or WebSocket session with a token, including a query over the
   HTTP transport.
-* An `error_message` object reading `missing permits` if `permits` names no
-  action.
+* An `error_message` object reading `unknown argument: permits` if the query
+  names `permits`.
+* An `error_message` object reading `unexpected object: <type>` if the input
+  object is not a `mod.apphost.request_grant_request`, for example
+  `unexpected object: eos` for an `eos`.
+* An `error_message` object reading `missing permits` if `Permits` is empty.
+* An `error_message` object reading `negative duration` if `Duration` is
+  negative.
+* An `error_message` object reading `invalid permit: <action>: <detail>`, or
+  `invalid permit: missing action`, if a permit fails the check. The policy is
+  not asked.
 * An `error_message` object reading `grant declined` if the node's grant
   request policy refuses the request or cannot decide it.
-* An `error_message` object if a grant was not written. The grants written
-  before it are kept.
+* An `error_message` object if the grants were not written. No grant is
+  recorded.
 * An `ack` object if every permit asked for is granted.
 
 The operation accepts the query before the grant request policy decides, so a
@@ -70,16 +91,23 @@ refused request receives `grant declined` rather than a rejection.
 
 ## Examples
 
-Refused by the default policy:
+Refused under `reject_all`, the default:
 
 ```shellsession
-$ astral-query apphost.request_grant -permits mod.auth.see_objects_action -out json
+$ echo '{"Type":"mod.apphost.request_grant_request","Object":{"Permits":[{"Action":"mod.auth.see_objects_action"}],"Duration":0}}' | astral-query apphost.request_grant -in json -out json
 {"Type":"error_message","Object":"grant declined"}
 ```
 
-Approved by a delegated grant request policy:
+Discovery of one service, approved by the policy:
 
 ```shellsession
-$ astral-query apphost.request_grant -permits mod.auth.see_objects_action,mod.user.see_swarm_action -out json
+$ echo '{"Type":"mod.apphost.request_grant_request","Object":{"Permits":[{"Action":"mod.services.service_discovery_action","Constraints":[{"Type":"mod.services.discovery_scope","Object":{"Rules":[{"Services":["inference"],"Nodes":[]}]}}]}],"Duration":0}}' | astral-query apphost.request_grant -in json -out json
 {"Type":"ack","Object":null}
+```
+
+Refused before the policy is asked: a discovery permit without a scope:
+
+```shellsession
+$ echo '{"Type":"mod.apphost.request_grant_request","Object":{"Permits":[{"Action":"mod.services.service_discovery_action"}],"Duration":0}}' | astral-query apphost.request_grant -in json -out json
+{"Type":"error_message","Object":"invalid permit: mod.services.service_discovery_action: requires constraints"}
 ```

@@ -8,8 +8,10 @@ writes one to its output stream.
 
 ## Fields
 
-* Allow (bool) – `true` grants every permit the request lists. `false` refuses
-  them all.
+* Allow (bool) – `true` grants every permit the request lists, with its
+  constraints and the requested `Duration`. `false` refuses them all.
+
+The decision carries no permits, so a delegate cannot change what is written.
 
 ## Example
 
