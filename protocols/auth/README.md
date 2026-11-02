@@ -32,7 +32,7 @@ an operation submits its action before it acts.
 * [`mod.auth.use_gateway_action`](types/mod.auth.use_gateway_action.md) – register with the node's gateway, reserve a connection through it, and be forwarded by it
 * [`mod.auth.use_blueprints_action`](types/mod.auth.use_blueprints_action.md) – read and register the node's blueprints
 
-Ten more are declared by the protocols that own them:
+Nine more are declared by the protocols that own them:
 [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md) and
 [`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)
 in the [`user`](../user/README.md) protocol,
@@ -43,9 +43,7 @@ in the [`user`](../user/README.md) protocol,
 [`mod.messaging.host_mailbox_action`](../messaging/types/mod.messaging.host_mailbox_action.md)
 and
 [`mod.messaging.read_mailbox_action`](../messaging/types/mod.messaging.read_mailbox_action.md)
-in [`messaging`](../messaging/README.md), and
-[`mod.coldcard.scan_action`](../coldcard/types/mod.coldcard.scan_action.md) in
-[`coldcard`](../coldcard/README.md),
+in [`messaging`](../messaging/README.md),
 [`mod.services.service_discovery_action`](../services/types/mod.services.service_discovery_action.md)
 in [`services`](../services/README.md), and
 [`mod.shell.shell_action`](../shell/types/mod.shell.shell_action.md) in
