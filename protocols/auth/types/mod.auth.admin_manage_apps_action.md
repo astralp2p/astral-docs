@@ -55,8 +55,12 @@ bundle is non-empty is refused rather than granted in full.
 The user identity and the node's own identity hold this action by default, and
 nobody else. A local caller that carries no identity acts as the node's own
 identity. Any other identity holds the action through a node-local grant, which
-[`apphost.grant`](../../apphost/ops/apphost.grant.md) records, or through a
-[`mod.auth.signed_contract`](mod.auth.signed_contract.md) the node has indexed.
+[`apphost.grant`](../../apphost/ops/apphost.grant.md),
+[`apphost.register`](../../apphost/ops/apphost.register.md) or an approved
+[`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md) records,
+or through a [`mod.auth.signed_contract`](mod.auth.signed_contract.md) the node
+has indexed. Under the `accept_all` grant request policy, any app with a token
+grants itself this action.
 An app, an agent or another participant holds nothing by default, so none of
 them mints or reads another identity's credentials.
 

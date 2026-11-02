@@ -135,13 +135,19 @@ hold it on other members. The node has no default grant for its own identity.
 An app needs a scoped grant or contract. A
 [`mod.services.discovery_scope`](../protocols/services/types/mod.services.discovery_scope.md)
 pairs services with allowed nodes; an unconstrained permit allows nothing.
-An app cannot grant itself discovery at registration. The user can grant it on
-the app's node:
+An app asks for a scoped grant at registration, in the `GrantPermits` of
+[`apphost.register`](../protocols/apphost/ops/apphost.register.md), or later
+with [`apphost.request_grant`](../protocols/apphost/ops/apphost.request_grant.md).
+The user can grant it on the app's node with
+[`apphost.grant`](../protocols/apphost/ops/apphost.grant.md):
 
 ```shellsession
-$ echo '{"Type":"bundle","Object":[{"Type":"mod.services.discovery_scope","Object":{"Rules":[{"Services":["player"]}]}}]}' \
-    | astral-query apphost.grant -identity <app> -action mod.services.service_discovery_action -constrained true -in json
+$ echo '{"Type":"mod.apphost.grant_request","Object":{"Identity":"<app>","Duration":0,"Permits":[{"Action":"mod.services.service_discovery_action","Constraints":[{"Type":"mod.services.discovery_scope","Object":{"Rules":[{"Services":["player"]}]}}]}]}}' \
+    | astral-query apphost.grant -in json
 ```
+
+Grants for different services add up: an app holding a `player` grant and an
+`inference` grant is admitted for both services.
 
 A rule with no `Nodes` allows its services on every node within discovery's reach.
 

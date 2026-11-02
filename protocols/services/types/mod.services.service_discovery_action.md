@@ -16,8 +16,12 @@ default permission on other members, allowing them to carry app discoveries.
 The hosting node checks the app's own scope first. The node has no default
 grant for its own identity.
 
-Other identities need a scoped node-local grant from
-[`apphost.grant`](../../apphost/ops/apphost.grant.md) or a signed contract.
+Other identities need a scoped node-local grant or a signed contract. A grant
+comes from [`apphost.register`](../../apphost/ops/apphost.register.md),
+[`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md) or
+[`apphost.grant`](../../apphost/ops/apphost.grant.md). apphost refuses a
+discovery permit whose constraints do not hold exactly one scope naming a
+service before it writes the grant. Grants for different services add up.
 
 ## Fields
 
