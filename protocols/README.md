@@ -18,6 +18,10 @@
     [`Partial Object ID`](../core-definitions/object-id.md) as well; an
     operation that records the `id` accepts only an `Object ID` with a nonzero
     `Size`.
+  * One exception: the `id` of
+    [`apphost.revoke`](apphost/ops/apphost.revoke.md) carries a grant ID, a
+    `uint64` that [`apphost.list_grants`](apphost/ops/apphost.list_grants.md)
+    reports, not an Object ID.
   * A `nonce64` parameter is named for what the nonce identifies: `query_id`,
     `link_id`, `session_id`.
   * A parameter naming an identity by its role in the operation keeps the

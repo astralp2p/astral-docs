@@ -7,7 +7,8 @@ A permit is carried by a `mod.auth.contract`, which is signed and portable, or
 recorded as a node-local grant, which authorizes on one node and travels
 nowhere. `Delegation` is meaningful only on the first: a grant is never
 delegable. [`apphost.list_grants`](../../apphost/ops/apphost.list_grants.md)
-returns the permits one node has recorded for an identity.
+returns one [`mod.apphost.grant`](../../apphost/types/mod.apphost.grant.md) per
+grant one node has recorded for an identity, each carrying the recorded permit.
 
 ## Fields
 
