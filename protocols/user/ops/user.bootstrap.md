@@ -26,10 +26,13 @@ The node refuses the query in these cases, in this order:
   answered with an `error_message` reading `origin not allowed: <origin>`.
 * The node has an active contract: answered with an `error_message` reading
   `node already claimed`.
-* The caller is not the node: answered with `not permitted`. A local caller
-  that presents no identity is rewritten to the node's identity.
+* The caller is neither the node nor the node's
+  [manager](../../apphost/README.md#manager): answered with `not permitted`. A
+  local caller that presents no identity is rewritten to the node's identity.
+  The manager calls with its App token.
 
-The claim contract passes the claim rule of
+The node signs the claim contract as the node, whether the caller is the node
+or the manager. The claim contract passes the claim rule of
 [`auth.sign_contract`](../../auth/ops/auth.sign_contract.md) before any
 signature. A user the rule refuses is answered with an `error_message`, and the
 node is unchanged. A user the node has had re-claims it with the same words once
@@ -43,10 +46,14 @@ backup before the claim generates the words with
 [`user.derive_identity`](user.derive_identity.md) and sends them here.
 
 The access token authenticates an [apphost](../../apphost/README.md) session as
-the user, and expires 365 days after the call. The token is the claiming app's
-credential as the user: once the node is claimed, a session without a token
-reaches only the operations on the claimed list of apphost's
-`anonymous_allowlist`.
+the user, and expires 365 days after the call. The node answers the token to
+the node and to the manager alike. The token is the claiming app's credential
+as the user: once the node is claimed, a session without a token reaches only
+the operations `gate.tokenless` lists ([Gate](../../apphost/README.md#gate)).
+
+The default gate admits `user.bootstrap` on an `unclaimed` node from a session
+with a token, and refuses it on a `fresh` node and from a session without a
+token.
 
 Nothing changes on the node before the claim contract is validated. A failure
 after the user's private key is stored leaves the node unclaimed and holding the

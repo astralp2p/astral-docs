@@ -20,18 +20,27 @@ The node refuses the query in these cases, in this order:
   answered with an `error_message` reading `origin not allowed: <origin>`.
 * The node has an active contract: answered with an `error_message` reading
   `node already claimed`.
-* The caller is not the node: answered with `not permitted`. A local caller
-  that presents no identity is rewritten to the node's identity.
+* The caller is neither the node nor the node's
+  [manager](../../apphost/README.md#manager): answered with `not permitted`. A
+  local caller that presents no identity is rewritten to the node's identity.
+  The manager calls with its App token.
 * `node` does not resolve: answered with an `error_message` reading
   `unknown identity`.
 * `node` resolves to the anonymous identity: answered with `zero identity`.
 * `node` names this node: answered with `cannot join self`.
 
 The node adds the `Network` zone to its own query. A session without a token
-reaches no other node, and still joins through this operation.
+reaches no other node, and still joins through this operation where the gate
+admits it.
 
-The join policy of the swarm node and the invite policy of this node accept
-everything by default ([user](../README.md)).
+The default gate admits `user.join` on an `unclaimed` node from a session with
+a token, and refuses it on a `fresh` node and from a session without a token
+([Gate](../../apphost/README.md#gate)).
+
+The join policy of the swarm node and the invite policy of this node decline
+everything by default ([user](../README.md)). The swarm node sets
+`policies.swarm_join` and this node sets `policies.swarm_invite` to
+`accept_all`, or names delegates, for the join to succeed.
 
 ## Arguments
 

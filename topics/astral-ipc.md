@@ -42,17 +42,19 @@ messages.
 After step 1 the guest is *anonymous*; after a successful step 2 the session
 is bound to `GuestID`. Anonymous guests:
 
-- may send queries only if the host's `AllowAnonymous` config is on (default);
-- may send only the operations of the host's `anonymous_allowlist` for the
-  node's claim state, else `error_msg{denied}`
-  ([apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token));
+- may send queries to the node only, and only the operations of the host's
+  `gate.tokenless` that the list of the node's state in `gate.states` also
+  names, else `error_msg{denied}`
+  ([apphost, Gate](../protocols/apphost/README.md#gate));
 - have the network [`Zone`](../core-definitions/zone.md) (`ZoneNetwork`) stripped from their queries, so they cannot reach other nodes;
 - may not register handlers.
 
 A query with a zero `Caller` from an anonymous guest is routed as the node's own
-identity, and an operation cannot tell it from the node. The allowlist bounds
+identity, and an operation cannot tell it from the node. The gate bounds
 what an anonymous guest reaches as the node. A query with a zero `Caller` from a
-guest bound to `GuestID` is routed as `GuestID`.
+guest bound to `GuestID` is routed as `GuestID`. A guest bound to `GuestID`
+sends a query to the node only if the list of the node's state in
+`gate.states` names its operation.
 
 The guest may then send any of `RouteQueryMsg`, `RegisterServiceMsg`,
 `AttachQueryMsg` (the last only on a fresh sub-connection answering an
@@ -93,7 +95,7 @@ host  → guest: one of:
 Caller authorization:
 
 - zero `Caller` from an anonymous guest → routed as the node, within the
-  allowlist;
+  gate;
 - nonzero `Caller` from an anonymous guest → `error_msg{denied}`, the node's
   identity included; the anonymous identity holds no `SudoAction`
   ([`mod.auth.action`](../protocols/auth/types/mod.auth.action.md));

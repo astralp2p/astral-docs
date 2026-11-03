@@ -62,13 +62,16 @@ or through a [`mod.auth.signed_contract`](mod.auth.signed_contract.md) the node
 has indexed.
 
 An app, an agent or another participant holds this action only through a grant
-or a contract it receives, and the bundled policies grant it to whoever asks:
+or a contract it receives. These paths grant it to whoever asks:
 
-* Until
-  [`apphost.set_app_register_policy`](../../apphost/ops/apphost.set_app_register_policy.md)
-  names a delegate, any local program, or any page open in a local browser,
+* While the app register policy is `accept_all`, any local program, or any page
+  open in a local browser, obtains it by naming it in the `GrantPermits` of
+  [`apphost.register`](../../apphost/ops/apphost.register.md). The default
+  app register policy, `reject_all`, refuses every registration.
+* On a `fresh` node, any local program, or any page open in a local browser,
   obtains it by naming it in the `GrantPermits` of
-  [`apphost.register`](../../apphost/ops/apphost.register.md).
+  [`apphost.register_manager`](../../apphost/ops/apphost.register_manager.md),
+  which asks no policy.
 * While the grant request policy is `accept_all`, as it is until
   [`apphost.set_grant_request_policy`](../../apphost/ops/apphost.set_grant_request_policy.md)
   selects `reject_all` or a delegate, any app with a token obtains it with

@@ -21,8 +21,9 @@ subprotocol is offered.
 Any `Origin` is accepted at the WebSocket layer. The endpoint is
 loopback-only at the network layer, which keeps other hosts out, but any
 page open in a local browser connects from loopback and reaches it,
-whatever its `Origin`. Without a token, that page reaches the node's
-claim-state allowlist, `user.bootstrap` included before the claim. The HTTP
+whatever its `Origin`. Without a token, that page reaches what the apphost
+gate admits a session without a token, `apphost.register_manager` included on
+a `fresh` node. The HTTP
 `Authorization: Bearer` header used by the rest of the HTTP bridge is not
 consulted for `/.ws`; authentication uses the in-protocol auth token message.
 
@@ -114,14 +115,15 @@ Notes:
   authenticated session is routed as its `guestID`; a `null` caller from an
   unauthenticated session is routed as the node. An unauthenticated session
   that names a caller is refused with `error_msg{denied}`.
-- an unauthenticated session may call only the operations on the node's
-  claim-state allowlist, the same list an IPC guest has: `user.info`,
-  `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`
-  and `.spec` while the node is unclaimed, and `user.info`,
-  `apphost.register` and `.spec` afterwards, whatever the page's `Origin`.
-  [Operations](../core-definitions/op.md) outside the list are refused with
-  `error_msg{denied}`. Authenticating lifts the restriction. See
-  [apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token).
+- every session passes the apphost gate, as an IPC guest does, whatever the
+  page's `Origin`. By default an unauthenticated session may call
+  `apphost.register_manager` and `user.info` on a `fresh` node, `user.info`
+  and `apphost.register` on an `unclaimed` node, and those three on a
+  `claimed` node. An authenticated session calls on the node only the
+  operations of the list of the node's state.
+  [Operations](../core-definitions/op.md) the gate does not admit are refused
+  with `error_msg{denied}`. See
+  [apphost, Gate](../protocols/apphost/README.md#gate).
 - JSON mode auto-injects `out=json&in=json` server-side so responder
   frames are JSON-encoded `astral.JSONAdapter` objects. Override by
   putting `in=`/`out=` in `queryString` yourself. Responders that bypass
