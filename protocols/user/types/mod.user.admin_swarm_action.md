@@ -6,7 +6,8 @@ objects it carries. When evaluating the request the auth module matches a permit
 to the action by object type.
 
 One action gates every mutating op in the `user` protocol — `user.adopt`,
-`user.expel`, `user.add_asset`, `user.remove_asset` and `user.sync_with`.
+`user.expel`, `user.introduce`, `user.add_asset`, `user.remove_asset` and
+`user.sync_with`.
 Membership and the asset set are one authority: both decide what the swarm
 holds, and both propagate from this node to every sibling.
 
@@ -19,7 +20,7 @@ This action replaces `mod.user.adopt_action` and `mod.user.expel_action`.
 ## Fields
 
 * Action ([`mod.auth.action`](../../auth/types/mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID.
-* Subject (identity) – Identity of the node being adopted, expelled or synced with. Zero for an asset call.
+* Subject (identity) – Identity of the node being adopted, expelled, introduced to or synced with. Zero for an asset call.
 * ObjectID (object_id) – ID of the asset being added or removed. Zero for a membership call.
 
 In JSON the embedded action's fields appear directly in the `Object` value,

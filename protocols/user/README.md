@@ -18,7 +18,10 @@ cold-card path). `user.bootstrap` claims a node without an active contract in on
 derives the user's key from BIP-39 words, signs the claim contract for both
 parties, activates it and issues an access token for the user.
 `user.derive_identity` answers the user that words derive and changes nothing.
-`user.join` makes a node without an active contract request membership from a node of a swarm. A user permanently bans a node with `user.expel`, and the list
+`user.join` makes a node without an active contract request membership from a node of a swarm.
+`user.introduce` pushes a claimed node's active contract to a member of its
+user's swarm, which admits the node to that member's local swarm; a node claimed
+with the user's words rejoins the swarm this way. A user permanently bans a node with `user.expel`, and the list
 of bans is inspectable via `user.list_expelled`. Banned nodes hold a
 `mod.user.signed_expulsion` and are refused new contracts.
 
@@ -46,16 +49,21 @@ Two actions gate the protocol. `mod.user.see_swarm_action` covers every read —
 `user.swarm_status` and `user.list_expelled` — and `user.new_node_contract`
 when `user` is omitted on a claimed node. `mod.user.admin_swarm_action`
 covers every change to what the swarm holds — `user.adopt`, `user.expel`,
-`user.add_asset`, `user.remove_asset` and `user.sync_with`, which applies
+`user.introduce`, `user.add_asset`, `user.remove_asset` and `user.sync_with`, which applies
 another node's entries to this one. A node contract issued to a management node
 carries both, delegable one hop.
 
-When a node first links to a swarm member it synchronises with it: it pushes
-the active contract, the membership contracts of the other members, the user's
-expulsions, and the relay contracts of the apps it hosts, and it pulls the
-member's asset updates. A pushed app relay contract lets the member route a
-query addressed to the app through this node. An app registered while the two
-nodes are already linked reaches the member at the next first link.
+When a node first links to a swarm member it synchronises with it, in this
+order: it pushes the active contract, the user's expulsions and the membership
+contracts of the other members, pulls the member's alias, pushes the relay
+contracts of the apps it hosts, and pulls the member's asset updates. The alias
+and asset pulls query the member as the user, and the member admits them only
+once it holds this node's contract. A node also synchronises with a linked node
+when a pushed membership contract admits that node to its local swarm, because
+the first link to that node preceded the contract. A pushed app relay contract
+lets the member route a query addressed to the app through this node. An app
+registered while the two nodes are already linked reaches the member at the next
+first link.
 
 The active contract is validated on every application — both signatures, subject
 identity match, remaining validity, and a swarm-membership permit — so a stored
