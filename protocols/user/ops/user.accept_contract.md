@@ -3,7 +3,7 @@
 Activate a fully-signed contract as the node's active contract. Answers an `error_message` reading `node already claimed` if the node already has an active contract. The contract is validated — both signatures, subject identity match, an issuer distinct from the subject, remaining validity, and a swarm-membership permit — then decided by the contract accept policy, then stored and set as the active contract. It is the activation step for node setup and the cold-card path, where the contract is already signed by both parties; the interactive counterpart is `user.accept_membership`.
 
 The contract accept policy accepts every contract that passes validation by
-default, so a node out of the box is claimable.
+default.
 [`user.set_contract_accept_policy`](user.set_contract_accept_policy.md)
 delegates the decision to an operation of another identity, which receives a
 [`mod.user.contract_accept_request`](../types/mod.user.contract_accept_request.md).

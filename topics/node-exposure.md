@@ -3,27 +3,30 @@
 This page lists the surfaces a fresh astrald node opens, who reaches each
 surface, and the setting that opens or closes it. The values are astrald
 defaults at commit `0f7da199`, checked on a throwaway node; the rule for
-settings set through the tree is from commit `5f17900d`. A setting lives in
-`<name>.yaml` in the node's config directory.
+settings set through the tree is from commit `5f17900d`. The apphost gate, the
+node states and the policy defaults are read from astrald source of the node
+manager change, not checked on a node. A setting lives in `<name>.yaml` in the
+node's config directory.
 
 ## Surfaces
 
-| Surface | Default bind | Reach | Without a token, unclaimed | Without a token, claimed | Switch |
+| Surface | Default bind | Reach | Without a token, before the claim | Without a token, claimed | Switch |
 |---|---|---|---|---|---|
 | TCP links | `:1791`, all interfaces | host, LAN, internet | any identity links; see [Linked peers](#linked-peers) | same | `tcp.yaml` `listen`, `listen_port` |
 | KCP links | `:1792` UDP, all interfaces | host, LAN, internet | as TCP links | as TCP links | `kcp.yaml` `listen`, `listen_port` |
 | Tor onion service | off | internet through Tor | as TCP links, when on | as TCP links, when on | `tor.yaml` `listen: true`; needs a Tor control port at `control_addr` (default `127.0.0.1:9051`) |
 | ether discovery | `:8822` UDP, all interfaces | LAN | carries nearby | carries nearby | `ether.yaml` `listen`, `udp_port` |
 | nearby status and scan reply | over ether | LAN | node identity as the signed source; `adoptable` flag, public profile, endpoints, alias | node identity as the signed source; stealth hint | `nearby.yaml` `mode`; `0` sends nothing |
-| apphost IPC | `tcp:127.0.0.1:8625`, `unix:~/.apphost.sock` | host | the unclaimed allowlist | the claimed allowlist | `apphost.yaml` `listen`, `allow_anonymous`, `anonymous_allowlist` |
-| apphost HTTP | `tcp:127.0.0.1:8624` | host, and any page open in a local browser | `/.ws`: the unclaimed allowlist, any `Origin`; other paths answer `401`, except `OPTIONS` | `/.ws`: the claimed allowlist, any `Origin`; other paths answer `401`, except `OPTIONS` | `apphost.yaml` `bind_http`, `allow_anonymous`, `anonymous_allowlist`; `/.ws` answers `403` to a non-loopback client whatever `bind_http` is |
+| apphost IPC | `tcp:127.0.0.1:8625`, `unix:~/.apphost.sock` | host | the gate's `tokenless` operations on the `fresh` or `unclaimed` list | the gate's `tokenless` operations | `apphost.yaml` `listen`, `gate` |
+| apphost HTTP | `tcp:127.0.0.1:8624` | host, and any page open in a local browser | `/.ws`: as apphost IPC, any `Origin`; other paths answer `401`, except `OPTIONS` | `/.ws`: as apphost IPC, any `Origin`; other paths answer `401`, except `OPTIONS` | `apphost.yaml` `bind_http`, `gate`; `/.ws` answers `403` to a non-loopback client whatever `bind_http` is; a query the gate refuses answers `403` |
 | MCP | `tcp:127.0.0.1:8626` | host | none: a request needs a bearer token | same | `mcp.yaml` `bind_mcp`; empty disables the server |
 | gateway | serves no node; registers with no gateway | none | none | none | `gateway.yaml` `gateway.enabled` with a `tcp` port under `gateway.networks`, `gateways`, `visibility` |
 | fwd forwards | none | per forward | each TCP client runs the `astral://` target query as the node, or as the `caller@` the target names | same | `fwd.yaml` `forwards` |
 
 * "Without a token" means a session that presents no token, or a peer that
-  holds no grant. [Session Identity](session-identity.md) lists both
-  allowlists.
+  holds no grant. [Session Identity](session-identity.md) lists the gate's
+  default lists. "Before the claim" covers the `fresh` and `unclaimed` states
+  ([apphost, Node states](../protocols/apphost/README.md#node-states)).
 * `listen` in `tcp.yaml` and `kcp.yaml`, and `mode` in `nearby.yaml`, write
   the tree values `/mod/tcp/settings/listen`, `/mod/kcp/settings/listen` and
   `/mod/nearby/mode` at every start when the file states the key. Otherwise a
@@ -38,12 +41,17 @@ settings set through the tree is from commit `5f17900d`. A setting lives in
   `/mod/tor/settings/listen` and `/mod/tor/settings/dial` at every start. A
   runtime change of either lasts until the next start.
 * `listen` in `ether.yaml` takes effect at the next start.
-* A registering app holds the permits it asks for. The bundled register policy
-  accepts every registration until
+* The app register policy refuses every registration by default. A delegate
+  set by
   [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md)
-  names a delegate ([Policy Delegates](policy-delegates.md)).
-* Any page open in a local browser reaches `/.ws`. On an unclaimed node, that
-  page can claim the node. On a claimed node, that page can register an app.
+  or `policies.app_register: accept_all` admits registrations
+  ([Policy Delegates](policy-delegates.md)).
+* Any page open in a local browser reaches `/.ws`. On a `fresh` node, that page
+  can appoint itself the manager with
+  [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md)
+  and then claim the node with the manager's token. On an `unclaimed` or
+  `claimed` node, that page can call `apphost.register`, which the app register
+  policy decides.
 * [`mod.nearby.mode`](../protocols/nearby/types/mod.nearby.mode.md) lists what
   each nearby mode discloses. An unclaimed node broadcasts in Visible unless
   its stored mode is `0` (Silent). A claimed node broadcasts in Stealth by
@@ -63,17 +71,18 @@ link. A linked peer that holds no grant reaches these operations:
   `gateway.node_list`, `gateway.node_unregister`, `objects.new`,
   `objects.push`, `secp256k1.new`, `shell.spec`, `.spec`, and
   `gateway.node_route` naming the node itself.
-* On an unclaimed node only:
+* On a `fresh` or `unclaimed` node only:
   [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md),
   [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md),
-  and [`user.info`](../protocols/user/ops/user.info.md), which answers
-  `no active contract`.
-  A linked peer can claim an unclaimed node under the bundled invite policy
-  ([Policy Delegates](policy-delegates.md#after-the-claim)).
+  and [`user.info`](../protocols/user/ops/user.info.md), which answers the
+  node's `State` and `Manager`. The apphost gate does not apply to a linked
+  peer.
+  The default swarm invite policy, `reject_all`, declines an invitation from a
+  linked peer ([Policy Delegates](policy-delegates.md#before-the-claim)).
 * On a claimed node only:
   [`user.request_membership`](../protocols/user/ops/user.request_membership.md).
-  Under the bundled join policy, the node signs the peer a swarm membership
-  contract. A swarm member passes the checks that admit the user's nodes, such
+  The default swarm join policy, `reject_all`, declines the peer. Under
+  `accept_all`, the node signs the peer a swarm membership contract. A swarm member passes the checks that admit the user's nodes, such
   as [`mod.auth.admin_network_action`](../protocols/auth/types/mod.auth.admin_network_action.md).
 
 Every other operation refuses a network caller, or requires an authorization

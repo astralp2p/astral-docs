@@ -6,9 +6,10 @@ applies its default policy, which accepts every contract that passes
 validation, or delegates the decision to an operation of another identity.
 
 The caller must hold
-[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
+or be the node's [manager](../../apphost/README.md#manager).
 The operation answers an `error_message` reading `not permitted` before the
-policy is changed when the caller is not authorized.
+policy is changed when the caller is neither.
 
 Naming `identity` and `operation` delegates the decision. Omitting both clears
 the delegate and restores the default policy, and `timeout` is then ignored.

@@ -71,35 +71,111 @@ is written, and allows nothing.
 selects how the node decides `apphost.request_grant`: `accept_all`,
 `reject_all`, or a delegate. Unset selects `accept_all`.
 
-## Sessions without a token
+## Node states
+
+A node is in one of three states.
+[`user.info`](../user/ops/user.info.md) reports the state in `State`.
+
+| State | Condition |
+|-------|-----------|
+| `fresh` | The node has no active contract, has never held one, and has no manager. |
+| `unclaimed` | The node has no active contract, and it has a manager or has held an active contract before. |
+| `claimed` | The node has an active contract. |
+
+* The node records at `/mod/user/config/owned` that it has held an active
+  contract. The record is written when a contract activates. Expiry and
+  expulsion do not clear it.
+* A node without the `user` module is `fresh` until a manager is appointed,
+  and `unclaimed` afterwards.
+* The gate waits for the `user` module to start before it reads the state. A
+  query whose context ends first reads `fresh`.
+
+## Manager
+
+The manager is the [`App`](../../core-definitions/app.md) identity
+[`apphost.register_manager`](ops/apphost.register_manager.md) appoints. A node
+has at most one manager. Only a `fresh` node appoints a manager, and the
+appointment moves the node to `unclaimed`. The node stores the manager at
+`/mod/apphost/manager`. No operation removes the manager. A claim keeps it.
+
+The manager:
+
+* is the delegate of each policy its appointment binds;
+* may call `apphost.set_app_register_policy`,
+  `apphost.set_grant_request_policy`, `user.set_swarm_join_policy`,
+  `user.set_swarm_invite_policy` and `user.set_contract_accept_policy` without
+  [`mod.auth.admin_manage_apps_action`](../auth/types/mod.auth.admin_manage_apps_action.md);
+* may claim the node with [`user.bootstrap`](../user/ops/user.bootstrap.md) or
+  [`user.join`](../user/ops/user.join.md) under its App token.
+
+[`user.info`](../user/ops/user.info.md) reports the manager in `Manager`.
+
+## Gate
+
+apphost passes every query of an IPC, WebSocket or HTTP session through the
+gate before routing it. A query to the node is a query whose target is zero or
+the node's identity. The gate applies these rules:
+
+* A session without a token sends queries to the node only, and only the
+  operations `gate.tokenless` lists.
+* Every query to the node, with a token or without, names an operation that the
+  list of the node's state in `gate.states` holds.
+* A query with a token to another identity passes the gate.
+* An entry is an operation path, or `*`. The entry `*` matches every
+  operation. No other entry is a pattern: `user.*` matches no operation.
+
+The gate refuses an IPC or WebSocket query with `error_msg{denied}` and an HTTP
+query with status `403`. The node's token obeys the state lists as every other
+token does. A query the gate admits is then authorized by its operation.
 
 A query from a session without a token carries a zero caller, and the node
 routes a zero caller as its own identity. An operation cannot tell such a query
-from the node's own. apphost therefore confines every session without a token,
-IPC and WebSocket alike, to the operations of `anonymous_allowlist` in the
-apphost configuration. The node's claim state selects the list: `unclaimed`
-while the node has no active contract, `claimed` afterwards. apphost refuses an
-operation absent from the active list with `error_msg{denied}` before routing
-it.
+from the node's own. apphost routes a query with a zero caller from a session
+with a token as the session's identity.
 
 | List | Default operations |
 |------|--------------------|
-| `unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`, `.spec` |
-| `claimed` | `user.info`, `apphost.register`, `.spec` |
+| `tokenless` | `apphost.register`, `apphost.register_manager`, `user.info` |
+| `states.fresh` | `apphost.register_manager`, `user.info` |
+| `states.unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register` |
+| `states.claimed` | `*` |
 
-* A WebSocket session without a token is confined as an IPC session is,
-  whatever its `Origin` header. Any page open in a local browser reaches the
-  operations of the active list.
-* `.spec` lists the node's operations and changes nothing. A session without a
-  token learns the operations before it holds a token.
-* `allow_anonymous: false` refuses every query of a session without a token.
-* A session with a token is not confined by the lists. apphost routes a query
-  with a zero caller from such a session as the session's identity.
-* `apphost.yaml` replaces either list. A replacing list admits `.spec` only if
-  it names `.spec`:
+Under the default lists, a session without a token reaches
+`apphost.register_manager` and `user.info` on a `fresh` node, `user.info` and
+`apphost.register` on an `unclaimed` node, and the three `tokenless`
+operations on a `claimed` node. `.spec` is on no default list except through
+`*`.
+
+* A WebSocket session is gated as an IPC session is, whatever its `Origin`
+  header. Any page open in a local browser reaches what the gate admits a
+  session without a token.
+* A key `apphost.yaml` supplies replaces that list. An omitted key keeps its
+  default.
+* `allow_anonymous` and `anonymous_allowlist` are removed. The node does not
+  start with an `apphost.yaml` that names either key. The error reads
+  `apphost.yaml: allow_anonymous is removed; gate.tokenless lists the ops a
+  session without a token may call`, or `apphost.yaml: anonymous_allowlist is
+  removed; gate.tokenless and gate.states replace it`.
+
+The default configuration:
 
 ```yaml
-anonymous_allowlist:
-  unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register, .spec]
-  claimed: [user.info, apphost.register, .spec]
+gate:
+  tokenless: [apphost.register, apphost.register_manager, user.info]
+  states:
+    fresh: [apphost.register_manager, user.info]
+    unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register]
+    claimed: ["*"]
+policies:
+  app_register: reject_all
 ```
+
+## Policies
+
+`policies.app_register` in `apphost.yaml` holds the config value of the app
+register policy: `accept_all`, `reject_all`, or a delegate mapping. The default
+is `reject_all`. A delegate stored with
+[`apphost.set_app_register_policy`](ops/apphost.set_app_register_policy.md)
+outranks the config value.
+[Policy Delegates](../../topics/policy-delegates.md#config-values) describes the
+values.

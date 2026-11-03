@@ -1,17 +1,19 @@
 # apphost.set_app_register_policy
 
 Select the policy that decides each [`apphost.register`](apphost.register.md)
-call. The node either applies its default policy, which admits every
-registration with the permits it asked for, or delegates the decision to an
-operation of another identity.
+call. The node either applies the config value `policies.app_register` of
+`apphost.yaml`, or delegates the decision to an operation of another identity.
+The config value defaults to `reject_all`, which refuses every registration
+([Policies](../README.md#policies)).
 
 The caller must hold
-[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md).
+[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
+or be the node's [manager](../README.md#manager).
 The operation answers an `error_message` reading `not permitted` before the
-policy is changed when the caller is not authorized.
+policy is changed when the caller is neither.
 
 Naming `identity` and `operation` delegates the decision. Omitting both clears
-the delegate and restores the default policy, and `timeout` is then ignored.
+the delegate and restores the config value, and `timeout` is then ignored.
 Naming one alone is an error. The choice is persisted in the node's tree at
 `/mod/apphost/policy/app_register`, and the operation answers `ack` only once
 it is saved.
@@ -66,7 +68,7 @@ $ astral-query apphost.set_app_register_policy -identity 0282fee8775757cdd8fda8b
 {"Type":"ack","Object":null}
 ```
 
-Restoring the default policy:
+Restoring the config value:
 
 ```shellsession
 $ astral-query apphost.set_app_register_policy -out json

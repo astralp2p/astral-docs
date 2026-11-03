@@ -116,7 +116,7 @@ for range w.Changed() {
 | `eos` without `services.incomplete` | Initial evaluation completed, including unavailable answers. No offerings can mean no providers or no available answers. |
 | [`services.incomplete`](../protocols/services/types/services.incomplete.md), then `eos` | Some initial work timed out, lost its provider, or failed at a swarm member. Keep current offerings; the named services may lack results. |
 | `error_message`, then close before any update | Invalid arguments or missing discovery permission; no provider was evaluated. |
-| apphost `error_msg{denied}` | Session admission failed; a token-less session cannot discover under the default allowlist. |
+| apphost `error_msg{denied}` | Session admission failed; a token-less session cannot discover under the default gate. |
 | Close before `eos` | Discovery failed; this is not a successful empty result. |
 
 `Available: false` is a provider's answer. Permission refusal prevents asking

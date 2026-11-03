@@ -4,7 +4,8 @@ A [`Node`](../core-definitions/node.md) starts without a
 [`User`](../core-definitions/user.md). Node setup claims the node for a `User`:
 afterwards the node holds the user's private key and an active node contract
 that the user issues to the node. Until then
-[`user.info`](../protocols/user/ops/user.info.md) answers `no active contract`,
+[`user.info`](../protocols/user/ops/user.info.md) answers `State` `fresh` or
+`unclaimed` ([apphost, Node states](../protocols/apphost/README.md#node-states)),
 and the node logs `this node runs without a user` at startup.
 
 Node setup runs in one call ([`user.bootstrap`](#one-call)) or
@@ -27,22 +28,27 @@ same rules. A node also joins an existing swarm from its own side
 ## Who may set up a node
 
 * Setup runs on the node, from a local session.
-* A session without a token reaches
-  [`user.info`](../protocols/user/ops/user.info.md),
-  [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md),
-  [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md) and
-  [`user.join`](../protocols/user/ops/user.join.md) while the node is unclaimed,
-  and no other setup operation
-  ([apphost, Sessions without a token](../protocols/apphost/README.md#sessions-without-a-token)).
-  A local caller that presents no identity acts as the node.
-* A session without a token also reaches `.spec`, before and after the claim.
-  `.spec` lists the node's operations and changes nothing.
-* A WebSocket session without a token reaches those operations from any
-  browser origin. Any page open in a local browser can claim an unclaimed node.
+* A `fresh` node first appoints a manager with
+  [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md)
+  ([apphost, Manager](../protocols/apphost/README.md#manager)). The node is then
+  `unclaimed`.
+* The default [gate](../protocols/apphost/README.md#gate) admits these
+  operations on the node:
+
+| State | Without a token | With a token, the node's token included |
+|-------|-----------------|-----------------------------------------|
+| `fresh` | `apphost.register_manager`, `user.info` | `apphost.register_manager`, `user.info` |
+| `unclaimed` | `user.info`, `apphost.register` | `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register` |
+| `claimed` | `apphost.register`, `apphost.register_manager`, `user.info` | every operation |
+
+* `user.bootstrap` and `user.join` admit the node and the manager as caller.
+  The manager calls with its App token. A session with the node's token acts
+  as the node.
+* A WebSocket session reaches those operations from any browser origin. Any
+  page open in a local browser can appoint the manager of a `fresh` node.
   [Node Exposure](node-exposure.md) lists every surface a fresh node opens.
-* The step-by-step operations run with the node's token: a token that
-  `tokens:` in `apphost.yaml` maps to `localnode`. A session authenticated with
-  it acts as the node.
+* The node's token is a token that `tokens:` in `apphost.yaml` maps to
+  `localnode`.
 
 ```yaml
 tokens:
@@ -57,13 +63,12 @@ tokens:
   [`auth.sign_contract`](../protocols/auth/ops/auth.sign_contract.md). The rule
   refuses any contract once the node has an active contract. A `User` the node
   has had re-claims it once that user's contract has expired or is cleared.
-* Once the node is claimed, a session without a token reaches `user.info`,
-  [`apphost.register`](../protocols/apphost/ops/apphost.register.md) and `.spec`
-  only. Until
-  [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md)
-  names a delegate, any local program that registers receives the permits it
-  asks for. [Policy Delegates](policy-delegates.md#after-the-claim) gives the
-  steps that hand the decision to an approval app.
+* Once the node is claimed, a session without a token reaches
+  [`apphost.register`](../protocols/apphost/ops/apphost.register.md),
+  `apphost.register_manager` and `user.info` only. The app register policy
+  refuses every registration until its delegate, or `policies.app_register`,
+  says otherwise. [Policy Delegates](policy-delegates.md#before-the-claim)
+  gives the steps that hand the decisions to an approval app.
 
 ## One call
 
@@ -72,6 +77,18 @@ signs the claim contract as both parties, stores the key, activates the
 contract and issues an access token for the user. It answers a
 [`mod.user.bootstrap_result`](../protocols/user/types/mod.user.bootstrap_result.md).
 The token authenticates the claiming app as the user.
+
+Under the default gate, the manager runs the one-call flow on an `unclaimed`
+node with its App token:
+
+```shellsession
+$ echo '{"Type":"mod.apphost.register_manager_request","Object":{"Name":"setup","GrantPermits":[],"ContractPermits":[],"Policies":[]}}' \
+    | astral-query apphost.register_manager -in json -out json
+{"Type":"apphost.access_token","Object":{"Identity":"03864ef0...","Token":"k7m2q5x9r3v4n8p1","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
+$ export ASTRALD_APPHOST_TOKEN=k7m2q5x9r3v4n8p1
+```
+
+The commands below then run under the manager's token.
 
 [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md) previews
 the claim. It answers the identity that words derive, with the derivation of
@@ -109,7 +126,16 @@ $ astral-query user.bootstrap -in json -out json < words.json
 
 Every step runs on a session authenticated with the node's token
 ([Who may set up a node](#who-may-set-up-a-node)). A session without a token is
-refused steps 1 to 8.
+refused steps 1 to 8. The default gate also refuses steps 1 to 8 to the node's
+token, because the `fresh` and `unclaimed` lists name none of their
+operations. A node set up step by step lists them in `gate.states` for its
+state. A list `apphost.yaml` supplies replaces the default list:
+
+```yaml
+gate:
+  states:
+    fresh: [apphost.register_manager, user.info, bip137sig.new_entropy, bip137sig.mnemonic, bip137sig.seed, bip137sig.derive_key, objects.store, crypto.public_key, user.new_node_contract, auth.sign_contract, user.accept_contract]
+```
 
 | Step | Op | Input | Result |
 |------|----|-------|--------|
@@ -197,8 +223,9 @@ $ astral-query user.join -node 03b1... -out json
 
 The swarm node's join policy decides a request, and the new node's invite
 policy decides an invitation. The new node's contract accept policy decides a
-contract activated with `user.accept_contract`. All three accept everything by
-default ([user](../protocols/user/README.md)).
+contract activated with `user.accept_contract`. The join and invite policies
+decline everything by default, and the contract accept policy accepts every
+contract that passes validation ([user](../protocols/user/README.md)).
 [Policy Delegates](policy-delegates.md) describes how an approval app decides
 them instead.
 
@@ -206,14 +233,15 @@ them instead.
 
 | Answer | Cause | Remedy |
 |--------|-------|--------|
-| `user.info`: `no active contract` | The node has no active contract. | Run node setup. |
+| `apphost.register_manager`: `node is not fresh` | The node has a manager, has an active contract, or has held one before. | Use the manager, or the node's token on an `unclaimed` node. |
 | `auth.sign_contract`: `sign as issuer: no signing scheme available for key secp256k1:<hex>: …` | The node does not hold the user's private key. | Store the key with `objects.store`, then sign again. |
 | `auth.sign_contract`: `authorize issuer: cannot sign with another identity's key` | The claim rule refuses: the node has an active contract, or the contract is not the claim contract `user.new_node_contract` writes. | Claim an unclaimed node with the contract `user.new_node_contract` writes. |
 | `user.bootstrap`: `node already claimed` | The node has an active contract. | — |
-| `user.bootstrap`: `not permitted` | The caller is not the node. | Call from a local session without a token, or with the node's own token. |
+| `user.bootstrap`: `not permitted` | The caller is neither the node nor the manager. | Call with the manager's App token, or with the node's own token. |
 | `user.bootstrap`: `claim refused: the claim rule of auth.sign_contract refuses this user` | The node was claimed while the claim was signed. | — |
 | `user.bootstrap`: `invalid mnemonic` | The words fail the BIP-39 checksum. | Check the words. |
-| any operation: `denied` | A session without a token sent an operation outside the active `anonymous_allowlist`. | Authenticate with a token. |
+| any operation: `denied` | The gate refuses the operation: a session without a token sent an operation outside `gate.tokenless`, or the list of the node's state in `gate.states` does not name it. | Authenticate with a token, or wait for the state that lists the operation. |
 | `user.join`: `unknown identity`, `zero identity` or `cannot join self` | `node` does not resolve, resolves to the anonymous identity, or names this node. | Name a node of the swarm. |
-| `user.join`: `request declined` | The swarm node's join policy declines the request. | Approve the request on the swarm node, or adopt the node from it. |
+| `user.join`: `request declined` | The swarm node's join policy declines the request. Its default, `reject_all`, declines every request. | Approve the request on the swarm node, set its `policies.swarm_join`, or adopt the node from it. |
+| `user.join`: `invitation declined` | This node's invite policy declines the contract. Its default, `reject_all`, declines every invitation. | Bind `swarm_invite` to the manager, or set `policies.swarm_invite`. |
 | `user.accept_contract`: `contract declined` | The node's contract accept policy declines the contract, or its delegate does not answer. | Approve the contract on the delegate, or clear the delegate with `user.set_contract_accept_policy`. |

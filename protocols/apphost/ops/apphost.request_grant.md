@@ -39,8 +39,9 @@ is stored once, and its expiry is set to the new value. A grant that allows its
 action does so before any authorizer is asked, so it takes precedence over an
 authorizer assignment recorded for the identity.
 
-The default `anonymous_allowlist` refuses a session without a token before
-routing ([Sessions without a token](../README.md#sessions-without-a-token)).
+The default gate refuses a session without a token before routing, and
+refuses every session on a `fresh` or `unclaimed` node
+([Gate](../README.md#gate)).
 The operation answers `not permitted` to any query that does not come from an
 IPC or WebSocket session with a token, such as a query over the
 [HTTP transport](../../../topics/http-transport.md) or a query the node issues
