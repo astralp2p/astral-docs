@@ -137,7 +137,7 @@ with a token as the session's identity.
 |------|--------------------|
 | `tokenless` | `apphost.register`, `apphost.register_manager`, `user.info` |
 | `states.fresh` | `apphost.register_manager`, `user.info` |
-| `states.unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register` |
+| `states.unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`, `apphost.bind`, `apphost.register_handler`, `apphost.cancel` |
 | `states.claimed` | `*` |
 
 Under the default lists, a session without a token reaches
@@ -145,6 +145,13 @@ Under the default lists, a session without a token reaches
 `apphost.register` on an `unclaimed` node, and the three `tokenless`
 operations on a `claimed` node. `.spec` is on no default list except through
 `*`.
+
+The `unclaimed` list holds [`apphost.bind`](ops/apphost.bind.md),
+[`apphost.register_handler`](ops/apphost.register_handler.md) and
+[`apphost.cancel`](ops/apphost.cancel.md), so an app with a token serves before the
+claim. The manager answers the policies delegated to it only through its handler,
+an invitation from the owner's other device among them. The `tokenless` list holds
+none of the three.
 
 * A WebSocket session is gated as an IPC session is, whatever its `Origin`
   header. Any page open in a local browser reaches what the gate admits a
@@ -164,7 +171,8 @@ gate:
   tokenless: [apphost.register, apphost.register_manager, user.info]
   states:
     fresh: [apphost.register_manager, user.info]
-    unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register]
+    unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register,
+                apphost.bind, apphost.register_handler, apphost.cancel]
     claimed: ["*"]
 policies:
   app_register: reject_all
