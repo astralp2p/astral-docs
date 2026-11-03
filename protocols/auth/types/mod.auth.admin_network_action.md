@@ -32,8 +32,8 @@ this action.
 
 ## Holders
 
-The node's own identity holds this action, including on an unclaimed node
-before any swarm exists.
+The node's own identity holds this action, including before the claim, when
+no swarm exists yet.
 
 Every current node member of the node's swarm holds this action. A current node
 member holds an unexpelled

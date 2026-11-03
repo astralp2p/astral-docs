@@ -1,6 +1,6 @@
 # user.bootstrap
 
-Claim this unclaimed node for a user in one call. The user's key is derived
+Claim this node, which has no active contract, for a user in one call. The user's key is derived
 from BIP-39 words along the path `m/1791'/0'/0'/0/0`, the path a Coldcard
 derives its Astral key on. The words arrive in the input stream, or the node
 generates 24 words when `generate` is set. The node signs the claim contract as
@@ -56,8 +56,8 @@ with a token, and refuses it on a `fresh` node and from a session without a
 token.
 
 Nothing changes on the node before the claim contract is validated. A failure
-after the user's private key is stored leaves the node unclaimed and holding the
-key; a repeat call with the same words completes the claim. The node keeps the
+after the user's private key is stored leaves the node without an active contract and
+holding the key; a repeat call with the same words completes the claim. The node keeps the
 user's private key after the claim. A failure to issue the access token leaves
 the node claimed.
 

@@ -9,7 +9,7 @@ when authorizing typed actions (`mod.auth.action` and its concrete subtypes).
 [`auth.sign_contract`](ops/auth.sign_contract.md) co-signs a contract
 presented on the stream using private keys held by the node, for a local caller
 that may sign as both of its parties, or the claim contract of node setup for
-the node's own session while the node is unclaimed. The node indexes every
+the node's own session while the node has no active contract. The node indexes every
 validly signed `mod.auth.signed_contract` in its local repository itself; no
 operation indexes a contract on request.
 

@@ -29,7 +29,8 @@ claim.
 * A node in mode `1` (Visible) attaches its endpoints: TCP and KCP endpoints,
   its Tor onion endpoint when tor listens, and its gateway endpoints. It also
   attaches its alias when one is set.
-* An unclaimed node in mode `1` (Visible) also attaches a `mod.nearby.flag`
+* A node without an active contract, `fresh` or `unclaimed`, in mode `1`
+  (Visible) also attaches a `mod.nearby.flag`
   reading `adoptable` and a `mod.nearby.public_profile` with its node identity
   and alias.
 * A claimed node in mode `1` (Visible) also attaches its active contract,

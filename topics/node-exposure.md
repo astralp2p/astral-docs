@@ -53,7 +53,7 @@ node's config directory.
   `claimed` node, that page can call `apphost.register`, which the app register
   policy decides.
 * [`mod.nearby.mode`](../protocols/nearby/types/mod.nearby.mode.md) lists what
-  each nearby mode discloses. An unclaimed node broadcasts in Visible unless
+  each nearby mode discloses. A node without an active contract broadcasts in Visible unless
   its stored mode is `0` (Silent). A claimed node broadcasts in Stealth by
   default.
 * The HTTP server sends `Access-Control-Allow-Origin: *` on every path except
@@ -64,7 +64,7 @@ node's config directory.
 Any identity links to the node: the node checks no peer identity before the
 link. A linked peer that holds no grant reaches these operations:
 
-* In both claim states: `apphost.whoami`, `bip137sig.derive_key`,
+* In every state: `apphost.whoami`, `bip137sig.derive_key`,
   `bip137sig.mnemonic`, `bip137sig.new_entropy`, `bip137sig.seed`,
   `crypto.public_key`, `crypto.verify_hash_signature`,
   `crypto.verify_text_signature`, `dir.get_alias`, `dir.resolve`,
@@ -99,5 +99,5 @@ default on macOS and Windows, the data directory is the config directory, so a
 reset there also removes the `<name>.yaml` settings.
 
 No operation resets a node in place. An expulsion that names the node clears
-its active contract, and the node then acts as unclaimed; its identity, tokens
-and grants stay.
+its active contract, and the node is `unclaimed` again; its identity, tokens,
+grants and manager stay.

@@ -20,8 +20,8 @@ The check mirrors `user.info` and keeps the user identity from no local app:
 without an action, and `user=localuser` names it here.
 
 [`auth.sign_contract`](../../auth/ops/auth.sign_contract.md) signs this
-contract, unmodified, for the node's own session while the node is unclaimed
-and the contract's expiry is within the bounds that operation states. The
+contract, unmodified, for the node's own session while the node has no active
+contract and the contract's expiry is within the bounds that operation states. The
 default duration is within them.
 
 ## Arguments

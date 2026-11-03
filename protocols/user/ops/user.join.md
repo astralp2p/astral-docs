@@ -1,6 +1,6 @@
 # user.join
 
-Ask a node of a swarm to admit this unclaimed node. The node sends
+Ask a node of a swarm to admit this node, which has no active contract. The node sends
 [`user.request_membership`](user.request_membership.md) to the node `node`
 names, as itself, with the `Network` [`Zone`](../../../core-definitions/zone.md).
 The swarm node's join policy decides the request. On admission the swarm node

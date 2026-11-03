@@ -33,7 +33,7 @@ The node signs it while all of these hold:
 * The contract expires more than 1 hour from now and at most 365 days and
   1 hour from now. 365 days is the default validity of
   `user.new_node_contract`.
-* The node is unclaimed: the node holds no active contract.
+* The node holds no active contract: it is `fresh` or `unclaimed`.
 
 The rule reads nothing of the issuer's history. A user the node has had
 re-claims it once its contract is cleared or has expired. An identity the node
