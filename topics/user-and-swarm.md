@@ -31,7 +31,9 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
   signed. The claim contract is one.
 * When a node first links to another member, the two exchange the contracts
   that prove membership, the user's expulsions, the relay contracts of the
-  apps each hosts, and the user's asset list.
+  apps each hosts, and the user's asset list. A node that is already linked
+  to a node when that node's first membership contract reaches it
+  synchronises with that node as well.
 * The user and every member may read the swarm, for example with
   [`user.info`](../protocols/user/ops/user.info.md) and
   [`user.list_siblings`](../protocols/user/ops/user.list_siblings.md).
@@ -244,6 +246,58 @@ contract that passes validation ([user](../protocols/user/README.md)).
 [Policy Delegates](node-policies.md) describes how an approval app decides
 them instead.
 
+## Replacing a node
+
+A node claimed with the user's words is a member of the user's swarm, but no
+other member holds its contract yet, and it holds no other member's contract.
+Neither side synchronises with the other, so the node stays alone. This is the
+case when the node that held the user's words is lost and a new node is
+claimed with the same words.
+
+[`user.introduce`](../protocols/user/ops/user.introduce.md) `-identity <member>`
+on the new node pushes the new node's contract to one running member, and the
+two synchronise. The member sends the contracts of the other members and the
+user's expulsions. The new node then links to the other members and
+synchronises with each of them.
+
+The commands below run on the new node. The manager claims it with the user's
+words, and the user's token from the claim adds an endpoint of a running
+member `03b1...` and introduces the node to it:
+
+```shellsession
+$ export ASTRALD_APPHOST_TOKEN=k7m2q5x9r3v4n8p1
+$ astral-query user.bootstrap -in json -out json < words.json
+{"Type":"mod.user.bootstrap_result","Object":{"Identity":"02564ba7...","Mnemonic":"","Token":"b9c2e1a3d4f5867a"}}
+$ export ASTRALD_APPHOST_TOKEN=b9c2e1a3d4f5867a
+$ astral-query nodes.add_endpoint -identity 03b1... -endpoint tcp:192.168.1.20:1791 -out json
+{"Type":"ack","Object":null}
+$ astral-query user.introduce -identity 03b1... -out json
+{"Type":"ack","Object":null}
+```
+
+The `ack` precedes the synchronisation. Once the synchronisations and links
+complete, [`user.swarm_status`](../protocols/user/ops/user.swarm_status.md) on
+the new node lists every member: the lost node `02a9...` among them, with no
+alias and no link, while its contract is valid.
+
+```shellsession
+$ astral-query user.swarm_status -out json
+{"Type":"mod.users.swarm_member","Object":{"Identity":"02a9...","Alias":"","Linked":false}}
+{"Type":"mod.users.swarm_member","Object":{"Identity":"03b1...","Alias":"laptop","Linked":true}}
+{"Type":"mod.users.swarm_member","Object":{"Identity":"02c7...","Alias":"phone","Linked":true}}
+{"Type":"mod.users.swarm_member","Object":{"Identity":"03e4...","Alias":"new","Linked":false}}
+{"Type":"eos","Object":""}
+```
+
+* The caller holds `mod.user.admin_swarm_action`: the user's token holds it,
+  and so does the node's token on a node `user.bootstrap` claimed.
+* The default gate admits `user.introduce` on a `claimed` node, to a session
+  with a token.
+* The member refuses the contract when another user owns it or when the user
+  has expelled the new node.
+* The lost node stays a member until its contract expires. `user.expel` on a
+  running member bans it for good.
+
 ## Losing the owner
 
 * The claim contract of `user.bootstrap` expires 365 days after the claim. A
@@ -269,6 +323,9 @@ contract ([Node Policies](node-policies.md#before-the-claim)).
 | `user.bootstrap`: `invalid mnemonic` | The words fail the BIP-39 checksum. | Check the words. |
 | any operation: `denied` | The gate refuses the operation: a session without a token sent an operation outside `gate.tokenless`, or the list of the node's state in `gate.states` does not name it. | Authenticate with a token, or wait for the state that lists the operation ([Node Policies](node-policies.md#the-gate)). |
 | `user.join`: `unknown identity`, `zero identity` or `cannot join self` | `node` does not resolve, resolves to the anonymous identity, or names this node. | Name a node of the swarm. |
+| `user.introduce`: `cannot introduce to self` | `identity` names this node or the user. | Name a running member of the swarm. |
+| `user.introduce`: `not permitted` | The caller does not hold `mod.user.admin_swarm_action`, or the user has expelled the caller. | Call with the user's token. |
+| `user.introduce`: `push to <identity>: rejected` | The named node refuses the contract: it has no active contract, another user owns it, or the user has expelled this node. | Name a running member of the user's swarm. |
 | `user.join`: `request declined` | The swarm node's join policy declines the request. Its default, `reject_all`, declines every request. | Approve the request on the swarm node, set its `policies.swarm_join`, or adopt the node from it. |
 | `user.join`: `invitation declined` | This node's invite policy declines the contract. Its default, `reject_all`, declines every invitation. | Bind `swarm_invite` to the manager, or set `policies.swarm_invite`. |
 | `user.accept_contract`: `contract declined` | The node's contract accept policy declines the contract, or its delegate does not answer. | Approve the contract on the delegate, or clear the delegate with `user.set_contract_accept_policy`. |
