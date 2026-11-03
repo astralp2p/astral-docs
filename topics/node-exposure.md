@@ -45,7 +45,7 @@ node's config directory.
   set by
   [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md)
   or `policies.app_register: accept_all` admits registrations
-  ([Policy Delegates](policy-delegates.md)).
+  ([Node Policies](node-policies.md)).
 * Any page open in a local browser reaches `/.ws`. On a `fresh` node, that page
   can appoint itself the manager with
   [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md)
@@ -78,7 +78,7 @@ link. A linked peer that holds no grant reaches these operations:
   node's `State` and `Manager`. The apphost gate does not apply to a linked
   peer.
   The default swarm invite policy, `reject_all`, declines an invitation from a
-  linked peer ([Policy Delegates](policy-delegates.md#before-the-claim)).
+  linked peer ([Node Policies](node-policies.md#before-the-claim)).
 * On a claimed node only:
   [`user.request_membership`](../protocols/user/ops/user.request_membership.md).
   The default swarm join policy, `reject_all`, declines the peer. Under

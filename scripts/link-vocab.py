@@ -80,6 +80,8 @@ add_topic('json-encoding.md', ['JSON Encoding'])
 add_topic('network-architecture.md', ['Network Architecture'])
 add_topic('node-claiming.md', ['Node Claiming'])
 add_topic('node-setup.md', ['Node Setup'])
+add_topic('node-policies.md', ['Node Policies'])
+add_topic('user-and-swarm.md', ['User and Swarm'])
 add_topic('text-encoding.md', ['Text Encoding'])
 add_topic('ws-transport.md', ['WebSocket Transport', 'WebSocket transport'])
 

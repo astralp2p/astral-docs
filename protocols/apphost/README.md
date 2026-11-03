@@ -177,5 +177,5 @@ register policy: `accept_all`, `reject_all`, or a delegate mapping. The default
 is `reject_all`. A delegate stored with
 [`apphost.set_app_register_policy`](ops/apphost.set_app_register_policy.md)
 outranks the config value.
-[Policy Delegates](../../topics/policy-delegates.md#config-values) describes the
+[Node Policies](../../topics/node-policies.md#config-values) describes the
 values.

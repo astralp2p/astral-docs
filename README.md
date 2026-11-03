@@ -91,10 +91,11 @@ Contents:
   * [astral-query](tools/astral-query.md) - send queries from the command line
 * Other topics
   * Narratives
-    * [Node Setup](topics/node-setup.md) - claiming a node for a user: the user key, who may set up a node, the manager, `user.derive_identity` and `user.bootstrap`, the step-by-step flow, and `user.join`
+    * [Node Setup](topics/node-setup.md) - start here: how a new node gets a manager and an owner, its three states, what guards it, and how a distribution differs from a test node
+    * [User and Swarm](topics/user-and-swarm.md) - what a user and a swarm are, the user key, claiming a node in one call or step by step, joining a swarm, losing the owner, and the refusals
+    * [Node Policies](topics/node-policies.md) - the gate in each node state, the five admission policies, their config values and delegates, approval apps, and the distribution and test configurations
     * [Session Identity](topics/session-identity.md) - every query runs as an identity: what the gate admits with and without a token in each node state, the settings that change it, and the node's token
     * [Node Exposure](topics/node-exposure.md) - what a fresh node opens: each surface's default bind, who reaches it before and after the claim, what a linked peer reaches, and the setting that closes it
-    * [Policy Delegates](topics/policy-delegates.md) - the five admission policies, their defaults and config values, how a setter or the manager appointment names a delegate, approval apps such as Control Plane, and the steps before the claim
     * [Network Architecture](topics/network-architecture.md) - how identities, nodes, links, swarms, and contracts compose at runtime
     * [App Routing](topics/app-routing.md) - how a query addressed to an app reaches it, on its own node and on another
     * [Blueprints](topics/blueprints.md) - runtime wire-structure schemas that let a node encode and decode typed objects without compiled code

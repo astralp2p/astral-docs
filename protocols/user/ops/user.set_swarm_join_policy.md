@@ -5,7 +5,7 @@ Select the policy that decides each join request
 either applies the config value `policies.swarm_join` of `user.yaml`, or
 delegates the decision to an operation of another identity. The config value
 defaults to `reject_all`, which declines every join request
-([Policy Delegates](../../../topics/policy-delegates.md#config-values)).
+([Node Policies](../../../topics/node-policies.md#config-values)).
 
 The caller must hold
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
@@ -31,7 +31,7 @@ object declines, and `user.request_membership` answers an `error_message`
 reading `request declined`. A question already asked keeps the delegate it was
 asked of when the policy changes.
 
-[Policy Delegates](../../../topics/policy-delegates.md) compares the five
+[Node Policies](../../../topics/node-policies.md) compares the five
 admission policies and describes approval apps.
 
 ## Arguments

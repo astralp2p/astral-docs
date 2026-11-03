@@ -1,12 +1,44 @@
-# Policy Delegates
+# Node Policies
 
-A node makes five admission decisions: which apps register, which grants an app
-receives later, which nodes join the swarm, which invitation the node accepts,
-and which contract the node activates. A policy makes each decision. Out of the
-box, the app register, swarm join and swarm invite policies refuse, and the
-grant request and contract accept policies accept. An approval app takes over a
-decision when a setter, or the appointment of a manager, names it the policy's
-delegate. The node then asks the approval app every time.
+A node decides what it lets in at two levels. The gate decides which
+operations are open at all, by whether the caller has a token and what state
+the node is in. The admission policies decide the questions that need an
+answer each time: may this app register, may this node join the swarm, should
+this node accept that invitation. [Node Setup](node-setup.md) explains the
+node states and the manager this page relies on.
+
+## The gate
+
+apphost passes every query of an IPC, WebSocket or HTTP session through the
+gate before routing it ([apphost, Gate](../protocols/apphost/README.md#gate)).
+`gate` in `apphost.yaml` holds two kinds of list:
+
+* `gate.tokenless` – the operations a session without a token may call. Such a
+  session reaches the node only, never an app: a query without a token runs
+  with the node's own authority, and an app must never receive a query nobody
+  authenticated.
+* `gate.states.fresh`, `gate.states.unclaimed`, `gate.states.claimed` – the
+  operations any query to the node may call in that state, with a token or
+  without.
+
+A session without a token needs the operation on both lists. A query with a
+token to another identity, such as an app, passes the gate. An entry is an
+operation path, or `*`, which matches every operation; no other entry is a
+pattern. The gate refuses an IPC or WebSocket query with `error_msg{denied}`
+and an HTTP query with status `403`. An operation the gate admits still checks
+the caller's authorization itself.
+
+What a session reaches under the default lists:
+
+| State | Without a token | With a token, the node's token included |
+|-------|-----------------|-----------------------------------------|
+| `fresh` | [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
+| `unclaimed` | `user.info`, [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register` |
+| `claimed` | `apphost.register`, `apphost.register_manager`, `user.info` | every operation |
+
+A list the file supplies replaces the default list, and an omitted list keeps
+its default. `allow_anonymous` and `anonymous_allowlist` are removed, and a
+file that names either stops the node at startup.
 
 ## The five policies
 
@@ -15,7 +47,7 @@ delegate. The node then asks the approval app every time.
 | App register | each [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md) | `/mod/apphost/policy/app_register` | [`mod.apphost.app_register_request`](../protocols/apphost/types/mod.apphost.app_register_request.md) | [`mod.apphost.app_register_decision`](../protocols/apphost/types/mod.apphost.app_register_decision.md) | `registration declined` |
 | Grant request | each [`apphost.request_grant`](../protocols/apphost/ops/apphost.request_grant.md) | [`apphost.set_grant_request_policy`](../protocols/apphost/ops/apphost.set_grant_request_policy.md) | `/mod/apphost/policy/grant_request`, and the mode at `/mod/apphost/policy/grant_request_mode` | [`mod.apphost.grant_policy_request`](../protocols/apphost/types/mod.apphost.grant_policy_request.md) | [`mod.apphost.grant_decision`](../protocols/apphost/types/mod.apphost.grant_decision.md) | `grant declined` |
 | [Swarm](../core-definitions/swarm.md) join | each [`user.request_membership`](../protocols/user/ops/user.request_membership.md), the request of a node that joins this node's swarm | [`user.set_swarm_join_policy`](../protocols/user/ops/user.set_swarm_join_policy.md) | `/mod/user/policy/swarm_join` | [`mod.user.swarm_join_request`](../protocols/user/types/mod.user.swarm_join_request.md) | [`mod.user.swarm_join_decision`](../protocols/user/types/mod.user.swarm_join_decision.md) | `request declined` |
-| Swarm invite | each [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md), an invitation to an unclaimed node | [`user.set_swarm_invite_policy`](../protocols/user/ops/user.set_swarm_invite_policy.md) | `/mod/user/policy/swarm_invite` | [`mod.user.swarm_invite_request`](../protocols/user/types/mod.user.swarm_invite_request.md) | [`mod.user.swarm_invite_decision`](../protocols/user/types/mod.user.swarm_invite_decision.md) | `invitation declined` |
+| Swarm invite | each [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md), an invitation to a node without an active contract | [`user.set_swarm_invite_policy`](../protocols/user/ops/user.set_swarm_invite_policy.md) | `/mod/user/policy/swarm_invite` | [`mod.user.swarm_invite_request`](../protocols/user/types/mod.user.swarm_invite_request.md) | [`mod.user.swarm_invite_decision`](../protocols/user/types/mod.user.swarm_invite_decision.md) | `invitation declined` |
 | Contract accept | each [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md), a signed contract the node activates | [`user.set_contract_accept_policy`](../protocols/user/ops/user.set_contract_accept_policy.md) | `/mod/user/policy/contract_accept` | [`mod.user.contract_accept_request`](../protocols/user/types/mod.user.contract_accept_request.md) | [`mod.user.contract_accept_decision`](../protocols/user/types/mod.user.contract_accept_decision.md) | `contract declined` |
 
 The node decides the app register, swarm join and swarm invite policies in
@@ -77,6 +109,13 @@ policies:
 
 ## Delegating a decision
 
+A delegate is named in one of two ways:
+
+* The [manager appointment](node-setup.md#appointing-the-manager) binds the
+  policies the manager takes on, with the manager as their delegate, and
+  clears the delegate of every other policy.
+* A setter names a delegate at any later time.
+
 A setter takes `identity` and `operation`, and an optional `timeout`:
 
 * `identity` names the delegate, as a hex public key or a name the directory
@@ -98,12 +137,10 @@ Every setter requires
 [`mod.auth.admin_manage_apps_action`](../protocols/auth/types/mod.auth.admin_manage_apps_action.md),
 or a caller that is the node's
 [manager](../protocols/apphost/README.md#manager). The user identity and the
-node identity hold the action by default. The default
-[gate](../protocols/apphost/README.md#gate) admits the setters on a `claimed`
-node only, so before the claim only the appointment of a manager binds a
-delegate. A setter
-answers [`ack`](../primitive-types/ack.md) once the choice is saved in the
-node's tree. The choice survives a restart.
+node identity hold the action by default. The default gate admits the setters
+on a `claimed` node only, so before the claim only the manager appointment
+binds a delegate. A setter answers [`ack`](../primitive-types/ack.md) once the
+choice is saved in the node's tree. The choice survives a restart.
 
 For each decision, the node queries the delegate's operation as the node itself,
 sends one request object and reads one object back:
@@ -132,12 +169,9 @@ decision op can be one.
 
 On a `fresh` node, an approval app becomes the node's manager with
 [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md)
-([apphost, Manager](../protocols/apphost/README.md#manager)). The request
-binds the policies the app decides. The node stores each binding as the
-policy's delegate, with the manager as `identity`, and clears the delegate of
-every policy the request does not name. The app register policy is not asked.
-The manager then calls the setters without
-`mod.auth.admin_manage_apps_action`.
+and binds the policies it decides
+([Node Setup, The manager](node-setup.md#the-manager)). The manager then calls
+the setters without `mod.auth.admin_manage_apps_action`.
 
 On a node that is not `fresh`, an approval app obtains its identity with
 [`apphost.register`](../protocols/apphost/ops/apphost.register.md), like every
@@ -146,8 +180,9 @@ other app. The register policy decides the registration. A holder of
 node's token ([Session Identity](session-identity.md#the-nodes-token)), names
 the app a delegate with the setters.
 
-Control Plane is a ready-made approval app. Its specification is
-[control-plane-specs `docs/node-setup.md`](https://git.satforge.dev/astralp2p/control-plane-specs/src/tag/v6.1/docs/node-setup.md#taking-the-delegation).
+Control Plane is a ready-made approval app. Its specification at
+[control-plane-specs v6.1 `docs/node-setup.md`](https://git.satforge.dev/astralp2p/control-plane-specs/src/tag/v6.1/docs/node-setup.md#taking-the-delegation)
+predates the manager appointment: it takes the delegation with the setters.
 
 ## Before the claim
 
@@ -159,7 +194,7 @@ A node that is to ask before it admits takes these steps:
 3. The approval app claims the node with
    [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md) or
    [`user.join`](../protocols/user/ops/user.join.md) under its App token
-   ([Node Setup](node-setup.md)).
+   ([User and Swarm](user-and-swarm.md#claiming-a-node)).
 
 A policy the appointment does not bind applies its config value or its bundled
 policy. The grant request policy then grants every permit an app with a token
@@ -174,7 +209,8 @@ node keeps an expired active contract until it restarts. A linked peer reaches
 `user.accept_membership` on a node without an active contract; the default
 swarm invite policy declines its invitation
 ([Node Exposure](node-exposure.md#linked-peers)). A delegate named while the
-node is claimed stays in the tree and decides once the node is unclaimed again.
+node is claimed stays in the tree and decides once the node has no active
+contract again.
 
 ## What a delegate sees
 
@@ -204,3 +240,59 @@ accept policy. For the grant request policy, an absent delegate leaves the
 decision to the mode. `tree.get` does not read the config values.
 `tree.get` requires
 [`mod.auth.see_node_state_action`](../protocols/auth/types/mod.auth.see_node_state_action.md).
+
+## Distribution and test configuration
+
+The defaults are the distribution configuration. A node needs no
+`apphost.yaml` or `user.yaml` for it:
+
+```yaml
+# apphost.yaml
+gate:
+  tokenless: [apphost.register, apphost.register_manager, user.info]
+  states:
+    fresh: [apphost.register_manager, user.info]
+    unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register]
+    claimed: ["*"]
+policies:
+  app_register: reject_all
+```
+
+```yaml
+# user.yaml
+policies:
+  swarm_join: reject_all
+  swarm_invite: reject_all
+```
+
+The only way forward from `fresh` is the manager appointment. The claim
+operations need a token, which the manager holds after its appointment.
+
+A test node claims without a manager, and every admission policy accepts. The
+astrald end-to-end tests run every node with this configuration:
+
+```yaml
+# apphost.yaml
+gate:
+  tokenless: [apphost.register, user.info, user.derive_identity, user.bootstrap, user.join]
+  states:
+    fresh: ["*"]
+policies:
+  app_register: accept_all
+```
+
+```yaml
+# user.yaml
+policies:
+  swarm_join: accept_all
+  swarm_invite: accept_all
+```
+
+* A session without a token calls `user.bootstrap` or `user.join` on a `fresh`
+  node and claims it in one query. `apphost.register_manager` is not on the
+  `tokenless` list, so a test that appoints a manager calls it with the node's
+  token.
+* The `unclaimed` and `claimed` lists keep their defaults.
+* Under `accept_all`, any local program, or any page open in a local browser,
+  that registers holds every permit it asks for. This configuration does not
+  belong on a node a user owns.

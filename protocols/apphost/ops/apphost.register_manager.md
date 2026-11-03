@@ -38,7 +38,7 @@ expire with the access token.
 For each binding, the node stores a delegate with the new identity as
 `identity`, the binding's `Operation` as `operation` and its `Timeout` as
 `timeout`, at the tree path of the policy
-([Policy Delegates](../../../topics/policy-delegates.md#the-five-policies)).
+([Node Policies](../../../topics/node-policies.md#the-five-policies)).
 The node clears the stored delegate of every policy the request does not name.
 The grant request mode is not changed. On a node without the `user` module, the
 node leaves the three `user` policies untouched.

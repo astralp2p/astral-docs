@@ -6,7 +6,7 @@ a token establishes identity, not permission.
 
 [`apphost.register`](../protocols/apphost/ops/apphost.register.md) creates an app
 identity, grants the permits allowed by the
-[registration policy](policy-delegates.md), and returns its token.
+[registration policy](node-policies.md), and returns its token.
 For a query with an empty caller, the session determines the effective identity:
 
 ```text
@@ -61,7 +61,7 @@ reaches.
 
 A `tokens:` entry mapping a token to `localnode` authenticates as the node.
 It obeys the state lists of the gate as every other token does. It supports
-[node setup](node-setup.md#who-may-set-up-a-node) on an `unclaimed` node, but
+[node setup](user-and-swarm.md#who-may-claim) on an `unclaimed` node, but
 [`services.advertise`](../protocols/services/ops/services.advertise.md) answers
 that identity `not permitted`. A service provider uses its app token and needs the advertising
 permit.

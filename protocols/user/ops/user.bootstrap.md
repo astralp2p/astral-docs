@@ -10,7 +10,7 @@ contract, and sets the contract as the active contract. Last, the node issues
 an access token for the user. The reply is a
 [`mod.user.bootstrap_result`](../types/mod.user.bootstrap_result.md).
 
-`user.bootstrap` is the one-call form of [node setup](../../../topics/node-setup.md). It claims the node with the
+`user.bootstrap` is the one-call form of [node setup](../../../topics/user-and-swarm.md#one-call). It claims the node with the
 same contract as the chain
 [`bip137sig.seed`](../../bip137sig/ops/bip137sig.seed.md),
 [`bip137sig.derive_key`](../../bip137sig/ops/bip137sig.derive_key.md),
