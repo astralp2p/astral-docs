@@ -30,7 +30,7 @@ the user identity to recognise this node on the local network.
 
 ## Arguments
 
-This operation takes no arguments.
+* out (string, optional) – Output encoding format. Defaults to the channel default.
 
 ## Returned objects
 

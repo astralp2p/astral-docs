@@ -73,7 +73,9 @@ network only when the peer's `mod.nearby.peer_seen` names the node's own user.
 It links at once to such a peer that is a member of its local swarm and is not
 linked, instead of waiting out the link's backoff of up to 15 minutes. It
 contacts any other such peer at most once a minute, and at most once an hour
-after the peer's contract failed the check. It links to the peer at the
+after the peer's contract failed the check. A failed link or query holds the next
+attempt for a minute only. The node keeps these limits for at most 512 peers; when
+it holds 512, it forgets the peer whose next attempt comes first. It links to the peer at the
 endpoints nearby resolves, reads the peer's contract with `user.contract`, and
 checks it: a node contract issued by the node's user to the peer, both
 signatures valid, not expired, and the peer not expelled. Only when the check

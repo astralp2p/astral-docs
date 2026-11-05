@@ -6,7 +6,7 @@ Proves that a status was made with the key of the node it names, at a stated tim
 
 * Nonce (nonce64) – A fresh random value for each status.
 * Timestamp (time) – The sender's clock when it made the status.
-* Sig (bytes8) – The node key's signature over `H`, 8 to 72 bytes. Wrapped in mode `2` (Stealth).
+* Sig (bytes8) – The node key's signature over `H`, 8 to 72 bytes. Wrapped when the status holds a `mod.nearby.stealth_hint`, which is mode `2` (Stealth).
 
 `Sig` is a DER-encoded ECDSA secp256k1 signature, the `asn1` scheme of [`mod.crypto.signature`](../../crypto/types/mod.crypto.signature.md), over the 32-byte hash `H`:
 
@@ -19,7 +19,7 @@ H = SHA-256("astral/nearby/status/v1" ‖ B ‖ Nonce ‖ Timestamp)
 * `Timestamp` is its 8-byte binary form ([time](../../../primitive-types/time.md)).
 * The label is its ASCII bytes, with no terminator, and `‖` is concatenation.
 
-In mode `2` (Stealth) the sender wraps the signature. A receiver unwraps it with the same function:
+The sender wraps the signature when the status holds a `mod.nearby.stealth_hint`, which is mode `2` (Stealth). A receiver unwraps the signature of such a status with the same function:
 
 ```
 K       = SHA-256("astral/nearby/proof-key/v1" ‖ H(N) ‖ Nonce)
@@ -35,10 +35,10 @@ A receiver caches the sender as identified, and acts on the status, only when al
 * The proof is the last attachment, and no other attachment is a `mod.nearby.status_proof`.
 * `Sig` is 8 to 72 bytes.
 * `Timestamp` is at most 5 minutes before or after the receiver's clock.
-* The receiver did not see `Nonce` from the same node in the last 5 minutes.
+* The receiver does not remember `Nonce` for the same node. A nonce is remembered until 5 minutes after its `Timestamp`, and at most 32 live nonces of one node are remembered ([nearby](../README.md)).
 * `Sig`, unwrapped in Stealth, verifies against the key of the identified node.
 
-A receiver checks the first three before it identifies the sender, and drops a status that fails one of them. A Stealth status that no recognizer matches is cached with its source IP only, as an unrecognised node, without the nonce and signature checks ([nearby](../README.md)).
+A receiver checks the first three before it identifies the sender, and drops a status that fails one of them. A Stealth status that no recognizer matches is cached with its source IP only, as an unrecognised node, without the nonce and signature checks, unless its source IP holds a live verified entry ([nearby](../README.md)).
 
 ## Example
 

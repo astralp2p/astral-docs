@@ -9,7 +9,7 @@ scan is sent when the caller is not authorized.
 
 ## Arguments
 
-This operation takes no arguments.
+* out (string, optional) – Output encoding format. Defaults to the channel default.
 
 ## Returned objects
 
