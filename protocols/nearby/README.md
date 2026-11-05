@@ -20,7 +20,7 @@ A node processes a received status in this order. It caches the sender as identi
 4. Identify: the node's registered recognizers try the status in turn, and the first that recognises it names the node identity and, when known, the user identity. The `user` module recognises the node's own user, in a stealth hint and in a profile whose `UserID` is that user. When no recognizer matches, a Visible status names the node and the user through its `mod.nearby.public_profile`. A Stealth status that no recognizer matches is cached with its source IP only, as an unrecognised node, and processing stops.
 5. Replay: the proof's `Nonce` was not seen from the same node identity in the last 5 minutes.
 6. Verify: the receiver unwraps the signature of a Stealth status, and the signature verifies against the key of the identified node.
-7. Accept: the receiver remembers the nonce and caches the node identity, the user identity, the source IP and how the node was identified. It emits a [`mod.nearby.peer_seen`](types/mod.nearby.peer_seen.md) event when the node is new to the cache, when its source IP changed, or when it returns after its entry expired.
+7. Accept: the receiver remembers the nonce and caches the node identity, the user identity, the source IP and how the node was identified. It emits a [`mod.nearby.peer_seen`](types/mod.nearby.peer_seen.md) event when the node is new to the cache, when its source IP changed, when its user identity changed (for example, the node was claimed), or when it returns after its entry expired. A repeated status that changes none of these emits nothing.
 
 A cache entry expires 5 minutes after it was last updated, and the node removes expired entries periodically. [`nearby.list`](ops/nearby.list.md) lists the cache.
 

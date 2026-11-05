@@ -1,6 +1,6 @@
 # mod.nearby.peer_seen
 
-Emitted by nearby when a received status passes verification and its node is new to the cache, has a new source IP, or returns after its cache entry expired. It travels as the `Data` of a [`mod.events.event`](../../events/types/mod.events.event.md) to the node's own receivers and never leaves the node.
+Emitted by nearby when a received status passes verification and its node is new to the cache, has a new source IP, has a new user identity, or returns after its cache entry expired. A node that is claimed while it is cached changes its user identity from none to its user, so a receiver of that user is told about it without waiting for the entry to expire. It travels as the `Data` of a [`mod.events.event`](../../events/types/mod.events.event.md) to the node's own receivers and never leaves the node.
 
 ## Fields
 
