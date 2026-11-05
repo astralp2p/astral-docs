@@ -1,6 +1,6 @@
 # nearby.broadcast
 
-Triggers an immediate broadcast of the local node's status to nearby peers. The op is a no-op when the module is in silent mode; in stealth mode the broadcast is suppressed unless at least one attachment is present.
+Triggers an immediate broadcast of the local node's status to nearby peers. The op is a no-op when the module is in silent mode. A node without an active contract acts in visible mode unless its stored mode is silent ([mod.nearby.mode](../types/mod.nearby.mode.md)).
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
@@ -21,5 +21,5 @@ The operation returns one of:
 
 ```shellsession
 $ astral-query nearby.broadcast -out json
-{"Type":"ack","Object":{}}
+{"Type":"ack","Object":null}
 ```

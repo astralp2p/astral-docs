@@ -14,6 +14,7 @@ The *Astral Network* is **not** a global broadcast network. By default, a *Node*
 
 - after joining a [*Swarm*](../core-definitions/swarm.md) it will try to stay linked to other members of the *Swarm*
 - when routing a query to or via another *Node*
+- when it hears, through [*nearby*](../protocols/nearby/README.md), a *Node* of its own *User* on the local network: a known *Swarm* member it is not linked to, or a *Node* whose contract it then checks before it introduces itself
 - for other app-specific, explicitly defined reason
 
 A *Swarm* is a group of *Nodes* and has rules that define who is allowed to join a *Swarm* and how the *Swarm* is managed internally. Each *Swarm* member enforces the rules of the *Swarm* independently while talking to other members. Some *Swarms* can be public, some might require a predefined key to sign memberships, some might define a more complex role system. Rules also specify how data is propagated through the *Swarm*, who has the right to publish, whether there is a persistent state members should maintain, etc. Real-life examples of *Swarms* are:

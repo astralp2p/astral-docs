@@ -250,9 +250,16 @@ them instead.
 
 A node claimed with the user's words is a member of the user's swarm, but no
 other member holds its contract yet, and it holds no other member's contract.
-Neither side synchronises with the other, so the node stays alone. This is the
-case when the node that held the user's words is lost and a new node is
-claimed with the same words.
+Neither side synchronises with the other, so the node stays alone until it is
+introduced. This is the case when the node that held the user's words is lost
+and a new node is claimed with the same words.
+
+Nodes of the same user that share a local network find and introduce each
+other through [`nearby`](../protocols/nearby/README.md), with no call. Each
+node reads the other's contract with
+[`user.contract`](../protocols/user/ops/user.contract.md), checks it, and then
+introduces itself ([user](../protocols/user/README.md)). Where the nodes share
+no local network, `user.introduce` introduces them.
 
 [`user.introduce`](../protocols/user/ops/user.introduce.md) `-identity <member>`
 on the new node pushes the new node's contract to one running member, and the

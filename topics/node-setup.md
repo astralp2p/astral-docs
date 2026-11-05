@@ -142,9 +142,11 @@ The first two run as one call,
 [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), which answers an
 access token for the user. Whoever made the call, the manager in a
 distribution, now holds the user's credential. A node claimed with words the
-user already has holds its own contract alone, and
-[`user.introduce`](../protocols/user/ops/user.introduce.md) brings it into the
-user's running swarm
+user already has holds its own contract alone. Nodes of the same user that
+share a local network find and introduce each other through
+[`nearby`](../protocols/nearby/README.md). Elsewhere,
+[`user.introduce`](../protocols/user/ops/user.introduce.md) brings the node
+into the user's running swarm
 ([User and Swarm, Replacing a node](user-and-swarm.md#replacing-a-node)).
 [User and Swarm](user-and-swarm.md) explains what a user and a swarm are, and
 shows each way with commands.

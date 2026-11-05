@@ -5,8 +5,10 @@ surface, and the setting that opens or closes it. The values are astrald
 defaults at commit `0f7da199`, checked on a throwaway node; the rule for
 settings set through the tree is from commit `5f17900d`. The apphost gate, the
 node states and the policy defaults are read from astrald source at commit
-`5b4dde12`; a node checked them under the E2E overrides only. A setting lives in `<name>.yaml` in the
-node's config directory.
+`5b4dde12`; a node checked them under the E2E overrides only. The ether and
+nearby rows, `user.contract` under [Linked peers](#linked-peers) and the dials
+that nearby triggers follow the ether and nearby specification, not a checked
+node. A setting lives in `<name>.yaml` in the node's config directory.
 
 ## Surfaces
 
@@ -15,8 +17,8 @@ node's config directory.
 | TCP links | `:1791`, all interfaces | host, LAN, internet | any identity links; see [Linked peers](#linked-peers) | same | `tcp.yaml` `listen`, `listen_port` |
 | KCP links | `:1792` UDP, all interfaces | host, LAN, internet | as TCP links | as TCP links | `kcp.yaml` `listen`, `listen_port` |
 | Tor onion service | off | internet through Tor | as TCP links, when on | as TCP links, when on | `tor.yaml` `listen: true`; needs a Tor control port at `control_addr` (default `127.0.0.1:9051`) |
-| ether discovery | `:8822` UDP, all interfaces | LAN | carries nearby | carries nearby | `ether.yaml` `listen`, `udp_port` |
-| nearby status and scan reply | over ether | LAN | node identity as the signed source; `adoptable` flag, public profile, endpoints, alias | node identity as the signed source; stealth hint | `nearby.yaml` `mode`; `0` sends nothing |
+| ether discovery | `:8822` UDP, IPv4, all interfaces | LAN: a datagram from outside the local IPv4 subnets, or with an IP TTL other than 255, is dropped | carries nearby; unsigned, no source identity | same | `ether.yaml` `listen`, `udp_port` |
+| nearby status and scan reply | over ether | LAN | `adoptable` flag; public profile with the node identity and alias; status proof | Stealth by default: stealth hint and status proof with a wrapped signature. Visible: public profile with the node identity, user identity and alias; status proof | `nearby.yaml` `mode`; `0` sends nothing |
 | apphost IPC | `tcp:127.0.0.1:8625`, `unix:~/.apphost.sock` | host | the gate's `tokenless` operations on the `fresh` or `unclaimed` list | the gate's `tokenless` operations | `apphost.yaml` `listen`, `gate` |
 | apphost HTTP | `tcp:127.0.0.1:8624` | host, and any page open in a local browser | `/.ws`: as apphost IPC, any `Origin`; other paths answer `401`, except `OPTIONS` | `/.ws`: as apphost IPC, any `Origin`; other paths answer `401`, except `OPTIONS` | `apphost.yaml` `bind_http`, `gate`; `/.ws` answers `403` to a non-loopback client whatever `bind_http` is; a query the gate refuses answers `403` |
 | MCP | `tcp:127.0.0.1:8626` | host | none: a request needs a bearer token | same | `mcp.yaml` `bind_mcp`; empty disables the server |
@@ -69,8 +71,14 @@ link. A linked peer that holds no grant reaches these operations:
   `crypto.public_key`, `crypto.verify_hash_signature`,
   `crypto.verify_text_signature`, `dir.get_alias`, `dir.resolve`,
   `gateway.node_list`, `gateway.node_unregister`, `objects.new`,
-  `objects.push`, `secp256k1.new`, `shell.spec`, `.spec`, and
-  `gateway.node_route` naming the node itself.
+  `objects.push`, `secp256k1.new`, `shell.spec`, `.spec`,
+  `gateway.node_route` naming the node itself, and
+  [`user.contract`](../protocols/user/ops/user.contract.md). On a claimed node
+  `user.contract` answers the active contract. The contract names the user.
+  Its permits show whether the node is a management node
+  ([user](../protocols/user/README.md)). Its expiry, by default 365 days after
+  the contract was made, shows when the user claimed or adopted the node.
+  Before the claim `user.contract` answers `no active contract`.
 * On a `fresh` or `unclaimed` node only:
   [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md),
   [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md),
@@ -87,6 +95,14 @@ link. A linked peer that holds no grant reaches these operations:
 
 Every other operation refuses a network caller, or requires an authorization
 that the peer fails under the default config.
+
+A claimed node dials out when nearby verifies a node of its own user
+([user](../protocols/user/README.md)). It links to the peer's source IP on TCP
+port `1791` or KCP port `1792`, reads the peer's contract with
+`user.contract`, and pushes its own contract only when the peer's contract
+passes the check. It dials no unowned node and no node of another user. A node
+in mode `0` (Silent) dials as well, unless `silent_listen` in `nearby.yaml` is
+`false`.
 
 ## Reset
 

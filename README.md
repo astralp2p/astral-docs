@@ -80,6 +80,7 @@ Contents:
   * [mcp](protocols/mcp/README.md) - AI agents, mail tools, and declared queries over MCP
   * [messaging](protocols/messaging/README.md) - hosted mailboxes and mail between identities
   * [nat](protocols/nat/README.md) - NAT traversal via UDP hole punching
+  * [nearby](protocols/nearby/README.md) - LAN discovery over ether: signed statuses, scans, adoption and same-user introduction
   * [nodes](protocols/nodes/README.md) - encrypted links and multiplexed sessions between nodes
   * [objects](protocols/objects/README.md) - typed object storage, retrieval, and provider discovery
   * [player](protocols/player/README.md) - music playback and play queue control
