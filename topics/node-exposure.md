@@ -74,9 +74,11 @@ link. A linked peer that holds no grant reaches these operations:
   `objects.push`, `secp256k1.new`, `shell.spec`, `.spec`,
   `gateway.node_route` naming the node itself, and
   [`user.contract`](../protocols/user/ops/user.contract.md). On a claimed node
-  `user.contract` answers the active contract, which names the user, the
-  permits the user granted the node and the contract's expiry. Before the claim
-  it answers `no active contract`.
+  `user.contract` answers the active contract. The contract names the user.
+  Its permits show whether the node is a management node
+  ([user](../protocols/user/README.md)). Its expiry, by default 365 days after
+  the contract was made, shows when the user claimed or adopted the node.
+  Before the claim `user.contract` answers `no active contract`.
 * On a `fresh` or `unclaimed` node only:
   [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md),
   [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md),

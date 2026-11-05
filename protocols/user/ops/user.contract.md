@@ -18,9 +18,11 @@ the node, and is answered `not permitted`.
 
 ## Disclosure
 
-The contract names the node's user, the permits the user granted the node and
-the contract's expiry. Every node that links to this node reads them, also a
-node outside the user's swarm. In mode `1` (Visible) every node on the local
+The contract names the node's user. Its permits show whether the node is a
+management node ([user](../README.md)). Its expiry, by default 365 days after
+the contract was made, shows when the user claimed or adopted the node. Every
+node that links to this node reads the contract, also a node outside the
+user's swarm. In mode `1` (Visible) every node on the local
 network learns this node's identity from its
 [`mod.nearby.public_profile`](../../nearby/types/mod.nearby.public_profile.md)
 and can link to it. In mode `2` (Stealth) a node needs the node identity or
