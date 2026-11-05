@@ -30,13 +30,15 @@ wrapped = Sig ⊕ ChaCha20(K)
 * `ChaCha20(K)` is the ChaCha20 keystream (RFC 8439) under the key `K`, with a 12-byte all-zero nonce and block counter `0`, as long as `Sig`. `⊕` is bytewise XOR.
 * A plain ECDSA signature over a hash anyone can compute reveals the signer's public key. Only a node that knows `N` unwraps the signature.
 
-A receiver drops the status unless all of these hold:
+A receiver caches the sender as identified, and acts on the status, only when all of these hold:
 
 * The proof is the last attachment, and no other attachment is a `mod.nearby.status_proof`.
 * `Sig` is 8 to 72 bytes.
 * `Timestamp` is at most 5 minutes before or after the receiver's clock.
 * The receiver did not see `Nonce` from the same node in the last 5 minutes.
 * `Sig`, unwrapped in Stealth, verifies against the key of the identified node.
+
+A receiver checks the first three before it identifies the sender, and drops a status that fails one of them. A Stealth status that no recognizer matches is cached with its source IP only, as an unrecognised node, without the nonce and signature checks ([nearby](../README.md)).
 
 ## Example
 
