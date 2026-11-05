@@ -4,7 +4,7 @@ A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
 administer the node's network: read its network state, make it do network work,
 and control its links and listeners.
 
-The action gates 25 operations in three tiers. A holder of the action holds all
+The action gates 26 operations in three tiers. A holder of the action holds all
 three tiers.
 
 * Read network state – `nodes.links`, `nodes.sessions`,
@@ -12,7 +12,8 @@ three tiers.
   `ip.default_gateway`, `nat.list_holes`, `kcp.list_endpoint_local_mappings`
   and `nearby.list`.
 * Initiate network work and consume holes – `nodes.new_link`, `nat.punch`,
-  `nat.node_punch`, `nat.node_consume_hole` and `nearby.broadcast`.
+  `nat.node_punch`, `nat.node_consume_hole`, `nearby.broadcast` and
+  `nearby.scan`.
 * Control links and listeners – `nodes.add_endpoint`, `nodes.close_link`,
   `nodes.migrate_session`, `tcp.new_ephemeral_listener`,
   `tcp.close_ephemeral_listener`, `kcp.new_ephemeral_listener`,
