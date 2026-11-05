@@ -7,7 +7,7 @@ The content of one ether datagram: the envelope format version and the object be
 * Version (uint8) – The envelope format. The current value is `1`.
 * Object (object) – The object being sent; any astral object type, written as its `Object Type` (`string8`) followed by its `Payload`.
 
-A datagram is exactly the envelope's `Payload`: the `Version` byte, then `Object`. No type tag precedes it. A receiver drops a datagram whose first byte is not `1`, and a datagram with bytes after `Object`. A datagram in the earlier `mod.ether.signed_broadcast` format starts with the high byte of a nanosecond timestamp, `0x17` to `0x19` for the years 2023 to 2034, so a receiver drops it.
+A datagram is exactly the envelope's `Payload`: the `Version` byte, then `Object`. No type tag precedes it. A receiver drops a datagram whose first byte is not `1`, and a datagram with bytes after `Object`. A datagram in the earlier `mod.ether.signed_broadcast` format starts with the high byte of a nanosecond timestamp, `0x17` to `0x1c` for the years 2023 to 2034, so a receiver drops it.
 
 A receiver decodes `Object` as part of the envelope: the bounds of the envelope's decode apply to it ([Codec, Decoding limits](../../../topics/codec.md#decoding-limits)).
 
