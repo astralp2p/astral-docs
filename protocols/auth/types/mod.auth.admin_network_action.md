@@ -4,7 +4,7 @@ A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
 administer the node's network: read its network state, make it do network work,
 and control its links and listeners.
 
-The action gates 26 operations in three tiers. A holder of the action holds all
+The action gates 25 operations in three tiers. A holder of the action holds all
 three tiers.
 
 * Read network state – `nodes.links`, `nodes.sessions`,
