@@ -25,5 +25,5 @@ The operation returns one of:
 $ astral-query nearby.list -out json
 {"Type":"mod.nearby.status","Object":{"Identity":"<identity>","Attachments":[...]}}
 {"Type":"mod.nearby.status","Object":{"Identity":null,"Attachments":[...]}}
-{"Type":"eos","Object":{}}
+{"Type":"eos","Object":null}
 ```

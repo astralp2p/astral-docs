@@ -21,5 +21,5 @@ The operation returns one of:
 
 ```shellsession
 $ astral-query nearby.scan -out json
-{"Type":"ack","Object":{}}
+{"Type":"ack","Object":null}
 ```
