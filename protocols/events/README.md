@@ -8,9 +8,11 @@ the event object itself as `Data`.
 The node delivers each event in process to its own object receivers, with the
 node's identity as the sender. It never sends an event to another node. A
 receiver acts on an event only when the sender is the node itself, so an event
-that arrives from another identity, through
-[`objects.push`](../objects/ops/objects.push.md) or inside an
-[`ether`](../ether/README.md) broadcast, has no effect.
+that arrives from another identity through
+[`objects.push`](../objects/ops/objects.push.md) has no effect. An
+[`ether`](../ether/README.md) datagram reaches the receivers only as the
+`Object` of a `mod.ether.events.broadcast_received`, so an event carried in a
+datagram is never delivered as an event.
 
 These objects travel as the `Data` of a `mod.events.event`:
 
@@ -19,5 +21,6 @@ These objects travel as the `Data` of a `mod.events.event`:
 * [`mod.nodes.link_created_event`](../nodes/types/mod.nodes.link_created_event.md)
 * [`mod.nodes.link_closed_event`](../nodes/types/mod.nodes.link_closed_event.md)
 * [`mod.nodes.link_pressure_event`](../nodes/types/mod.nodes.link_pressure_event.md)
+* [`mod.nearby.peer_seen`](../nearby/types/mod.nearby.peer_seen.md)
 
 The namespace exposes no operations.
