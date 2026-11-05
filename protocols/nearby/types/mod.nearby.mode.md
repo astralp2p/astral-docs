@@ -13,8 +13,8 @@ Controls how the node broadcasts its presence on the local network.
   attachments depend on the contract state.
 * `2` – Stealth: the node broadcasts its status and answers scans with a
   `mod.nearby.stealth_hint` that only a node knowing the node identity or the
-  user identity reads. It also scans. A node without an active contract sends
-  no status in Stealth.
+  user identity reads. It also scans. A node without an active contract acts in
+  mode `1` (Visible) instead, as described below.
 
 The node refuses a value above `2`. Setting one fails, and a `mode` above `2`
 in `nearby.yaml` fails the load of the module.

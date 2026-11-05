@@ -6,7 +6,7 @@ The `nearby` protocol lets nodes on one local network find each other with no ad
 
 * `0` (Silent) sends no nearby datagram. The node still receives.
 * `1` (Visible) sends a [`mod.nearby.public_profile`](types/mod.nearby.public_profile.md) with the node identity, the user identity and the node alias. A node without an owner sends a [`mod.nearby.flag`](types/mod.nearby.flag.md) reading `adoptable` before the profile, and its profile names no user.
-* `2` (Stealth) sends a [`mod.nearby.stealth_hint`](types/mod.nearby.stealth_hint.md), which only a node that knows the node identity or the user identity reads. A node without an active contract sends no status in Stealth.
+* `2` (Stealth) sends a [`mod.nearby.stealth_hint`](types/mod.nearby.stealth_hint.md), which only a node that knows the node identity or the user identity reads. A node without an active contract has no user identity and acts in Visible instead, unless its stored mode is Silent.
 
 The node's registered `Composer` implementations build these attachments. nearby then appends a [`mod.nearby.status_proof`](types/mod.nearby.status_proof.md) as the last attachment: the node key's signature over the other attachments, a nonce and the sender's time. When the status holds a `mod.nearby.stealth_hint`, which is the Stealth mode, the signature is wrapped with a key derived from the node identity. A status carries no endpoint, no contract and no `mod.dir.alias`.
 
