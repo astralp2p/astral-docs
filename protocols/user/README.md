@@ -8,7 +8,8 @@ contract issued by that user. Once a node has an active contract it can serve
 information about the user (`user.info`), enumerate the swarm
 (`user.swarm_status`, `user.list_siblings`), maintain a synchronised list of
 user assets (`user.assets`, `user.add_asset`, `user.remove_asset`,
-`user.sync_assets`, `user.sync_with`).
+`user.sync_assets`, `user.sync_with`). `user.contract` answers the active
+contract to any caller that holds a direct link to the node.
 
 Swarm membership is managed through contract ops: a user adopts a node with
 `user.adopt` or lets it request membership with `user.request_membership`; a
@@ -44,13 +45,15 @@ policies:
   swarm_invite: reject_all
 ```
 
-Two actions gate the protocol. `mod.user.see_swarm_action` covers every read —
-`user.info`, `user.assets`, `user.sync_assets`, `user.list_siblings`,
-`user.swarm_status` and `user.list_expelled` — and `user.new_node_contract`
-when `user` is omitted on a claimed node. `mod.user.admin_swarm_action`
-covers every change to what the swarm holds — `user.adopt`, `user.expel`,
-`user.introduce`, `user.add_asset`, `user.remove_asset` and `user.sync_with`, which applies
-another node's entries to this one. A node contract issued to a management node
+Two actions gate the protocol. `mod.user.see_swarm_action` covers every read
+except `user.contract` — `user.info`, `user.assets`, `user.sync_assets`,
+`user.list_siblings`, `user.swarm_status` and `user.list_expelled` — and
+`user.new_node_contract` when `user` is omitted on a claimed node.
+`user.contract` asks for no action and answers every directly linked caller.
+`mod.user.admin_swarm_action` covers every change to what the swarm holds —
+`user.adopt`, `user.expel`, `user.introduce`, `user.add_asset`,
+`user.remove_asset` and `user.sync_with`, which applies another node's entries
+to this one. A node contract issued to a management node
 carries both, delegable one hop.
 
 When a node first links to a swarm member it synchronises with it, in this
@@ -64,6 +67,20 @@ the first link to that node preceded the contract. A pushed app relay contract
 lets the member route a query addressed to the app through this node. An app
 registered while the two nodes are already linked reaches the member at the next
 first link.
+
+A node contacts the nodes [`nearby`](../nearby/README.md) finds on the local
+network only when the peer's `mod.nearby.peer_seen` names the node's own user.
+It links at once to such a peer that is a member of its local swarm and is not
+linked, instead of waiting out the link's backoff of up to 15 minutes. It
+contacts any other such peer at most once a minute, and at most once an hour
+after the peer's contract failed the check. It links to the peer at the
+endpoints nearby resolves, reads the peer's contract with `user.contract`, and
+checks it: a node contract issued by the node's user to the peer, both
+signatures valid, not expired, and the peer not expelled. Only when the check
+passes does the node introduce itself as `user.introduce` does: it pushes its
+active contract, and the two synchronise. A failed check sends nothing of the
+node's own. Unowned nodes and nodes of other users are listed, never contacted.
+A `user.introduce` call is unaffected.
 
 The active contract is validated on every application — both signatures, subject
 identity match, remaining validity, and a swarm-membership permit — so a stored
