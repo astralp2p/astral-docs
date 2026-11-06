@@ -49,9 +49,7 @@ These `apphost.yaml` settings control admission:
 | `gate.states.fresh`, `gate.states.unclaimed`, `gate.states.claimed` | the lists above | The operations a query to the node may call in each state. |
 
 A key the file supplies replaces that list, and an omitted key keeps its
-default. The entry `*` matches every operation. `allow_anonymous` and
-`anonymous_allowlist` are removed, and a file that names either stops the node
-at startup.
+default. The entry `*` matches every operation.
 
 A WebSocket session follows the IPC admission rules, whatever its `Origin`
 header. Any page open in a local browser reaches what a session without a token
