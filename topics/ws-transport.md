@@ -22,7 +22,7 @@ Any `Origin` is accepted at the WebSocket layer. The endpoint is
 loopback-only at the network layer, which keeps other hosts out, but any
 page open in a local browser connects from loopback and reaches it,
 whatever its `Origin`. Without a token, that page reaches what the apphost
-gate admits a session without a token, `apphost.register_manager` included on
+gate admits a session without a token, `sys.register_manager` included on
 a `fresh` node. The HTTP
 `Authorization: Bearer` header used by the rest of the HTTP bridge is not
 consulted for `/.ws`; authentication uses the in-protocol auth token message.
@@ -117,7 +117,7 @@ Notes:
   that names a caller is refused with `error_msg{denied}`.
 - every session passes the apphost gate, as an IPC guest does, whatever the
   page's `Origin`. By default an unauthenticated session may call `.spec`,
-  `apphost.register_manager` and `user.info` on a `fresh` node, `.spec`,
+  `sys.register_manager` and `user.info` on a `fresh` node, `.spec`,
   `user.info` and `apphost.register` on an `unclaimed` node, and those four on
   a `claimed` node. An authenticated session calls on the node only the
   operations of the list of the node's state.

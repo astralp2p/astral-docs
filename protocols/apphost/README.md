@@ -71,44 +71,11 @@ is written, and allows nothing.
 selects how the node decides `apphost.request_grant`: `accept_all`,
 `reject_all`, or a delegate. Unset selects `accept_all`.
 
-## Node states
+## Node states and the manager
 
-A node is in one of three states.
-[`user.info`](../user/ops/user.info.md) reports the state in `State`.
-
-| State | Condition |
-|-------|-----------|
-| `fresh` | The node has no active contract, has never held one, and has no manager. |
-| `unclaimed` | The node has no active contract, and it has a manager or has held an active contract before. |
-| `claimed` | The node has an active contract. |
-
-* The node records at `/mod/user/config/owned` that it has held an active
-  contract. The record is written when a contract activates. Expiry and
-  expulsion do not clear it.
-* A node without the `user` module is `fresh` until a manager is appointed,
-  and `unclaimed` afterwards.
-* The gate waits for the `user` module to start before it reads the state. A
-  query whose context ends first reads `fresh`.
-
-## Manager
-
-The manager is the [`App`](../../core-definitions/app.md) identity
-[`apphost.register_manager`](ops/apphost.register_manager.md) appoints. A node
-has at most one manager. Only a `fresh` node appoints a manager, and the
-appointment moves the node to `unclaimed`. The node stores the manager at
-`/mod/apphost/manager`. No operation removes the manager. A claim keeps it.
-
-The manager:
-
-* is the delegate of each policy its appointment binds;
-* may call `apphost.set_app_register_policy`,
-  `apphost.set_grant_request_policy`, `user.set_swarm_join_policy`,
-  `user.set_swarm_invite_policy` and `user.set_contract_accept_policy` without
-  [`mod.auth.admin_manage_apps_action`](../auth/types/mod.auth.admin_manage_apps_action.md);
-* may claim the node with [`user.bootstrap`](../user/ops/user.bootstrap.md) or
-  [`user.join`](../user/ops/user.join.md) under its App token.
-
-[`user.info`](../user/ops/user.info.md) reports the manager in `Manager`.
+The node's state (`fresh`, `unclaimed` or `claimed`) and its manager belong to
+the [`sys`](../sys/README.md) protocol: [Node states](../sys/README.md#node-states)
+and [Manager](../sys/README.md#manager). The gate reads the state from `sys`.
 
 ## Gate
 
@@ -135,13 +102,13 @@ with a token as the session's identity.
 
 | List | Default operations |
 |------|--------------------|
-| `tokenless` | `.spec`, `apphost.register`, `apphost.register_manager`, `user.info` |
-| `states.fresh` | `.spec`, `apphost.register_manager`, `user.info` |
+| `tokenless` | `.spec`, `apphost.register`, `sys.register_manager`, `user.info` |
+| `states.fresh` | `.spec`, `sys.register_manager`, `user.info` |
 | `states.unclaimed` | `.spec`, `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`, `apphost.bind`, `apphost.register_handler`, `apphost.cancel` |
 | `states.claimed` | `*` |
 
 Under the default lists, a session without a token reaches `.spec`,
-`apphost.register_manager` and `user.info` on a `fresh` node, `.spec`,
+`sys.register_manager` and `user.info` on a `fresh` node, `.spec`,
 `user.info` and `apphost.register` on an `unclaimed` node, and the four
 `tokenless` operations on a `claimed` node. `.spec` lists the node's
 operations and changes nothing, so a client discovers what it may call before
@@ -165,9 +132,9 @@ The default configuration:
 
 ```yaml
 gate:
-  tokenless: [.spec, apphost.register, apphost.register_manager, user.info]
+  tokenless: [.spec, apphost.register, sys.register_manager, user.info]
   states:
-    fresh: [.spec, apphost.register_manager, user.info]
+    fresh: [.spec, sys.register_manager, user.info]
     unclaimed: [.spec, user.info, user.derive_identity, user.bootstrap, user.join, apphost.register,
                 apphost.bind, apphost.register_handler, apphost.cancel]
     claimed: ["*"]

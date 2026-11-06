@@ -8,10 +8,10 @@ defaults to `reject_all`, which declines every join request
 ([Node Policies](../../../topics/node-policies.md#config-values)).
 
 The caller must hold
-[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
-or be the node's [manager](../../apphost/README.md#manager).
-The operation answers an `error_message` reading `not permitted` before the
-policy is changed when the caller is neither.
+[`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md).
+The user, the node and the node's [manager](../../sys/README.md#manager) hold
+it. The operation answers an `error_message` reading `not permitted` before the
+policy is changed when the caller does not hold it.
 
 Naming `identity` and `operation` delegates the decision. Omitting both clears
 the delegate and restores the config value, and `timeout` is then ignored.

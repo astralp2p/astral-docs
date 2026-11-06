@@ -35,9 +35,9 @@ decides each `user.request_membership`, the swarm invite policy decides each
 validation by default. `user.set_swarm_join_policy`,
 `user.set_swarm_invite_policy` and `user.set_contract_accept_policy` delegate
 each decision to an operation of another identity. A stored delegate outranks
-the config value. Every setter requires `mod.auth.admin_manage_apps_action`, or
-a caller that is the node's manager
-([apphost, Manager](../apphost/README.md#manager)).
+the config value. Every setter requires
+`mod.auth.configure_node_state_action`, which the node's manager holds
+([sys, Manager](../sys/README.md#manager)).
 
 ```yaml
 policies:

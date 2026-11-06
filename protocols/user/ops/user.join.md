@@ -21,7 +21,7 @@ The node refuses the query in these cases, in this order:
 * The node has an active contract: answered with an `error_message` reading
   `node already claimed`.
 * The caller is neither the node nor the node's
-  [manager](../../apphost/README.md#manager): answered with `not permitted`. A
+  [manager](../../sys/README.md#manager): answered with `not permitted`. A
   local caller that presents no identity is rewritten to the node's identity.
   The manager calls with its App token.
 * `node` does not resolve: answered with an `error_message` reading

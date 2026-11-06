@@ -1,7 +1,7 @@
-# mod.apphost.register_manager_request
+# mod.sys.register_manager_request
 
 The registration an app sends to
-[`apphost.register_manager`](../ops/apphost.register_manager.md) to become the
+[`sys.register_manager`](../ops/sys.register_manager.md) to become the
 node's manager.
 
 ## Fields
@@ -11,14 +11,14 @@ node's manager.
   node-local grants, with their constraints.
 * ContractPermits ([]mod.auth.permit) – The permits the app asks to hold in a
   signed node→app contract, with their constraints.
-* Policies ([]mod.apphost.policy_binding) – The policies the manager decides,
-  one [`mod.apphost.policy_binding`](mod.apphost.policy_binding.md) each.
+* Policies ([]mod.sys.policy_binding) – The policies the manager decides,
+  one [`mod.sys.policy_binding`](mod.sys.policy_binding.md) each.
 
 ## Example
 
 ```json
 {
-  "Type": "mod.apphost.register_manager_request",
+  "Type": "mod.sys.register_manager_request",
   "Object": {
     "Name": "control-plane",
     "GrantPermits": [

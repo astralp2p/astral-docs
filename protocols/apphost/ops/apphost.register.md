@@ -30,7 +30,7 @@ which adds the caller's web origin.
 The default gate admits `apphost.register`, with a token or without, on an
 `unclaimed` and on a `claimed` node, and refuses it on a `fresh` node
 ([Gate](../README.md#gate)). A `fresh` node appoints a manager first with
-[`apphost.register_manager`](apphost.register_manager.md).
+[`sys.register_manager`](../../sys/ops/sys.register_manager.md).
 
 A stored delegate decides first. Without one, `policies.app_register` in
 `apphost.yaml` decides ([Policies](../README.md#policies)). Its default,

@@ -150,7 +150,7 @@ list ([Node Policies](node-policies.md#the-gate)):
 ```yaml
 gate:
   states:
-    fresh: [.spec, apphost.register_manager, user.info, bip137sig.new_entropy, bip137sig.mnemonic, bip137sig.seed, bip137sig.derive_key, objects.store, crypto.public_key, user.new_node_contract, auth.sign_contract, user.accept_contract]
+    fresh: [.spec, sys.register_manager, user.info, bip137sig.new_entropy, bip137sig.mnemonic, bip137sig.seed, bip137sig.derive_key, objects.store, crypto.public_key, user.new_node_contract, auth.sign_contract, user.accept_contract]
     unclaimed: [.spec, user.info, user.derive_identity, user.bootstrap, user.join, apphost.register, apphost.bind, apphost.register_handler, apphost.cancel, bip137sig.new_entropy, bip137sig.mnemonic, bip137sig.seed, bip137sig.derive_key, objects.store, crypto.public_key, user.new_node_contract, auth.sign_contract, user.accept_contract]
 ```
 
@@ -299,8 +299,8 @@ the default gate refuses the setters until the claim. The new node's manager
 binds `swarm_invite` to an operation it serves:
 
 ```shellsession
-$ echo '{"Type":"mod.apphost.register_manager_request","Object":{"Name":"setup","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"swarm_invite","Operation":"setup.decide_invite","Timeout":60000000000}]}}' \
-    | astral-query apphost.register_manager -in json -out json
+$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"setup","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"swarm_invite","Operation":"setup.decide_invite","Timeout":60000000000}]}}' \
+    | astral-query sys.register_manager -in json -out json
 ```
 
 For a join, the swarm node's manager binds `swarm_join` the same way at its
@@ -410,7 +410,7 @@ contract ([Node Policies](node-policies.md#before-the-claim)).
 
 | Answer | Cause | Remedy |
 |--------|-------|--------|
-| `apphost.register_manager`: `node is not fresh` | The node has a manager, has an active contract, or has held one before. | On an `unclaimed` node, claim with the manager's token or the node's token. A `claimed` node needs no setup. |
+| `sys.register_manager`: `node is not fresh` | The node has a manager, has an active contract, or has held one before. | On an `unclaimed` node, claim with the manager's token or the node's token. A `claimed` node needs no setup. |
 | `auth.sign_contract`: `sign as issuer: no signing scheme available for key secp256k1:<hex>: …` | The node does not hold the user's private key. | Store the key with `objects.store`, then sign again. |
 | `auth.sign_contract`: `authorize issuer: cannot sign with another identity's key` | The claim rule refuses: the node has an active contract, or the contract is not the claim contract `user.new_node_contract` writes. | Claim a node without an active contract with the contract `user.new_node_contract` writes. |
 | `user.bootstrap`: `node already claimed` | The node has an active contract. | — |

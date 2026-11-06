@@ -1,8 +1,8 @@
-# apphost.register_manager
+# sys.register_manager
 
 Provision a fresh App identity and appoint it the node's
 [manager](../README.md#manager). The operation provisions the identity as
-[`apphost.register`](apphost.register.md) does: a new keypair, an app contract
+[`apphost.register`](../../apphost/ops/apphost.register.md) does: a new keypair, an app contract
 between the new identity and the node, and an access token. The node then
 binds the policies the request names to the new identity and records the
 appointment. Only a `fresh` node ([Node states](../README.md#node-states))
@@ -10,16 +10,16 @@ appoints a manager. Local-only — a query from the network is answered
 `origin not allowed: network`.
 
 After accepting the query, the operation reads one
-[`mod.apphost.register_manager_request`](../types/mod.apphost.register_manager_request.md)
+[`mod.sys.register_manager_request`](../types/mod.sys.register_manager_request.md)
 from the channel. `Name`, `GrantPermits` and `ContractPermits` mean what they
-mean in a [`mod.apphost.register_request`](../types/mod.apphost.register_request.md).
+mean in a [`mod.apphost.register_request`](../../apphost/types/mod.apphost.register_request.md).
 `Policies` lists the policies the manager decides, one
-[`mod.apphost.policy_binding`](../types/mod.apphost.policy_binding.md) each.
+[`mod.sys.policy_binding`](../types/mod.sys.policy_binding.md) each.
 
 The operation checks the request before it changes anything:
 
 * Every permit of both lists passes the permit check of
-  [Grants](../README.md#grants).
+  [Grants](../../apphost/README.md#grants).
 * Every binding names one of `app_register`, `grant_request`, `swarm_join`,
   `swarm_invite` and `contract_accept`, and no name appears twice.
 * Every binding names an operation.
@@ -43,7 +43,7 @@ The node clears the stored delegate of every policy the request does not name.
 The grant request mode is not changed. On a node without the `user` module, the
 node leaves the three `user` policies untouched.
 
-The node writes the manager record at `/mod/apphost/manager` last and answers
+The node writes the manager record at `/mod/sys/manager` last and answers
 the access token. The node is then `unclaimed`. A failure before the record is
 written leaves the node `fresh`. A repeat call binds every policy again, so it
 replaces the delegates a failed call stored.
@@ -51,9 +51,9 @@ replaces the delegates a failed call stored.
 Calls run one at a time. Of two concurrent calls on a `fresh` node, one
 appoints the manager and the other answers `node is not fresh`.
 
-The default gate admits `apphost.register_manager`, with a token or without,
+The default gate admits `sys.register_manager`, with a token or without,
 on a `fresh` and on a `claimed` node, and refuses it on an `unclaimed` node
-([Gate](../README.md#gate)). A `claimed` node answers `node is not fresh`.
+([Gate](../../apphost/README.md#gate)). A `claimed` node answers `node is not fresh`.
 
 ## Arguments
 
@@ -72,7 +72,7 @@ The operation returns one of:
 * An `error_message` object reading `origin not allowed: network` if the query
   arrived over a link.
 * An `error_message` object reading `unexpected object: <type>` if the input
-  object is not a `mod.apphost.register_manager_request`, for example
+  object is not a `mod.sys.register_manager_request`, for example
   `unexpected object: eos` for an `eos`.
 * An `error_message` object reading `invalid permit: <action>: <detail>`, or
   `invalid permit: missing action`, if a permit fails the check.
@@ -97,13 +97,13 @@ The operation checks the request before it checks the node state.
 ## Examples
 
 ```shellsession
-$ echo '{"Type":"mod.apphost.register_manager_request","Object":{"Name":"control-plane","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"app_register","Operation":"cp.approve_app","Timeout":0},{"Policy":"swarm_join","Operation":"cp.approve_join","Timeout":300000000000}]}}' | astral-query apphost.register_manager -in json -out json
+$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"control-plane","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"app_register","Operation":"cp.approve_app","Timeout":0},{"Policy":"swarm_join","Operation":"cp.approve_join","Timeout":300000000000}]}}' | astral-query sys.register_manager -in json -out json
 {"Type":"apphost.access_token","Object":{"Identity":"03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f","Token":"b9c2e1a3d4f5867a","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
 ```
 
 A node that is not fresh:
 
 ```shellsession
-$ echo '{"Type":"mod.apphost.register_manager_request","Object":{"Name":"control-plane","GrantPermits":[],"ContractPermits":[],"Policies":[]}}' | astral-query apphost.register_manager -in json -out json
+$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"control-plane","GrantPermits":[],"ContractPermits":[],"Policies":[]}}' | astral-query sys.register_manager -in json -out json
 {"Type":"error_message","Object":"node is not fresh"}
 ```

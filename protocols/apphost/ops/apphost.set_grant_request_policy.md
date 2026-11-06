@@ -7,10 +7,10 @@ request, and a delegate decides each request in an operation of another
 identity. Unset selects `accept_all`.
 
 The caller must hold
-[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
-or be the node's [manager](../README.md#manager).
-The operation answers an `error_message` reading `not permitted` before the
-policy is changed when the caller is neither.
+[`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md).
+The user, the node and the node's [manager](../../sys/README.md#manager) hold
+it. The operation answers an `error_message` reading `not permitted` before the
+policy is changed when the caller does not hold it.
 
 `mode` selects `accept_all` or `reject_all` and clears the delegate. Under
 `accept_all`, any app with a token grants itself any action it names; only the

@@ -15,9 +15,9 @@ contract under which the node operates.
 * Contract (mod.auth.signed_contract) – The active contract itself. Null
   unless `State` is `claimed`.
 * State (string8) – The node's state: `fresh`, `unclaimed` or `claimed`
-  ([apphost, Node states](../../apphost/README.md#node-states)).
+  ([apphost, Node states](../../sys/README.md#node-states)).
 * Manager (identity) – The node's
-  [manager](../../apphost/README.md#manager). Null when none is appointed.
+  [manager](../../sys/README.md#manager). Null when none is appointed.
 
 ## Example
 

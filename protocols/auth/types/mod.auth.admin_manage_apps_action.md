@@ -70,7 +70,7 @@ or a contract it receives. These paths grant it to whoever asks:
   app register policy, `reject_all`, refuses every registration.
 * On a `fresh` node, any local program, or any page open in a local browser,
   obtains it by naming it in the `GrantPermits` of
-  [`apphost.register_manager`](../../apphost/ops/apphost.register_manager.md),
+  [`sys.register_manager`](../../sys/ops/sys.register_manager.md),
   which asks no policy.
 * While the grant request policy is `accept_all`, as it is until
   [`apphost.set_grant_request_policy`](../../apphost/ops/apphost.set_grant_request_policy.md)
