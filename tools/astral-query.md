@@ -19,8 +19,16 @@ which only an authenticated caller has. Export an access token first:
 `export ASTRALD_APPHOST_TOKEN=<token>`
 
 Without it the call is anonymous, the `Network` zone is stripped, and the query
-fails locally with `route_not_found` before reaching the target — exporting the
-token, not changing the query, is the fix. An anonymous call reaches only the
+fails locally with `route_not_found` before reaching the target. For that
+cause, exporting the token, not changing the query, is the fix.
+
+An operation can also answer `route not found` itself, and a token does not
+change that answer. [`user.join`](../protocols/user/ops/user.join.md) answers it
+under the manager's token when the node knows no route to the swarm node; the swarm node
+provides the route
+([User and Swarm, The route between the nodes](../topics/user-and-swarm.md#the-route-between-the-nodes)).
+
+An anonymous call reaches only the
 operations the apphost gate admits a session without a token
 ([apphost, Gate](../protocols/apphost/README.md#gate)); `.spec` is among them
 in every node state, so `astral-query localnode:.spec` lists the node's
