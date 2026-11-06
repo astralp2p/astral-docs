@@ -37,6 +37,17 @@ The default gate admits `user.join` on an `unclaimed` node from a session with
 a token, and refuses it on a `fresh` node and from a session without a token
 ([Gate](../../apphost/README.md#gate)).
 
+The join needs a route to the swarm node, and the swarm node provides it. The
+default gate refuses
+[`nodes.add_endpoint`](../../nodes/ops/nodes.add_endpoint.md) on an
+`unclaimed` node, so this node cannot add the swarm node's endpoint before the
+claim. The swarm node opens a link to this node with
+[`nodes.new_link`](../../nodes/ops/nodes.new_link.md), and the join travels
+over it. Nodes of one user on a shared local network find each other through
+[`nearby`](../../nearby/README.md).
+[User and Swarm, The route between the nodes](../../../topics/user-and-swarm.md#the-route-between-the-nodes)
+shows the commands.
+
 The join policy of the swarm node and the invite policy of this node decline
 everything by default ([user](../README.md)). The swarm node sets
 `policies.swarm_join` and this node sets `policies.swarm_invite` to
@@ -59,6 +70,8 @@ Otherwise the operation returns one of:
   declines this node.
 * An `error_message` reading `invitation declined` if this node's invite policy
   declines the contract.
+* An `error_message` reading `route not found` if this node knows no route to
+  the swarm node.
 * An `error_message` reading `no active contract` if the swarm node has no
   active contract.
 * An `error_message` if the swarm node cannot be reached, or if issuing,
