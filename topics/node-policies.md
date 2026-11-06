@@ -37,8 +37,7 @@ What a session reaches under the default lists:
 | `claimed` | `.spec`, `apphost.register`, `apphost.register_manager`, `user.info` | every operation |
 
 A list the file supplies replaces the default list, and an omitted list keeps
-its default. `allow_anonymous` and `anonymous_allowlist` are removed, and a
-file that names either stops the node at startup.
+its default.
 
 ## The five policies
 

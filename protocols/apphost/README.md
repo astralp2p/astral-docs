@@ -160,11 +160,6 @@ none of the three.
   session without a token.
 * A key `apphost.yaml` supplies replaces that list. An omitted key keeps its
   default.
-* `allow_anonymous` and `anonymous_allowlist` are removed. The node does not
-  start with an `apphost.yaml` that names either key. The error reads
-  `apphost.yaml: allow_anonymous is removed; gate.tokenless lists the ops a
-  session without a token may call`, or `apphost.yaml: anonymous_allowlist is
-  removed; gate.tokenless and gate.states replace it`.
 
 The default configuration:
 
