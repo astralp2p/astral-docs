@@ -13,7 +13,8 @@ writes one to its output stream.
 * GrantPermits ([]mod.auth.permit) – The permits the node records as
   node-local grants for the new identity.
 * ContractPermits ([]mod.auth.permit) – The permits the node signs into a
-  node→app contract for the new identity.
+  node→app contract for the new identity. A `mod.auth.sudo_action` entry
+  refuses the registration ([`apphost.register`](../ops/apphost.register.md)).
 * Authorizers ([]mod.auth.authorizer_assignment) – Authorizer assignments the
   node records with the new identity as `Actor`. An entry that is null,
   invalid, or names an `Actor` refuses the registration.

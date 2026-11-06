@@ -27,6 +27,15 @@ the register policy. The policy receives the request as a
 [`mod.apphost.app_register_request`](../types/mod.apphost.app_register_request.md),
 which adds the caller's web origin.
 
+The node refuses a decision whose `ContractPermits` holds a
+[`mod.auth.sudo_action`](../../auth/types/mod.auth.sudo_action.md) permit,
+with or without constraints. The node signs every contract permit as the
+issuer, and a node-signed `mod.auth.sudo_action` lets the app act and sign
+as the node. The registration is answered `registration declined`, and no
+identity is minted.
+[`sys.register_manager`](../../sys/ops/sys.register_manager.md) does not
+refuse the permit.
+
 The default gate admits `apphost.register`, with a token or without, on an
 `unclaimed` and on a `claimed` node, and refuses it on a `fresh` node
 ([Gate](../README.md#gate)). A `fresh` node appoints a manager first with
@@ -39,6 +48,8 @@ A stored delegate decides first. Without one, `policies.app_register` in
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
 included, and any local program, or any page open in a local browser, that
 registers holds what it asks for.
+`accept_all` copies a `mod.auth.sudo_action` contract permit into its
+decision, so a request that asks for one is declined.
 
 Every registration also asks for node-local grants of
 [`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md)
@@ -88,7 +99,8 @@ The operation returns one of:
   not asked.
 * An `error_message` object reading `registration declined` if the node's
   register policy refuses the registration, cannot decide it, or returns a
-  decision the node cannot apply.
+  decision the node cannot apply, such as one whose `ContractPermits` holds
+  `mod.auth.sudo_action`.
 * An `error_message` object if any later step failed.
 * An `apphost.access_token` object containing the new guest's token.
 
