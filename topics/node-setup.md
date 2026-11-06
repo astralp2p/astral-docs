@@ -65,7 +65,7 @@ clear the record. Starting over means removing the node's data directory,
 which also gives the node a new identity
 ([Node Exposure, Reset](node-exposure.md#reset)).
 
-[apphost, Node states](../protocols/apphost/README.md#node-states) defines the
+[apphost, Node states](../protocols/sys/README.md#node-states) defines the
 states.
 
 ## The manager
@@ -79,19 +79,19 @@ node, nobody is there to ask. The manager is that someone.
 ### Appointing the manager
 
 The app calls
-[`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md)
+[`sys.register_manager`](../protocols/sys/ops/sys.register_manager.md)
 on a `fresh` node, from a local session. It sends one
-[`mod.apphost.register_manager_request`](../protocols/apphost/types/mod.apphost.register_manager_request.md):
+[`mod.sys.register_manager_request`](../protocols/sys/types/mod.sys.register_manager_request.md):
 the permits it asks for, as in
 [`apphost.register`](../protocols/apphost/ops/apphost.register.md), and the
 policies it takes on, one
-[`mod.apphost.policy_binding`](../protocols/apphost/types/mod.apphost.policy_binding.md)
+[`mod.sys.policy_binding`](../protocols/sys/types/mod.sys.policy_binding.md)
 each. A binding names the policy, the operation the node asks on the manager,
 and how long the node waits for one answer.
 
 ```shellsession
-$ echo '{"Type":"mod.apphost.register_manager_request","Object":{"Name":"setup","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"app_register","Operation":"setup.approve_app","Timeout":0},{"Policy":"swarm_join","Operation":"setup.approve_join","Timeout":300000000000}]}}' \
-    | astral-query apphost.register_manager -in json -out json
+$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"setup","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"app_register","Operation":"setup.approve_app","Timeout":0},{"Policy":"swarm_join","Operation":"setup.approve_join","Timeout":300000000000}]}}' \
+    | astral-query sys.register_manager -in json -out json
 {"Type":"apphost.access_token","Object":{"Identity":"03864ef0...","Token":"k7m2q5x9r3v4n8p1","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
 ```
 
@@ -104,7 +104,7 @@ The node then:
 3. stores each binding as the delegate of its policy, with the manager as the
    delegate, and clears the delegate of every policy the request does not
    name;
-4. records the manager at `/mod/apphost/manager`, and answers the manager's
+4. records the manager at `/mod/sys/manager`, and answers the manager's
    access token.
 
 The node is now `unclaimed`. If a step before 4 fails, the node stays `fresh`
@@ -119,8 +119,9 @@ distribution appoints its manager before it starts anything else.
 
 * Answer the policies it took on. The node asks the manager each time
   ([Node Policies](node-policies.md)).
-* Change any policy, without holding
-  [`mod.auth.admin_manage_apps_action`](../protocols/auth/types/mod.auth.admin_manage_apps_action.md).
+* Change any policy, and any other tree value: the manager holds
+  [`mod.auth.configure_node_state_action`](../protocols/auth/types/mod.auth.configure_node_state_action.md),
+  also after the claim.
 * Claim the node for the user with its own token
   ([User and Swarm, Claiming a node](user-and-swarm.md#claiming-a-node)).
 
@@ -248,8 +249,8 @@ the appointment as the first command after the node starts.
 
    ```shellsession
    $ export ASTRALD_APPHOST_TOKEN=$NODE_TOKEN
-   $ echo '{"Type":"mod.apphost.register_manager_request","Object":{"Name":"cli-setup","GrantPermits":[],"ContractPermits":[],"Policies":[]}}' \
-       | astral-query apphost.register_manager -in json -out json
+   $ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"cli-setup","GrantPermits":[],"ContractPermits":[],"Policies":[]}}' \
+       | astral-query sys.register_manager -in json -out json
    {"Type":"apphost.access_token","Object":{"Identity":"03864ef0...","Token":"k7m2q5x9r3v4n8p1","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
    ```
 

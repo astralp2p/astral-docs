@@ -25,14 +25,14 @@ The [IPC handshake](astral-ipc.md#session-handshake) and
 The [apphost gate](../protocols/apphost/README.md#gate) admits every query of an
 IPC, WebSocket or HTTP session before routing. The node's state selects the
 list a query to the node must appear on
-([Node states](../protocols/apphost/README.md#node-states)). A session without
+([Node states](../protocols/sys/README.md#node-states)). A session without
 a token also needs the operation on `gate.tokenless`. By default:
 
 | Node state | Without a token | With a token |
 |------------|-----------------|--------------|
-| `fresh` | `.spec`, [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
+| `fresh` | `.spec`, [`sys.register_manager`](../protocols/sys/ops/sys.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
 | `unclaimed` | `.spec`, `user.info`, [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | `.spec`, `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register` |
-| `claimed` | `.spec`, `apphost.register`, `apphost.register_manager`, `user.info` | every operation |
+| `claimed` | `.spec`, `apphost.register`, `sys.register_manager`, `user.info` | every operation |
 
 apphost refuses other queries to the node with `error_msg{denied}` before
 routing. A session without a token reaches no other identity. A query with a
@@ -45,7 +45,7 @@ These `apphost.yaml` settings control admission:
 
 | Setting | Default | Effect |
 |---------|---------|--------|
-| `gate.tokenless` | `.spec`, `apphost.register`, `apphost.register_manager`, `user.info` | The operations a session without a token may call. |
+| `gate.tokenless` | `.spec`, `apphost.register`, `sys.register_manager`, `user.info` | The operations a session without a token may call. |
 | `gate.states.fresh`, `gate.states.unclaimed`, `gate.states.claimed` | the lists above | The operations a query to the node may call in each state. |
 
 A key the file supplies replaces that list, and an omitted key keeps its
@@ -68,7 +68,7 @@ permit.
 
 | Purpose | Session |
 |---------|---------|
-| Appoint the manager of a `fresh` node | No token, or any token: `apphost.register_manager`. |
+| Appoint the manager of a `fresh` node | No token, or any token: `sys.register_manager`. |
 | Claim a node | The manager's App token, or the node's token, on an `unclaimed` node. |
 | Obtain an app identity | No token: `apphost.register`, subject to the app register policy. |
 | Run app queries, handlers, or [services](services.md) | The app's token, with the required permits. |

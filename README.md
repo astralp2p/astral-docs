@@ -85,6 +85,7 @@ Contents:
   * [nodes](protocols/nodes/README.md) - encrypted links and multiplexed sessions between nodes
   * [objects](protocols/objects/README.md) - typed object storage, retrieval, and provider discovery
   * [player](protocols/player/README.md) - music playback and play queue control
+  * [sys](protocols/sys/README.md) - node lifecycle: the node states and the manager appointment
   * [tor](protocols/tor/README.md) - onion-service transport over Tor
   * [tree](protocols/tree/README.md) - hierarchical key-value configuration store
   * [user](protocols/user/README.md) - user identity, swarm membership, asset list

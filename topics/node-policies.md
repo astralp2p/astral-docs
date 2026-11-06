@@ -32,9 +32,9 @@ What a session reaches under the default lists:
 
 | State | Without a token | With a token, the node's token included |
 |-------|-----------------|-----------------------------------------|
-| `fresh` | `.spec`, [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
+| `fresh` | `.spec`, [`sys.register_manager`](../protocols/sys/ops/sys.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
 | `unclaimed` | `.spec`, `user.info`, [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | `.spec`, `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register` |
-| `claimed` | `.spec`, `apphost.register`, `apphost.register_manager`, `user.info` | every operation |
+| `claimed` | `.spec`, `apphost.register`, `sys.register_manager`, `user.info` | every operation |
 
 A list the file supplies replaces the default list, and an omitted list keeps
 its default.
@@ -133,10 +133,10 @@ A setter takes `identity` and `operation`, and an optional `timeout`:
   accept policies apply the bundled policy.
 
 Every setter requires
-[`mod.auth.admin_manage_apps_action`](../protocols/auth/types/mod.auth.admin_manage_apps_action.md),
-or a caller that is the node's
-[manager](../protocols/apphost/README.md#manager). The user identity and the
-node identity hold the action by default. The default gate admits the setters
+[`mod.auth.configure_node_state_action`](../protocols/auth/types/mod.auth.configure_node_state_action.md),
+the action that changes the node's tree. The user identity, the node identity
+and the node's [manager](../protocols/sys/README.md#manager) hold the action by
+default. The manager keeps it after the claim. The default gate admits the setters
 on a `claimed` node only, so before the claim only the manager appointment
 binds a delegate. A setter answers [`ack`](../primitive-types/ack.md) once the
 choice is saved in the node's tree. The choice survives a restart.
@@ -167,16 +167,16 @@ delegate. The node assumes no particular approval app. Any app that serves a
 decision op can be one.
 
 On a `fresh` node, an approval app becomes the node's manager with
-[`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md)
+[`sys.register_manager`](../protocols/sys/ops/sys.register_manager.md)
 and binds the policies it decides
 ([Node Setup, The manager](node-setup.md#the-manager)). The manager then calls
-the setters without `mod.auth.admin_manage_apps_action`.
+the setters under the `mod.auth.configure_node_state_action` it holds.
 
 On a node that is not `fresh`, an approval app obtains its identity with
 [`apphost.register`](../protocols/apphost/ops/apphost.register.md), like every
 other app. The register policy decides the registration. A holder of
-`mod.auth.admin_manage_apps_action`, such as the user or a session with the
-node's token ([Session Identity](session-identity.md#the-nodes-token)), names
+`mod.auth.configure_node_state_action`, such as the user, the manager or a
+session with the node's token ([Session Identity](session-identity.md#the-nodes-token)), names
 the app a delegate with the setters.
 
 Control Plane is a ready-made approval app. Its specification at
@@ -187,7 +187,7 @@ predates the manager appointment: it takes the delegation with the setters.
 
 A node that is to ask before it admits takes these steps:
 
-1. The approval app calls `apphost.register_manager` on the `fresh` node and
+1. The approval app calls `sys.register_manager` on the `fresh` node and
    binds the policies it decides. The node is then `unclaimed`.
 2. The approval app serves its decision ops.
 3. The approval app claims the node with
@@ -248,9 +248,9 @@ The defaults are the distribution configuration. A node needs no
 ```yaml
 # apphost.yaml
 gate:
-  tokenless: [.spec, apphost.register, apphost.register_manager, user.info]
+  tokenless: [.spec, apphost.register, sys.register_manager, user.info]
   states:
-    fresh: [.spec, apphost.register_manager, user.info]
+    fresh: [.spec, sys.register_manager, user.info]
     unclaimed: [.spec, user.info, user.derive_identity, user.bootstrap, user.join, apphost.register,
                 apphost.bind, apphost.register_handler, apphost.cancel]
     claimed: ["*"]
@@ -289,7 +289,7 @@ policies:
 ```
 
 * A session without a token calls `user.bootstrap` or `user.join` on a `fresh`
-  node and claims it in one query. `apphost.register_manager` is not on the
+  node and claims it in one query. `sys.register_manager` is not on the
   `tokenless` list, so a test that appoints a manager calls it with the node's
   token.
 * The `unclaimed` and `claimed` lists keep their defaults.

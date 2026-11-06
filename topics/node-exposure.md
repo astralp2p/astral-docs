@@ -28,7 +28,7 @@ node. A setting lives in `<name>.yaml` in the node's config directory.
 * "Without a token" means a session that presents no token, or a peer that
   holds no grant. [Session Identity](session-identity.md) lists the gate's
   default lists. "Before the claim" covers the `fresh` and `unclaimed` states
-  ([apphost, Node states](../protocols/apphost/README.md#node-states)).
+  ([apphost, Node states](../protocols/sys/README.md#node-states)).
 * `listen` in `tcp.yaml` and `kcp.yaml`, and `mode` in `nearby.yaml`, write
   the tree values `/mod/tcp/settings/listen`, `/mod/kcp/settings/listen` and
   `/mod/nearby/mode` at every start when the file states the key. Otherwise a
@@ -50,7 +50,7 @@ node. A setting lives in `<name>.yaml` in the node's config directory.
   ([Node Policies](node-policies.md)).
 * Any page open in a local browser reaches `/.ws`. On a `fresh` node, that page
   can appoint itself the manager with
-  [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md)
+  [`sys.register_manager`](../protocols/sys/ops/sys.register_manager.md)
   and then claim the node with the manager's token. On an `unclaimed` or
   `claimed` node, that page can call `apphost.register`, which the app register
   policy decides.

@@ -1,16 +1,16 @@
-# mod.apphost.policy_binding
+# mod.sys.policy_binding
 
 One policy a manager decides, in a
-[`mod.apphost.register_manager_request`](mod.apphost.register_manager_request.md).
-[`apphost.register_manager`](../ops/apphost.register_manager.md) stores each
+[`mod.sys.register_manager_request`](mod.sys.register_manager_request.md).
+[`sys.register_manager`](../ops/sys.register_manager.md) stores each
 binding as the policy's delegate, with the manager as `identity`.
 
 ## Fields
 
 * Policy (string8) – The policy: `app_register`, `grant_request`,
   `swarm_join`, `swarm_invite` or `contract_accept`. They decide
-  [`apphost.register`](../ops/apphost.register.md),
-  [`apphost.request_grant`](../ops/apphost.request_grant.md),
+  [`apphost.register`](../../apphost/ops/apphost.register.md),
+  [`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md),
   [`user.request_membership`](../../user/ops/user.request_membership.md),
   [`user.accept_membership`](../../user/ops/user.accept_membership.md) and
   [`user.accept_contract`](../../user/ops/user.accept_contract.md).
@@ -23,7 +23,7 @@ binding as the policy's delegate, with the manager as `identity`.
 
 ```json
 {
-  "Type": "mod.apphost.policy_binding",
+  "Type": "mod.sys.policy_binding",
   "Object": {
     "Policy": "swarm_join",
     "Operation": "cp.approve_join",

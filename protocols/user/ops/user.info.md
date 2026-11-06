@@ -5,8 +5,8 @@ belongs to: aliases of the user and node, and the active contract the node
 operates under.
 
 `State` is `fresh`, `unclaimed` or `claimed`
-([apphost, Node states](../../apphost/README.md#node-states)). `Manager` is the
-identity [`apphost.register_manager`](../../apphost/ops/apphost.register_manager.md)
+([apphost, Node states](../../sys/README.md#node-states)). `Manager` is the
+identity [`sys.register_manager`](../../sys/ops/sys.register_manager.md)
 appointed, or null when none is appointed.
 
 On a `fresh` or `unclaimed` node, the operation answers `State` and `Manager`
