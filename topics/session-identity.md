@@ -30,9 +30,9 @@ a token also needs the operation on `gate.tokenless`. By default:
 
 | Node state | Without a token | With a token |
 |------------|-----------------|--------------|
-| `fresh` | [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
-| `unclaimed` | `user.info`, [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register` |
-| `claimed` | `apphost.register`, `apphost.register_manager`, `user.info` | every operation |
+| `fresh` | `.spec`, [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
+| `unclaimed` | `.spec`, `user.info`, [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | `.spec`, `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register` |
+| `claimed` | `.spec`, `apphost.register`, `apphost.register_manager`, `user.info` | every operation |
 
 apphost refuses other queries to the node with `error_msg{denied}` before
 routing. A session without a token reaches no other identity. A query with a
@@ -45,7 +45,7 @@ These `apphost.yaml` settings control admission:
 
 | Setting | Default | Effect |
 |---------|---------|--------|
-| `gate.tokenless` | `apphost.register`, `apphost.register_manager`, `user.info` | The operations a session without a token may call. |
+| `gate.tokenless` | `.spec`, `apphost.register`, `apphost.register_manager`, `user.info` | The operations a session without a token may call. |
 | `gate.states.fresh`, `gate.states.unclaimed`, `gate.states.claimed` | the lists above | The operations a query to the node may call in each state. |
 
 A key the file supplies replaces that list, and an omitted key keeps its
