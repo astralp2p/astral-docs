@@ -10,6 +10,8 @@ details.
   decides what is let in.
 * [User and Swarm](user-and-swarm.md) – what a user and a swarm are, and how a
   node is claimed or joins a swarm.
+* [Setting up from a shell](#setting-up-from-a-shell) – a node with no setup
+  app, set up by a person or an AI agent with `astral-query`.
 
 ## In short
 
@@ -158,7 +160,7 @@ Two things decide what reaches the node:
 * **The gate** decides which operations are open at all, by whether the caller
   has a token and what state the node is in. A caller without a token only
   reaches the node itself, never an app on it, and only a few operations. A
-  `fresh` node opens only the manager appointment and `user.info`.
+  `fresh` node opens only `.spec`, the manager appointment and `user.info`.
 * **The policies** decide when someone knocks: may this app register, may this
   node join the swarm, should this node accept that invitation. Each one
   accepts everything, refuses everything, or asks a delegate, usually the
@@ -189,14 +191,119 @@ shows both configurations.
 * Each operation checks whether the caller is authorized. The user and the
   user's other nodes are authorized for the swarm's own operations, such as
   `user.info`. Other identities need a grant or a contract.
-* A caller without a token reaches only app registration, the manager
+* A caller without a token reaches only `.spec`, app registration, the manager
   appointment and `user.info`. The node is not `fresh`, so the appointment
-  answers `node is not fresh`.
+  answers `node is not fresh`, and app registration follows the app register
+  policy, which refuses by default.
 * The manager stays. It keeps answering the policies it took on, and it may
   still change them.
 * The contract `user.bootstrap` signs expires after 365 days. An expired or
   expelled node is `unclaimed` again, and it can be claimed again
   ([User and Swarm, Losing the owner](user-and-swarm.md#losing-the-owner)).
+
+## Setting up from a shell
+
+A node with no setup app, such as a server or a node an AI agent installs, is
+set up with [`astral-query`](../tools/astral-query.md). The shell takes the
+manager's place: it appoints a manager that takes on no policy, and claims with
+that manager's token. Every command runs on the node's host.
+
+### Before the first start
+
+On a `fresh` node any local program, or any page in a local browser, can
+appoint itself the manager. A node whose host runs other programs or a browser
+closes that window before its first start: `apphost.yaml` gives the node a
+token, and the `tokenless` list leaves out the appointment, so only a session
+that can read the file appoints the manager.
+
+```shellsession
+$ umask 077
+$ mkdir -p ~/.config/astrald
+$ NODE_TOKEN=$(head -c 24 /dev/urandom | od -An -tx1 | tr -d ' \n')
+$ printf 'tokens:\n  "%s": localnode\ngate:\n  tokenless: [.spec, user.info]\n' "$NODE_TOKEN" \
+    > ~/.config/astrald/apphost.yaml
+```
+
+With `-root <dir>` the file is `<dir>/config/apphost.yaml`. The file names
+only `tokens` and `gate.tokenless`; every other key keeps its default. Under
+this list a session without a token reaches `.spec` and `user.info` alone, in
+every state, and an app registers only with a token. Without this file, run
+the appointment as the first command after the node starts.
+
+### Steps
+
+1. Start the node and wait until it answers. `user.info` answers a session
+   without a token in every state and reports the state.
+
+   ```shellsession
+   $ astral-query user.info -out json
+   {"Type":"mod.user.info","Object":{"NodeAlias":"","UserAlias":"","ContractID":null,"Contract":null,"State":"fresh","Manager":null}}
+   ```
+
+2. Appoint the manager. The request names no policy, so app registration,
+   swarm joins and swarm invitations keep refusing. Run it with the node's
+   token when `apphost.yaml` sets one, and without a token otherwise.
+
+   ```shellsession
+   $ export ASTRALD_APPHOST_TOKEN=$NODE_TOKEN
+   $ echo '{"Type":"mod.apphost.register_manager_request","Object":{"Name":"cli-setup","GrantPermits":[],"ContractPermits":[],"Policies":[]}}' \
+       | astral-query apphost.register_manager -in json -out json
+   {"Type":"apphost.access_token","Object":{"Identity":"03864ef0...","Token":"k7m2q5x9r3v4n8p1","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
+   ```
+
+3. Claim the node with the manager's token: new words, the user's words, or a
+   swarm the user runs
+   ([User and Swarm, Claiming a node](user-and-swarm.md#claiming-a-node)).
+   The claim answers the user's token.
+
+   ```shellsession
+   $ export ASTRALD_APPHOST_TOKEN=k7m2q5x9r3v4n8p1
+   $ astral-query user.derive_identity -generate true -out json
+   {"Type":"mod.user.derive_identity_result","Object":{"Identity":"02e96bd9...","Mnemonic":"penalty stadium garlic ... rifle fitness garage"}}
+   $ echo '{"Type":"string16","Object":"penalty stadium garlic ... rifle fitness garage"}' \
+       | astral-query user.bootstrap -in json -out json
+   {"Type":"mod.user.bootstrap_result","Object":{"Identity":"02e96bd9...","Mnemonic":"","Token":"b9c2e1a3d4f5867a"}}
+   ```
+
+4. Check the claim: `user.info` reports `"State":"claimed"`.
+
+The words are the user's only backup. A person writes them down; an agent
+that sets up a node hands them to its operator and keeps no copy. Words typed
+on a command line enter the shell history: a careful shell reads them into a
+variable, or writes them to a file it deletes after the claim.
+
+### Giving an agent access
+
+An agent that uses a claimed node needs its own token. App registration
+refuses by default, so the user creates the agent instead:
+[`mcp.create_agent`](../protocols/mcp/ops/mcp.create_agent.md) under the
+user's token answers the agent's identity and token.
+
+```shellsession
+$ export ASTRALD_APPHOST_TOKEN=b9c2e1a3d4f5867a
+$ astral-query mcp.create_agent -alias agent -out json
+{"Type":"mcp.agent","Object":{"Identity":"02f40933...","Alias":"agent","Token":"h4d8s2w6y1b9t3n7","ExpiresAt":"2027-11-06T00:49:56Z"}}
+```
+
+The agent's token reaches `.spec`, `apphost.whoami` and the operations every
+identity may call. Each further action is a grant the user writes with
+[`apphost.grant`](../protocols/apphost/ops/apphost.grant.md), for example
+reading the node's state:
+
+```shellsession
+$ echo '{"Type":"mod.apphost.grant_request","Object":{"Identity":"02f40933...","Duration":0,"Permits":[{"Action":"mod.auth.see_node_state_action"}]}}' \
+    | astral-query apphost.grant -in json -out json
+{"Type":"ack","Object":null}
+```
+
+The agent never needs the user's token, the manager's token or the words.
+
+### Discovering operations
+
+`.spec` lists the node's operations to every session, in every state:
+`astral-query localnode:.spec -out json`. The list names what the node serves,
+not what the gate admits for the caller: an operation the gate refuses answers
+`denied`.
 
 [Node Exposure](node-exposure.md) lists every surface a node opens before and
 after the claim.

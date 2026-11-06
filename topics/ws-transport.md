@@ -116,10 +116,10 @@ Notes:
   unauthenticated session is routed as the node. An unauthenticated session
   that names a caller is refused with `error_msg{denied}`.
 - every session passes the apphost gate, as an IPC guest does, whatever the
-  page's `Origin`. By default an unauthenticated session may call
-  `apphost.register_manager` and `user.info` on a `fresh` node, `user.info`
-  and `apphost.register` on an `unclaimed` node, and those three on a
-  `claimed` node. An authenticated session calls on the node only the
+  page's `Origin`. By default an unauthenticated session may call `.spec`,
+  `apphost.register_manager` and `user.info` on a `fresh` node, `.spec`,
+  `user.info` and `apphost.register` on an `unclaimed` node, and those four on
+  a `claimed` node. An authenticated session calls on the node only the
   operations of the list of the node's state.
   [Operations](../core-definitions/op.md) the gate does not admit are refused
   with `error_msg{denied}`. See

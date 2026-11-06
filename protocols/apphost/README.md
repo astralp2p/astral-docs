@@ -135,16 +135,18 @@ with a token as the session's identity.
 
 | List | Default operations |
 |------|--------------------|
-| `tokenless` | `apphost.register`, `apphost.register_manager`, `user.info` |
-| `states.fresh` | `apphost.register_manager`, `user.info` |
-| `states.unclaimed` | `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`, `apphost.bind`, `apphost.register_handler`, `apphost.cancel` |
+| `tokenless` | `.spec`, `apphost.register`, `apphost.register_manager`, `user.info` |
+| `states.fresh` | `.spec`, `apphost.register_manager`, `user.info` |
+| `states.unclaimed` | `.spec`, `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`, `apphost.bind`, `apphost.register_handler`, `apphost.cancel` |
 | `states.claimed` | `*` |
 
-Under the default lists, a session without a token reaches
-`apphost.register_manager` and `user.info` on a `fresh` node, `user.info` and
-`apphost.register` on an `unclaimed` node, and the three `tokenless`
-operations on a `claimed` node. `.spec` is on no default list except through
-`*`.
+Under the default lists, a session without a token reaches `.spec`,
+`apphost.register_manager` and `user.info` on a `fresh` node, `.spec`,
+`user.info` and `apphost.register` on an `unclaimed` node, and the four
+`tokenless` operations on a `claimed` node. `.spec` lists the node's
+operations and changes nothing, so a client discovers what it may call before
+it holds a token. A node whose `apphost.yaml` supplies its own lists adds
+`.spec` to them itself.
 
 The `unclaimed` list holds [`apphost.bind`](ops/apphost.bind.md),
 [`apphost.register_handler`](ops/apphost.register_handler.md) and
@@ -168,10 +170,10 @@ The default configuration:
 
 ```yaml
 gate:
-  tokenless: [apphost.register, apphost.register_manager, user.info]
+  tokenless: [.spec, apphost.register, apphost.register_manager, user.info]
   states:
-    fresh: [apphost.register_manager, user.info]
-    unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register,
+    fresh: [.spec, apphost.register_manager, user.info]
+    unclaimed: [.spec, user.info, user.derive_identity, user.bootstrap, user.join, apphost.register,
                 apphost.bind, apphost.register_handler, apphost.cancel]
     claimed: ["*"]
 policies:

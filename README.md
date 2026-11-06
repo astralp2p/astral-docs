@@ -12,6 +12,7 @@ Language SDKs implement this specification:
 
 Contents:
 
+* [Node Setup](topics/node-setup.md) – start here to set up a node: the manager, the claim, and [setting up from a shell](topics/node-setup.md#setting-up-from-a-shell)
 * [Core primitives](core-definitions/README.md)
   * [Alias](core-definitions/alias.md)
   * [App](core-definitions/app.md)

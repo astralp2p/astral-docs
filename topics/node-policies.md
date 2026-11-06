@@ -32,9 +32,9 @@ What a session reaches under the default lists:
 
 | State | Without a token | With a token, the node's token included |
 |-------|-----------------|-----------------------------------------|
-| `fresh` | [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
-| `unclaimed` | `user.info`, [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register` |
-| `claimed` | `apphost.register`, `apphost.register_manager`, `user.info` | every operation |
+| `fresh` | `.spec`, [`apphost.register_manager`](../protocols/apphost/ops/apphost.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
+| `unclaimed` | `.spec`, `user.info`, [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | `.spec`, `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register` |
+| `claimed` | `.spec`, `apphost.register`, `apphost.register_manager`, `user.info` | every operation |
 
 A list the file supplies replaces the default list, and an omitted list keeps
 its default. `allow_anonymous` and `anonymous_allowlist` are removed, and a
@@ -249,10 +249,10 @@ The defaults are the distribution configuration. A node needs no
 ```yaml
 # apphost.yaml
 gate:
-  tokenless: [apphost.register, apphost.register_manager, user.info]
+  tokenless: [.spec, apphost.register, apphost.register_manager, user.info]
   states:
-    fresh: [apphost.register_manager, user.info]
-    unclaimed: [user.info, user.derive_identity, user.bootstrap, user.join, apphost.register,
+    fresh: [.spec, apphost.register_manager, user.info]
+    unclaimed: [.spec, user.info, user.derive_identity, user.bootstrap, user.join, apphost.register,
                 apphost.bind, apphost.register_handler, apphost.cancel]
     claimed: ["*"]
 policies:
@@ -275,7 +275,7 @@ astrald end-to-end tests run every node with this configuration:
 ```yaml
 # apphost.yaml
 gate:
-  tokenless: [apphost.register, user.info, user.derive_identity, user.bootstrap, user.join]
+  tokenless: [.spec, apphost.register, user.info, user.derive_identity, user.bootstrap, user.join]
   states:
     fresh: ["*"]
 policies:
