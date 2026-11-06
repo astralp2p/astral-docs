@@ -2,6 +2,9 @@
 
 Register a new filesystem repository backed by a directory at the given path. The repository is added to the `objects.RepoLocal` group under the given name, and the label defaults to the name when omitted.
 
+Local-only — a query from the network is answered `origin not allowed: network`
+before the caller is authorized, and no repository is registered.
+
 The caller must hold
 [`mod.auth.admin_objects_action`](../../auth/types/mod.auth.admin_objects_action.md).
 The operation answers an `error_message` reading `not permitted` when the caller
@@ -22,6 +25,8 @@ At node start, an entry is skipped when its name is already registered, or when 
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` object reading `origin not allowed: network` if the query
+  arrived over a link.
 * An `error_message` object if repository registration fails, the group assignment fails, or the tree entry cannot be saved. A failed save removes the repository again.
 * An `ack` object on success.
 
