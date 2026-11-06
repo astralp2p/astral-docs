@@ -87,8 +87,10 @@ rejects that origin, so neither path reaches this node's operations. Across a
 link, the far node stamps `network` origin; each target operation applies its
 own origin and caller checks. MCP operations reject network queries.
 
-These checks concern the query's entry path. Apphost endpoints stamp no origin
-and accept the same access tokens. MCP management operations still require
+These checks concern the query's entry path. The apphost IPC and WebSocket
+endpoints stamp no origin. The apphost HTTP endpoint stamps `network` origin on
+a query from a non-loopback TCP client. All apphost endpoints accept the same
+access tokens. MCP management operations still require
 their documented admin or state-reading action there. Mail tools call the
 messaging module directly, so query-origin checks do not apply to them;
 hosting, send, and receive checks do.
