@@ -241,8 +241,10 @@ the appointment as the first command after the node starts.
    ```
 
 2. Appoint the manager. The request names no policy, so app registration,
-   swarm joins and swarm invitations keep refusing. Run it with the node's
-   token when `apphost.yaml` sets one, and without a token otherwise.
+   swarm joins and swarm invitations keep refusing. A node that is to join a
+   swarm binds `swarm_invite` to a manager that keeps running instead
+   ([User and Swarm, Policies](user-and-swarm.md#policies)). Run it with the
+   node's token when `apphost.yaml` sets one, and without a token otherwise.
 
    ```shellsession
    $ export ASTRALD_APPHOST_TOKEN=$NODE_TOKEN
