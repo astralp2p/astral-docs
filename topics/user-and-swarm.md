@@ -289,11 +289,44 @@ policy decides an invitation. The new node's contract accept policy decides a
 contract activated with `user.accept_contract`. The join and invite policies
 decline everything by default, and the contract accept policy accepts every
 contract that passes validation ([user](../protocols/user/README.md)).
-[Policy Delegates](node-policies.md) describes how an approval app decides
-them instead. A node set up from a shell has no approval app: the new node's
-`user.yaml` sets `policies.swarm_invite: accept_all` before its start, and for
-a join the swarm node's `user.yaml` sets `policies.swarm_join: accept_all`. An
-adoption needs no join policy.
+
+The manager decides them. A policy the manager binds at its appointment names
+the manager as its delegate: the node asks the manager for each decision, and
+the answer outranks `user.yaml`
+([Node Policies, Delegating a decision](node-policies.md#delegating-a-decision)).
+On the new node the appointment is the only way to name a delegate, because
+the default gate refuses the setters until the claim. The new node's manager
+binds `swarm_invite` to an operation it serves:
+
+```shellsession
+$ echo '{"Type":"mod.apphost.register_manager_request","Object":{"Name":"setup","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"swarm_invite","Operation":"setup.decide_invite","Timeout":60000000000}]}}' \
+    | astral-query apphost.register_manager -in json -out json
+```
+
+For a join, the swarm node's manager binds `swarm_join` the same way at its
+appointment, or the user names a delegate on the claimed swarm node with
+[`user.set_swarm_join_policy`](../protocols/user/ops/user.set_swarm_join_policy.md).
+An adoption needs no join policy.
+
+The manager then runs as an app on its token and serves the operation; the
+default gate admits `apphost.bind` and `apphost.register_handler` on an
+`unclaimed` node. For each question the manager reads one
+[`mod.user.swarm_invite_request`](../protocols/user/types/mod.user.swarm_invite_request.md)
+or [`mod.user.swarm_join_request`](../protocols/user/types/mod.user.swarm_join_request.md)
+and answers one
+[`mod.user.swarm_invite_decision`](../protocols/user/types/mod.user.swarm_invite_decision.md)
+or [`mod.user.swarm_join_decision`](../protocols/user/types/mod.user.swarm_join_decision.md)
+with `Allow`. A manager that is not running, answers nothing within the
+timeout, or answers any other object declines: an adoption then answers
+`invitation declined`.
+
+`astral-query` exits after each command and answers no question. A node set
+up from a shell without a running manager sets `policies.swarm_invite:
+accept_all` in the new node's `user.yaml`, and for a join
+`policies.swarm_join: accept_all` in the swarm node's, for the join alone. It
+sets them back to `reject_all` after the claim: under `accept_all`, any node
+that reaches the swarm node joins the swarm, and any user's node adopts the
+new node. The node reads `user.yaml` when it starts.
 
 After the claim the user holds no token on the new node, and the manager's
 token reads nothing of the swarm (`user.swarm_status` answers `not
