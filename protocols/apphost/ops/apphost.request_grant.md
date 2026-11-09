@@ -45,10 +45,11 @@ refuses every session on a `fresh` or `unclaimed` node
 ([Gate](../README.md#gate)).
 The operation answers `not permitted` to any query that does not come from an
 IPC or WebSocket session with a token, such as a query over the
-[HTTP transport](../../../topics/http-transport.md) or a query the node issues
-itself. A bearer token on an HTTP request does not make it such a session. The
-operation also answers `origin not allowed: network` to a query that arrived
-over a [`Link`](../../../core-definitions/link.md).
+[HTTP transport](../../../topics/http-transport.md) from a loopback address or
+a query the node issues itself. A bearer token on an HTTP request does not make
+it such a session. The operation answers `origin not allowed: network` to a
+query that arrived over a [`Link`](../../../core-definitions/link.md) or over
+the HTTP transport from a non-loopback address.
 
 ## Arguments
 
@@ -67,10 +68,10 @@ the policy is not asked. `astral-query` keeps the channel open after stdin ends
 
 The operation returns one of:
 * An `error_message` object reading `origin not allowed: network` if the query
-  arrived over a link.
+  arrived over a link or over the HTTP transport from a non-loopback address.
 * An `error_message` object reading `not permitted` if the query does not come
   from an IPC or WebSocket session with a token, including a query over the
-  HTTP transport.
+  HTTP transport from a loopback address.
 * An `error_message` object reading `unknown argument: permits` if the query
   names `permits`.
 * An `error_message` object reading `unexpected object: <type>` if the input

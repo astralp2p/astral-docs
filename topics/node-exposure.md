@@ -60,6 +60,9 @@ node. A setting lives in `<name>.yaml` in the node's config directory.
   default.
 * The HTTP server sends `Access-Control-Allow-Origin: *` on every path except
   `/.ws`.
+* A query to the HTTP server from a non-loopback TCP client carries `network`
+  origin, so an operation that refuses a network caller refuses it
+  ([HTTP transport](http-transport.md)).
 
 ## Linked peers
 

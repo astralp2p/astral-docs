@@ -115,9 +115,12 @@ precede all mailbox reads and writes.
 Creation and deletion require `admin_manage_apps_action`; `messaging.mailbox`
 requires `see_node_state_action`. A participant holds neither by default.
 
-Apphost endpoints authenticate the mailbox's token and stamp no origin, so
-participants use the mail operations there. MCP mail tools call the module
-directly: no query origin applies, but hosting and mail permissions still do.
+Apphost endpoints authenticate the mailbox's token. The IPC and WebSocket
+endpoints, and the HTTP endpoint for a loopback client, stamp no origin, so
+participants use the mail operations there. An HTTP client at a non-loopback
+address carries `network` origin, and the mail operations refuse it. MCP mail
+tools call the module directly: no query origin applies, but hosting and mail
+permissions still do.
 An unhosted caller receives `not a messaging participant`.
 
 The `messaging.message` and `messaging.receipt` delivery queries target mailbox

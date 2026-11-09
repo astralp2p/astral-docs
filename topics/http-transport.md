@@ -12,6 +12,11 @@ HTTP transport provides a way to send [*Queries*](../core-definitions/query.md) 
 * A *Query* to the local *Node* passes the apphost gate: its *Op* must be on
   the list of the node's state in `gate.states`. A refused *Query* answers
   status 403 ([apphost, Gate](../protocols/apphost/README.md#gate)).
+* A *Query* from a TCP client at a non-loopback address carries the `network`
+  origin, as a [*Link*](../core-definitions/link.md) query does. An *Op* that
+  refuses *Link* queries answers it `origin not allowed: network`. A *Query*
+  from a loopback address, or over a `unix:` or in-memory `bind_http`, carries
+  no origin.
 * The request headers should contain "Accept: application/json" and
   "Content-Type: application/json".
 * API calls respond with JSON lines containing [*Objects*](../core-definitions/object.md) using the
