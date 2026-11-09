@@ -14,7 +14,7 @@ The op accepts the query as a raw byte stream. No typed objects are exchanged; a
 
 1. It writes the prompt, a [`mod.shell.prompt`](../types/mod.shell.prompt.md) rendered as `<GuestID>@<HostID>> ` with each identity shown by its display name in the node's directory.
 2. It reads one line and splits it into words with shell quoting. A line with unbalanced quotes prints `quote mismatch`, and an empty line prints nothing.
-3. The first word names an op and the remaining words are its arguments as `-name value` pairs. The session routes that query to the node as the session's identity and copies the raw stream in both directions until the op's response ends.
+3. The first word names an op and the remaining words are its arguments as `-name value` pairs. The session routes that query to the node as the session's identity and copies the raw stream in both directions until the op's response ends. The query carries the origin of the `shell.shell` query that opened the session. A command of a session opened over a link carries `network` origin. An op that refuses the `network` origin answers that command `origin not allowed: network`.
 4. It prints `ok` after the op ends, or `error: <reason>` when the query cannot be routed.
 
 The line `exit` ends the session. The session also ends when the connection closes or EOF is reached.
