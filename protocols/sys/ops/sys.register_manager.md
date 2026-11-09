@@ -34,6 +34,10 @@ and
 every permit of `GrantPermits` as a node-local grant, and every permit of
 `ContractPermits` in a signed node→app contract. Every grant and the contract
 expire with the access token.
+`ContractPermits` may hold
+[`mod.auth.sudo_action`](../../auth/types/mod.auth.sudo_action.md): the node
+signs it, although [`apphost.register`](../../apphost/ops/apphost.register.md)
+refuses it.
 
 For each binding, the node stores a delegate with the new identity as
 `identity`, the binding's `Operation` as `operation` and its `Timeout` as
