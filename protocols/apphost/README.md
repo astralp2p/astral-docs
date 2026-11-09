@@ -69,7 +69,7 @@ is written, and allows nothing.
 
 [`apphost.set_grant_request_policy`](ops/apphost.set_grant_request_policy.md)
 selects how the node decides `apphost.request_grant`: `accept_all`,
-`reject_all`, or a delegate. Unset selects `accept_all`.
+`reject_all`, or a delegate. Unset refuses every request.
 
 ## Node states and the manager
 

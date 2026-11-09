@@ -23,8 +23,9 @@ is asked on every request, also when the identity already holds every permit
 asked for.
 [`apphost.set_grant_request_policy`](apphost.set_grant_request_policy.md)
 selects the policy: `accept_all` approves every request that passes the check,
-`reject_all` refuses every request, and a delegate decides each request. Unset
-selects `accept_all`. Under `accept_all`, any app with a token grants itself
+`reject_all` refuses every request, and a delegate decides each request. With
+neither a mode nor a delegate set, the policy refuses every request, as
+`reject_all` does. Under `accept_all`, any app with a token grants itself
 any action it names. A delegate receives the request as a
 [`mod.apphost.grant_policy_request`](../types/mod.apphost.grant_policy_request.md),
 which carries the session's identity, its web origin, the permits asked for and
@@ -92,7 +93,7 @@ refused request receives `grant declined` rather than a rejection.
 
 ## Examples
 
-Refused under `reject_all`:
+Refused under `reject_all`, or with no policy set:
 
 ```shellsession
 $ echo '{"Type":"mod.apphost.request_grant_request","Object":{"Permits":[{"Action":"mod.auth.see_objects_action"}],"Duration":0}}' | astral-query apphost.request_grant -in json -out json
