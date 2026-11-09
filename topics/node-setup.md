@@ -177,12 +177,14 @@ configuration chooses between them.
 
 * **A distribution** – a phone, a desktop install, a device. The default
   configuration leaves one clear path: appoint the manager, then let the
-  manager claim. A `fresh` node opens nothing else, and app registration, swarm
-  joins and swarm invitations are refused until the manager takes them on.
+  manager claim. A `fresh` node opens nothing else, and app registration,
+  grant requests, swarm joins and swarm invitations are refused until the
+  manager takes them on.
 * **A test or development node.** A test that only needs a claimed node should
   not have to bring up a manager first. Its configuration opens every
   operation on a `fresh` node, lets a session without a token claim, and sets
-  every policy to accept everything.
+  every policy with a config value to accept everything. A test that requests
+  grants selects `accept_all` with `apphost.set_grant_request_policy`.
 
 [Node Policies, Distribution and test configuration](node-policies.md#distribution-and-test-configuration)
 shows both configurations.

@@ -4,7 +4,7 @@ Select the policy that decides each
 [`apphost.request_grant`](apphost.request_grant.md) call. The node applies one
 of three modes: `accept_all` approves every request, `reject_all` refuses every
 request, and a delegate decides each request in an operation of another
-identity. Unset selects `accept_all`.
+identity. Unset refuses every request, as `reject_all` does.
 
 The caller must hold
 [`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md).
@@ -19,8 +19,8 @@ given without `identity`, `operation` and `timeout`.
 
 Naming `identity` and `operation` delegates the decision and clears the mode.
 Naming one alone is an error. Omitting `mode`, `identity` and `operation`
-clears both the delegate and the mode and restores `accept_all`, and `timeout`
-is then ignored.
+clears both the delegate and the mode, and the policy then refuses every
+request. `timeout` is then ignored.
 
 The delegate is persisted in the node's tree at
 `/mod/apphost/policy/grant_request` and the mode at
@@ -102,7 +102,7 @@ $ astral-query apphost.set_grant_request_policy -identity 0282fee8775757cdd8fda8
 {"Type":"ack","Object":null}
 ```
 
-Restoring the default policy, `accept_all`:
+Clearing the policy, which then refuses every request:
 
 ```shellsession
 $ astral-query apphost.set_grant_request_policy -out json
