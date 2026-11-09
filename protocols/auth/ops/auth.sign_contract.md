@@ -6,8 +6,8 @@ held by the node. The contract is read from the input stream and a
 
 A query whose origin is `network`, `mcp` or any origin other than local is
 answered `origin not allowed: <origin>` before a contract is read. A command of a
-[`shell.shell`](../../shell/ops/shell.shell.md) session carries no origin and is
-checked as local, with the session's identity as the caller.
+[`shell.shell`](../../shell/ops/shell.shell.md) session carries the session's origin,
+with the session's identity as the caller.
 
 Each party of each contract passes the signer rule of
 [`crypto.sign_hash`](../../crypto/ops/crypto.sign_hash.md): the party is the
