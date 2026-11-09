@@ -35,10 +35,17 @@ A receiving node checks in this order:
 
 1. **Path:** only `messaging.message` and `messaging.receipt` are handled.
    Other paths return `route_not_found` for other routers to try.
-2. **Provenance:** only `network` origin or the node's marked internal send
-   path is admitted. Other provenance, including local apps and MCP declared
-   tools, is answered `origin not allowed: local` or `origin not allowed: mcp`
-   before hosting is checked.
+2. **Provenance:** only `network` origin from a link or the node's marked
+   internal send path is admitted. Other provenance, including local apps and
+   MCP declared tools, is answered `origin not allowed: local` or
+   `origin not allowed: mcp` before hosting is checked. A query from an
+   [HTTP](http-transport.md) client at a non-loopback address also carries
+   `network` origin, but the HTTP endpoint marks it as a remote HTTP query and
+   the node does not take it as a send path: it is answered
+   `origin not allowed: network`, whether the target is hosted here or
+   elsewhere. A holder of an app's token on another host therefore cannot
+   deliver mail without `send_action`, as the same token over IPC or
+   WebSocket cannot.
 3. **Hosting:** an unhosted target returns `route_not_found`.
 4. **Admission:** a receipt needs no action; a message requires
    [`receive_action`](../protocols/messaging/types/mod.messaging.receive_action.md).
