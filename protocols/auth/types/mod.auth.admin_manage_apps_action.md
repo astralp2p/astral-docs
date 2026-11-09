@@ -72,10 +72,10 @@ or a contract it receives. These paths grant it to whoever asks:
   obtains it by naming it in the `GrantPermits` of
   [`sys.register_manager`](../../sys/ops/sys.register_manager.md),
   which asks no policy.
-* While the grant request policy is `accept_all`, as it is until
-  [`apphost.set_grant_request_policy`](../../apphost/ops/apphost.set_grant_request_policy.md)
-  selects `reject_all` or a delegate, any app with a token obtains it with
-  [`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md).
+* While the grant request policy is `accept_all`, any app with a token obtains
+  it with [`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md).
+  Only [`apphost.set_grant_request_policy`](../../apphost/ops/apphost.set_grant_request_policy.md)
+  selects `accept_all`; an unset grant request policy refuses every request.
 
 Either holder then mints or reads another identity's credentials.
 

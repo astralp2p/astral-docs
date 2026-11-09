@@ -63,14 +63,13 @@ The default config values are `reject_all`:
 * The swarm invite policy declines every invitation.
 
 The grant request and contract accept policies have no config value. While
-they name no delegate, the node applies the bundled policy, which accepts:
+the contract accept policy names no delegate, the node applies the bundled
+policy, which accepts every contract that passes validation.
 
-* The grant request policy grants every permit an app asks for.
-* The contract accept policy accepts every contract that passes validation.
-
-The grant request policy also has two modes, `accept_all` and `reject_all`. An
-unset mode selects `accept_all`. A stored mode value other than `accept_all`
-refuses every request. A stored delegate decides whatever the mode holds.
+The grant request policy has two modes, `accept_all` and `reject_all`. A
+stored delegate decides whatever the mode holds. Without a delegate, a stored
+`accept_all` grants every permit an app asks for, and an unset mode or any
+other stored value refuses every request.
 
 ## Config values
 
@@ -129,8 +128,9 @@ A setter takes `identity` and `operation`, and an optional `timeout`:
   the mode.
 * A setter without `identity` and `operation`, and for the grant request policy
   without `mode`, clears the delegate. The app register, swarm join and swarm
-  invite policies then apply the config value. The grant request and contract
-  accept policies apply the bundled policy.
+  invite policies then apply the config value. The contract accept policy
+  applies the bundled policy. The grant request setter also clears the mode,
+  and the grant request policy then refuses every request.
 
 Every setter requires
 [`mod.auth.configure_node_state_action`](../protocols/auth/types/mod.auth.configure_node_state_action.md),
@@ -196,10 +196,9 @@ A node that is to ask before it admits takes these steps:
    ([User and Swarm](user-and-swarm.md#claiming-a-node)).
 
 A policy the appointment does not bind applies its config value or its bundled
-policy. The grant request policy then grants every permit an app with a token
-asks for with
-[`apphost.request_grant`](../protocols/apphost/ops/apphost.request_grant.md),
-once the node is `claimed` and the gate admits the query.
+policy. The grant request policy keeps its stored mode; with no mode stored, it
+refuses every
+[`apphost.request_grant`](../protocols/apphost/ops/apphost.request_grant.md).
 
 The swarm invite and contract accept policies decide only while the node has no
 active contract: before the claim, and again once the active contract is
@@ -236,7 +235,7 @@ reads a policy's delegate as a `policy.delegate` object, and on
 `string8`. An absent delegate means the config value for the app register,
 swarm join and swarm invite policies, and the bundled policy for the contract
 accept policy. For the grant request policy, an absent delegate leaves the
-decision to the mode. `tree.get` does not read the config values.
+decision to the mode, and an absent mode refuses. `tree.get` does not read the config values.
 `tree.get` requires
 [`mod.auth.see_node_state_action`](../protocols/auth/types/mod.auth.see_node_state_action.md).
 
@@ -268,8 +267,11 @@ policies:
 The only way forward from `fresh` is the manager appointment. The claim
 operations need a token, which the manager holds after its appointment.
 
-A test node claims without a manager, and every admission policy accepts. The
-astrald end-to-end tests run every node with this configuration:
+A test node claims without a manager, and every admission policy with a config
+value accepts. The grant request policy has no config value, so a test whose
+app calls `apphost.request_grant` first selects `accept_all` with
+`apphost.set_grant_request_policy`. The astrald end-to-end tests run every
+node with this configuration:
 
 ```yaml
 # apphost.yaml
