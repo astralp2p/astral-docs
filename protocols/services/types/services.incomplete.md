@@ -7,7 +7,9 @@ once, immediately before `eos`, when:
 * initial evaluation times out or loses its provider;
 * a swarm member is unreachable, refuses, times out, or reports incomplete work.
 
-`Services` lists affected requested services, never providers or nodes.
+`Services` lists affected requested services, never providers or nodes. In a
+discovery without service names it lists the affected services the node knows,
+and is empty when a swarm member was lost before reporting any.
 Received offerings remain valid; this is not discovery failure. With `follow`,
 later answers can still arrive as [`services.update`](services.update.md).
 A bare `eos` means all initial work completed, including unavailable answers.

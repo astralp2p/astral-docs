@@ -107,7 +107,7 @@ unreachable, refuses, times out, or reports incomplete work. It names affected
 services and preserves received offerings; it is not discovery failure.
 Without `services`, it names the affected services the node knows: those of
 hosted providers, and those a member reported. A member lost before reporting
-adds no name. Closing before `eos` is failure, not a successful empty result.
+adds no name; when no affected service is known, `Services` is empty. Closing before `eos` is failure, not a successful empty result.
 
 ## Following
 
