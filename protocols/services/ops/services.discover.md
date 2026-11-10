@@ -78,9 +78,9 @@ when its visibility changes. Without `tagged`, the member sends plain
 receives `services.not_granted`. Invalid or unauthorized `for` requests return
 `error_message` before evaluation.
 
-A member refusing `tagged` as an unknown argument predates visibility. The
-requesting node then queries it again without `tagged` and treats its results
-as open.
+A member that predates visibility ignores `tagged` and sends plain
+`services.update` objects. The requesting node treats an untagged offering
+from a member as open.
 
 ## The initial attempt
 
