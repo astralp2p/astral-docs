@@ -69,7 +69,7 @@ permit in `GrantPermits` needs constraints holding exactly one
 [`mod.services.discovery_scope`](../../services/types/mod.services.discovery_scope.md)
 that names a service; `accept_all` writes it as sent. An unconstrained
 discovery permit is refused before the policy is asked
-([Who may discover](../../../topics/services.md#who-may-discover)).
+([Who sees an offering](../../../topics/services.md#who-sees-an-offering)).
 
 ## Arguments
 
