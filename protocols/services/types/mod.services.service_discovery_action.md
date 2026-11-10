@@ -2,8 +2,10 @@
 
 A [`mod.auth.action`](../../auth/types/mod.auth.action.md) authorizing one
 service on one contributing node.
-[`services.discover`](../ops/services.discover.md) checks every requested
-`(Service, NodeID)` pair before evaluating providers. Discovery grants no
+[`services.discover`](../ops/services.discover.md) shows a holder every
+offering of the service on that node, private providers included. Without it,
+a swarm caller sees only open providers and other callers see nothing; see
+[Visibility](../ops/services.discover.md#visibility). Discovery grants no
 permission to invoke offered operations.
 
 The permit's `Constraints` bundle must contain exactly one
@@ -13,8 +15,8 @@ object type allow nothing.
 
 The user has default permission for all services. Local swarm members have
 default permission on other members, allowing them to carry app discoveries.
-The hosting node checks the app's own scope first. The node has no default
-grant for its own identity.
+The hosting node checks the app's own scope when it filters the members'
+results. The node has no default grant for its own identity.
 
 Other identities need a scoped node-local grant or a signed contract. A grant
 comes from [`apphost.register`](../../apphost/ops/apphost.register.md),

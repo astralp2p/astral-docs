@@ -1,8 +1,9 @@
 # services.removed
 
 A notice on a [`services.discover`](../ops/services.discover.md) stream that
-listed offerings lost their provider or contributing swarm member. It contains
-only keys previously shown as available.
+listed offerings lost their provider or contributing swarm member, or stopped
+being visible to the caller. It contains only keys previously shown as
+available.
 
 A [`services.update`](services.update.md) with `Available: false` instead
 withdraws an offering by the provider's own answer.

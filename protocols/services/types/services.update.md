@@ -7,7 +7,8 @@ are not supported.
 `Available: false` means the provider offers nothing to this caller.
 [`services.discover`](../ops/services.discover.md) sends it only to withdraw a
 previously shown offering. Initially unavailable offerings are omitted.
-Permission refusal instead prevents evaluation; see
+An offering the caller may not see is never sent; see
+[Visibility](../ops/services.discover.md#visibility) and
 [consumer outcomes](../../../topics/services.md#reading-the-outcome).
 
 In a [`services.answer`](services.answer.md), `Name` must equal the asked

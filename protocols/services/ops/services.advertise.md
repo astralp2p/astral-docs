@@ -26,9 +26,31 @@ fixed until the binding closes.
 Admission claims every `(provider, name)` pair or none. A pair held by another
 live binding refuses the entire set and leaves the existing binding untouched.
 
+## Visibility
+
+`open` declares who may find the binding's offerings. An open binding is
+visible to every swarm caller. A private binding (`open: false`) is visible
+only to a caller holding
+[`mod.services.service_discovery_action`](../types/mod.services.service_discovery_action.md)
+for the service on this node. A swarm caller is an app hosted on a node of the
+user's [Local Swarm](../../../core-definitions/local-swarm.md), the user, or a
+node of that swarm. A permit makes a binding visible to its holder whether the
+binding is open or private.
+
+The flag covers every name of the binding and stays fixed until the binding
+closes. A provider offering open and private services advertises twice. The
+flag never affects another provider of the same name.
+
+The node's [private list](../types/mod.services.private_list.md) can make an
+open binding private. Nothing makes a private binding open. The effective
+visibility is private when an entry of the list covers the binding, and the
+binding's `open` otherwise.
+[`services.discover`](services.discover.md#visibility) applies it.
+
 ## Arguments
 
 * services (string8, required) – The service names of the binding, comma-separated.
+* open (bool) – If true, swarm callers find the binding without a discovery permit. Defaults to true.
 * in (string8) – Input format.
 * out (string8) – Output format.
 
@@ -64,6 +86,13 @@ matching outstanding `RequestID`, including a late answer, is ignored.
 ## Examples
 
 ```shellsession
-$ astral-query services.advertise -services player,bitcoin-wallet -out text
+$ astral-query services.advertise -services player -out text
+#[ack]
+```
+
+A provider visible only to callers holding a discovery permit:
+
+```shellsession
+$ astral-query services.advertise -services bitcoin-wallet -open false -out text
 #[ack]
 ```
