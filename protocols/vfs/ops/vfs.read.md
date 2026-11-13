@@ -15,9 +15,9 @@ The content comes from the `local` repository group of this node, in the device 
 
 ## Returned objects
 
-The operation rejects the query if the caller is not authorized, the identity has no VFS, `path` breaks the rules of a path, no entry is at `path`, a parent in `path` names a file, `path` names a folder, `offset` is above the `Size` of the file, or the content is missing from the repository. On success the raw bytes of the file are written directly to the response stream (no astral framing).
+The operation rejects the query with `Reject Code` `2` (invalid query), before it looks at the caller, if `path` is missing or `vfs`, `offset` or `limit` does not parse. It rejects the query with code `1` if the caller is not authorized, the identity has no VFS, `path` breaks the rules of a path, no entry is at `path`, a parent in `path` names a file, `path` names a folder, `offset` is above the `Size` of the file, or the content is missing from the repository. On success the raw bytes of the file are written directly to the response stream (no astral framing).
 
-The operation has no `error_message`: every failure is a rejection with the generic [`Reject Code`](../../../core-definitions/query.md) `1`, and it carries no reason. A caller that needs the reason of a failure uses [`vfs.stat`](vfs.stat.md), which answers with an `error_message`.
+The operation has no `error_message`: every failure is a rejection, with the generic [`Reject Code`](../../../core-definitions/query.md) `1` except for an argument error, and it carries no reason. A caller that needs the reason of a failure uses [`vfs.stat`](vfs.stat.md), which answers with an `error_message`.
 
 ## Examples
 
