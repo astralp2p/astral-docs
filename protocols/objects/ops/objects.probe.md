@@ -20,6 +20,8 @@ Each id, given as `id` or streamed, can be a
 matches it by `Hash` inside the selected repository. An id with a nonzero
 `Size` matches only an object with that `Size` and that `Hash`.
 
+A probe is a housekeeping read, whoever asks. It never counts as a touch of the object ([Read counting](objects.read.md#read-counting)).
+
 ## Returned objects
 
 The operation returns one of:

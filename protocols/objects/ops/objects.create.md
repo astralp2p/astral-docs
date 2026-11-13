@@ -21,6 +21,8 @@ The operation returns one of:
 * An `error_message` object if the repository is not found or write/commit fails.
 * An `ack` object acknowledging the open writer, then either an `object_id.sha256` (on successful commit) or an `error_message` (on commit failure).
 
+A commit of 0 bytes stores nothing and answers the `Object ID` of the empty content, `Size` 0 with the SHA-256 hash of no bytes.
+
 The `ack` is a readiness `ack`, and `mod.objects.commit_msg` is a typed input terminator — see [Op modes & composition § Control signals](../../../topics/op-modes.md#control-signals).
 
 ## Examples

@@ -6,8 +6,8 @@ An object ID consisting of a `Size` (uint64) and a `Hash` (SHA-256, 32 bytes).
 * For an `Untyped Object` the `Size` and `Hash` cover the raw payload.
 * The `Size` is the length in bytes of that byte sequence.
 * The `Hash` is the SHA-256 hash of that byte sequence.
-* A `Size` of 0 in an object ID given to a lookup means the size is absent, in every encoding, the binary one included.
-* A repository lookup matches an object ID whose `Size` is 0 by `Hash` alone. Such an object ID is a [`Partial Object ID`](../core-definitions/object-id.md).
+* A `Size` of 0 in an object ID given to a lookup means the size is absent, in every encoding, the binary one included, except in the object ID of the `Empty Object`.
+* A repository lookup matches an object ID whose `Size` is 0 by `Hash` alone. Such an object ID is a [`Partial Object ID`](../core-definitions/object-id.md), except the object ID of the `Empty Object`, which is a full `Object ID`.
 * A repository lookup given a nonzero `Size` matches only an object with that `Size` and that `Hash`.
 
 ## Binary Encoding
@@ -67,10 +67,14 @@ that refuses a zero `Object ID` refuses it before it refuses a
 `Partial Object ID`, so the zero `Object ID` is reported as a missing argument
 rather than as a `Partial Object ID`.
 
-The `Object ID` of the `Empty Object` has a `Size` of 0, so it is also a
-`Partial Object ID`. The first bit of its `Hash` is 1, so its `data1` form and
-its `data0` form carry the same 52-character body. An object ID with a `Size`
-of 0 and a first `Hash` bit of 0 has a `data1` body shorter than 52 characters.
+The `Object ID` of the `Empty Object` has a `Size` of 0 and the `Hash` that is
+the SHA-256 hash of empty input. It is a full `Object ID`, not a
+`Partial Object ID`: a repository answers it without storage
+([Object ID](../core-definitions/object-id.md)). The first bit of its `Hash` is
+1, so its `data1` form and its `data0` form carry the same 52-character body,
+and a decoder reads both as the `Object ID` of the `Empty Object`. An object ID
+with a `Size` of 0 and a first `Hash` bit of 0 has a `data1` body shorter than
+52 characters.
 
 ## Text Encoding
 

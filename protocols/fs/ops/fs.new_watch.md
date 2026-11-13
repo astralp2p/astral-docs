@@ -13,6 +13,8 @@ by default; a sibling node does not.
 
 Unless `temporary` is `true`, the repository is saved to the tree at `/mod/fs/repos/<name>` and registered again at the next node start. The entry holds the child nodes `path` (`string8`), `label` (`string8`) and `writable` (`bool`, `false`). [`objects.remove_repository`](../../objects/ops/objects.remove_repository.md) deletes the entry.
 
+The repository is read-only: registration removes no file and claims no directory ([Writable repositories](../README.md#writable-repositories)).
+
 At node start, an entry is skipped when its name is already registered, or when its path is relative, missing or not a directory. A skipped entry stays in the tree. A `name` that is empty or contains `/` is rejected when the repository is saved.
 
 ## Arguments

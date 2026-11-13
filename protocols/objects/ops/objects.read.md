@@ -61,6 +61,20 @@ A window is out of bounds when `offset` is above the object's `Size`, and when
 of the three is carried as a `uint64` and compared as a signed 64-bit count. An
 out-of-bounds window is a failed read.
 
+The `Object ID` of the empty content, `Size` 0 with the SHA-256 hash of no bytes, is stored in no repository. A read of it from a repository answers 0 bytes without storage, in the device zone.
+
+Without `repo`, this node is a candidate for the empty content whenever the query's zone holds `device` or `virtual`, because its read-default repository contains the empty content. The read of this candidate answers 0 bytes in the device zone, so the read succeeds when no repository stores anything and no other candidate answers. Other candidates are tried as for any object, and the first to end cleanly supplies the read. An `offset` above 0 is out of bounds, and the read fails.
+
+## Read counting
+
+A read by this operation counts as a touch of the object, which [`objects.purge`](objects.purge.md) takes into account ([Tracking and last touch](objects.purge.md#tracking-and-last-touch)). The rules are:
+
+* A read counts when the repository delivers its first byte.
+* A read that can deliver no byte, one with an `offset` equal to the object's `Size`, which includes every read of the empty content, counts when its reader closes. The reader closes before the response ends, so the read is counted before the caller sees the end of it.
+* Without `repo`, only the candidate that supplies the read counts, and it counts once it is chosen. A candidate that loses is never counted, also when it closes without delivering a byte.
+* A read the node makes for itself, a housekeeping read, never counts: the read of the follower of the [`auth`](../../auth/README.md) module that looks for contracts, the read of the follower of the [`crypto`](../../crypto/README.md) module that looks for keys, and the read of [`objects.probe`](objects.probe.md), whoever asks. No query argument marks a read as housekeeping.
+* The count changes only a tracked object. A read of an untracked object, and of the empty content, which has no row, changes no time.
+
 ## Returned objects
 
 The operation rejects the query if the caller is not authorized, the repository is missing, the read fails, or no candidate delivers the object. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`. On success the raw bytes of the object are written directly to the response stream (no astral framing).

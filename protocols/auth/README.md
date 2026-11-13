@@ -32,7 +32,7 @@ an operation submits its action before it acts.
 * [`mod.auth.use_gateway_action`](types/mod.auth.use_gateway_action.md) – register with the node's gateway, reserve a connection through it, and be forwarded by it
 * [`mod.auth.use_blueprints_action`](types/mod.auth.use_blueprints_action.md) – read and register the node's blueprints
 
-Nine more are declared by the protocols that own them:
+Twelve more are declared by the protocols that own them:
 [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md) and
 [`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)
 in the [`user`](../user/README.md) protocol,
@@ -45,13 +45,20 @@ and
 [`mod.messaging.read_mailbox_action`](../messaging/types/mod.messaging.read_mailbox_action.md)
 in [`messaging`](../messaging/README.md),
 [`mod.services.service_discovery_action`](../services/types/mod.services.service_discovery_action.md)
-in [`services`](../services/README.md), and
+in [`services`](../services/README.md),
 [`mod.shell.shell_action`](../shell/types/mod.shell.shell_action.md) in
-[`shell`](../shell/README.md).
+[`shell`](../shell/README.md), and
+[`mod.vfs.read_action`](../vfs/types/mod.vfs.read_action.md),
+[`mod.vfs.write_action`](../vfs/types/mod.vfs.write_action.md) and
+[`mod.vfs.manage_action`](../vfs/types/mod.vfs.manage_action.md) in
+[`vfs`](../vfs/README.md).
 
-Only `mod.auth.serve_objects_action` and
-`mod.services.service_discovery_action` evaluate a permit's `Constraints`
-bundle.
+Only `mod.auth.serve_objects_action`,
+`mod.services.service_discovery_action`, `mod.vfs.read_action` and
+`mod.vfs.write_action` evaluate a permit's `Constraints` bundle.
+`mod.vfs.read_action` and `mod.vfs.write_action` read a bundle of `identity`
+objects and cover exactly the VFSes it lists; a permit without constraints
+covers none.
 Every other action except `mod.auth.sudo_action` and `mod.shell.shell_action`
 refuses a permit carrying constraints rather than granting it in full, because
 an action that does not evaluate a constraint is permitted regardless of one.

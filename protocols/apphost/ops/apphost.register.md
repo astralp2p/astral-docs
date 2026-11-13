@@ -63,6 +63,15 @@ with [`services.advertise`](../../services/ops/services.advertise.md), and sync
 its blueprints with the node. Every grant written at registration expires with
 the access token.
 
+After the access token is minted, the operation creates the
+[`VFS`](../../vfs/README.md) of the new identity with the default quotas: the
+`byte_limit` and `entry_limit` of the `vfs` module configuration, `1073741824`
+bytes and `1000000` entries by default. Creating the VFS needs no permit and
+no grant. A failure to create it answers an `error_message` and no token,
+though the identity, its contract and its token exist by then.
+[`sys.register_manager`](../../sys/ops/sys.register_manager.md) provisions the
+manager app without a VFS.
+
 An app can ask for service discovery at registration. A
 [`mod.services.service_discovery_action`](../../services/types/mod.services.service_discovery_action.md)
 permit in `GrantPermits` needs constraints holding exactly one

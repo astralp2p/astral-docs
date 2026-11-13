@@ -7,6 +7,8 @@ The caller must hold
 The operation answers an `error_message` reading `not permitted` before any
 repository is opened when the caller is not authorized.
 
+The stream never lists the `Object ID` of the empty content, `Size` 0 with the SHA-256 hash of no bytes, because no repository stores it.
+
 ## Arguments
 
 * repo (string8, required) – Repository to scan.

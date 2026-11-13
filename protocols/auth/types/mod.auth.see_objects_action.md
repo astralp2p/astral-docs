@@ -15,9 +15,37 @@ already holds what guarding a single object would protect. Reading blueprints
 answers to
 [`mod.auth.use_blueprints_action`](mod.auth.use_blueprints_action.md).
 
-ObjectID and Repo declare the nouns the call touches. Neither is evaluated. An
-operation that names no single object leaves ObjectID absent; one that names no
-single repository leaves Repo empty.
+ObjectID and Repo declare the nouns the call touches. An operation that names
+no single object leaves ObjectID absent; one that names no single repository
+leaves Repo empty. The handlers of the user module and of node-local grants
+ignore both. The [`vfs`](../../vfs/README.md) module's handler evaluates ObjectID
+and ignores Repo.
+
+The `vfs` handler allows an action when all of these hold:
+
+* The action names an ObjectID. An action without one is refused, so a batch
+  form of [`objects.contains`](../../objects/ops/objects.contains.md),
+  [`objects.probe`](../../objects/ops/objects.probe.md) and
+  [`objects.load`](../../objects/ops/objects.load.md) that names no ObjectID
+  stays refused.
+* The ObjectID is complete. An ObjectID with a `Size` of 0 is refused, except the
+  ObjectID of the empty content, `Size` 0 with the SHA-256 hash of no bytes.
+* A file with that ObjectID is in a VFS that the actor may read: the actor is
+  that VFS identity, or holds a
+  [`mod.vfs.read_action`](../../vfs/types/mod.vfs.read_action.md) permit for it.
+
+A database error refuses. A refusal looks the same for an unknown ObjectID and
+for an ObjectID that belongs to another VFS. The handler is node-local: a VFS
+identity cannot hand it on down a contract chain. It allows
+[`objects.read`](../../objects/ops/objects.read.md),
+[`objects.load`](../../objects/ops/objects.load.md),
+[`objects.contains`](../../objects/ops/objects.contains.md) and
+[`objects.probe`](../../objects/ops/objects.probe.md) of one file by ObjectID.
+[`objects.describe`](../../objects/ops/objects.describe.md) and
+[`objects.find`](../../objects/ops/objects.find.md) leave ObjectID absent, and
+`objects.scan`, `objects.search` and `objects.repositories` name no object, so
+the `vfs` handler allows none of the five. A caller that another handler allows,
+such as an app with a node-local grant of this action, can still call them.
 
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
@@ -36,7 +64,7 @@ for the user. A query it relays for the user reaches the node as the user.
 ## Fields
 
 * Action ([`mod.auth.action`](mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID.
-* ObjectID (object_id.sha256, optional) – The object the call reads. Absent when the operation names no single object.
+* ObjectID (object_id.sha256, optional) – The object the call reads. Absent when the operation names no single object, and in `objects.describe` and `objects.find`, which leave it absent although they take an id.
 * Repo (string8) – The repository the call reads from. Empty when the operation names no single repository.
 
 In JSON the embedded action's fields appear directly in the `Object` value,
