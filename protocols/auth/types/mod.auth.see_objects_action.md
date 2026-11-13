@@ -31,8 +31,10 @@ The `vfs` handler allows an action when all of these hold:
 * The ObjectID is complete. An ObjectID with a `Size` of 0 is refused, except the
   ObjectID of the empty content, `Size` 0 with the SHA-256 hash of no bytes.
 * A file with that ObjectID is in a VFS that the actor may read: the actor is
-  that VFS identity, or holds a
-  [`mod.vfs.read_action`](../../vfs/types/mod.vfs.read_action.md) permit for it.
+  that VFS identity, or is allowed
+  [`mod.vfs.read_action`](../../vfs/types/mod.vfs.read_action.md) for it, by a
+  permit or by the VFS's [evaluator](../../vfs/README.md#evaluator) answering
+  yes.
 
 A database error refuses. A refusal looks the same for an unknown ObjectID and
 for an ObjectID that belongs to another VFS. The handler is node-local: a VFS

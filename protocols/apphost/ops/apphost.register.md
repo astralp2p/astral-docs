@@ -66,9 +66,20 @@ the access token.
 After the access token is minted, the operation creates the
 [`VFS`](../../vfs/README.md) of the new identity with the default quotas: the
 `byte_limit` and `inode_limit` of the `vfs` module configuration, `1073741824`
-bytes and `1000000` inodes by default. Creating the VFS needs no permit and
-no grant. A failure to create it answers an `error_message` and no token,
-though the identity, its contract and its token exist by then.
+bytes and `1000000` inodes by default. The VFS names the app its
+[evaluator](../../vfs/README.md#evaluator), with the endpoint
+`astral://<app identity>:vfs.authorize`, so the node asks the app about a read
+or a write of the VFS that the built-in rules refuse. Two fields of the
+request turn this off, and both are on when absent:
+
+* `Vfs` false creates no VFS, and `Evaluator` then has no effect.
+* `Evaluator` false creates the VFS with an empty evaluator.
+
+Creating the VFS and naming its evaluator need no permit and no grant. A
+failure to create the VFS or to name its evaluator answers an `error_message`
+and no token, though the identity, its contract and its token exist by then. An app registered with
+the defaults serves `vfs.authorize`; an app that does not registers with
+`Evaluator` false.
 [`sys.register_manager`](../../sys/ops/sys.register_manager.md) provisions the
 manager app without a VFS.
 
@@ -142,4 +153,11 @@ Naming the app, refused by a delegated register policy or by `reject_all`:
 ```shellsession
 $ echo '{"Type":"mod.apphost.register_request","Object":{"Name":"notes","GrantPermits":[],"ContractPermits":[]}}' | astral-query apphost.register -in json -out json
 {"Type":"error_message","Object":"registration declined"}
+```
+
+Registering without the evaluator, so the new VFS asks no one:
+
+```shellsession
+$ echo '{"Type":"mod.apphost.register_request","Object":{"Name":"notes","GrantPermits":[],"ContractPermits":[],"Evaluator":false}}' | astral-query apphost.register -in json -out json
+{"Type":"apphost.access_token","Object":{"Identity":"03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f","Token":"b9c2e1a3d4f5867a","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
 ```
