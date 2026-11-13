@@ -153,6 +153,11 @@ host → guest: mod.apphost.incoming_query_msg {
 on the registration connection. It is not the query's `Nonce`, which the caller
 chooses.
 
+The host stops writing an `incoming_query_msg` when the routing query's context
+ends. The host then closes the registration connection, which removes the
+handler, and the caller sees `route_not_found`. A guest that stops reading its
+registration connection loses the registration.
+
 Within `QueryAttachTimeout` (5 s) the guest must do one of:
 
 - **Accept** — open a *new* IPC connection, complete the handshake (no

@@ -159,7 +159,11 @@ Two WSes are involved:
 4. The library then loops on the receiver. Stray frames are ignored;
    every `mod.apphost.incoming_query_msg`
    (`{ QueryID, Caller, Target, Query }`) is wrapped in an
-   `IncomingQuery` and handed to `handler`.
+   `IncomingQuery` and handed to `handler`. The host gives up writing an
+   `incoming_query_msg` when the routing query's context ends; it then
+   closes the registration, which ends the handler, and the caller sees
+   `route_not_found`. A client that stops reading the registration WS
+   therefore loses it.
 5. `reg.unregister()` (or `close` from the server / network) closes the
    WS and ends the registration.
 
