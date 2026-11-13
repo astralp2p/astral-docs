@@ -20,6 +20,8 @@ Each id, given as `id` or streamed, can be a
 matches it by `Hash` inside the selected repository. An id with a nonzero
 `Size` matches only an object with that `Size` and that `Hash`.
 
+The `Object ID` of the empty content, `Size` 0 with the SHA-256 hash of no bytes, is stored in no repository and contained by every repository. The operation answers `true` for it, also for a group without members.
+
 ## Returned objects
 
 The operation returns one of:

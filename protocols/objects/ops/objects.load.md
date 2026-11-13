@@ -25,7 +25,7 @@ matches it by `Hash` inside the selected repository. An id with a nonzero
 
 The operation returns one of:
 * An `error_message` object if the repository is not found, the load fails, or an unexpected object is received on the input stream. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`; that `error_message` carries the text `hash lookup: unsupported operation`. A repository that cannot look up by `Hash` reports it for a `Partial Object ID` alone, never for an `Object ID` with a nonzero `Size`.
-* The decoded typed object for each id (one shot if `id` was given, otherwise one per streamed id). Non-astral payloads come back as `blob`.
+* The decoded typed object for each id (one shot if `id` was given, otherwise one per streamed id). Non-astral payloads come back as `blob`. The `Object ID` of the empty content, `Size` 0 with the SHA-256 hash of no bytes, is stored in no repository and loads as a `blob` of 0 bytes.
 * An `eos` object answering an explicit `eos` input.
 
 ## Examples

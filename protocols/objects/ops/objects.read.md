@@ -61,6 +61,10 @@ A window is out of bounds when `offset` is above the object's `Size`, and when
 of the three is carried as a `uint64` and compared as a signed 64-bit count. An
 out-of-bounds window is a failed read.
 
+The `Object ID` of the empty content, `Size` 0 with the SHA-256 hash of no bytes, is stored in no repository. A read of it from a repository answers 0 bytes without storage, in the device zone.
+
+A read by this operation counts as a touch of the object, which [`objects.purge`](objects.purge.md) takes into account ([Tracking and last touch](objects.purge.md#tracking-and-last-touch)).
+
 ## Returned objects
 
 The operation rejects the query if the caller is not authorized, the repository is missing, the read fails, or no candidate delivers the object. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`. On success the raw bytes of the object are written directly to the response stream (no astral framing).
