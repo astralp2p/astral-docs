@@ -13,6 +13,8 @@ by default; a sibling node does not.
 
 Unless `temporary` is `true`, the repository is saved to the tree at `/mod/fs/repos/<name>` and registered again at the next node start. The entry holds the child nodes `path` (`string8`), `label` (`string8`) and `writable` (`bool`, `true`). [`objects.remove_repository`](../../objects/ops/objects.remove_repository.md) deletes the entry.
 
+Registration removes the temp files that interrupted writes left in the directory, and it fails when a registered writable repository already holds the directory ([Writable repositories](../README.md#writable-repositories)).
+
 At node start, an entry is skipped when its name is already registered, or when its path is relative, missing or not a directory. A skipped entry stays in the tree. A `name` that is empty or contains `/` is rejected when the repository is saved.
 
 ## Arguments
@@ -27,7 +29,7 @@ At node start, an entry is skipped when its name is already registered, or when 
 The operation returns one of:
 * An `error_message` object reading `origin not allowed: network` if the query
   arrived over a link.
-* An `error_message` object if repository registration fails, the group assignment fails, or the tree entry cannot be saved. A failed save removes the repository again.
+* An `error_message` object if repository registration fails (including a directory that a registered writable repository holds), the group assignment fails, or the tree entry cannot be saved. A failed save removes the repository again.
 * An `ack` object on success.
 
 ## Examples

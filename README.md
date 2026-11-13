@@ -90,6 +90,7 @@ Contents:
   * [tree](protocols/tree/README.md) - hierarchical key-value configuration store
   * [user](protocols/user/README.md) - user identity, swarm membership, asset list
   * [utp](protocols/utp/README.md) - uTP-over-UDP transport
+  * [vfs](protocols/vfs/README.md) - per-identity trees of folders and files whose files are objects, with quotas and per-VFS permits
 * [Tools](tools/README.md) – command-line tools
   * [astral-query](tools/astral-query.md) - send queries from the command line
 * Other topics

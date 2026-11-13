@@ -35,6 +35,31 @@ longer.
 Authorization allows an action when any unexpired grant the identity holds for
 that action allows it.
 
+The node reads grants for these seventeen actions:
+
+* [`mod.auth.serve_objects_action`](../auth/types/mod.auth.serve_objects_action.md)
+* [`mod.auth.see_objects_action`](../auth/types/mod.auth.see_objects_action.md)
+* [`mod.auth.store_objects_action`](../auth/types/mod.auth.store_objects_action.md)
+* [`mod.auth.use_blueprints_action`](../auth/types/mod.auth.use_blueprints_action.md)
+* [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md)
+* [`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)
+* [`mod.auth.admin_network_action`](../auth/types/mod.auth.admin_network_action.md)
+* [`mod.auth.admin_manage_apps_action`](../auth/types/mod.auth.admin_manage_apps_action.md)
+* [`mod.auth.configure_node_state_action`](../auth/types/mod.auth.configure_node_state_action.md)
+* [`mod.auth.serve_apps_action`](../auth/types/mod.auth.serve_apps_action.md)
+* [`mod.auth.register_signer_action`](../auth/types/mod.auth.register_signer_action.md)
+* [`mod.auth.see_node_state_action`](../auth/types/mod.auth.see_node_state_action.md)
+* [`mod.shell.shell_action`](../shell/types/mod.shell.shell_action.md)
+* [`mod.services.service_discovery_action`](../services/types/mod.services.service_discovery_action.md)
+* [`mod.vfs.read_action`](../vfs/types/mod.vfs.read_action.md)
+* [`mod.vfs.write_action`](../vfs/types/mod.vfs.write_action.md)
+* [`mod.vfs.manage_action`](../vfs/types/mod.vfs.manage_action.md)
+
+Each answers from this node's grants alone, so a contract never extends a
+grant: an identity that holds a grant gains nothing by issuing a contract for
+the action. A grant of any other known action is written and listed and
+authorizes nothing.
+
 Each grant has an ID. [`apphost.list_grants`](ops/apphost.list_grants.md)
 reports grants as [`mod.apphost.grant`](types/mod.apphost.grant.md) objects.
 [`apphost.revoke`](ops/apphost.revoke.md) withdraws one grant by `id`, or every
@@ -60,9 +85,8 @@ refuses:
   mod.services.service_discovery_action: discovery scope names no service`.
 
 Constraints on an action that does not evaluate them have no effect.
-[`mod.auth.sudo_action`](../auth/types/mod.auth.sudo_action.md) and
-[`mod.shell.shell_action`](../shell/types/mod.shell.shell_action.md) ignore
-constraints, so a constrained grant of either allows the action in full. Every
+[`mod.shell.shell_action`](../shell/types/mod.shell.shell_action.md) ignores
+constraints, so a constrained grant of it allows the action in full. Every
 other action that does not evaluate constraints refuses a constrained permit
 when it authorizes ([auth](../auth/README.md)): such a grant passes the check,
 is written, and allows nothing.
