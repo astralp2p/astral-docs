@@ -1,10 +1,41 @@
 # vfs
 
-The `vfs` protocol gives each identity a tree of named folders and files. A VFS belongs to the identity that names it, and one identity names at most one VFS. A file holds one object in the `local` repository group, and its [`mod.vfs.entry`](types/mod.vfs.entry.md) reports the [`Object ID`](../../core-definitions/object-id.md) of that content. A folder is not stored as an object. Its entry reports the `Object ID` of its [`mod.vfs.directory`](types/mod.vfs.directory.md), the canonical form of the folder, and the `Object ID` of the root directory identifies the whole VFS. A VFS holds the `Object ID` of each of its files, so [`objects.purge`](../objects/ops/objects.purge.md) never deletes it. Every change to a VFS is complete or absent, and changes to one VFS happen one at a time.
+The `vfs` protocol gives each identity a tree of named folders and files. A VFS belongs to the identity that names it, and one identity names at most one VFS. A file holds one object in the `local` repository group, and its [`mod.vfs.entry`](types/mod.vfs.entry.md) reports the [`Object ID`](../../core-definitions/object-id.md) of that content. A folder's entry reports the `Object ID` of its [`mod.vfs.directory`](types/mod.vfs.directory.md), the canonical form of the folder, and the `Object ID` of the root directory identifies the whole VFS. The node also stores each directory as an object in the `local` repository group (see [Directories](#directories)). A VFS holds the `Object ID` of each of its files and the current directory of each of its folders, so [`objects.purge`](../objects/ops/objects.purge.md) never deletes them. Every change to a VFS is complete or absent, and changes to one VFS happen one at a time.
 
 A path starts with `/`, joins names with `/`, and has no empty segment and no trailing `/` except the root `/`. A path in a request is at most 4096 bytes. A name is valid UTF-8 of 1 to 255 bytes, contains no `/` and no NUL byte, and is not `.` and not `..`. Names compare byte by byte, with no Unicode normalization and no case rule. A path that breaks these rules is refused with `invalid path` and is never repaired. A VFS has a byte limit and an inode limit, and `0` means no limit. Each entry, file or folder, uses one inode. The root uses no inode. A new VFS gets the limits from the `byte_limit` and `inode_limit` keys of the module configuration, `1073741824` bytes and `1000000` inodes by default. No operation deletes a VFS.
 
 The read operations [`vfs.ls`](ops/vfs.ls.md), [`vfs.stat`](ops/vfs.stat.md), [`vfs.statfs`](ops/vfs.statfs.md) and [`vfs.read`](ops/vfs.read.md) answer to [`mod.vfs.read_action`](types/mod.vfs.read_action.md). The write operations [`vfs.write`](ops/vfs.write.md), [`vfs.mkdir`](ops/vfs.mkdir.md), [`vfs.move`](ops/vfs.move.md), [`vfs.remove`](ops/vfs.remove.md) and [`vfs.touch`](ops/vfs.touch.md) answer to [`mod.vfs.write_action`](types/mod.vfs.write_action.md). The manage operations [`vfs.volumes`](ops/vfs.volumes.md), [`vfs.create`](ops/vfs.create.md) and [`vfs.set_quota`](ops/vfs.set_quota.md) answer to [`mod.vfs.manage_action`](types/mod.vfs.manage_action.md). [`vfs.set_evaluator`](ops/vfs.set_evaluator.md) answers to the VFS identity, the node's user, the node and a holder of `mod.vfs.manage_action`. Every operation except `vfs.volumes` takes `vfs`, the VFS identity. It defaults to the caller, except in `vfs.create`, `vfs.set_quota` and `vfs.set_evaluator`, where it is required. A caller may read and change its own VFS, and the node's user and the node may read and change any VFS. Any other caller is allowed when the [evaluator](#evaluator) of the VFS answers yes, or holds a permit whose `Constraints` list the VFS identity. Write permission does not imply read permission. An operation checks authorization first, then whether the VFS exists, then the path. The node creates the VFS of an app when the app registers, and by default names the app the evaluator of that VFS. The `vfs` operations are not on the token-less list of the [apphost gate](../apphost/README.md#gate).
+
+## Directories
+
+The node database is the working store of a VFS. The node keeps the `Object ID` of each folder's directory with the entry, and a change in a folder clears the `Object ID` of that folder and of every folder above it, up to the root. A cleared `Object ID` is computed again from the entries, and the directory is then stored in the `local` repository group. A directory is stored before its folder keeps the new `Object ID`. Directory bytes do not count in the `Usage` of a VFS; the inode limit bounds them.
+
+A VFS with a cleared root `Object ID` is pending. The node computes a pending VFS in the background, with one worker for the node, the most overdue VFS first:
+
+* A VFS is due when it has not changed for the quiet time, or at the latest when it has been pending for the longest wait, even while it keeps changing.
+* A background compute is charged one token per byte of each directory it stores, and at least the minimum charge per directory. Each VFS has a token bucket that refills at the refill rate up to the bucket size. A due VFS whose bucket cannot pay waits until it can. A compute larger than the bucket waits for a full bucket.
+* Background computes of all VFSes together stay within the node rate: a compute starts no earlier than the end of the one before plus its charge at the node rate.
+* A failed store keeps the VFS pending, and the node tries again after the longest wait.
+* The pending state and the buckets live in memory. At start every VFS with a cleared root `Object ID` is pending, and every bucket is full.
+
+A request that needs a cleared `Object ID`, through [`vfs.ls`](ops/vfs.ls.md), [`vfs.stat`](ops/vfs.stat.md), [`vfs.statfs`](ops/vfs.statfs.md), [`vfs.volumes`](ops/vfs.volumes.md), [`vfs.move`](ops/vfs.move.md) or [`vfs.touch`](ops/vfs.touch.md), computes and stores it at once. Such a request is not charged and never waits for tokens. It waits for a compute of the same VFS that runs, and answers its result. When the store fails, the request still answers the `Object ID`, and a later compute stores the directory. A request for an `Object ID` that is kept stores nothing.
+
+A directory that a folder no longer has is replaced. The node notes a replaced directory when the change commits, and a sweeper deletes it once the grace time has passed since the note, unless a holder holds it: a folder whose directory it is again, a folder of another VFS, or any other holder of the objects module. The objects module checks the holders again under the lock of each repository, as `objects.purge` does, and keeps a directory that a repository committed after the note. A directory kept by that check is noted again, so its grace time starts over. A note made again after the sweeper read it keeps its own grace time. The sweeper runs every sweep interval, so a replaced directory that nothing holds is deleted within the grace time plus one sweep interval. A directory already gone counts as deleted. A directory the sweeper could not delete, and a directory stored but taken by no folder after a failure, stays until `objects.purge` deletes it. The node never deletes and stores the same directory at once.
+
+The keys of the module configuration:
+
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `directory_quiet_time` | `5s` | The time without a change after which a pending VFS is due. |
+| `directory_longest_wait` | `60s` | The longest time a VFS is pending before it is due; also the wait before a retry. |
+| `directory_bucket_size` | `8388608` | The token bucket of one VFS, in bytes. |
+| `directory_refill_rate` | `4096` | The refill of one bucket, in bytes per second. |
+| `directory_min_charge` | `4096` | The least charge for one stored directory, in bytes. |
+| `directory_node_rate` | `32768` | The bound on background computes of all VFSes together, in bytes per second. |
+| `directory_sweep_interval` | `10m` | The time between two runs of the sweeper. |
+| `directory_grace_time` | `1h` | The time a replaced directory stays before the sweeper deletes it. |
+
+A value of `0` or below is replaced by its default. A `directory_min_charge` above `directory_bucket_size` sets both to their defaults.
 
 ## Evaluator
 

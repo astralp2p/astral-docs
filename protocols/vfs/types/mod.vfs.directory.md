@@ -1,6 +1,8 @@
 # mod.vfs.directory
 
-The canonical form of a folder: its entries in a fixed order and encoding. The `Object ID` of a directory is the `ID` of a folder in a [`mod.vfs.entry`](mod.vfs.entry.md). The node computes a directory to hash it and does not store it. No operation sends or answers it.
+The canonical form of a folder: its entries in a fixed order and encoding. The `Object ID` of a directory is the `ID` of a folder in a [`mod.vfs.entry`](mod.vfs.entry.md). No `vfs` operation sends or answers it.
+
+The node stores the directory of a folder in the `local` repository group when it computes the folder's `Object ID` (see [storage of directories](../README.md#directories)). After an operation answers the `Object ID` of a folder, [`objects.probe`](../../objects/ops/objects.probe.md) on it answers the type `mod.vfs.directory`, and [`objects.read`](../../objects/ops/objects.read.md) answers the bytes below. A directory is read by `Object ID` under the rule of a file of the VFS: the VFS identity and an actor allowed [`mod.vfs.read_action`](mod.vfs.read_action.md) for the VFS read the current directory of each of its folders (see [`mod.auth.see_objects_action`](../../auth/types/mod.auth.see_objects_action.md)). The node never reads a directory back: paths, listings and moves work from the entries.
 
 ## Encoding
 
