@@ -8,7 +8,7 @@ The caller must hold [`mod.vfs.manage_action`](../types/mod.vfs.manage_action.md
 
 * vfs (identity, required) – The VFS identity. Any non-zero identity is accepted, the identity of the node included.
 
-A VFS that exists succeeds and changes nothing. The new VFS gets the limits from the `byte_limit` and `entry_limit` keys of the module configuration, `1073741824` bytes and `1000000` entries by default. [`apphost.register`](../../apphost/ops/apphost.register.md) creates the VFS of the app it registers without this operation. A VFS for a keypair of its own is created by chaining operations: [`secp256k1.new`](../../secp256k1/ops/secp256k1.new.md) answers a private key, [`objects.store`](../../objects/ops/objects.store.md) stores it, the caller takes the identity of the key, and this operation creates the VFS of that identity.
+A VFS that exists succeeds and changes nothing. The new VFS gets the limits from the `byte_limit` and `inode_limit` keys of the module configuration, `1073741824` bytes and `1000000` inodes by default. [`apphost.register`](../../apphost/ops/apphost.register.md) creates the VFS of the app it registers without this operation. A VFS for a keypair of its own is created by chaining operations: [`secp256k1.new`](../../secp256k1/ops/secp256k1.new.md) answers a private key, [`objects.store`](../../objects/ops/objects.store.md) stores it, the caller takes the identity of the key, and this operation creates the VFS of that identity.
 
 ## Returned objects
 

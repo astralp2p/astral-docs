@@ -8,10 +8,10 @@ The facts about one VFS: its identity, root, usage and limits.
 * Root (object_id.sha256) – The `Object ID` of the root [`mod.vfs.listing`](mod.vfs.listing.md).
 * Usage (uint64) – The bytes of file content the VFS holds. Each distinct file `Object ID` counts once, and a folder counts no bytes.
 * Quota (uint64) – The byte limit. `0` means no limit.
-* Entries (uint64) – The number of entries in the VFS. The root is not counted.
-* EntryLimit (uint64) – The entry limit. `0` means no limit.
+* Inodes (uint64) – The number of inodes in use: one per entry. The root uses no inode.
+* InodeLimit (uint64) – The inode limit. `0` means no limit.
 
-The type reports no free space of the device. `Root`, `Usage` and `Entries` describe one state of the VFS.
+The type reports no free space of the device. `Root`, `Usage` and `Inodes` describe one state of the VFS.
 
 In JSON `Root` is the `data1` text form of the `Object ID`.
 
@@ -25,8 +25,8 @@ In JSON `Root` is the `data1` text form of the `Object ID`.
     "Root": "data1fysiashf4okmwa1g9o54m3h41m1i6xgjt39as4ws39q5hfyxuo8iq",
     "Usage": 6,
     "Quota": 1073741824,
-    "Entries": 1,
-    "EntryLimit": 1000000
+    "Inodes": 1,
+    "InodeLimit": 1000000
   }
 }
 ```

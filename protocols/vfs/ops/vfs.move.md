@@ -15,7 +15,7 @@ The missing parent folders of `to` are created. The moved entry keeps its `ModTi
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object reading `not permitted` if the caller is not authorized, `no such vfs` if the identity has no VFS, `invalid path` if `from` or `to` breaks the rules of a path, names the root, or a folder would move into itself or beneath itself, `not found` if no entry is at `from`, `not a folder` if a parent in `from` or `to` names a file, `already exists` if an entry is at `to`, or `too many entries` if the folders created for `to` would exceed the entry limit of the VFS.
+* An `error_message` object reading `not permitted` if the caller is not authorized, `no such vfs` if the identity has no VFS, `invalid path` if `from` or `to` breaks the rules of a path, names the root, or a folder would move into itself or beneath itself, `not found` if no entry is at `from`, `not a folder` if a parent in `from` or `to` names a file, `already exists` if an entry is at `to`, or `no inodes left` if the folders created for `to` would exceed the inode limit of the VFS.
 * A [`mod.vfs.entry`](../types/mod.vfs.entry.md) object for the moved entry at its new path.
 
 ## Examples
