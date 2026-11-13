@@ -10,7 +10,7 @@ The caller must hold [`mod.vfs.write_action`](../types/mod.vfs.write_action.md) 
 * path (string, required) – The file or folder to touch.
 * time (time) – The new modification time. Defaults to the node's time. A time before the Unix epoch, or outside the range the `time` type encodes, is refused.
 
-The operation creates nothing. The root cannot be touched.
+The operation creates nothing and keeps the `CreationTime` of the entry. The root cannot be touched.
 
 ## Returned objects
 
@@ -22,5 +22,5 @@ The operation returns one of:
 
 ```shellsession
 $ astral-query vfs.touch -path /notes/a.txt -time 2026-01-01T00:00:00Z -out json
-{"Type":"mod.vfs.entry","Object":{"Flags":0,"ID":"data1csrtss41fiq9bbso9hftnd77uwo5su68na7xgueefbin7bdxpxod","ModTime":"2026-01-01T00:00:00Z","Name":"a.txt"}}
+{"Type":"mod.vfs.entry","Object":{"Flags":0,"ID":"data1csrtss41fiq9bbso9hftnd77uwo5su68na7xgueefbin7bdxpxod","ModTime":"2026-01-01T00:00:00Z","CreationTime":"2026-11-13T08:30:05.555555555Z","Name":"a.txt"}}
 ```

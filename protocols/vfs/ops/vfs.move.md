@@ -10,7 +10,7 @@ The caller must hold [`mod.vfs.write_action`](../types/mod.vfs.write_action.md) 
 * from (string, required) – The entry to move.
 * to (string, required) – The new path of the entry.
 
-The missing parent folders of `to` are created. The moved entry keeps its `ModTime`, and both parent folders get the node's time. The root cannot be moved, and nothing can be moved onto the root. A folder cannot be moved into itself or beneath itself.
+The missing parent folders of `to` are created. The moved entry keeps its `ModTime` and its `CreationTime`, and both parent folders get the node's time. The root cannot be moved, and nothing can be moved onto the root. A folder cannot be moved into itself or beneath itself.
 
 ## Returned objects
 
@@ -22,5 +22,5 @@ The operation returns one of:
 
 ```shellsession
 $ astral-query vfs.move -from /notes/a.txt -to /archive/a.txt -out json
-{"Type":"mod.vfs.entry","Object":{"Flags":0,"ID":"data1csrtss41fiq9bbso9hftnd77uwo5su68na7xgueefbin7bdxpxod","ModTime":"2026-11-13T09:12:44.123456789Z","Name":"a.txt"}}
+{"Type":"mod.vfs.entry","Object":{"Flags":0,"ID":"data1csrtss41fiq9bbso9hftnd77uwo5su68na7xgueefbin7bdxpxod","ModTime":"2026-11-13T09:12:44.123456789Z","CreationTime":"2026-11-13T08:30:05.555555555Z","Name":"a.txt"}}
 ```
