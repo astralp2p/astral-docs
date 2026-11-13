@@ -5,7 +5,7 @@ The facts about one VFS: its identity, root, usage and limits.
 ## Fields
 
 * VFS (identity) – The VFS identity.
-* Root (object_id.sha256) – The `Object ID` of the root [`mod.vfs.listing`](mod.vfs.listing.md).
+* Root (object_id.sha256) – The `Object ID` of the root [`mod.vfs.directory`](mod.vfs.directory.md).
 * Usage (uint64) – The bytes of file content the VFS holds. Each distinct file `Object ID` counts once, and a folder counts no bytes.
 * Quota (uint64) – The byte limit. `0` means no limit.
 * Inodes (uint64) – The number of inodes in use: one per entry. The root uses no inode.

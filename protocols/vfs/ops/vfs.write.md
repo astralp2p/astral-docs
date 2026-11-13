@@ -18,12 +18,12 @@ The stream is cut off when the received bytes exceed the bytes left under the by
 
 The operation returns one of:
 * An `error_message` object reading `not permitted` if the caller is not authorized, `no such vfs` if the identity has no VFS, `invalid path` if `path` breaks the rules of a path, `is a folder` if a folder is at `path`, `not a folder` if a parent in `path` names a file, `no storage` if the node has no writable repository, `quota exceeded` or `no inodes left` if the change would exceed a limit, `unexpected object: <type>` if the stream carries a decoded object other than `blob` or `mod.objects.commit_msg`, `stream corrupted: blueprint not found: <type>` if the stream carries an object whose type has no blueprint, or another error of the stream or of the writer if it fails. An `error_message` after the `ack` ends the operation, and the VFS is unchanged.
-* An `ack` object acknowledging the open writer, then a [`mod.vfs.entry`](../types/mod.vfs.entry.md) object for the file after the commit. The entry has the node's time as `ModTime`.
+* An `ack` object acknowledging the open writer, then a [`mod.vfs.entry`](../types/mod.vfs.entry.md) object for the file after the commit. The entry has the node's time as `ModTime`. A new file has the node's time as `CreationTime`, and a replaced file keeps its `CreationTime`.
 
 ## Examples
 
 ```shellsession
 $ printf '%s\n%s\n' '#[]:aGVsbG8K' '#[mod.objects.commit_msg]' | astral-query vfs.write -path /notes/a.txt -in text -out json
 {"Type":"ack","Object":null}
-{"Type":"mod.vfs.entry","Object":{"Flags":0,"ID":"data1csrtss41fiq9bbso9hftnd77uwo5su68na7xgueefbin7bdxpxod","ModTime":"2026-11-13T09:12:44.123456789Z","Name":"a.txt"}}
+{"Type":"mod.vfs.entry","Object":{"Flags":0,"ID":"data1csrtss41fiq9bbso9hftnd77uwo5su68na7xgueefbin7bdxpxod","ModTime":"2026-11-13T09:12:44.123456789Z","CreationTime":"2026-11-13T09:12:44.123456789Z","Name":"a.txt"}}
 ```
