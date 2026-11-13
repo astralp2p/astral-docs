@@ -30,7 +30,9 @@ The `vfs` handler allows an action when all of these hold:
   stays refused.
 * The ObjectID is complete. An ObjectID with a `Size` of 0 is refused, except the
   ObjectID of the empty content, `Size` 0 with the SHA-256 hash of no bytes.
-* A file with that ObjectID is in a VFS that the actor may read: the actor is
+* A file with that ObjectID, or a folder whose current
+  [`mod.vfs.directory`](../../vfs/types/mod.vfs.directory.md) has it, is in a
+  VFS that the actor may read: the actor is
   that VFS identity, or is allowed
   [`mod.vfs.read_action`](../../vfs/types/mod.vfs.read_action.md) for it, by a
   permit or by the VFS's [evaluator](../../vfs/README.md#evaluator) answering
@@ -42,7 +44,9 @@ identity cannot hand it on down a contract chain. It allows
 [`objects.read`](../../objects/ops/objects.read.md),
 [`objects.load`](../../objects/ops/objects.load.md),
 [`objects.contains`](../../objects/ops/objects.contains.md) and
-[`objects.probe`](../../objects/ops/objects.probe.md) of one file by ObjectID.
+[`objects.probe`](../../objects/ops/objects.probe.md) of one file, or of the
+current directory of one folder, by ObjectID. A replaced directory is in no
+folder and is refused.
 [`objects.describe`](../../objects/ops/objects.describe.md) and
 [`objects.find`](../../objects/ops/objects.find.md) leave ObjectID absent, and
 `objects.scan`, `objects.search` and `objects.repositories` name no object, so
