@@ -65,8 +65,8 @@ the access token.
 
 After the access token is minted, the operation creates the
 [`VFS`](../../vfs/README.md) of the new identity with the default quotas: the
-`byte_limit` and `entry_limit` of the `vfs` module configuration, `1073741824`
-bytes and `1000000` entries by default. Creating the VFS needs no permit and
+`byte_limit` and `inode_limit` of the `vfs` module configuration, `1073741824`
+bytes and `1000000` inodes by default. Creating the VFS needs no permit and
 no grant. A failure to create it answers an `error_message` and no token,
 though the identity, its contract and its token exist by then.
 [`sys.register_manager`](../../sys/ops/sys.register_manager.md) provisions the

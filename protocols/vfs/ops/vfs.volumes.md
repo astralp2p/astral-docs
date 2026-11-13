@@ -19,6 +19,6 @@ The operation returns one of:
 
 ```shellsession
 $ astral-query vfs.volumes -out json
-{"Type":"mod.vfs.info","Object":{"Entries":1,"EntryLimit":1000000,"Quota":1073741824,"Root":"data1fysiashf4okmwa1g9o54m3h41m1i6xgjt39as4ws39q5hfyxuo8iq","Usage":6,"VFS":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"}}
+{"Type":"mod.vfs.info","Object":{"InodeLimit":1000000,"Inodes":1,"Quota":1073741824,"Root":"data1fysiashf4okmwa1g9o54m3h41m1i6xgjt39as4ws39q5hfyxuo8iq","Usage":6,"VFS":"0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c"}}
 {"Type":"eos","Object":null}
 ```

@@ -14,7 +14,7 @@ A folder at `path` succeeds and changes nothing. The path `/` names the root, wh
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object reading `not permitted` if the caller is not authorized, `no such vfs` if the identity has no VFS, `invalid path` if `path` breaks the rules of a path, `already exists` if a file is at `path`, `not a folder` if a parent in `path` names a file, or `too many entries` if the folders would exceed the entry limit of the VFS.
+* An `error_message` object reading `not permitted` if the caller is not authorized, `no such vfs` if the identity has no VFS, `invalid path` if `path` breaks the rules of a path, `already exists` if a file is at `path`, `not a folder` if a parent in `path` names a file, or `no inodes left` if the folders would exceed the inode limit of the VFS.
 * An `ack` object if the folder exists.
 
 ## Examples
