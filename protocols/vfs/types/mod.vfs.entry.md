@@ -10,7 +10,7 @@ One name in a folder of a VFS, a file or a folder.
 * ModTime (time) – The modification time of the entry.
 * CreationTime (time) – The creation time of the entry.
 
-The size of a file is the `Size` of its `ID`. The `ID` of a file with no content has `Size` 0 and the SHA-256 hash of no bytes.
+The size of a file is the `Size` of its `ID`, at least 1 byte: [`vfs.write`](../ops/vfs.write.md) refuses a file with no content.
 
 A new entry gets the node's time as `ModTime`. Adding an entry to a folder, removing one from it or renaming one in it sets the time of that folder to the node's time, the root included. Replacing the content of a file sets the time of the file and leaves the time of its folder alone. [`vfs.touch`](../ops/vfs.touch.md) sets a time the caller chooses. [`vfs.move`](../ops/vfs.move.md) keeps the `ModTime` of the moved entry.
 
