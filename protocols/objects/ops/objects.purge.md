@@ -17,13 +17,13 @@ repository is looked up when the caller is not authorized.
 
 ## Tracking and last touch
 
-The node tracks each object committed to a leaf repository, a repository that stores objects itself. A group stores nothing and is not tracked. One row names the leaf repository and the object, and holds two times in whole seconds since the Unix epoch: the commit time, and the read time, which is `0` until the first counted read. The last touch of an object is the later of the two times. A row is removed when its object is deleted and when its repository is removed. An object written before tracking has no row and is never purged. The empty object is never stored and has no row.
+The node tracks each object committed to a leaf repository, a repository that stores objects itself. A group stores nothing and is not tracked. One row names the leaf repository and the object, and holds two times in whole seconds since the Unix epoch: the commit time, and the read time, which is `0` until the first counted read. The last touch of an object is the later of the two times. A row is removed when its object is deleted and when its repository is removed. An object written before tracking has no row and is never purged.
 
 An object is touched when it is committed, also when its content already existed, and when a caller reads it:
 
 * A read counts on every route: [`objects.read`](objects.read.md), [`objects.load`](objects.load.md), [`vfs.read`](../../vfs/ops/vfs.read.md), the HTTP object handler, and a group read that ends in a leaf.
 * A read counts for every tracked copy of the object, whichever repository served it.
-* A read counts when its first byte is delivered. A read that can deliver no byte, such as a read of the empty object or with an `offset` equal to the object's `Size`, counts when it closes. A partial read counts like a full one, and a stream that keeps delivering bytes counts again once a minute.
+* A read counts when its first byte is delivered. A read that can deliver no byte, such as a read with an `offset` equal to the object's `Size`, counts when it closes. A partial read counts like a full one, and a stream that keeps delivering bytes counts again once a minute.
 * A read never creates a row. A read of an untracked object changes nothing.
 * A read does not count when the node reads for itself: the follower of the [`auth`](../../auth/README.md) module and the follower of the [`crypto`](../../crypto/README.md) module that look for contracts and keys, and [`objects.probe`](objects.probe.md), whoever asks. A reader that can deliver a byte and is opened and closed without delivering one does not count, such as a losing reader of a concurrent group read with an `offset` below the object's `Size`. A losing reader of a window that holds no byte counts when it closes, which changes nothing, because the read marks every copy of the object.
 * [`objects.contains`](objects.contains.md), [`objects.scan`](objects.scan.md), holder checks, deleting and purging do not touch an object.

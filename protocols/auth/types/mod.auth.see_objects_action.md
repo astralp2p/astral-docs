@@ -28,8 +28,7 @@ The `vfs` handler allows an action when all of these hold:
   [`objects.probe`](../../objects/ops/objects.probe.md) and
   [`objects.load`](../../objects/ops/objects.load.md) that names no ObjectID
   stays refused.
-* The ObjectID is complete. An ObjectID with a `Size` of 0 is refused, except the
-  ObjectID of the empty content, `Size` 0 with the SHA-256 hash of no bytes.
+* The ObjectID is complete. An ObjectID with a `Size` of 0 is refused.
 * A file with that ObjectID, or a folder whose current
   [`mod.vfs.directory`](../../vfs/types/mod.vfs.directory.md) has it, is in a
   VFS that the actor may read: the actor is
