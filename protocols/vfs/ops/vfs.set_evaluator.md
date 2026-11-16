@@ -2,7 +2,7 @@
 
 Set or clear the evaluator of a VFS: the endpoint the node asks about a read or a write that the built-in rules refuse. See [Evaluator](../README.md#evaluator).
 
-The caller must be the VFS identity, the node's user or the node, or hold [`mod.vfs.manage_action`](../types/mod.vfs.manage_action.md). The operation answers an `error_message` reading `not permitted` to a query that arrived over a [`Link`](../../../core-definitions/link.md), whatever the caller is or holds, and to a caller that is not authorized.
+The caller must be the VFS identity, the node's user, the node or the node's [manager](../../sys/README.md#manager), or hold [`mod.vfs.manage_action`](../types/mod.vfs.manage_action.md). The operation answers an `error_message` reading `not permitted` to a query that arrived over a [`Link`](../../../core-definitions/link.md), whatever the caller is or holds, and to a caller that is not authorized.
 
 ## Arguments
 

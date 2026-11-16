@@ -45,6 +45,13 @@ The manager:
   [`mod.auth.configure_node_state_action`](../auth/types/mod.auth.configure_node_state_action.md)
   in every node state, `claimed` included, so it may call the policy setters
   ([Node Policies, Delegating a decision](../../topics/node-policies.md#delegating-a-decision));
+* holds [`mod.vfs.manage_action`](../vfs/types/mod.vfs.manage_action.md) and
+  [`mod.vfs.read_action`](../vfs/types/mod.vfs.read_action.md) for every VFS of
+  the node in every node state, so it lists, creates and limits every VFS, sets
+  its [evaluator](../vfs/README.md#evaluator) and reads its content; it holds no
+  [`mod.vfs.write_action`](../vfs/types/mod.vfs.write_action.md) by this rule,
+  and the apphost [gate](../apphost/README.md#gate) admits the `vfs` operations
+  only in the states whose list names them, by default `claimed` alone;
 * may claim the node with [`user.bootstrap`](../user/ops/user.bootstrap.md) or
   [`user.join`](../user/ops/user.join.md) under its App token.
 
