@@ -2,7 +2,7 @@
 
 List the entries of a folder of a VFS in ascending byte order of `Name`.
 
-The caller must hold [`mod.vfs.read_action`](../types/mod.vfs.read_action.md) for the VFS, unless the caller is the VFS identity, the node's user or the node. The operation answers an `error_message` reading `not permitted` before it looks up the VFS when the caller is not authorized.
+The caller must hold [`mod.vfs.read_action`](../types/mod.vfs.read_action.md) for the VFS, unless the caller is the VFS identity, the node's user, the node or the node's [manager](../../sys/README.md#manager). The operation answers an `error_message` reading `not permitted` before it looks up the VFS when the caller is not authorized.
 
 ## Arguments
 

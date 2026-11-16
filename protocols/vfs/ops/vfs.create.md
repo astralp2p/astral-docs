@@ -2,7 +2,7 @@
 
 Create the VFS of an identity, with an empty root folder, the default limits and no evaluator.
 
-The caller must hold [`mod.vfs.manage_action`](../types/mod.vfs.manage_action.md), unless the caller is the node's user or the node. The operation answers an `error_message` reading `not permitted` to a query that arrived over a [`Link`](../../../core-definitions/link.md), whatever the caller holds, and to a caller that is not authorized.
+The caller must hold [`mod.vfs.manage_action`](../types/mod.vfs.manage_action.md), unless the caller is the node's user, the node or the node's [manager](../../sys/README.md#manager). The operation answers an `error_message` reading `not permitted` to a query that arrived over a [`Link`](../../../core-definitions/link.md), whatever the caller holds, and to a caller that is not authorized.
 
 ## Arguments
 

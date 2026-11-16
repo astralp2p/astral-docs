@@ -2,7 +2,7 @@
 
 Stream the raw bytes of a file of a VFS. Unlike most ops, the response body is the content itself rather than a stream of typed objects.
 
-The caller must hold [`mod.vfs.read_action`](../types/mod.vfs.read_action.md) for the VFS, unless the caller is the VFS identity, the node's user or the node. The query is rejected before the VFS is looked up when the caller is not authorized, and a refused caller receives no bytes.
+The caller must hold [`mod.vfs.read_action`](../types/mod.vfs.read_action.md) for the VFS, unless the caller is the VFS identity, the node's user, the node or the node's [manager](../../sys/README.md#manager). The query is rejected before the VFS is looked up when the caller is not authorized, and a refused caller receives no bytes.
 
 ## Arguments
 
