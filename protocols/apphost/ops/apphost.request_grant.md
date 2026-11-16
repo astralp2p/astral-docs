@@ -21,12 +21,14 @@ Asking is not receiving: the node's grant request policy decides the request as
 a whole. The policy approves every permit asked for or none of them. The policy
 is asked on every request, also when the identity already holds every permit
 asked for.
+A delegate stored by
 [`apphost.set_grant_request_policy`](apphost.set_grant_request_policy.md)
-selects the policy: `accept_all` approves every request that passes the check,
-`reject_all` refuses every request, and a delegate decides each request. With
-neither a mode nor a delegate set, the policy refuses every request, as
-`reject_all` does. Under `accept_all`, any app with a token grants itself
-any action it names. A delegate receives the request as a
+decides each request. Without a stored delegate, the config value
+`policies.grant_request` in `apphost.yaml` decides: `accept_all` approves every
+request that passes the check, `reject_all` refuses every request, and a
+delegate decides each request. The code default is `reject_all`. Under
+`accept_all`, any app with a token grants itself any action it names. A
+delegate receives the request as a
 [`mod.apphost.grant_policy_request`](../types/mod.apphost.grant_policy_request.md),
 which carries the session's identity, its web origin, the permits asked for and
 the `Duration`.

@@ -44,44 +44,41 @@ its default.
 | Policy | Decides | Setter | Tree path | Request | Decision | Refusal |
 |--------|---------|--------|-----------|---------|----------|---------|
 | App register | each [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md) | `/mod/apphost/policy/app_register` | [`mod.apphost.app_register_request`](../protocols/apphost/types/mod.apphost.app_register_request.md) | [`mod.apphost.app_register_decision`](../protocols/apphost/types/mod.apphost.app_register_decision.md) | `registration declined` |
-| Grant request | each [`apphost.request_grant`](../protocols/apphost/ops/apphost.request_grant.md) | [`apphost.set_grant_request_policy`](../protocols/apphost/ops/apphost.set_grant_request_policy.md) | `/mod/apphost/policy/grant_request`, and the mode at `/mod/apphost/policy/grant_request_mode` | [`mod.apphost.grant_policy_request`](../protocols/apphost/types/mod.apphost.grant_policy_request.md) | [`mod.apphost.grant_decision`](../protocols/apphost/types/mod.apphost.grant_decision.md) | `grant declined` |
+| Grant request | each [`apphost.request_grant`](../protocols/apphost/ops/apphost.request_grant.md) | [`apphost.set_grant_request_policy`](../protocols/apphost/ops/apphost.set_grant_request_policy.md) | `/mod/apphost/policy/grant_request` | [`mod.apphost.grant_policy_request`](../protocols/apphost/types/mod.apphost.grant_policy_request.md) | [`mod.apphost.grant_decision`](../protocols/apphost/types/mod.apphost.grant_decision.md) | `grant declined` |
 | [Swarm](../core-definitions/swarm.md) join | each [`user.request_membership`](../protocols/user/ops/user.request_membership.md), the request of a node that joins this node's swarm | [`user.set_swarm_join_policy`](../protocols/user/ops/user.set_swarm_join_policy.md) | `/mod/user/policy/swarm_join` | [`mod.user.swarm_join_request`](../protocols/user/types/mod.user.swarm_join_request.md) | [`mod.user.swarm_join_decision`](../protocols/user/types/mod.user.swarm_join_decision.md) | `request declined` |
 | Swarm invite | each [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md), an invitation to a node without an active contract | [`user.set_swarm_invite_policy`](../protocols/user/ops/user.set_swarm_invite_policy.md) | `/mod/user/policy/swarm_invite` | [`mod.user.swarm_invite_request`](../protocols/user/types/mod.user.swarm_invite_request.md) | [`mod.user.swarm_invite_decision`](../protocols/user/types/mod.user.swarm_invite_decision.md) | `invitation declined` |
 | Contract accept | each [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md), a signed contract the node activates | [`user.set_contract_accept_policy`](../protocols/user/ops/user.set_contract_accept_policy.md) | `/mod/user/policy/contract_accept` | [`mod.user.contract_accept_request`](../protocols/user/types/mod.user.contract_accept_request.md) | [`mod.user.contract_accept_decision`](../protocols/user/types/mod.user.contract_accept_decision.md) | `contract declined` |
 
-The node decides the app register, swarm join and swarm invite policies in
-this order:
+The node decides each of the five policies in this order:
 
 1. A stored delegate decides.
 2. Otherwise the config value decides ([Config values](#config-values)).
-3. Otherwise `reject_all` decides.
+3. Otherwise the code default `reject_all` decides.
 
 The default config values are `reject_all`:
 
 * The app register policy refuses every registration.
+* The grant request policy refuses every request.
 * The swarm join policy declines every requester.
 * The swarm invite policy declines every invitation.
+* The contract accept policy declines every contract.
 
-The grant request and contract accept policies have no config value. While
-the contract accept policy names no delegate, the node applies the bundled
-policy, which accepts every contract that passes validation.
-
-The grant request policy has two modes, `accept_all` and `reject_all`. A
-stored delegate decides whatever the mode holds. Without a delegate, a stored
-`accept_all` grants every permit an app asks for, and an unset mode or any
-other stored value refuses every request.
+The node stores no other policy state. A value stored at
+`/mod/apphost/policy/grant_request_mode` decides nothing.
 
 ## Config values
 
-`policies.app_register` in `apphost.yaml`, and `policies.swarm_join` and
-`policies.swarm_invite` in `user.yaml`, hold the config values. A value is one
-of:
+`policies.app_register` and `policies.grant_request` in `apphost.yaml`, and
+`policies.swarm_join`, `policies.swarm_invite` and `policies.contract_accept`
+in `user.yaml`, hold the config values. A value is one of:
 
 * `accept_all`: the policy accepts. The app register policy writes every permit
   an app asks for,
   [`mod.auth.admin_manage_apps_action`](../protocols/auth/types/mod.auth.admin_manage_apps_action.md)
-  included. The swarm join policy admits every requester. The swarm invite
-  policy accepts every invitation.
+  included. The grant request policy grants every permit an app asks for,
+  `mod.auth.admin_manage_apps_action` included. The swarm join policy admits
+  every requester. The swarm invite policy accepts every invitation. The
+  contract accept policy accepts every contract that passes validation.
 * `reject_all`: the policy refuses.
 * A mapping of `identity`, `operation` and `timeout`: the policy asks a
   delegate, as a stored delegate does. `identity` and `operation` are required.
@@ -96,6 +93,7 @@ default.
 # apphost.yaml
 policies:
   app_register: {identity: control-plane, operation: cp.approve_app, timeout: 5m}
+  grant_request: reject_all
 ```
 
 ```yaml
@@ -103,6 +101,7 @@ policies:
 policies:
   swarm_join: accept_all
   swarm_invite: reject_all
+  contract_accept: accept_all
 ```
 
 ## Delegating a decision
@@ -122,15 +121,8 @@ A setter takes `identity` and `operation`, and an optional `timeout`:
   `apphost.decide_app_register`.
 * `timeout` bounds the wait for one answer. Omitted, zero or negative waits 10
   minutes. A value above 10 minutes is refused.
-* `mode`, taken by `apphost.set_grant_request_policy` alone, selects
-  `accept_all` or `reject_all`. A mode is given without `identity`,
-  `operation` and `timeout`. A mode clears the delegate, and a delegate clears
-  the mode.
-* A setter without `identity` and `operation`, and for the grant request policy
-  without `mode`, clears the delegate. The app register, swarm join and swarm
-  invite policies then apply the config value. The contract accept policy
-  applies the bundled policy. The grant request setter also clears the mode,
-  and the grant request policy then refuses every request.
+* A setter without `identity` and `operation` clears the delegate. The policy
+  then applies its config value.
 
 Every setter requires
 [`mod.auth.configure_node_state_action`](../protocols/auth/types/mod.auth.configure_node_state_action.md),
@@ -195,10 +187,7 @@ A node that is to ask before it admits takes these steps:
    [`user.join`](../protocols/user/ops/user.join.md) under its App token
    ([User and Swarm](user-and-swarm.md#claiming-a-node)).
 
-A policy the appointment does not bind applies its config value or its bundled
-policy. The grant request policy keeps its stored mode; with no mode stored, it
-refuses every
-[`apphost.request_grant`](../protocols/apphost/ops/apphost.request_grant.md).
+A policy the appointment does not bind applies its config value.
 
 The swarm invite and contract accept policies decide only while the node has no
 active contract: before the claim, and again once the active contract is
@@ -230,12 +219,8 @@ contract again.
 ## Reading the current policy
 
 [`tree.get`](../protocols/tree/ops/tree.get.md) on a delegate path of the table
-reads a policy's delegate as a `policy.delegate` object, and on
-`/mod/apphost/policy/grant_request_mode` reads the grant request mode as a
-`string8`. An absent delegate means the config value for the app register,
-swarm join and swarm invite policies, and the bundled policy for the contract
-accept policy. For the grant request policy, an absent delegate leaves the
-decision to the mode, and an absent mode refuses. `tree.get` does not read the config values.
+reads a policy's delegate as a `policy.delegate` object. An absent delegate
+means the config value decides. `tree.get` does not read the config values.
 `tree.get` requires
 [`mod.auth.see_node_state_action`](../protocols/auth/types/mod.auth.see_node_state_action.md).
 
@@ -255,6 +240,7 @@ gate:
     claimed: ["*"]
 policies:
   app_register: reject_all
+  grant_request: reject_all
 ```
 
 ```yaml
@@ -262,16 +248,14 @@ policies:
 policies:
   swarm_join: reject_all
   swarm_invite: reject_all
+  contract_accept: reject_all
 ```
 
 The only way forward from `fresh` is the manager appointment. The claim
 operations need a token, which the manager holds after its appointment.
 
-A test node claims without a manager, and every admission policy with a config
-value accepts. The grant request policy has no config value, so a test whose
-app calls `apphost.request_grant` first selects `accept_all` with
-`apphost.set_grant_request_policy`. The astrald end-to-end tests run every
-node with this configuration:
+A test node claims without a manager, and every admission policy accepts. The
+astrald end-to-end tests run every node with this configuration:
 
 ```yaml
 # apphost.yaml
@@ -281,6 +265,7 @@ gate:
     fresh: ["*"]
 policies:
   app_register: accept_all
+  grant_request: accept_all
 ```
 
 ```yaml
@@ -288,6 +273,7 @@ policies:
 policies:
   swarm_join: accept_all
   swarm_invite: accept_all
+  contract_accept: accept_all
 ```
 
 * A session without a token calls `user.bootstrap` or `user.join` on a `fresh`
@@ -296,5 +282,6 @@ policies:
   token.
 * The `unclaimed` and `claimed` lists keep their defaults.
 * Under `accept_all`, any local program, or any page open in a local browser,
-  that registers holds every permit it asks for. This configuration does not
+  that registers holds every permit it asks for, and any app with a token
+  grants itself every permit it requests. This configuration does not
   belong on a node a user owns.

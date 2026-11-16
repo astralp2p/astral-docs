@@ -44,9 +44,7 @@ admission policies and describes approval apps.
 
 The operation returns one of:
 * An `error_message` object reading `unknown argument: mode` if the query names
-  `mode`, which only
-  [`apphost.set_grant_request_policy`](apphost.set_grant_request_policy.md)
-  takes. The policy is not changed.
+  `mode`. The policy is not changed.
 * An `error_message` object if `identity` does not resolve.
 * An `error_message` object reading `the node cannot be its own delegate` if
   `identity` resolves to the node.

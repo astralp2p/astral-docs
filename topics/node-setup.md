@@ -183,8 +183,7 @@ configuration chooses between them.
 * **A test or development node.** A test that only needs a claimed node should
   not have to bring up a manager first. Its configuration opens every
   operation on a `fresh` node, lets a session without a token claim, and sets
-  every policy with a config value to accept everything. A test that requests
-  grants selects `accept_all` with `apphost.set_grant_request_policy`.
+  all five admission policies to accept everything.
 
 [Node Policies, Distribution and test configuration](node-policies.md#distribution-and-test-configuration)
 shows both configurations.
