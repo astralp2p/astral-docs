@@ -29,10 +29,9 @@ of bans is inspectable via `user.list_expelled`. Banned nodes hold a
 Three policies decide membership from outside the node. The swarm join policy
 decides each `user.request_membership`, the swarm invite policy decides each
 `user.accept_membership`, and the contract accept policy decides each
-`user.accept_contract`. `policies.swarm_join` and `policies.swarm_invite` in
-`user.yaml` hold the config values of the first two, and both default to
-`reject_all`. The contract accept policy accepts every contract that passes
-validation by default. `user.set_swarm_join_policy`,
+`user.accept_contract`. `policies.swarm_join`, `policies.swarm_invite` and
+`policies.contract_accept` in `user.yaml` hold their config values, and all
+three default to `reject_all`. `user.set_swarm_join_policy`,
 `user.set_swarm_invite_policy` and `user.set_contract_accept_policy` delegate
 each decision to an operation of another identity. A stored delegate outranks
 the config value. Every setter requires
@@ -43,6 +42,7 @@ the config value. Every setter requires
 policies:
   swarm_join: reject_all
   swarm_invite: reject_all
+  contract_accept: reject_all
 ```
 
 Two actions gate the protocol. `mod.user.see_swarm_action` covers every read

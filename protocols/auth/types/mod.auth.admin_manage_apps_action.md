@@ -74,8 +74,8 @@ or a contract it receives. These paths grant it to whoever asks:
   which asks no policy.
 * While the grant request policy is `accept_all`, any app with a token obtains
   it with [`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md).
-  Only [`apphost.set_grant_request_policy`](../../apphost/ops/apphost.set_grant_request_policy.md)
-  selects `accept_all`; an unset grant request policy refuses every request.
+  Only the config value `policies.grant_request` in `apphost.yaml` selects
+  `accept_all`; its code default, `reject_all`, refuses every request.
 
 Either holder then mints or reads another identity's credentials.
 

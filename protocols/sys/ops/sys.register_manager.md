@@ -44,7 +44,7 @@ For each binding, the node stores a delegate with the new identity as
 `timeout`, at the tree path of the policy
 ([Node Policies](../../../topics/node-policies.md#the-five-policies)).
 The node clears the stored delegate of every policy the request does not name.
-The grant request mode is not changed. On a node without the `user` module, the
+On a node without the `user` module, the
 node leaves the three `user` policies untouched.
 
 The node writes the manager record at `/mod/sys/manager` last and answers

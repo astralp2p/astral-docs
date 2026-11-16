@@ -91,9 +91,10 @@ other action that does not evaluate constraints refuses a constrained permit
 when it authorizes ([auth](../auth/README.md)): such a grant passes the check,
 is written, and allows nothing.
 
-[`apphost.set_grant_request_policy`](ops/apphost.set_grant_request_policy.md)
-selects how the node decides `apphost.request_grant`: `accept_all`,
-`reject_all`, or a delegate. Unset refuses every request.
+The grant request policy decides `apphost.request_grant`: a delegate stored by
+[`apphost.set_grant_request_policy`](ops/apphost.set_grant_request_policy.md),
+else the config value `policies.grant_request` (`accept_all`, `reject_all` or a
+delegate), else the code default `reject_all`.
 
 ## Node states and the manager
 
@@ -171,14 +172,17 @@ gate:
     claimed: ["*"]
 policies:
   app_register: reject_all
+  grant_request: reject_all
 ```
 
 ## Policies
 
-`policies.app_register` in `apphost.yaml` holds the config value of the app
-register policy: `accept_all`, `reject_all`, or a delegate mapping. The default
-is `reject_all`. A delegate stored with
-[`apphost.set_app_register_policy`](ops/apphost.set_app_register_policy.md)
+`policies.app_register` and `policies.grant_request` in `apphost.yaml` hold the
+config values of the app register and grant request policies: `accept_all`,
+`reject_all`, or a delegate mapping. Both default to `reject_all`. A delegate
+stored with
+[`apphost.set_app_register_policy`](ops/apphost.set_app_register_policy.md) or
+[`apphost.set_grant_request_policy`](ops/apphost.set_grant_request_policy.md)
 outranks the config value.
 [Node Policies](../../topics/node-policies.md#config-values) describes the
 values.

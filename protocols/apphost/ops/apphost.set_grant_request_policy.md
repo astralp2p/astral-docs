@@ -1,10 +1,11 @@
 # apphost.set_grant_request_policy
 
-Select the policy that decides each
-[`apphost.request_grant`](apphost.request_grant.md) call. The node applies one
-of three modes: `accept_all` approves every request, `reject_all` refuses every
-request, and a delegate decides each request in an operation of another
-identity. Unset refuses every request, as `reject_all` does.
+Select the delegate that decides each
+[`apphost.request_grant`](apphost.request_grant.md) call. A stored delegate
+decides each request in an operation of another identity. Without a stored
+delegate, the config value `policies.grant_request` in `apphost.yaml` decides:
+`accept_all`, `reject_all` or a delegate. The code default is `reject_all`
+([Node Policies, Config values](../../../topics/node-policies.md#config-values)).
 
 The caller must hold
 [`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md).
@@ -12,25 +13,12 @@ The user, the node and the node's [manager](../../sys/README.md#manager) hold
 it. The operation answers an `error_message` reading `not permitted` before the
 policy is changed when the caller does not hold it.
 
-`mode` selects `accept_all` or `reject_all` and clears the delegate. Under
-`accept_all`, any app with a token grants itself any action it names; only the
-permit check of [Grants](../README.md#grants) refuses a request. `mode` is
-given without `identity`, `operation` and `timeout`.
-
-Naming `identity` and `operation` delegates the decision and clears the mode.
-Naming one alone is an error. Omitting `mode`, `identity` and `operation`
-clears both the delegate and the mode, and the policy then refuses every
-request. `timeout` is then ignored.
-
-The delegate is persisted in the node's tree at
-`/mod/apphost/policy/grant_request` and the mode at
-`/mod/apphost/policy/grant_request_mode`. The operation answers `ack` only once
-the choice is saved. A stored delegate decides whatever the mode holds, so a
-delegate stored before the modes existed keeps deciding. Setting a mode clears
-the delegate before it writes the mode, so a failed mode write leaves no
-delegate in force. A stored mode value other than `accept_all` refuses every
-request, as `reject_all` does. The grant request policy is independent of the
-policy [`apphost.set_app_register_policy`](apphost.set_app_register_policy.md)
+Naming `identity` and `operation` delegates the decision. Omitting both clears
+the delegate, and the config value decides again. `timeout` is then ignored.
+Naming one alone is an error. The delegate is persisted in the node's tree at
+`/mod/apphost/policy/grant_request`, and the operation answers `ack` only once
+it is saved. The grant request policy is independent of the policy
+[`apphost.set_app_register_policy`](apphost.set_app_register_policy.md)
 selects.
 
 For each request under a delegate, the node queries `operation` on `identity`
@@ -48,7 +36,6 @@ admission policies and describes approval apps.
 
 ## Arguments
 
-* mode (string8) – `accept_all` or `reject_all`.
 * identity (string8) – The identity whose operation decides grant requests,
   given as a hex public key or a name resolved via the directory. The node's
   own identity is refused.
@@ -61,12 +48,8 @@ admission policies and describes approval apps.
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object reading `unknown mode: <mode>` if `mode` is neither
-  `accept_all` nor `reject_all`.
-* An `error_message` object reading `give mode or a delegate, not both` if
-  `mode` is given with `identity` or `operation`.
-* An `error_message` object reading `unknown argument: timeout` if `mode` is
-  given with `timeout`.
+* An `error_message` object reading `unknown argument: mode` if the query names
+  `mode`. The policy is not changed.
 * An `error_message` object if `identity` does not resolve.
 * An `error_message` object reading `the node cannot be its own delegate` if
   `identity` resolves to the node.
@@ -81,20 +64,6 @@ The operation returns one of:
 
 ## Examples
 
-Approving every request that passes the permit check:
-
-```shellsession
-$ astral-query apphost.set_grant_request_policy -mode accept_all -out json
-{"Type":"ack","Object":null}
-```
-
-Refusing every request:
-
-```shellsession
-$ astral-query apphost.set_grant_request_policy -mode reject_all -out json
-{"Type":"ack","Object":null}
-```
-
 Delegating grant request decisions:
 
 ```shellsession
@@ -102,7 +71,7 @@ $ astral-query apphost.set_grant_request_policy -identity 0282fee8775757cdd8fda8
 {"Type":"ack","Object":null}
 ```
 
-Clearing the policy, which then refuses every request:
+Clearing the delegate, after which the config value decides:
 
 ```shellsession
 $ astral-query apphost.set_grant_request_policy -out json

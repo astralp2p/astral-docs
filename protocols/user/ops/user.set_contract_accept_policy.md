@@ -1,9 +1,11 @@
 # user.set_contract_accept_policy
 
 Select the policy that decides each contract
-[`user.accept_contract`](user.accept_contract.md) receives. The node either
-applies its default policy, which accepts every contract that passes
-validation, or delegates the decision to an operation of another identity.
+[`user.accept_contract`](user.accept_contract.md) receives. A stored delegate
+decides each contract in an operation of another identity. Without a stored delegate, the config value
+`policies.contract_accept` in `user.yaml` decides: `accept_all`, `reject_all`
+or a delegate. The code default is `reject_all`
+([Node Policies, Config values](../../../topics/node-policies.md#config-values)).
 
 The caller must hold
 [`mod.auth.configure_node_state_action`](../../auth/types/mod.auth.configure_node_state_action.md).
@@ -12,7 +14,7 @@ it. The operation answers an `error_message` reading `not permitted` before the
 policy is changed when the caller does not hold it.
 
 Naming `identity` and `operation` delegates the decision. Omitting both clears
-the delegate and restores the default policy, and `timeout` is then ignored.
+the delegate, and the config value decides again. `timeout` is then ignored.
 Naming one alone is an error. The choice is persisted in the node's tree at
 `/mod/user/policy/contract_accept`, and the operation answers `ack` only once it
 is saved.
@@ -66,7 +68,7 @@ $ astral-query user.set_contract_accept_policy -identity 0282fee8775757cdd8fda8b
 {"Type":"ack","Object":null}
 ```
 
-Restoring the default policy:
+Clearing the delegate, after which the config value decides:
 
 ```shellsession
 $ astral-query user.set_contract_accept_policy -out json
