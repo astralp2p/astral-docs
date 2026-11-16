@@ -151,7 +151,7 @@ list ([Node Policies](node-policies.md#the-gate)):
 gate:
   states:
     fresh: [.spec, sys.register_manager, user.info, bip137sig.new_entropy, bip137sig.mnemonic, bip137sig.seed, bip137sig.derive_key, objects.store, crypto.public_key, user.new_node_contract, auth.sign_contract, user.accept_contract]
-    unclaimed: [.spec, user.info, user.derive_identity, user.bootstrap, user.join, apphost.register, apphost.bind, apphost.register_handler, apphost.cancel, bip137sig.new_entropy, bip137sig.mnemonic, bip137sig.seed, bip137sig.derive_key, objects.store, crypto.public_key, user.new_node_contract, auth.sign_contract, user.accept_contract]
+    unclaimed: [.spec, user.info, user.derive_identity, user.bootstrap, user.join, apphost.register, apphost.bind, apphost.register_handler, apphost.cancel, nodes.resolve_endpoints, bip137sig.new_entropy, bip137sig.mnemonic, bip137sig.seed, bip137sig.derive_key, objects.store, crypto.public_key, user.new_node_contract, auth.sign_contract, user.accept_contract]
 ```
 
 | Step | Op | Input | Result |

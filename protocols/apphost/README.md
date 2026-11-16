@@ -128,7 +128,7 @@ with a token as the session's identity.
 |------|--------------------|
 | `tokenless` | `.spec`, `apphost.register`, `sys.register_manager`, `user.info` |
 | `states.fresh` | `.spec`, `sys.register_manager`, `user.info` |
-| `states.unclaimed` | `.spec`, `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`, `apphost.bind`, `apphost.register_handler`, `apphost.cancel` |
+| `states.unclaimed` | `.spec`, `user.info`, `user.derive_identity`, `user.bootstrap`, `user.join`, `apphost.register`, `apphost.bind`, `apphost.register_handler`, `apphost.cancel`, `nodes.resolve_endpoints` |
 | `states.claimed` | `*` |
 
 Under the default lists, a session without a token reaches `.spec`,
@@ -146,6 +146,13 @@ claim. The manager answers the policies delegated to it only through its handler
 an invitation from the owner's other device among them. The `tokenless` list holds
 none of the three.
 
+The `unclaimed` list holds
+[`nodes.resolve_endpoints`](../nodes/ops/nodes.resolve_endpoints.md), so the
+manager reads the node's endpoints before the claim, and another device claims
+the node by address. The operation requires
+[`mod.auth.admin_network_action`](../auth/types/mod.auth.admin_network_action.md)
+itself. The `tokenless` list does not hold it.
+
 * A WebSocket session is gated as an IPC session is, whatever its `Origin`
   header. Any page open in a local browser reaches what the gate admits a
   session without a token.
@@ -160,7 +167,7 @@ gate:
   states:
     fresh: [.spec, sys.register_manager, user.info]
     unclaimed: [.spec, user.info, user.derive_identity, user.bootstrap, user.join, apphost.register,
-                apphost.bind, apphost.register_handler, apphost.cancel]
+                apphost.bind, apphost.register_handler, apphost.cancel, nodes.resolve_endpoints]
     claimed: ["*"]
 policies:
   app_register: reject_all
