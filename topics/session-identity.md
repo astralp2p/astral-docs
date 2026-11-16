@@ -31,7 +31,7 @@ a token also needs the operation on `gate.tokenless`. By default:
 | Node state | Without a token | With a token |
 |------------|-----------------|--------------|
 | `fresh` | `.spec`, [`sys.register_manager`](../protocols/sys/ops/sys.register_manager.md), [`user.info`](../protocols/user/ops/user.info.md) | the same |
-| `unclaimed` | `.spec`, `user.info`, [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | `.spec`, `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register` |
+| `unclaimed` | `.spec`, `user.info`, [`apphost.register`](../protocols/apphost/ops/apphost.register.md) | `.spec`, `user.info`, [`user.derive_identity`](../protocols/user/ops/user.derive_identity.md), [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), [`user.join`](../protocols/user/ops/user.join.md), `apphost.register`, [`apphost.bind`](../protocols/apphost/ops/apphost.bind.md), [`apphost.register_handler`](../protocols/apphost/ops/apphost.register_handler.md), [`apphost.cancel`](../protocols/apphost/ops/apphost.cancel.md), [`nodes.resolve_endpoints`](../protocols/nodes/ops/nodes.resolve_endpoints.md) |
 | `claimed` | `.spec`, `apphost.register`, `sys.register_manager`, `user.info` | every operation |
 
 apphost refuses other queries to the node with `error_msg{denied}` before
