@@ -24,18 +24,26 @@ passes validation.
   "Object": {
     "Caller": "037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590",
     "Contract": {
-      "Issuer": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
-      "Subject": "037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590",
-      "Permits": [
-        {
-          "Action": "mod.user.swarm_membership_action",
-          "Constraints": null,
-          "Delegation": 0
-        }
-      ],
-      "ExpiresAt": "2027-05-27T10:00:00Z",
-      "IssuerSig": "asn1:MEUCIQDg+5p9aT4q2QzVKbS9N5wXYrFh3vUaQ7E2lY0bX9pSAiB7H1k=",
-      "SubjectSig": "asn1:MEQCIA1k0kZl0ZTd5KQv0pZL5kE2c8R5Mz0qY1g6kPq3rTfMAiB7H1k="
+      "Contract": {
+        "Issuer": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
+        "Subject": "037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590",
+        "Permits": [
+          {
+            "Action": "mod.user.swarm_membership_action",
+            "Constraints": null,
+            "Delegation": 0
+          }
+        ],
+        "ExpiresAt": "2027-05-27T10:00:00Z"
+      },
+      "IssuerSig": {
+        "Data": "MEUCIQDg+5p9aT4q2QzVKbS9N5wXYrFh3vUaQ7E2lY0bX9pSAiB7H1k=",
+        "Scheme": "asn1"
+      },
+      "SubjectSig": {
+        "Data": "MEQCIA1k0kZl0ZTd5KQv0pZL5kE2c8R5Mz0qY1g6kPq3rTfMAiB7H1k=",
+        "Scheme": "asn1"
+      }
     }
   }
 }

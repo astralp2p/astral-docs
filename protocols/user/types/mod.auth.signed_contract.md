@@ -20,14 +20,22 @@ human-readable signable text).
 {
   "Type": "mod.auth.signed_contract",
   "Object": {
-    "Issuer": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
-    "Subject": "03a7c1f5b9d4e62a8f730ce15d2b4a9c11e8d77c3b5f04a6d92e1b8f72c4d3e5a6",
-    "Permits": [
-      { "Action": "mod.user.swarm_membership_action" }
-    ],
-    "ExpiresAt": "2027-05-27T12:00:00+02:00",
-    "IssuerSig": "asn1:MEUCIQDg+5p9aT4q2QzVKbS9N5wXYrFh3vUaQ7E2lY0bX9pSAiB7H1k=",
-    "SubjectSig": "asn1:MEQCIA1k0kZl0ZTd5KQv0pZL5kE2c8R5Mz0qY1g6kPq3rTfMAiB7H1k="
+    "Contract": {
+      "Issuer": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
+      "Subject": "03a7c1f5b9d4e62a8f730ce15d2b4a9c11e8d77c3b5f04a6d92e1b8f72c4d3e5a6",
+      "Permits": [
+        { "Action": "mod.user.swarm_membership_action" }
+      ],
+      "ExpiresAt": "2027-05-27T12:00:00+02:00"
+    },
+    "IssuerSig": {
+      "Data": "MEUCIQDg+5p9aT4q2QzVKbS9N5wXYrFh3vUaQ7E2lY0bX9pSAiB7H1k=",
+      "Scheme": "asn1"
+    },
+    "SubjectSig": {
+      "Data": "MEQCIA1k0kZl0ZTd5KQv0pZL5kE2c8R5Mz0qY1g6kPq3rTfMAiB7H1k=",
+      "Scheme": "asn1"
+    }
   }
 }
 ```
