@@ -6,6 +6,7 @@ derives its Astral key on. The words arrive in the input stream, or the node
 generates 24 words when `generate` is set. The node signs the claim contract as
 the user, with the derived key held in memory, and as itself. The node then
 validates the contract, stores and indexes the user's private key, stores the
+words as a [`mod.user.mnemonic`](../types/mod.user.mnemonic.md), stores the
 contract, and sets the contract as the active contract. Last, the node issues
 an access token for the user. The reply is a
 [`mod.user.bootstrap_result`](../types/mod.user.bootstrap_result.md).
@@ -38,12 +39,14 @@ signature. A user the rule refuses is answered with an `error_message`, and the
 node is unchanged. A user the node has had re-claims it with the same words once
 its contract has expired or is cleared.
 
-The words never appear in a log line or a stored object. Words the caller sends
-never appear in a reply. Generated words appear in one reply only, and the node
-keeps no copy of them. A reply lost after a claim with `generate` leaves the node
-owned by a user whose words exist nowhere. A client that confirms the user's
-backup before the claim generates the words with
-[`user.derive_identity`](user.derive_identity.md) and sends them here.
+The words never appear in a log line. The node stores the words, generated or
+sent, as a [`mod.user.mnemonic`](../types/mod.user.mnemonic.md) in its default
+repository, so the user can back them up later with
+[`user.mnemonic`](user.mnemonic.md). The passphrase is never stored. A repeat
+bootstrap of the same user keeps one stored record. The stored words are not a
+user asset and never sync to other nodes of the swarm;
+[`user.forget_mnemonic`](user.forget_mnemonic.md) deletes them. Words the caller
+sends never appear in a reply. Generated words appear in one reply only.
 
 The access token authenticates an [apphost](../../apphost/README.md) session as
 the user, and expires 365 days after the call. The node answers the token to
