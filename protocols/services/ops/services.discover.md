@@ -126,6 +126,20 @@ value per key; a write exceeding the node's timeout closes the channel.
 A lost swarm member is retried when a link appears, or with capped backoff
 while the follow remains open. Recovered offerings arrive as updates.
 
+A follow with `reach=swarm` tracks the local swarm member set while it is open:
+
+* A node that joins the swarm becomes a contributing member. Its offerings
+  arrive as `services.update`. A member that joins before `eos` adds no initial
+  work: `eos` neither waits for it nor reports it in `services.incomplete`.
+* A member that leaves the swarm stops contributing. Its shown offerings are
+  removed with `services.removed`, and the node stops asking it for the follow.
+  A member that leaves before reporting its initial outcome counts as lost.
+
+Membership changes reach the follow through the user module's
+[`mod.user.swarm_member_joined`](../../user/types/mod.user.swarm_member_joined.md)
+and [`mod.user.swarm_member_left`](../../user/types/mod.user.swarm_member_left.md)
+events. A one-shot discovery keeps the members it was admitted with.
+
 A change to the private list re-evaluates the affected bindings for the
 followers of their services.
 

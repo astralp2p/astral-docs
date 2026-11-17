@@ -26,6 +26,11 @@ with the user's words rejoins the swarm this way. A user permanently bans a node
 of bans is inspectable via `user.list_expelled`. Banned nodes hold a
 `mod.user.signed_expulsion` and are refused new contracts.
 
+A node emits a
+[`mod.user.swarm_member_joined`](types/mod.user.swarm_member_joined.md) or
+[`mod.user.swarm_member_left`](types/mod.user.swarm_member_left.md) event for
+each node that enters or leaves its local swarm member set.
+
 Three policies decide membership from outside the node. The swarm join policy
 decides each `user.request_membership`, the swarm invite policy decides each
 `user.accept_membership`, and the contract accept policy decides each
