@@ -19,6 +19,8 @@ cold-card path). `user.bootstrap` claims a node without an active contract in on
 derives the user's key from BIP-39 words, signs the claim contract for both
 parties, activates it and issues an access token for the user.
 `user.derive_identity` answers the user that words derive and changes nothing.
+`user.mnemonic` answers the words `user.bootstrap` stored, to the user or the
+manager, for a later backup; `user.forget_mnemonic` deletes them.
 `user.join` makes a node without an active contract request membership from a node of a swarm.
 `user.introduce` pushes a claimed node's active contract to a member of its
 user's swarm, which admits the node to that member's local swarm; a node claimed
