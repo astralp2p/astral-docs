@@ -40,15 +40,18 @@ configEndpoints:
 The node advertises every entry with a TTL of 7 days, next to the endpoints
 of its local interface addresses. A sibling stores the advertised endpoints
 with that TTL each time a link between the two nodes forms while no other link
-between them is open. A sibling
-that receives the node's contract from another member asks that member for the
-node's endpoints and stores them as well. A sibling's
+between them is open. A sibling that receives the node's contract from another
+member asks that member for the node's endpoints and stores them as well. A
+sibling's
 [`nodes.resolve_endpoints`](../nodes/ops/nodes.resolve_endpoints.md) of the
-node then lists the entry with the remaining TTL:
+node then lists the entry next to the node's interface endpoints, each with
+its remaining TTL in seconds:
 
 ```shellsession
 $ astral-query nodes.resolve_endpoints -identity 02f7... -out json
-{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tcp.endpoint","Object":"203.0.113.5:1791"},"TTL":604785}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.kcp.endpoint","Object":"10.0.0.4:1792"},"TTL":604725}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tcp.endpoint","Object":"10.0.0.4:1791"},"TTL":604725}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tcp.endpoint","Object":"203.0.113.5:1791"},"TTL":604725}}
 {"Type":"eos","Object":null}
 ```
 
