@@ -53,9 +53,10 @@
   `Target` or the `Operation`.
 * Unavailable, `Reject Code` 7: the route exists, but the next hop could not be
   reached. Causes are a `Link` write that failed, a `Link` that closed while the
-  `Query` waited for its answer, a relay that could not be reached or proved the
-  `Caller` to, a `Node` whose router is not ready, and a known `Node` to which
-  no `Link` could be made.
+  `Query` waited for its answer, a relay that could not be reached or to which
+  the `Caller`'s proof could not be delivered, a `Node` whose router is not
+  ready, and a known `Node` to which no `Link` could be made. A relay that
+  receives the `Caller`'s proof and does not accept it refuses the `Query`.
 * Timeout: no answer arrived within the routing deadline. A `Node` that relays
   the `Query` sends the timeout across a `Link` as `Reject Code` 6. The
   reference routing deadline is 60 s.

@@ -42,8 +42,9 @@
   that accepts the `Query` ends the routing. A candidate that does not accept does not end it, and
   the next candidate is tried.
 * Each candidate that does not accept leaves one of three answers: a refusal (any `Reject Code`
-  other than `7`, the generic `1` included), unavailable (`Reject Code` `7`, or a candidate the
-  `Node` could not reach or prove the `Caller` to), or no route (the candidate answered
+  other than `7`, the generic `1` included, or a candidate that received the calling `App`'s
+  `Contract` and did not accept it), unavailable (`Reject Code` `7`, or a candidate the `Node`
+  could not reach or could not deliver the `Contract` to), or no route (the candidate answered
   [no route here](link-mux.md#response-semantics)).
 * When no candidate accepts, the `Query` fails with the first refusal; with no refusal, it fails as
   unavailable (`7`) when any candidate was unavailable; otherwise it fails as route not found.
@@ -71,7 +72,7 @@
 | unavailable (`7`) | host unreachable, host's `Link` closed while routing, host starting | retry with backoff, 1 s doubling to 30 s, bounded |
 | timeout | host behind a dead `Link` | retry with backoff, bounded |
 | route not found | `App` not registered on its host, removed, unknown, or its relay `Contract` not held yet | discover again, or stop |
-| rejected `1` or another code | host refused the relay, or the `App` refused the `Query` | stop |
+| rejected `1` or another code | host refused the relay or the calling `App`'s `Contract` (for one, the host was expelled from the `Swarm`), or the `App` refused the `Query` | stop |
 | target not allowed | the `Caller`'s `Node` policy excludes the `Target` | stop |
 
 * An `App` that is removed from its host and an `App` that is not registered on it yet both answer
