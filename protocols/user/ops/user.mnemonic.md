@@ -10,6 +10,8 @@ The node refuses the query in these cases, in this order:
 
 * The query's origin is `network`, `mcp` or any origin other than local:
   answered with an `error_message` reading `origin not allowed: <origin>`.
+* The node has no user (it is unclaimed): answered with `no mnemonic stored`,
+  whoever the caller is.
 * The caller is neither the node's user, the issuer of its active contract,
   nor the node's [manager](../../sys/README.md#manager): answered with
   `not permitted`.
