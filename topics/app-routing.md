@@ -47,10 +47,8 @@
   [no route here](link-mux.md#response-semantics)).
 * When no candidate accepts, the `Query` fails with the first refusal; with no refusal, it fails as
   unavailable (`7`) when any candidate was unavailable; otherwise it fails as route not found.
-* A `Node` holding no such `Contract` for the `Target` has no candidate. The `Query` then fails as
-  unavailable (`7`) when the `Target` is a known `App` (see
-  [Routing outcomes](../core-definitions/query.md#routing-outcomes)), and as route not found
-  otherwise. Resolution consults held `Contracts` alone and asks the network nothing.
+* A `Node` holding no such `Contract` for the `Target` has no candidate and the `Query` fails as
+  route not found. Resolution consults held `Contracts` alone and asks the network nothing.
 
 ## Authorizing the relay
 
@@ -70,9 +68,9 @@
 
 | Outcome | Typical cause | `Caller` action |
 |---------|---------------|-----------------|
-| unavailable (`7`) | host unreachable, relay `Contract` not arrived yet for a known `App`, host starting | retry with backoff, 1 s doubling to 30 s, bounded |
+| unavailable (`7`) | host unreachable, host's `Link` closed while routing, host starting | retry with backoff, 1 s doubling to 30 s, bounded |
 | timeout | host behind a dead `Link` | retry with backoff, bounded |
-| route not found | `App` not registered on its host, removed, or unknown | discover again, or stop |
+| route not found | `App` not registered on its host, removed, unknown, or its relay `Contract` not held yet | discover again, or stop |
 | rejected `1` or another code | host refused the relay, or the `App` refused the `Query` | stop |
 | target not allowed | the `Caller`'s `Node` policy excludes the `Target` | stop |
 

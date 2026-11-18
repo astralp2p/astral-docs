@@ -49,27 +49,25 @@
 * Rejected with a `Reject Code`: a `Target` or a relaying `Node` refused the
   `Query`. A refusal is final: the same `Query` gets the same answer.
 * Route not found: no `Node` on the path routes the `Query`. Causes are an
-  unknown `Target`, a `Target` that is no known `Node` and no known `App`, and a
-  `Node` that is reached but has no handler for the `Target` or the
-  `Operation`.
+  unknown `Target`, and a `Node` that is reached but has no handler for the
+  `Target` or the `Operation`.
 * Unavailable, `Reject Code` 7: the route exists, but the next hop could not be
   reached. Causes are a `Link` write that failed, a `Link` that closed while the
   `Query` waited for its answer, a relay that could not be reached or proved the
-  `Caller` to, a `Node` whose router is not ready, a known `Node` to which no
-  `Link` could be made, and a known `App` for which this `Node` holds no relay
-  `Contract` yet.
+  `Caller` to, a `Node` whose router is not ready, and a known `Node` to which
+  no `Link` could be made.
 * Timeout: no answer arrived within the routing deadline. A `Node` that relays
   the `Query` sends the timeout across a `Link` as `Reject Code` 6. The
   reference routing deadline is 60 s.
 * Canceled: the `Caller` canceled the `Query` before an answer arrived.
 * Target not allowed: a policy of the `Caller`'s `Node`, such as a directory
   filter, excludes the `Target`. A blocked `Query` never leaves the `Node`.
-* A known `App` is an `Identity` that issued a [`Contract`](contract.md) the
-  `Node` holds, naming a `Subject` other than that `Node`. A known `Node` is an
-  `Identity` the `Node` holds an endpoint for.
+* A known `Node` is an `Identity` the `Node` holds an endpoint for. An
+  `Identity` with no endpoint and no relay [`Contract`](contract.md) the `Node`
+  holds is unknown, so a `Query` to it fails as route not found.
 * A `Caller` retries unavailable and timeout with backoff; the reference
   backoff starts at 1 s and doubles up to 30 s. A `Caller` answers route not
   found by discovering the `Target` again or by stopping. A `Caller` stops on a
   refusal and on target not allowed.
-* A known `App` whose relay `Contract` never arrives answers unavailable on
-  every attempt, so a `Caller` bounds its retries.
+* A known `Node` that never comes back answers unavailable on every attempt,
+  so a `Caller` bounds its retries.
