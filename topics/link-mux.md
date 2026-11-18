@@ -149,7 +149,9 @@ is initially willing to receive (its receive-buffer credit; see
 step — see [response semantics](#response-semantics).
 
 A session ends when either side sends a `reset` for its nonce, or when the Link
-itself closes (which tears down every session on it). A `data` or `read` frame
+itself closes (which tears down every session on it). A query still waiting for
+its `response` when the Link closes, or whose `query` frame the Link failed to
+write, ends as unavailable (`7`) at once. A `data` or `read` frame
 naming an unknown session provokes a `reset` back, so a stale sender learns the
 session is gone. A `reset` for an unknown session is silently dropped (it
 answers nothing, avoiding a reset loop).
@@ -184,11 +186,24 @@ by `Nonce`:
 * **`ErrCode` == 0** — *accepted*. The session opens; `response.Buffer` seeds the
   caller's send credit, and from here the session's `data` frames are the
   query's bytestream in both directions.
-* **`ErrCode` != 0** — *rejected*. The value is the query's
-  [*Reject Code*](../core-definitions/query.md): the generic rejection is `1`,
-  and operation-specific codes take other values. The session is discarded.
-* A target node that finds no route for the query answers the generic `1`. A
-  `response` has no code of its own for a missing route.
+* **`ErrCode` != 0** — *not accepted*. The session is discarded. The value
+  names the cause:
+
+| `ErrCode` | Meaning | The caller's node reads it as |
+|-----------|---------|-------------------------------|
+| `1` | refused: the target, a provider, or the relay refused the query | rejection with code `1` |
+| `6` | timeout: the receiving node's own onward routing passed its deadline | rejection with code `6` |
+| `7` | unavailable: the receiving node could not reach the next hop, or its router is not ready | rejection with code `7` |
+| `255` | no route here: the receiving node found no route for the query | route not found |
+| other | the target's own [*Reject Code*](../core-definitions/query.md) | rejection with that code |
+
+* `255` is link-private. A receiving node that is handed a target's own `255`
+  answers `1`, so `255` always means no route.
+* A receiving node maps its routing failure to one value: a rejection keeps its
+  code, a missing route is `255`, a passed deadline is `6`, and every other
+  failure is `7`.
+* The outcomes these values carry are defined in
+  [Routing outcomes](../core-definitions/query.md#routing-outcomes).
 
 The caller matches a `response` to its session by nonce and additionally checks
 that it arrived from the expected peer before acting on it, so a response on the
@@ -214,7 +229,7 @@ The relaying node **authorizes** the relay before forwarding: unless the wrapped
 `CallerID` is the peer that sent the frame, it must hold the
 `mod.nodes.relay_for_action` authorization for that peer to relay on its behalf.
 If the relay is not permitted, the node answers the caller with a `response`
-bearing the rejected code (`1`) for the wrapped session's nonce and forwards
+bearing the refused code (`1`) for the wrapped session's nonce and forwards
 nothing.
 
 ## Migration

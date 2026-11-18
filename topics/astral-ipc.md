@@ -107,6 +107,22 @@ Caller authorization:
 Error codes returned for `route_query`: `route_not_found`,
 `target_not_allowed`, `canceled`, `timeout`, `internal_error`, `denied`.
 
+Each [routing outcome](../core-definitions/query.md#routing-outcomes) reaches
+the guest as one reply:
+
+| Outcome | Reply |
+|---------|-------|
+| accepted | `query_accepted_msg` |
+| rejected, unavailable (`7`) included | `query_rejected_msg{Code}` |
+| route not found | `error_msg{route_not_found}` |
+| timeout: the routing deadline passed | `error_msg{timeout}` |
+| canceled: `apphost.cancel` ended the query | `error_msg{canceled}` |
+| target not allowed: a node policy such as a directory filter excludes the target | `error_msg{target_not_allowed}` |
+| any other routing failure | `error_msg{internal_error}` |
+
+No error string carries unavailable: a guest reads it as
+`query_rejected_msg{Code: 7}`.
+
 On `query_accepted_msg` the connection ceases to be a message channel and
 becomes the **raw bidirectional bytestream of the accepted query**. Both
 endpoints write/read query bytes directly; the session ends when either side
@@ -251,9 +267,9 @@ Lifecycle:
 |----------------------|----------------------------------------------------|
 | `auth_failed`        | invalid `AuthTokenMsg`                             |
 | `denied`             | guest lacks the required authorization             |
-| `route_not_found`    | no handler accepted the query                      |
-| `target_not_allowed` | caller may not query this target                   |
+| `route_not_found`    | no node on the path routes the query               |
+| `target_not_allowed` | a node policy excludes the target                  |
 | `canceled`           | query was cancelled                                |
-| `timeout`            | query timed out                                    |
+| `timeout`            | the routing deadline passed                        |
 | `protocol_error`     | unexpected/invalid message; connection is closed   |
 | `internal_error`     | catch-all                                          |

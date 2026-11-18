@@ -217,6 +217,21 @@ are reached through their hosting node under a relay contract. Native node
 services are addressed to the node identity. [App Routing](app-routing.md)
 defines these routes. Each operation checks permission when invoked.
 
+A query to a listed provider can still fail. The consumer acts on its
+[routing outcome](../core-definitions/query.md#routing-outcomes):
+
+| Outcome | Consumer action |
+|---------|-----------------|
+| unavailable (`query_rejected_msg{Code: 7}`) | Retry with backoff, 1 s doubling to 30 s, bounded. |
+| `timeout` | Retry with backoff, bounded. The provider's path may be dead while it is still listed. |
+| `route_not_found` | The provider is restarting or removed. Wait for the next discovery update, or discover again. |
+| `query_rejected_msg` with another code | The provider or its host refused. Stop. |
+| `target_not_allowed` | The consumer's node policy excludes the provider. Stop. |
+
+Discovery does not observe failed queries: a provider behind a dead link stays
+listed until the link closes, and a provider whose handler is gone stays listed
+until its binding ends.
+
 ## Lifetimes and limits
 
 The [advertise reference](../protocols/services/ops/services.advertise.md) limits

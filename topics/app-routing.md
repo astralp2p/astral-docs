@@ -39,18 +39,18 @@
 * The `Node` attaches the calling `App`'s own `Contract` to the outgoing `Query`, so the receiving
   `Node` can establish that the caller permits this relayer to speak for it.
 * The `Node` tries the candidates one at a time, in the order it found them. The first candidate
-  that accepts the `Query` ends the routing. A candidate that rejects the `Query` does not end it,
-  and the next candidate is tried.
-* When no candidate accepts, the `Query` fails with the first rejection a candidate answered with a
-  `Reject Code` other than the generic `1`, and carries that `Reject Code` (see
-  [`Query`](../core-definitions/query.md)).
-* A candidate's generic rejection counts as no route. A `Node` answers a `Query` it has no route
-  for with the generic `Reject Code` over a `Link` (see
-  [`Link Multiplexer`](link-mux.md#response-semantics)), so the generic `Reject Code` does not tell
-  a refusal from a missing route.
-* The `Query` fails as unroutable when no candidate answered a `Reject Code` other than `1`.
-* A `Node` holding no such `Contract` for the `Target` has no candidate and the `Query` fails as
-  unroutable. Resolution consults held `Contracts` alone and asks the network nothing.
+  that accepts the `Query` ends the routing. A candidate that does not accept does not end it, and
+  the next candidate is tried.
+* Each candidate that does not accept leaves one of three answers: a refusal (any `Reject Code`
+  other than `7`, the generic `1` included), unavailable (`Reject Code` `7`, or a candidate the
+  `Node` could not reach or prove the `Caller` to), or no route (the candidate answered
+  [no route here](link-mux.md#response-semantics)).
+* When no candidate accepts, the `Query` fails with the first refusal; with no refusal, it fails as
+  unavailable (`7`) when any candidate was unavailable; otherwise it fails as route not found.
+* A `Node` holding no such `Contract` for the `Target` has no candidate. The `Query` then fails as
+  unavailable (`7`) when the `Target` is a known `App` (see
+  [Routing outcomes](../core-definitions/query.md#routing-outcomes)), and as route not found
+  otherwise. Resolution consults held `Contracts` alone and asks the network nothing.
 
 ## Authorizing the relay
 
@@ -62,6 +62,22 @@
   permitted. Authority therefore flows from the `App` that granted it and from nowhere else.
 * A `Node` that holds no `Contract` for the `Caller` refuses the relay. Holding one is what
   distinguishes a `Caller` a `Node` will carry from one it will not.
+
+## Failures
+
+* A `Query` to an `App` ends in one of the
+  [Routing outcomes](../core-definitions/query.md#routing-outcomes), and the `Caller` acts on it:
+
+| Outcome | Typical cause | `Caller` action |
+|---------|---------------|-----------------|
+| unavailable (`7`) | host unreachable, relay `Contract` not arrived yet for a known `App`, host starting | retry with backoff, 1 s doubling to 30 s, bounded |
+| timeout | host behind a dead `Link` | retry with backoff, bounded |
+| route not found | `App` not registered on its host, removed, or unknown | discover again, or stop |
+| rejected `1` or another code | host refused the relay, or the `App` refused the `Query` | stop |
+| target not allowed | the `Caller`'s `Node` policy excludes the `Target` | stop |
+
+* An `App` that is removed from its host and an `App` that is not registered on it yet both answer
+  route not found: a host answers [no route here](link-mux.md#response-semantics) for either.
 
 ## Answering
 
