@@ -29,11 +29,15 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
 
 * A node is a member while it holds an active membership contract the user
   signed. The claim contract is one.
-* When a node first links to another member, the two exchange the contracts
-  that prove membership, the user's expulsions, the relay contracts of the
-  apps the members host, and the user's asset list. A node that is already linked
-  to a node when that node's first membership contract reaches it
+* Each time a node gains a link to another member, the two exchange the
+  contracts that prove membership, the user's expulsions, the relay contracts
+  of the apps the members host, and the user's asset list. A node that is
+  already linked to a node when that node's first membership contract reaches it
   synchronises with that node as well.
+* A node pushes the user's expulsions to an expelled node at each new link to
+  it, and to every linked member and every linked expelled node every
+  `reconcile_interval`, by default once an hour. A node that missed an
+  expulsion receives it this way.
 * The user and every member may read the swarm, for example with
   [`user.info`](../protocols/user/ops/user.info.md) and
   [`user.list_siblings`](../protocols/user/ops/user.list_siblings.md).
