@@ -22,7 +22,7 @@ node. A setting lives in `<name>.yaml` in the node's config directory.
 | apphost IPC | `tcp:127.0.0.1:8625`, `unix:~/.apphost.sock` | host | the gate's `tokenless` operations on the `fresh` or `unclaimed` list | the gate's `tokenless` operations | `apphost.yaml` `listen`, `gate` |
 | apphost HTTP | `tcp:127.0.0.1:8624` | host, and any page open in a local browser | `/.ws`: as apphost IPC, any `Origin`; other paths answer `401`, except `OPTIONS` | `/.ws`: as apphost IPC, any `Origin`; other paths answer `401`, except `OPTIONS` | `apphost.yaml` `bind_http`, `gate`; `/.ws` answers `403` to a non-loopback client whatever `bind_http` is; a query the gate refuses answers `403` |
 | MCP | `tcp:127.0.0.1:8626` | host | none: a request needs a bearer token | same | `mcp.yaml` `bind_mcp`; empty disables the server |
-| gateway | serves no node; registers with no gateway | none | none | none | `gateway.yaml` `gateway.enabled` with a `tcp` port under `gateway.networks`, `gateways`, `visibility` |
+| gateway | serves no node; registers with no gateway | none | none | none | `gateway.yaml` `gateway.enabled` with a `tcp` port under `gateway.networks`; `gateways` entries of `id` and `endpoints`, `visibility` ([gateway configuration](../protocols/gateway/README.md#configuration)) |
 | fwd forwards | none | per forward | each TCP client runs the `astral://` target query as the node, or as the `caller@` the target names | same | `fwd.yaml` `forwards` |
 
 * "Without a token" means a session that presents no token, or a peer that

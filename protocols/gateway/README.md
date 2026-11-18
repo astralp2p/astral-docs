@@ -17,3 +17,44 @@ A registered node keeps idle connections open to its gateway, so a caller can re
 5. The caller opens a raw exonet connection to the socket's `Endpoint` and sends the connector nonce, framed as in step 2. The gateway joins that connection to the claimed one and copies bytes in both directions, so the link handshake runs between the caller and the registered node. A claimed connection whose caller does not arrive within 30 seconds is closed.
 
 The registered node opens idle connections until two are idle, and opens more whenever one of its gateway connections closes. When `gateway.node_connect` finds no idle connection for the named node, it returns an `error_message`.
+
+## Configuration
+
+A node reads its gateway settings from `gateway.yaml`:
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `gateway.enabled` | `false` | The node serves as a gateway. |
+| `gateway.networks` | None | Per network name, the gateway's socket listener: `port`, and an optional `endpoint` handed out in `mod.gateway.socket` instead of the node's public IP. |
+| `visibility` | `private` | The visibility the node registers with at every gateway it names: `public` or `private`. |
+| `gateways` | None | The gateways the node registers with, one entry per gateway. |
+
+A `gateways` entry has two keys:
+
+* `id` (identity) – The gateway's identity.
+* `endpoints` (list of strings, optional) – The gateway's own link endpoints, each in the form `network:address`, such as `tcp:203.0.113.7:1791`. The node splits each string at its first colon.
+
+```yaml
+visibility: public
+gateways:
+  - id: 02bef8840eb35ef2ae3c83c07cb5779278904f99cb4103f71e37cc69931ae5e15f
+    endpoints:
+      - tcp:203.0.113.7:1791
+```
+
+A `gateways` entry that is not a mapping with these keys, such as a bare identity, stops node startup.
+
+## Registering with a configured gateway
+
+For each `gateways` entry the node does the following:
+
+1. Once every module has loaded its dependencies, the node parses the entry's endpoints. An endpoint with an unknown network or an invalid address is logged and skipped. The node still registers with the gateway, which it then reaches only through endpoints it learned elsewhere.
+2. The node stores each parsed endpoint for the gateway's identity with a TTL of 7 days (604800 seconds), as [`nodes.add_endpoint`](../nodes/ops/nodes.add_endpoint.md) stores a row. A query to the gateway, `gateway.node_register` included, links to the gateway through these rows.
+3. The node calls `gateway.node_register` with its `visibility`. A failed attempt is retried after 1 second, with the delay doubling up to 15 minutes. A new local network address restarts the delay at 1 second and retries at once.
+4. A successful registration starts the idle connections. The registration is up from the `mod.gateway.socket` answer until the idle connections fail: three consecutive failed dials or connections the gateway closes before their first frame. The node then registers again from step 3.
+
+The node stores the entry's endpoints again with a fresh TTL before every later registration attempt, so the rows do not expire while the gateway stays configured.
+
+## Advertised gateway endpoints
+
+While its registration with a gateway `G` is up, a node resolves its own identity, in [`nodes.resolve_endpoints`](../nodes/ops/nodes.resolve_endpoints.md), to the `mod.gateway.endpoint` `gw:<G>:<node>` among its other endpoints, with a TTL of 7 days (604800 seconds). A node without an up registration with `G` resolves no endpoint through `G`, whether or not `G` is configured.
