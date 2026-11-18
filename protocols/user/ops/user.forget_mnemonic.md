@@ -10,6 +10,8 @@ The node refuses the query in these cases, in this order:
 
 * The query's origin is `network`, `mcp` or any origin other than local:
   answered with an `error_message` reading `origin not allowed: <origin>`.
+* The node has no user (it is unclaimed): answered with `no mnemonic stored`,
+  whoever the caller is.
 * The caller is neither the node's user, the issuer of its active contract,
   nor the node's [manager](../../sys/README.md#manager): answered with
   `not permitted`.
@@ -25,7 +27,10 @@ Otherwise the operation returns one of:
 * An `ack` once the words are deleted.
 * An `error_message` reading `no mnemonic stored` if the node holds no words
   for the user.
-* An `error_message` if the deletion fails.
+* An `error_message` reading `object in use` if a holder holds the
+  `mod.user.mnemonic` object or a store committed it since the delete began; the words stay stored and `user.mnemonic` still
+  answers them.
+* An `error_message` if the deletion fails otherwise.
 
 ## Examples
 
