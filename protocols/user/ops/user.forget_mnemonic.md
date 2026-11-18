@@ -28,7 +28,7 @@ Otherwise the operation returns one of:
 * An `error_message` reading `no mnemonic stored` if the node holds no words
   for the user.
 * An `error_message` reading `object in use` if a holder holds the
-  `mod.user.mnemonic` object; the words stay stored and `user.mnemonic` still
+  `mod.user.mnemonic` object or a store committed it since the delete began; the words stay stored and `user.mnemonic` still
   answers them.
 * An `error_message` if the deletion fails otherwise.
 
