@@ -1,8 +1,8 @@
 # mod.user.swarm_member_left
 
-Emitted by user when a node leaves the node's [Local Swarm](../../../core-definitions/local-swarm.md) member set: the node is expelled, or the active contract changes or is cleared. It travels as the `Data` of a [`mod.events.event`](../../events/types/mod.events.event.md) to the node's own receivers and never leaves the node.
+Emitted by user when a node leaves the node's [Local Swarm](../../../core-definitions/local-swarm.md) member set: the node is expelled, the node's last membership contract expires, or the active contract changes or is cleared. It travels as the `Data` of a [`mod.events.event`](../../events/types/mod.events.event.md) to the node's own receivers and never leaves the node.
 
-The user module emits one `mod.user.swarm_member_left` per node gone from the set it last published, and nothing when the set is unchanged. A membership contract that expires emits no `mod.user.swarm_member_left`.
+The user module emits one `mod.user.swarm_member_left` per node gone from the set it last published, and nothing when the set is unchanged. When the last membership contract of a member node expires, the user module emits `mod.user.swarm_member_left` for that node one second after the contract's `ExpiresAt`. A member with several membership contracts leaves only when the latest of them expires. The expiry of the node's own membership contract triggers no comparison.
 
 ## Fields
 

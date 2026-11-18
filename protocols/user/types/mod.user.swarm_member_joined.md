@@ -2,7 +2,7 @@
 
 Emitted by user when a node enters the node's [Local Swarm](../../../core-definitions/local-swarm.md) member set. It travels as the `Data` of a [`mod.events.event`](../../events/types/mod.events.event.md) to the node's own receivers and never leaves the node.
 
-The user module compares the member set after each change of membership contracts, expulsions or the active contract with the set it last published. It emits one `mod.user.swarm_member_joined` per node new to the set, and nothing when the set is unchanged. A node whose membership contract was in the index at startup emits no event.
+The user module compares the member set with the set it last published after each change of membership contracts, expulsions or the active contract, and when the last membership contract of a member node expires. It emits one `mod.user.swarm_member_joined` per node new to the set, and nothing when the set is unchanged. A node whose membership contract was in the index at startup emits no event.
 
 ## Fields
 
