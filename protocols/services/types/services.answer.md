@@ -13,7 +13,8 @@ For a matching request:
   stays open; this differs from [discovery refusal](../../../topics/services.md#reading-the-outcome).
 
 A missing update, mismatched name, or different provider fails the binding.
-Closure sends [`services.removed`](services.removed.md) for shown offerings
+Closure sends [`services.removed`](services.removed.md) with cause
+`binding_closed` for shown offerings
 and marks unresolved initial evaluations in
 [`services.incomplete`](services.incomplete.md).
 

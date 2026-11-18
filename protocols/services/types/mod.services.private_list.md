@@ -15,7 +15,8 @@ hosts.
 
 A change takes effect at once: the node re-evaluates the affected bindings for
 the followers of their services, and a follow that may no longer see an
-offering receives [`services.removed`](services.removed.md) for it.
+offering receives [`services.removed`](services.removed.md) with cause
+`hidden` for it.
 
 ## Fields
 

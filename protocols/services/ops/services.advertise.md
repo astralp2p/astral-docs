@@ -71,7 +71,8 @@ For an outstanding ask, a missing `Update`, mismatched `Update.Name`, or a
 non-empty `ProviderID` different from the binding's provider fails the binding.
 An undecodable frame, unexpected object, or change with `All: false` and no
 callers also fails it. Closure removes shown offerings through
-[`services.removed`](../types/services.removed.md) and marks unresolved initial
+[`services.removed`](../types/services.removed.md) with cause `binding_closed`
+and marks unresolved initial
 evaluations in [`services.incomplete`](../types/services.incomplete.md).
 
 The node retires unanswered asks at its request timeout. An answer with no
