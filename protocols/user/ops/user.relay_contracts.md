@@ -11,6 +11,8 @@ A relay contract is a contract with a permit for
 each relay contract it holds that meets every condition below:
 
 * `issuer` is its issuer.
+* Its subject is not the caller: the caller holds the relay contracts of the
+  apps it hosts.
 * Every permit it carries is for `mod.nodes.relay_for_action`.
 * It is active: started, not expired and not withdrawn on this node.
 * It passes the admission rule of
