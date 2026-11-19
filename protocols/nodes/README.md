@@ -24,6 +24,8 @@ subject.
 * A [`mod.ip.events.network_address_changed`](../ip/types/mod.ip.events.network_address_changed.md)
   event starts a 5 s wait, unless a wait is already running. A change during
   the wait joins that wait and starts no second one.
+* An event whose `Added` and `Removed` hold only IPv6 link-local addresses
+  starts no wait. A node never advertises an IPv6 link-local address.
 * When the wait ends, the node pushes one
   [`mod.nodes.endpoints_changed_message`](types/mod.nodes.endpoints_changed_message.md)
   with `Subject` set to its own identity to every member of its local swarm it
