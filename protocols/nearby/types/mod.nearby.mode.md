@@ -51,7 +51,11 @@ lists the peers it hears and emits no `mod.nearby.peer_seen`.
   node identity recovers the user identity from the hint. Either node unwraps
   and verifies the proof. Any other node learns neither identity, and recovers
   no public key from the wrapped signature.
-* No status carries an endpoint, a contract or a `mod.dir.alias`.
+* A node whose `tcp` or `kcp` listen port differs from its default (`1791`,
+  `1792`) adds its listen ports: a `mod.nearby.listen_ports` in mode `1`
+  (Visible), which every node reads, and a `mod.nearby.sealed_ports` in mode
+  `2` (Stealth), which only a node that knows the node identity opens.
+* No status carries an address, a contract or a `mod.dir.alias`.
 * A scan reply is the node's normal status, broadcast on the subnet that
   contains the scan's source IP. It discloses nothing beyond the periodic
   status.
@@ -61,8 +65,9 @@ lists the peers it hears and emits no `mod.nearby.peer_seen`.
   ([user](../../user/README.md)). Its expiry, by default 365 days after the
   contract was made, shows when the user claimed or adopted the node.
 * An observer on the local network sees UDP traffic on the ether port (`8822`
-  by default) and TCP traffic on port `1791`, which shows that the device runs
-  astral. No mode hides the device's IP or MAC address.
+  by default) and TCP traffic on the node's `tcp` listen port, `1791` by
+  default, which shows that the device runs astral. No mode hides the
+  device's IP or MAC address.
 
 ## Example
 

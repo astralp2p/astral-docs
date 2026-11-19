@@ -249,8 +249,8 @@ node that knows no route answers `user.join` with `route not found`.
 * For a join on a shared local network, the new node finds the swarm node
   itself. `user.join` scans with [`nearby`](../protocols/nearby/README.md)
   and recognises the swarm node's stealth hint by the node identity it is
-  given, then reaches the swarm node at its source IP on TCP port 1791
-  ([`user.join`](../protocols/user/ops/user.join.md)). The swarm node's
+  given, then reaches the swarm node at its source IP on the TCP port its
+  status carries, 1791 when it carries none ([`user.join`](../protocols/user/ops/user.join.md)). The swarm node's
   nearby mode is Stealth, the default of a node with a user, or Visible. The
   new node learns the swarm node's user identity from the hint before the
   swarm node admits it.

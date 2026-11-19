@@ -2,7 +2,7 @@
 
 The `ether` protocol carries public, connectionless messages across a local network. A node sends a small typed object to every node on its IPv4 subnets, and each receiving node hands the object to its own modules. [`nearby`](../nearby/README.md) uses ether for node presence and discovery.
 
-Messages travel over UDP. The node binds one IPv4 UDP socket on the ether port, `udp_port` in `ether.yaml`, `8822` by default. A datagram holds exactly one [`mod.ether.envelope`](types/mod.ether.envelope.md): a version byte, `1`, and the object being sent. The envelope carries no source identity, no timestamp and no signature. A datagram is at most 1024 bytes, about twice the largest nearby status (about 510 bytes with a 255-byte alias) and below the 1472-byte UDP payload of an Ethernet frame. The node sends every datagram with IP TTL 255.
+Messages travel over UDP. The node binds one IPv4 UDP socket on the ether port, `udp_port` in `ether.yaml`, `8822` by default. A datagram holds exactly one [`mod.ether.envelope`](types/mod.ether.envelope.md): a version byte, `1`, and the object being sent. The envelope carries no source identity, no timestamp and no signature. A datagram is at most 1024 bytes, above the largest nearby status (at most 565 bytes, with a 255-byte alias and listen ports) and below the 1472-byte UDP payload of an Ethernet frame. The node sends every datagram with IP TTL 255.
 
 The node sends a message to the broadcast address of every local IPv4 subnet, or to the broadcast address of the one local subnet that contains a given IP. A broadcast to every subnet skips loopback interfaces and link-local addresses, and sends once to a broadcast address that several interfaces share. ether has no unicast send.
 
