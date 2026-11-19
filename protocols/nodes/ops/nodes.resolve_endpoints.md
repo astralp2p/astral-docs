@@ -7,6 +7,20 @@ The caller must hold
 The operation answers an `error_message` reading `not permitted` before the
 identity is resolved when the caller is not authorized.
 
+## Swarm only
+
+The endpoints a node advertises, and the endpoints it stores for other nodes,
+are private to its user's swarm. The holders of
+`mod.auth.admin_network_action` are the user identity, the node itself and the
+current node members of the swarm, plus an identity the action is delegated to
+([Holders](../../auth/types/mod.auth.admin_network_action.md#holders)). A node
+of another user, a gateway the user never adopted, a hosting node and any other
+linked peer outside the swarm receive `not permitted`. A link with such a peer
+stores no endpoints on either side: a node pulls endpoints when a link forms
+only from a member of its own swarm.
+[Node Exposure, Endpoint exchange](../../../topics/node-exposure.md#endpoint-exchange)
+lists the operator paths that make a node outside the swarm reachable.
+
 ## Arguments
 
 * identity (string8, required) – The identity whose endpoints are resolved, given as a hex public key or a name resolved via the directory.
@@ -16,11 +30,37 @@ identity is resolved when the caller is not authorized.
 
 The operation returns a stream of `mod.nodes.endpoint_with_ttl` objects, terminated by `eos`. If `identity` does not resolve the operation answers an `error_message` reading `unknown identity`, and `zero identity` if it resolves to the anonymous identity; if resolver lookup fails internally the operation answers the error.
 
+Each object carries the TTL its resolver assigns, in seconds:
+
+* The node's own identity: a `mod.tcp.endpoint` and a `mod.kcp.endpoint` at
+  each local interface address while the module listens, and each
+  [`configEndpoints`](../../tcp/README.md#advertising-a-public-or-forwarded-endpoint) entry of `tcp.yaml`, with
+  `604800` (7 days); the `mod.tor.endpoint` of the onion service while tor
+  listens, with `7776000` (90 days); and a `mod.gateway.endpoint` for each
+  gateway the node uses ([gateway](../../gateway/README.md)).
+* Any other identity: each stored row with its remaining TTL. A row that
+  [`nodes.add_endpoint`](nodes.add_endpoint.md) wrote starts at `7776000`
+  (90 days); a row stored from a swarm member's answer starts at the TTL of
+  that answer. A verified [`nearby`](../../nearby/README.md) peer adds a
+  `mod.tcp.endpoint` on port `1791` and a `mod.kcp.endpoint` on port `1792`
+  at its source IP, with the remaining life of its cache entry, at most `300`.
+
 ## Examples
+
+On a node whose tcp and kcp listen on `192.168.1.10` and whose onion service
+is up, a caller that holds the action resolves the node's own identity:
 
 ```shellsession
 $ astral-query nodes.resolve_endpoints -identity 037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590 -out json
-{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"tcp.endpoint","Object":"1.2.3.4:1791"},"TTL":7776000}}
-{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"tor.endpoint","Object":"abcdefghijklmnop.onion:1791"},"TTL":null}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.kcp.endpoint","Object":"192.168.1.10:1792"},"TTL":604800}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tcp.endpoint","Object":"192.168.1.10:1791"},"TTL":604800}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tor.endpoint","Object":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaad.onion:1791"},"TTL":7776000}}
 {"Type":"eos","Object":null}
+```
+
+A caller outside the swarm that holds no delegation of the action is refused:
+
+```shellsession
+$ astral-query nodes.resolve_endpoints -identity 037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590 -out json
+{"Type":"error_message","Object":"not permitted"}
 ```

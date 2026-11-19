@@ -99,7 +99,7 @@ Contents:
     * [User and Swarm](topics/user-and-swarm.md) - what a user and a swarm are, the user key, claiming a node in one call or step by step, joining a swarm, losing the owner, and the refusals
     * [Node Policies](topics/node-policies.md) - the gate in each node state, the five admission policies, their config values and delegates, approval apps, and the distribution and test configurations
     * [Session Identity](topics/session-identity.md) - every query runs as an identity: what the gate admits with and without a token in each node state, the settings that change it, and the node's token
-    * [Node Exposure](topics/node-exposure.md) - what a fresh node opens: each surface's default bind, who reaches it before and after the claim, what a linked peer reaches, and the setting that closes it
+    * [Node Exposure](topics/node-exposure.md) - what a fresh node opens: each surface's default bind, who reaches it before and after the claim, what a linked peer reaches, the setting that closes it, and how a node outside the swarm reaches the node
     * [Network Architecture](topics/network-architecture.md) - how identities, nodes, links, swarms, and contracts compose at runtime
     * [App Routing](topics/app-routing.md) - how a query addressed to an app reaches it, on its own node and on another
     * [Blueprints](topics/blueprints.md) - runtime wire-structure schemas that let a node encode and decode typed objects without compiled code
