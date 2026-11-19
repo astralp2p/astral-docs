@@ -83,6 +83,12 @@ A member that routes a query to an app whose relay contract it does not hold
 asks its linked members for it with `user.relay_contracts`, once per miss
 ([App Routing, Resolving the host](../../topics/app-routing.md#resolving-the-host)).
 
+A node wakes its link to a member of its local swarm when a
+[`mod.nodes.endpoints_updated_event`](../nodes/types/mod.nodes.endpoints_updated_event.md)
+names the member: a node that is not linked to the member dials at once instead
+of waiting out the link's backoff of up to 15 minutes
+([Endpoint exchange in the local swarm](../nodes/README.md#endpoint-exchange-in-the-local-swarm)).
+
 A node contacts the nodes [`nearby`](../nearby/README.md) finds on the local
 network only when the peer's `mod.nearby.peer_seen` names the node's own user.
 It links at once to such a peer that is a member of its local swarm and is not

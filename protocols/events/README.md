@@ -21,6 +21,7 @@ These objects travel as the `Data` of a `mod.events.event`:
 * [`mod.nodes.link_created_event`](../nodes/types/mod.nodes.link_created_event.md)
 * [`mod.nodes.link_closed_event`](../nodes/types/mod.nodes.link_closed_event.md)
 * [`mod.nodes.link_pressure_event`](../nodes/types/mod.nodes.link_pressure_event.md)
+* [`mod.nodes.endpoints_updated_event`](../nodes/types/mod.nodes.endpoints_updated_event.md)
 * [`mod.nearby.peer_seen`](../nearby/types/mod.nearby.peer_seen.md)
 * [`mod.user.swarm_member_joined`](../user/types/mod.user.swarm_member_joined.md)
 * [`mod.user.swarm_member_left`](../user/types/mod.user.swarm_member_left.md)
