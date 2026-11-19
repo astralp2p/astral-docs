@@ -48,8 +48,22 @@
   [no route here](link-mux.md#response-semantics)).
 * When no candidate accepts, the `Query` fails with the first refusal; with no refusal, it fails as
   unavailable (`7`) when any candidate was unavailable; otherwise it fails as route not found.
-* A `Node` holding no such `Contract` for the `Target` has no candidate and the `Query` fails as
-  route not found. Resolution consults held `Contracts` alone and asks the network nothing.
+* Resolution consults held `Contracts`, and on a miss asks linked members once. A `Node` that
+  holds no such `Contract` for the `Target`, and reaches the `Target` over no `Link` of its own,
+  asks each member of its `Swarm` it holds a `Link` with for the `Target`'s relay `Contracts`, with
+  [`user.relay_contracts`](../protocols/user/ops/user.relay_contracts.md), all members at once.
+* The `Node` indexes the first answered `Contract` that passes the admission rule of
+  [Reach](#reach), with the answering member as the delivering `Node`, and stops asking. The
+  candidates are then the `Subjects` of the relay `Contracts` the `Target` issued that the `Node`
+  holds.
+* The ask lasts at most 1 s. `Queries` to one `Target` that miss while an ask for it runs share
+  that ask, so each miss asks the members once.
+* The `Node` never asks for a `Target` that is the `Node` itself, a member of its
+  [`Local Swarm`](../core-definitions/local-swarm.md), or its `User`. The ask's own `Queries`
+  target members, so an ask never starts another ask.
+* An ask that yields no candidate leaves the `Query` failing as route not found. For 30 s after
+  such an ask, the `Node` asks nothing for that `Target`, and a `Query` to it with no held
+  `Contract` fails as route not found without an ask.
 
 ## Authorizing the relay
 
@@ -71,7 +85,7 @@
 |---------|---------------|-----------------|
 | unavailable (`7`) | host unreachable, host's `Link` closed while routing, host starting | retry with backoff, 1 s doubling to 30 s, bounded |
 | timeout | host behind a dead `Link` | retry with backoff, bounded |
-| route not found | `App` not registered on its host, removed, unknown, or its relay `Contract` not held yet | discover again, or stop |
+| route not found | `App` not registered on its host, removed, unknown, or its relay `Contract` held neither by the `Node` nor by any linked member | discover again, or stop |
 | rejected `1` or another code | host refused the relay or the calling `App`'s `Contract` (for one, the host was expelled from the `Swarm`), or the `App` refused the `Query` | stop |
 | target not allowed | the `Caller`'s `Node` policy excludes the `Target` | stop |
 
@@ -98,6 +112,8 @@
 * A `Node` gives the `Contract` of an `App` it hosts to the members it is linked to when the `App`
   registers. A member not linked at that moment receives it at its next first `Link` to any member
   that holds it.
+* A member that missed both deliveries obtains the `Contract` when it routes a `Query` to the
+  `App`: it asks its linked members on the miss ([Resolving the host](#resolving-the-host)).
 * A relay `Contract` is one that carries a `Permit` for `mod.nodes.relay_for_action`, alone or
   beside other `Permits`. Routing finds an `App`'s hosts by that `Permit`, so every relay
   `Contract` routes.

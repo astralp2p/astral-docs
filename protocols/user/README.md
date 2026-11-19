@@ -57,6 +57,8 @@ except `user.contract` — `user.info`, `user.assets`, `user.sync_assets`,
 `user.list_siblings`, `user.swarm_status` and `user.list_expelled` — and
 `user.new_node_contract` when `user` is omitted on a claimed node.
 `user.contract` asks for no action and answers every directly linked caller.
+`user.relay_contracts` asks for no action and answers only the other members of
+the local swarm.
 `mod.user.admin_swarm_action` covers every change to what the swarm holds —
 `user.adopt`, `user.expel`, `user.introduce`, `user.add_asset`,
 `user.remove_asset` and `user.sync_with`, which applies another node's entries
@@ -77,6 +79,9 @@ it pushes are those it holds that pass the admission rule of
 the member. A pushed app relay contract lets the member route a query addressed
 to the app through the app's host. An app registered while the two nodes are
 already linked reaches the member when it registers.
+A member that routes a query to an app whose relay contract it does not hold
+asks its linked members for it with `user.relay_contracts`, once per miss
+([App Routing, Resolving the host](../../topics/app-routing.md#resolving-the-host)).
 
 A node contacts the nodes [`nearby`](../nearby/README.md) finds on the local
 network only when the peer's `mod.nearby.peer_seen` names the node's own user.
