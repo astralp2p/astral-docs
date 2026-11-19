@@ -11,9 +11,13 @@ withdraws an offering by the provider's own answer.
 
 `Cause` is a `uint8`. The value is one of:
 
-* `1` – member_lost: the carry to the contributing swarm member ended, and the
-  node retries the member when a link appears or after a backoff of 1 s to
-  60 s. Recovered offerings arrive as [`services.update`](services.update.md).
+* `1` – member_lost: the carry to the contributing swarm member ended. On a
+  follow, the node retries the member when a link appears or after a backoff
+  of 1 s to 60 s, and recovered offerings arrive as
+  [`services.update`](services.update.md). A one-shot discovery does not
+  retry: a member whose discovery fails before its initial outcome has the
+  offerings it already showed removed with `member_lost`, and they do not
+  return on that stream.
 * `2` – member_left: the contributing swarm member left the swarm set. The node
   does not retry the member.
 * `3` – member_removed: the contributing swarm member sent `services.removed`
