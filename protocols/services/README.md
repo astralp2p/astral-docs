@@ -65,7 +65,7 @@ The [Services topic](../../topics/services.md) provides examples and the
 * [`services.answer`](types/services.answer.md) – provider to node: the evaluated offering
 * [`services.change`](types/services.change.md) – provider to node: some callers' offerings may have changed
 * [`services.incomplete`](types/services.incomplete.md) – the initial attempt did not complete
-* [`services.removed`](types/services.removed.md) – shown offerings whose provider was lost
+* [`services.removed`](types/services.removed.md) – shown offerings that left the caller's view, with the cause
 * [`mod.services.service_discovery_action`](types/mod.services.service_discovery_action.md) – discover one service on one node
 * [`mod.services.discovery_scope`](types/mod.services.discovery_scope.md) – the services and nodes a discovery permit allows
 * [`mod.services.discovery_rule`](types/mod.services.discovery_rule.md) – one rule of a discovery scope
