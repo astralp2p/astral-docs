@@ -15,7 +15,8 @@ operation also answers `origin not allowed: network` to a query that arrived
 over a [`Link`](../../../core-definitions/link.md), whatever the caller holds.
 
 A sibling node's app is known once its relay contract reached this node: at a
-new link to its host or to any other member that holds the contract, at the
+new link to its host or to any other member that holds the contract, when a
+link to one of them closes while another remains, at the
 app's registration, or when the app runs swarm discovery.
 
 ## Arguments

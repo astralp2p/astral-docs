@@ -146,6 +146,10 @@ Each node runs the keepalive on its own:
 * The ping timeout starts before the probe is written. A probe that cannot be
   written within `T`, because the peer stopped reading, closes the Link like a
   missing `pong`.
+* A node that adds a Link to a peer while it holds other Links to that peer
+  sends one probe on each of those older Links at once, whatever their idle
+  interval. A new Link often means the peer moved and an older Link is dead.
+  A dead older Link closes within its `T`; a healthy one answers and stays.
 * Closing the Link tears down every session on it (see [sessions](#sessions)).
   A Link whose peer stopped responding therefore closes within `N + T` of the
   last frame received from that peer.

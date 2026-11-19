@@ -13,6 +13,10 @@ subject.
 
 * When a new link is the node's only link to a member of its local swarm, the
   node pulls the endpoints of that member from that member.
+* When one of the node's links to a member of its local swarm closes and
+  another link to that member remains, the node pulls the endpoints of that
+  member from that member over a remaining link. The node runs one such pull per
+  member at a time; closes during a pull start at most one more pull after it.
 * When a pushed membership contract reaches the node, the node pulls the
   endpoints of the contract's subject from the sender.
 * When a node's own set of local addresses changes, the node announces the
