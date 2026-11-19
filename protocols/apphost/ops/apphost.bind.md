@@ -21,8 +21,12 @@ token for the handler's recorded owner. Ending the session removes every
 handler that session bound, then closes the session's channel, so an app that
 reconnects on a closed bind channel registers its handlers again. The host ends
 at most one session per owner in any 30 s window. A dial failure inside the
-window ends the session when the window closes. A handler that records no owner
-has no session to end, and its failed dial removes only that handler.
+window ends the session when the window closes. When no session of the owner
+holds the token, the end applies to the next session of that owner that binds
+the token within 30 s, because an app can register a handler before it binds
+the handler's token. A failed dial of a handler that another query already
+removed ends no session. A handler that records no owner has no session to
+end, and its failed dial removes only that handler.
 
 A session holding
 [`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
