@@ -15,6 +15,11 @@ identity it holds a [`mod.auth.sudo_action`](../../auth/types/mod.auth.sudo_acti
 for. [`apphost.bind`](apphost.bind.md) matches the recorded session when it
 removes handlers by token.
 
+The host does not dial the endpoint at registration. The host dials the
+endpoint for each inbound query. A failed dial removes the handler, and the
+host ends the bind session that bound the handler's token for the recorded
+session, as [`apphost.bind`](apphost.bind.md) describes.
+
 The operation expects an IPC dial endpoint, so it is not usable over the
 WebSocket transport; a WebSocket client registers through the
 register-service flow in the

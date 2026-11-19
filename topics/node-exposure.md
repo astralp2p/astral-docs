@@ -18,7 +18,7 @@ node. A setting lives in `<name>.yaml` in the node's config directory.
 | KCP links | `:1792` UDP, all interfaces | host, LAN, internet | as TCP links | as TCP links | `kcp.yaml` `listen`, `listen_port` |
 | Tor onion service | off | internet through Tor | as TCP links, when on | as TCP links, when on | `tor.yaml` `listen: true`; needs a Tor control port at `control_addr` (default `127.0.0.1:9051`) |
 | ether discovery | `:8822` UDP, IPv4, all interfaces | LAN: a datagram from outside the local IPv4 subnets, or with an IP TTL other than 255, is dropped | carries nearby; unsigned, no source identity | same | `ether.yaml` `listen`, `udp_port` |
-| nearby status and scan reply | over ether | LAN | `adoptable` flag; public profile with the node identity and alias; status proof | Stealth by default: stealth hint and status proof with a wrapped signature. Visible: public profile with the node identity, user identity and alias; status proof | `nearby.yaml` `mode`; `0` sends nothing |
+| nearby status and scan reply | over ether | LAN | `adoptable` flag; public profile with the node identity and alias; the `tcp` and `kcp` listen ports in plaintext when either is not its default; status proof | Stealth by default: stealth hint, the listen ports sealed to the node identity when either is not its default, and status proof with a wrapped signature. Visible: public profile with the node identity, user identity and alias; the listen ports in plaintext when either is not its default; status proof | `nearby.yaml` `mode`; `0` sends nothing |
 | apphost IPC | `tcp:127.0.0.1:8625`, `unix:~/.apphost.sock` | host | the gate's `tokenless` operations on the `fresh` or `unclaimed` list | the gate's `tokenless` operations | `apphost.yaml` `listen`, `gate` |
 | apphost HTTP | `tcp:127.0.0.1:8624` | host, and any page open in a local browser | `/.ws`: as apphost IPC, any `Origin`; other paths answer `401`, except `OPTIONS` | `/.ws`: as apphost IPC, any `Origin`; other paths answer `401`, except `OPTIONS` | `apphost.yaml` `bind_http`, `gate`; `/.ws` answers `403` to a non-loopback client whatever `bind_http` is; a query the gate refuses answers `403` |
 | MCP | `tcp:127.0.0.1:8626` | host | none: a request needs a bearer token | same | `mcp.yaml` `bind_mcp`; empty disables the server |
@@ -98,14 +98,64 @@ link. A linked peer that holds no grant reaches these operations:
 
 Every other operation refuses a network caller, or requires an authorization
 that the peer fails under the default config.
+[`nodes.resolve_endpoints`](../protocols/nodes/ops/nodes.resolve_endpoints.md)
+is one of them: a linked peer outside the swarm learns no endpoint of the node
+([Endpoint exchange](#endpoint-exchange)).
 
 A claimed node dials out when nearby verifies a node of its own user
-([user](../protocols/user/README.md)). It links to the peer's source IP on TCP
-port `1791` or KCP port `1792`, reads the peer's contract with
-`user.contract`, and pushes its own contract only when the peer's contract
-passes the check. It dials no unowned node and no node of another user. A node
+([user](../protocols/user/README.md)). It links to the peer's source IP on the
+TCP or KCP port the peer's status carries, `1791` and `1792` when the status
+carries no ports ([nearby](../protocols/nearby/README.md)), reads the peer's
+contract with `user.contract`, and pushes its own contract only when the peer's
+contract passes the check. It dials no unowned node and no node of another user. A node
 in mode `0` (Silent) dials as well, unless `silent_listen` in `nearby.yaml` is
 `false`.
+
+## Endpoint exchange
+
+A node's endpoints, and the endpoints it stores for other nodes, are private
+to its user's swarm. This section is read from astrald source at commit
+`5b64abb0`.
+[`nodes.resolve_endpoints`](../protocols/nodes/ops/nodes.resolve_endpoints.md)
+answers only a holder of
+[`mod.auth.admin_network_action`](../protocols/auth/types/mod.auth.admin_network_action.md):
+the user identity, the node itself, a current node member of the swarm, or an
+identity the action is delegated to. A node pulls a peer's endpoints when the
+first link with the peer forms only when the peer is a member of its own
+swarm. A link with a node outside the swarm, such as a node of another user, a
+gateway the user never adopted or a hosting node, therefore stores no
+endpoints on either side.
+
+Three operator paths make a node outside the swarm reachable:
+
+* **A manual row.**
+  [`nodes.add_endpoint`](../protocols/nodes/ops/nodes.add_endpoint.md), on
+  each node that dials the outsider, stores one endpoint of the outsider for
+  90 days (`7776000` seconds). Nothing renews the row: the operator adds it
+  again before it lapses and after the outsider's address changes. The node
+  gives no notice before the row lapses, and a lapsed row resolves to no
+  endpoint.
+* **A delegated `mod.auth.admin_network_action`.** A contract chain from the
+  user that grants the action to the outsider's identity
+  ([Holders](../protocols/auth/types/mod.auth.admin_network_action.md#holders))
+  admits the outsider to `nodes.resolve_endpoints` on a node that holds the
+  chain. The outsider reads the node's endpoints and stores them on its own
+  side with `nodes.add_endpoint`; nothing pulls them for it.
+  **Warning:** the permit grants every operation the action gates, not only
+  endpoint reads. The outsider can list the node's links and sessions, open
+  and close links, migrate sessions, add endpoints, punch NAT holes, open and
+  close ephemeral listeners, and switch NAT traversal off. A permit for the action
+  carries no constraints that narrow it.
+* **Visible nearby on a shared LAN.** A node in nearby mode `1` (Visible)
+  broadcasts its node identity in a public profile. A node of any user on the
+  same IPv4 link verifies the status and resolves the node at the status's
+  source IP, `tcp` and `kcp` on the listen ports the status carries (`1791`
+  and `1792` when it carries none), until the cache
+  entry expires 5 minutes after the last status
+  ([nearby](../protocols/nearby/README.md)). A claimed node broadcasts in
+  Stealth by default; a node of another user caches its status as an
+  unrecognised node and resolves no endpoint for it. `mode: 1` in
+  `nearby.yaml` sets Visible.
 
 ## Reset
 

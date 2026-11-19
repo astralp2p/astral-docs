@@ -37,14 +37,45 @@ The default gate admits `user.join` on an `unclaimed` node from a session with
 a token, and refuses it on a `fresh` node and from a session without a token
 ([Gate](../../apphost/README.md#gate)).
 
-The join needs a route to the swarm node, and the swarm node provides it. The
-default gate refuses
+The join needs a route to the swarm node. Before the request the node looks
+for one:
+
+* A link to the swarm node, or an endpoint the node resolves for it, is a
+  route, and the node sends the request at once.
+* Otherwise the node broadcasts a
+  [`mod.nearby.scan_message`](../../nearby/types/mod.nearby.scan_message.md)
+  and waits up to 3 seconds, or to the query's deadline when that comes
+  first. It checks for a route every 250 milliseconds and sends the request
+  as soon as one appears, or when the wait ends without one. A node in
+  Silent mode sends no scan and still waits.
+
+While `user.join` runs, the node recognises the swarm node on a shared local
+network through [`nearby`](../../nearby/README.md): its `user` module opens a
+[`mod.nearby.stealth_hint`](../../nearby/types/mod.nearby.stealth_hint.md)
+with the identity of the swarm node `node` names. A hint that opens names that
+node and the user the hint carries. nearby then checks the status proof's
+nonce and verifies its signature under the swarm node's key, as for every
+recognised status, opens the sealed listen ports with the swarm node's
+identity, and resolves the swarm node at the status's source IP on the `tcp`
+and `kcp` ports the status carries, `1791` and `1792` when it carries none. A
+swarm node in Visible mode names
+itself in its profile and resolves the same way. A swarm node in Silent mode
+answers no scan.
+
+* The node opens hints with the swarm node's identity only, and only while
+  `user.join` runs. A node with an active contract never opens a hint with a
+  node identity.
+* The node learns the swarm node's user identity from the hint before the
+  swarm node admits it. Any node that knows a node identity can learn its
+  user identity this way.
+
+Elsewhere the swarm node provides the route. The default gate refuses
 [`nodes.add_endpoint`](../../nodes/ops/nodes.add_endpoint.md) on an
 `unclaimed` node, so this node cannot add the swarm node's endpoint before the
 claim. The swarm node opens a link to this node with
 [`nodes.new_link`](../../nodes/ops/nodes.new_link.md), and the join travels
-over it. Nodes of one user on a shared local network find each other through
-[`nearby`](../../nearby/README.md).
+over it. A swarm node on another network and one in Silent mode are reached
+this way.
 [User and Swarm, The route between the nodes](../../../topics/user-and-swarm.md#the-route-between-the-nodes)
 shows the commands.
 
@@ -71,7 +102,7 @@ Otherwise the operation returns one of:
 * An `error_message` reading `invitation declined` if this node's invite policy
   declines the contract.
 * An `error_message` reading `route not found` if this node knows no route to
-  the swarm node.
+  the swarm node after the wait.
 * An `error_message` reading `no active contract` if the swarm node has no
   active contract.
 * An `error_message` if the swarm node cannot be reached, or if issuing,

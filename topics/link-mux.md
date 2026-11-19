@@ -119,7 +119,54 @@ Notes on the payload layouts:
   three fields `Nonce`, `Buffer`, `Query`); it carries no type tag of its own,
   because the outer `relay_query` frame already announced the type.
 * `ping.Pong` false is a probe; the peer must answer with a `ping` bearing the
-  same `Nonce` and `Pong` true. Pings double as the Link's keepalive.
+  same `Nonce` and `Pong` true. Pings double as the Link's keepalive (see
+  [keepalive](#keepalive)).
+
+## Keepalive
+
+Both ends of every Link probe the peer while the Link is idle, so a Link whose
+peer stops responding (a frozen process, a power cut, a dropped network) closes
+in bounded time on every transport. The probes are the `ping` frames above; the
+keepalive adds no frame.
+
+Two durations time the keepalive of a Link:
+
+* The **idle interval** `N`: a node probes the peer once `N` passes without a
+  frame received from that peer.
+* The **ping timeout** `T`: a node closes the Link when the `pong` for its
+  probe does not arrive within `T`.
+
+Each node runs the keepalive on its own:
+
+* Every received frame restarts the idle interval, except a probe from the
+  peer (`ping` with `Pong` false). A `pong`, a `query` and a `data` frame each
+  restart it.
+* A Link that carries frames from the peer more often than every `N` sends no
+  probe.
+* The ping timeout starts before the probe is written. A probe that cannot be
+  written within `T`, because the peer stopped reading, closes the Link like a
+  missing `pong`.
+* A node that adds a Link to a peer while it holds other Links to that peer
+  sends one probe on each of those older Links at once, whatever their idle
+  interval. A new Link often means the peer moved and an older Link is dead.
+  A dead older Link closes within its `T`; a healthy one answers and stays.
+* Closing the Link tears down every session on it (see [sessions](#sessions)).
+  A Link whose peer stopped responding therefore closes within `N + T` of the
+  last frame received from that peer.
+* On an idle healthy Link each end sends one probe and one `pong` per `N`.
+
+`N` and `T` belong to the Link's transport: each transport sets its own pair,
+and the two ends of one Link may use different pairs. A transport that sets
+none gets `N` 15 s and `T` 10 s. The reference node reads the pair from the
+transport module's config keys `link_idle_ping` and `link_ping_timeout`, with
+these defaults:
+
+| Transport | `N` | `T` |
+|-----------|-----|-----|
+| `tcp`     | 15 s | 10 s |
+| `kcp`     | 15 s | 10 s |
+| `gw`      | 20 s | 15 s |
+| `tor`     | 30 s | 30 s |
 
 ## Sessions
 
@@ -228,6 +275,9 @@ knows on whose behalf it is acting and to whom.
 The relaying node **authorizes** the relay before forwarding: unless the wrapped
 `CallerID` is the peer that sent the frame, it must hold the
 `mod.nodes.relay_for_action` authorization for that peer to relay on its behalf.
+A `claimed` node also requires the peer to be a current member of its
+[*Local Swarm*](../core-definitions/local-swarm.md), and checks that first
+([App Routing](app-routing.md#authorizing-the-relay)).
 If the relay is not permitted, the node answers the caller with a `response`
 bearing the refused code (`1`) for the wrapped session's nonce and forwards
 nothing.

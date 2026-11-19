@@ -118,7 +118,7 @@ for range w.Changed() {
 | [`services.not_granted`](../protocols/services/types/services.not_granted.md) | The caller holds no permit for the listed services on some contributing node; private offerings there are filtered. Open offerings still arrive. Ask for a grant to see more. |
 | `services.update`, `Available: true` | Add or replace the offering for `(ProviderID, Name)`. |
 | `services.update`, `Available: false` | The provider withdraws a previously shown offering; remove that key. An initially unavailable offering is not sent. |
-| [`services.removed`](../protocols/services/types/services.removed.md) | A provider or contributing swarm member was lost, or the offering stopped being visible; remove the listed keys. |
+| [`services.removed`](../protocols/services/types/services.removed.md) | The listed keys left the caller's view; remove them. `Cause` says why: `member_lost` (on a follow the node retries the swarm member, and the offerings may return as updates), `member_left`, `member_removed`, `binding_closed`, or `hidden`. |
 | `eos` without `services.incomplete` | Initial evaluation completed, including unavailable and filtered answers. No offerings can mean no providers, no available answers, or no visible ones. |
 | [`services.incomplete`](../protocols/services/types/services.incomplete.md), then `eos` | Some initial work timed out, lost its provider, or failed at a swarm member. Keep current offerings; the named services may lack results. |
 | `error_message`, then close before any update | Invalid arguments, or `follow` without `services`; no provider was evaluated. |

@@ -4,7 +4,7 @@ The status payload broadcast by a node to nearby peers: a bundle of attached obj
 
 ## Fields
 
-* Attachments (bundle) – Bundle of objects representing the node's current status. It holds one `mod.nearby.public_profile` (Visible) or one `mod.nearby.stealth_hint` (Stealth), a `mod.nearby.flag` reading `adoptable` on a Visible node without an owner, and a `mod.nearby.status_proof` as the last attachment.
+* Attachments (bundle) – Bundle of objects representing the node's current status. It holds one `mod.nearby.public_profile` (Visible) or one `mod.nearby.stealth_hint` (Stealth), a `mod.nearby.flag` reading `adoptable` on a Visible node without an owner, a `mod.nearby.listen_ports` (Visible) or `mod.nearby.sealed_ports` (Stealth) on a node off the default listen ports, and a `mod.nearby.status_proof` as the last attachment.
 
 ## Example
 

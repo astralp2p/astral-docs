@@ -29,11 +29,16 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
 
 * A node is a member while it holds an active membership contract the user
   signed. The claim contract is one.
-* When a node first links to another member, the two exchange the contracts
-  that prove membership, the user's expulsions, the relay contracts of the
-  apps the members host, and the user's asset list. A node that is already linked
-  to a node when that node's first membership contract reaches it
-  synchronises with that node as well.
+* Each time a node gains a link to another member, the two exchange the
+  contracts that prove membership, the user's expulsions, the relay contracts
+  of the apps the members host, and the user's asset list. A node that is
+  already linked to a node when that node's first membership contract reaches it
+  synchronises with that node as well, and so does a node whose link to a
+  member closes while another link to that member remains.
+* A node pushes the user's expulsions to an expelled node at each new link to
+  it, and to every linked member and every linked expelled node every
+  `reconcile_interval`, by default once an hour. A node that missed an
+  expulsion receives it this way.
 * The user and every member may read the swarm, for example with
   [`user.info`](../protocols/user/ops/user.info.md) and
   [`user.list_siblings`](../protocols/user/ops/user.list_siblings.md).
@@ -235,23 +240,31 @@ A node of an existing swarm brings a new node under its user in one of two ways:
 
 ### The route between the nodes
 
-Both ways need a route between the two nodes, and the swarm node provides it.
-A node before the claim cannot add an endpoint itself: the default gate
-refuses [`nodes.add_endpoint`](../protocols/nodes/ops/nodes.add_endpoint.md)
-on an `unclaimed` node, to the manager's token and the node's token alike. A
-new node that knows no route answers `user.join` with `route not found`.
+Both ways need a route between the two nodes. A node before the claim cannot
+add an endpoint itself: the default gate refuses
+[`nodes.add_endpoint`](../protocols/nodes/ops/nodes.add_endpoint.md) on an
+`unclaimed` node, to the manager's token and the node's token alike. A new
+node that knows no route answers `user.join` with `route not found`.
 
+* For a join on a shared local network, the new node finds the swarm node
+  itself. `user.join` scans with [`nearby`](../protocols/nearby/README.md)
+  and recognises the swarm node's stealth hint by the node identity it is
+  given, then reaches the swarm node at its source IP on the TCP port its
+  status carries, 1791 when it carries none ([`user.join`](../protocols/user/ops/user.join.md)). The swarm node's
+  nearby mode is Stealth, the default of a node with a user, or Visible. The
+  new node learns the swarm node's user identity from the hint before the
+  swarm node admits it.
 * For an adoption, the swarm node learns the new node's endpoint with
   `nodes.add_endpoint`.
-* For a join, the swarm node opens a link to the new node with
+* For any other join, the swarm node opens a link to the new node with
   [`nodes.new_link`](../protocols/nodes/ops/nodes.new_link.md), and the join
   travels over that link. An endpoint the swarm node knows does not give the
   new node a route back.
 
-Both operations run on the swarm node under the user's token. The new node's
-endpoint is its address and the TCP port its `tcp.yaml` listens on, 1791 by
-default. Nodes of one user on a shared local network find each other through
-[`nearby`](../protocols/nearby/README.md).
+`nodes.add_endpoint` and `nodes.new_link` run on the swarm node under the
+user's token. The new node's endpoint is its address and the TCP port its
+`tcp.yaml` listens on, 1791 by default. Nodes of one user on a shared local
+network find each other through `nearby`.
 
 A member advertises its local interface addresses to its siblings. A member
 behind 1:1 NAT or a router port forward advertises its public address only
@@ -275,8 +288,16 @@ $ astral-query user.adopt -identity 02f7... -out json
 
 ### Joining from the new node
 
-On the swarm node `03b1...`, under the user's token, open a link to the new
-node:
+On a local network the new node shares with the swarm node `03b1...`, on the
+new node, under the manager's token:
+
+```shellsession
+$ astral-query user.join -node 03b1... -out json
+{"Type":"mod.auth.signed_contract","Object":{...}}
+```
+
+Elsewhere, on the swarm node `03b1...`, under the user's token, open a link
+to the new node:
 
 ```shellsession
 $ astral-query nodes.new_link -identity 02f7... -endpoint tcp:192.168.1.30:1791 -out json
@@ -430,7 +451,7 @@ contract ([Node Policies](node-policies.md#before-the-claim)).
 | `user.introduce`: `cannot introduce to self` | `identity` names this node or the user. | Name a running member of the swarm. |
 | `user.introduce`: `not permitted` | The caller does not hold `mod.user.admin_swarm_action`, or the user has expelled the caller. | Call with the user's token. |
 | `user.introduce`: `push to <identity>: rejected` | The named node refuses the contract: it has no active contract, another user owns it, or the user has expelled this node. | Name a running member of the user's swarm. |
-| `user.join`: `route not found` | The new node knows no route to the swarm node. | Open a link from the swarm node with `nodes.new_link`, or adopt the node from there ([The route between the nodes](#the-route-between-the-nodes)). |
+| `user.join`: `route not found` | The new node knows no route to the swarm node, and found none through `nearby` within 3 seconds. | Open a link from the swarm node with `nodes.new_link`, or adopt the node from there ([The route between the nodes](#the-route-between-the-nodes)). |
 | `user.join`: `request declined` | The swarm node's join policy declines the request. Its default, `reject_all`, declines every request. | Approve the request on the swarm node, set its `policies.swarm_join`, or adopt the node from it. |
 | `user.join`: `invitation declined` | This node's invite policy declines the contract. Its default, `reject_all`, declines every invitation. | Bind `swarm_invite` to the manager, or set `policies.swarm_invite`. |
 | `user.accept_contract`: `contract declined` | The node's contract accept policy declines the contract, or its delegate does not answer. | Approve the contract on the delegate, or clear the delegate with `user.set_contract_accept_policy`. |

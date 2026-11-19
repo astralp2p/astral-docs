@@ -2,7 +2,11 @@
 
 List the nodes that host an app. A host is the subject of an active
 [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
-contract the app issued; this node is listed when it hosts the app.
+contract the app issued; this node is listed when it hosts the app. On a
+`claimed` node, only hosts that are current members of its
+[`Local Swarm`](../../../core-definitions/local-swarm.md) are listed: an expelled
+or lapsed former member is left out. A node that is not `claimed` lists every
+host.
 
 The caller must hold
 [`mod.user.see_swarm_action`](../../user/types/mod.user.see_swarm_action.md).
@@ -10,8 +14,9 @@ The operation answers `not permitted` when the caller is not authorized. The
 operation also answers `origin not allowed: network` to a query that arrived
 over a [`Link`](../../../core-definitions/link.md), whatever the caller holds.
 
-A sibling node's app is known once its relay contract reached this node: at the
-first link to its host or to any other member that holds the contract, at the
+A sibling node's app is known once its relay contract reached this node: at a
+new link to its host or to any other member that holds the contract, when a
+link to one of them closes while another remains, at the
 app's registration, or when the app runs swarm discovery.
 
 ## Arguments

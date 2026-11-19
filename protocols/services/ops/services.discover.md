@@ -118,13 +118,14 @@ initial attempt. It carries:
   including `Available: false` to withdraw a previously shown key;
 * [`services.removed`](../types/services.removed.md): previously shown keys
   whose provider or contributing swarm member was lost, or that stopped being
-  visible to the caller.
+  visible to the caller, with the cause of the removal.
 
 Each update replaces the complete offering. Slow readers receive the latest
 value per key; a write exceeding the node's timeout closes the channel.
 
 A lost swarm member is retried when a link appears, or with capped backoff
-while the follow remains open. Recovered offerings arrive as updates.
+while the follow remains open. Its shown offerings are removed with cause
+`member_lost`. Recovered offerings arrive as updates.
 
 A follow with `reach=swarm` tracks the local swarm member set while it is open:
 
@@ -132,8 +133,11 @@ A follow with `reach=swarm` tracks the local swarm member set while it is open:
   arrive as `services.update`. A member that joins before `eos` adds no initial
   work: `eos` neither waits for it nor reports it in `services.incomplete`.
 * A member that leaves the swarm stops contributing. Its shown offerings are
-  removed with `services.removed`, and the node stops asking it for the follow.
+  removed with `services.removed` and cause `member_left`, and the node stops
+  asking it for the follow.
   A member that leaves before reporting its initial outcome counts as lost.
+  A member leaves when it is expelled, when its last membership contract
+  expires, or when the active contract changes or is cleared.
 
 Membership changes reach the follow through the user module's
 [`mod.user.swarm_member_joined`](../../user/types/mod.user.swarm_member_joined.md)
