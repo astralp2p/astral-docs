@@ -271,6 +271,9 @@ knows on whose behalf it is acting and to whom.
 The relaying node **authorizes** the relay before forwarding: unless the wrapped
 `CallerID` is the peer that sent the frame, it must hold the
 `mod.nodes.relay_for_action` authorization for that peer to relay on its behalf.
+A `claimed` node also requires the peer to be a current member of its
+[*Local Swarm*](../core-definitions/local-swarm.md), and checks that first
+([App Routing](app-routing.md#authorizing-the-relay)).
 If the relay is not permitted, the node answers the caller with a `response`
 bearing the refused code (`1`) for the wrapped session's nonce and forwards
 nothing.

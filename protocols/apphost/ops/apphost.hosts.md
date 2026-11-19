@@ -2,7 +2,11 @@
 
 List the nodes that host an app. A host is the subject of an active
 [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
-contract the app issued; this node is listed when it hosts the app.
+contract the app issued; this node is listed when it hosts the app. On a
+`claimed` node, only hosts that are current members of its
+[`Local Swarm`](../../../core-definitions/local-swarm.md) are listed: an expelled
+or lapsed former member is left out. A node that is not `claimed` lists every
+host.
 
 The caller must hold
 [`mod.user.see_swarm_action`](../../user/types/mod.user.see_swarm_action.md).
