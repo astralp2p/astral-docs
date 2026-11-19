@@ -1,6 +1,6 @@
 # nat.node_punch
 
-Run the passive (participant) side of a NAT hole-punch with the calling peer. The operation punches a hole with the caller identity itself, so it takes no target argument. Over the channel it receives the caller's `nat.punch_signal` of type `offer`, replies `answer`, receives `ready`, replies `go`, performs the simultaneous UDP punch, then receives and echoes the final `result` signal. On success the resulting hole is registered locally and no further object is returned. The operation fails if the node has no suitable public IPv4 address, or if any signal is out of order, carries a mismatched session, or the punch does not complete.
+Run the passive (participant) side of a NAT hole-punch with the calling peer. The operation punches a hole with the caller identity itself, so it takes no target argument. Over the channel it receives the caller's `nat.punch_signal` of type `offer`, opens its punch socket and reflects it with [`nat.reflect_udp`](nat.reflect_udp.md) off the node it picks (see [nat](../README.md)), replies `answer`, receives `ready`, replies `go`, performs the simultaneous UDP punch, then receives and echoes the final `result` signal. On success the resulting hole is registered locally and no further object is returned. The operation fails if the node has no suitable public IPv4 address, or if any signal is out of order, carries a mismatched session, or the punch does not complete.
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
