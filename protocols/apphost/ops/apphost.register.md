@@ -36,6 +36,14 @@ identity is minted.
 [`sys.register_manager`](../../sys/ops/sys.register_manager.md) does not
 refuse the permit.
 
+The node also refuses a decision whose `ContractPermits` holds a
+[`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
+permit. The node→app contract names the app as its `Subject`, and an app is
+not a member of the node's swarm, so the
+[relay admission rule](../../../topics/app-routing.md#reach) refuses to index
+that contract. The registration is answered `registration declined`, and no
+identity is minted.
+
 The default gate admits `apphost.register`, with a token or without, on an
 `unclaimed` and on a `claimed` node, and refuses it on a `fresh` node
 ([Gate](../README.md#gate)). A `fresh` node appoints a manager first with
@@ -120,7 +128,7 @@ The operation returns one of:
 * An `error_message` object reading `registration declined` if the node's
   register policy refuses the registration, cannot decide it, or returns a
   decision the node cannot apply, such as one whose `ContractPermits` holds
-  `mod.auth.sudo_action`.
+  `mod.auth.sudo_action` or `mod.nodes.relay_for_action`.
 * An `error_message` object if any later step failed.
 * An `apphost.access_token` object containing the new guest's token.
 

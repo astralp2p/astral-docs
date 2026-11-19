@@ -101,8 +101,8 @@ What happens on the wire:
    - `mod.apphost.query_accepted_msg` → the WS becomes the query
      bytestream and `host.query` resolves to a `Stream`.
    - `mod.apphost.query_rejected_msg` → throws `QueryRejected{code}`.
-   - `mod.apphost.error_msg` with code `route_not_found` → throws
-     `RouteNotFound`; any other code → `ProtocolError`.
+   - `mod.apphost.error_msg` → throws the class its code names (see
+     [Errors](#errors)); an unknown code → `ProtocolError`.
 4. After acceptance, both peers exchange `AstralObject` frames freely. The
    stream ends at the first [`eos`](../primitive-types/eos.md) frame or when the WS closes; the async
    iterator returns at that point. `stream.send(obj)` writes a frame;
@@ -212,6 +212,12 @@ Thrown by `connect`, `host.query`, `host.register` and `q.accept`:
 | `AuthError`       | Server returned `error_msg` in response to the auth token.|
 | `QueryRejected`   | Server returned `query_rejected_msg` (`.code` is numeric).|
 | `RouteNotFound`   | Server returned `error_msg{Code:'route_not_found'}`.      |
+| `Timeout`         | Server returned `error_msg{Code:'timeout'}`.              |
+| `Canceled`        | Server returned `error_msg{Code:'canceled'}`.             |
+| `TargetNotAllowed`| Server returned `error_msg{Code:'target_not_allowed'}`.   |
 | `ProtocolError`   | Unexpected message type or unknown error code.            |
 
 All are exported individually and on the `errors` namespace.
+`isRetryable(err)` is true for `QueryRejected` with code `6` or `7` and for
+`Timeout`, and false for every other error (see
+[Routing outcomes](../core-definitions/query.md#routing-outcomes)).

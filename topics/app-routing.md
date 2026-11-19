@@ -39,18 +39,17 @@
 * The `Node` attaches the calling `App`'s own `Contract` to the outgoing `Query`, so the receiving
   `Node` can establish that the caller permits this relayer to speak for it.
 * The `Node` tries the candidates one at a time, in the order it found them. The first candidate
-  that accepts the `Query` ends the routing. A candidate that rejects the `Query` does not end it,
-  and the next candidate is tried.
-* When no candidate accepts, the `Query` fails with the first rejection a candidate answered with a
-  `Reject Code` other than the generic `1`, and carries that `Reject Code` (see
-  [`Query`](../core-definitions/query.md)).
-* A candidate's generic rejection counts as no route. A `Node` answers a `Query` it has no route
-  for with the generic `Reject Code` over a `Link` (see
-  [`Link Multiplexer`](link-mux.md#response-semantics)), so the generic `Reject Code` does not tell
-  a refusal from a missing route.
-* The `Query` fails as unroutable when no candidate answered a `Reject Code` other than `1`.
+  that accepts the `Query` ends the routing. A candidate that does not accept does not end it, and
+  the next candidate is tried.
+* Each candidate that does not accept leaves one of three answers: a refusal (any `Reject Code`
+  other than `7`, the generic `1` included, or a candidate that received the calling `App`'s
+  `Contract` and did not accept it), unavailable (`Reject Code` `7`, or a candidate the `Node`
+  could not reach or could not deliver the `Contract` to), or no route (the candidate answered
+  [no route here](link-mux.md#response-semantics)).
+* When no candidate accepts, the `Query` fails with the first refusal; with no refusal, it fails as
+  unavailable (`7`) when any candidate was unavailable; otherwise it fails as route not found.
 * A `Node` holding no such `Contract` for the `Target` has no candidate and the `Query` fails as
-  unroutable. Resolution consults held `Contracts` alone and asks the network nothing.
+  route not found. Resolution consults held `Contracts` alone and asks the network nothing.
 
 ## Authorizing the relay
 
@@ -62,6 +61,22 @@
   permitted. Authority therefore flows from the `App` that granted it and from nowhere else.
 * A `Node` that holds no `Contract` for the `Caller` refuses the relay. Holding one is what
   distinguishes a `Caller` a `Node` will carry from one it will not.
+
+## Failures
+
+* A `Query` to an `App` ends in one of the
+  [Routing outcomes](../core-definitions/query.md#routing-outcomes), and the `Caller` acts on it:
+
+| Outcome | Typical cause | `Caller` action |
+|---------|---------------|-----------------|
+| unavailable (`7`) | host unreachable, host's `Link` closed while routing, host starting | retry with backoff, 1 s doubling to 30 s, bounded |
+| timeout | host behind a dead `Link` | retry with backoff, bounded |
+| route not found | `App` not registered on its host, removed, unknown, or its relay `Contract` not held yet | discover again, or stop |
+| rejected `1` or another code | host refused the relay or the calling `App`'s `Contract` (for one, the host was expelled from the `Swarm`), or the `App` refused the `Query` | stop |
+| target not allowed | the `Caller`'s `Node` policy excludes the `Target` | stop |
+
+* An `App` that is removed from its host and an `App` that is not registered on it yet both answer
+  route not found: a host answers [no route here](link-mux.md#response-semantics) for either.
 
 ## Answering
 
@@ -75,13 +90,34 @@
 
 ## Reach
 
-* A `Node` holds an `App`'s `Contract` only if it was given one. A `Node` gives its `Apps`'
-  `Contracts` to a member of its `Swarm` when a `Link` to that member first comes up, so the members
-  of a `Swarm` come to know which `Apps` each of them hosts. An `App` registered while two members
-  are already linked becomes known to the other at the next first `Link`.
-* A `Node` refuses to index a `Contract` unless its `Issuer` or `Subject` is already known to the
-  `Swarm` — the [`User`](../core-definitions/user.md) the `Node` answers to, or one of its members.
-  An unrelated `App` therefore acquires no route by offering its own `Contract`.
+* A `Node` holds an `App`'s `Contract` only if it was given one. When a `Link` to a member of its
+  `Swarm` first comes up, a `Node` gives that member the `Contracts` of the `Apps` every member
+  hosts, as far as the `Node` holds them and they pass the admission rule below. It leaves out the
+  `Contracts` whose `Subject` is the receiving member. A new member therefore learns the `Apps` of
+  the whole `Swarm` from the first member it links to, before it links to their hosts.
+* A `Node` gives the `Contract` of an `App` it hosts to the members it is linked to when the `App`
+  registers. A member not linked at that moment receives it at its next first `Link` to any member
+  that holds it.
+* A relay `Contract` is one that carries a `Permit` for `mod.nodes.relay_for_action`, alone or
+  beside other `Permits`. Routing finds an `App`'s hosts by that `Permit`, so every relay
+  `Contract` routes.
+* A `Node` indexes a relay `Contract` only when it passes one admission rule:
+  * its `Subject` is the `Node` itself or a member of the `Node`'s
+    [`Local Swarm`](../core-definitions/local-swarm.md), and an expelled `Node` is not a member;
+  * the `Issuer` signature and the `Subject` signature verify;
+  * it has not expired.
+* A relay `Contract` that another `Node` delivers is indexed only when the delivering `Node` is a
+  member of the `Local Swarm` as well. The delivering `Node` need not be the `Subject`.
+* Between `Nodes`, only a relay `Contract` whose every `Permit` is for
+  `mod.nodes.relay_for_action` travels. A `Node` refuses a delivered relay `Contract` that carries
+  another `Permit`, and gives no such `Contract` to a member.
+* The rule holds on every path into the index: a `Contract` another `Node` delivers, a `Contract`
+  the `Node` signs for an `App` it hosts, and a `Contract` the `Node` reads again from its own
+  storage when it rebuilds its index. A rebuilt index therefore holds no `Contract` whose `Subject`
+  has been expelled.
+* An unrelated `App` acquires no route by offering its own `Contract`: the `Subject` is already a
+  member and has signed the `Contract`, so a forwarding member hands out only `Contracts` a host in
+  the `Swarm` agreed to.
 * The reach of an `App` `Identity` is therefore the `Swarm` its host belongs to. In a
   [`Local Swarm`](../core-definitions/local-swarm.md) that `Swarm` is one `User`'s own `Nodes`: an
   `App` addresses its counterpart on any of them, and an `App` outside the `Swarm` addresses none.

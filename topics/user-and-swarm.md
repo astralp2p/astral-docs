@@ -31,7 +31,7 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
   signed. The claim contract is one.
 * When a node first links to another member, the two exchange the contracts
   that prove membership, the user's expulsions, the relay contracts of the
-  apps each hosts, and the user's asset list. A node that is already linked
+  apps the members host, and the user's asset list. A node that is already linked
   to a node when that node's first membership contract reaches it
   synchronises with that node as well.
 * The user and every member may read the swarm, for example with
@@ -252,6 +252,14 @@ Both operations run on the swarm node under the user's token. The new node's
 endpoint is its address and the TCP port its `tcp.yaml` listens on, 1791 by
 default. Nodes of one user on a shared local network find each other through
 [`nearby`](../protocols/nearby/README.md).
+
+A member advertises its local interface addresses to its siblings. A member
+behind 1:1 NAT or a router port forward advertises its public address only
+when its `tcp.yaml` lists it under `configEndpoints`
+([tcp, Advertising a public or forwarded endpoint](../protocols/tcp/README.md#advertising-a-public-or-forwarded-endpoint)).
+Without that entry a sibling off the member's network holds no TCP endpoint of
+the member that it can dial. Automatic advertisement of an observed public
+address is deferred to a later iteration.
 
 ### Adopting from the swarm node
 

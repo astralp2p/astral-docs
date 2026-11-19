@@ -66,14 +66,17 @@ carries both, delegable one hop.
 When a node first links to a swarm member it synchronises with it, in this
 order: it pushes the active contract, the user's expulsions and the membership
 contracts of the other members, pulls the member's alias, pushes the relay
-contracts of the apps it hosts, and pulls the member's asset updates. The alias
+contracts of the apps the swarm's members host, and pulls the member's asset
+updates. The alias
 and asset pulls query the member as the user, and the member admits them only
 once it holds this node's contract. A node also synchronises with a linked node
 when a pushed membership contract admits that node to its local swarm, because
-the first link to that node preceded the contract. A pushed app relay contract
-lets the member route a query addressed to the app through this node. An app
-registered while the two nodes are already linked reaches the member at the next
-first link.
+the first link to that node preceded the contract. The relay contracts
+it pushes are those it holds that pass the admission rule of
+[App Routing](../../topics/app-routing.md#reach), except those whose subject is
+the member. A pushed app relay contract lets the member route a query addressed
+to the app through the app's host. An app registered while the two nodes are
+already linked reaches the member when it registers.
 
 A node contacts the nodes [`nearby`](../nearby/README.md) finds on the local
 network only when the peer's `mod.nearby.peer_seen` names the node's own user.
