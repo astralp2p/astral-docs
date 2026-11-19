@@ -4,7 +4,7 @@ A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
 administer the node's network: read its network state, make it do network work,
 and control its links and listeners.
 
-The action gates 25 operations in three tiers. A holder of the action holds all
+The action gates 26 operations in three tiers. A holder of the action holds all
 three tiers.
 
 * Read network state – `nodes.links`, `nodes.sessions`,
@@ -12,8 +12,8 @@ three tiers.
   `ip.default_gateway`, `nat.list_holes`, `kcp.list_endpoint_local_mappings`
   and `nearby.list`.
 * Initiate network work and consume holes – `nodes.new_link`, `nat.punch`,
-  `nat.node_punch`, `nat.node_consume_hole`, `nearby.broadcast` and
-  `nearby.scan`.
+  `nat.node_punch`, `nat.node_consume_hole`, `nat.reflect_udp`,
+  `nearby.broadcast` and `nearby.scan`.
 * Control links and listeners – `nodes.add_endpoint`, `nodes.close_link`,
   `nodes.migrate_session`, `tcp.new_ephemeral_listener`,
   `tcp.close_ephemeral_listener`, `kcp.new_ephemeral_listener`,
@@ -65,6 +65,10 @@ the node's own identity: `nat.node_punch`, `nat.node_consume_hole`,
 `nodes.migrate_session`. The peer answers them when the node holds this action
 on the peer: as a member of the peer's swarm, or through a grant or a contract
 there.
+
+A punch side calls `nat.reflect_udp` as the node's own identity on the node it
+reflects its punch socket off, which is the punch peer or another node it
+dialed. That node answers when the calling node holds this action there.
 
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.

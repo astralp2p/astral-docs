@@ -1,6 +1,6 @@
 # nat.punch
 
-Drive the initiator side of a NAT hole-punch against the named peer and register the resulting hole. The node resolves its own public IPv4 address and `identity`, then runs the offer/answer/ready/go/result exchange with the peer's `nat.node_punch` operation. The operation fails if the node has no suitable public IPv4 address, if `identity` cannot be resolved, or if any step of the punch does not complete.
+Drive the initiator side of a NAT hole-punch against the named peer and register the resulting hole. The node resolves its own public IPv4 address and `identity`, opens its punch socket, reflects it with [`nat.reflect_udp`](nat.reflect_udp.md) off the node it picks (see [nat](../README.md)), then runs the offer/answer/ready/go/result exchange with the peer's `nat.node_punch` operation. A reflection that fails within 2 s leaves the offer advertising the public IPv4 address and the socket's local port; the punch goes on. The operation fails if the node has no suitable public IPv4 address, if `identity` cannot be resolved, or if any step of the punch does not complete.
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).

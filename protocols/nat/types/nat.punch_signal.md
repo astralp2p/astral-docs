@@ -11,7 +11,7 @@ A control message exchanged over the signalling channel while two peers coordina
 * bind_port (uint16) – The local UDP port of the sender's punch socket; carried by `offer`, `answer` and `result`. Behind a NAT that translates ports, `bind_port` differs from the port the peer observes.
 * pair_nonce (nonce64) – The nonce assigned to the resulting hole; carried by the `result` signal.
 
-The `offer` and `answer` signals advertise the socket's local port as `port`, so `port` equals `bind_port` in both.
+In `offer` and `answer`, `ip` and `port` are the endpoint a reflecting node observed for the sender's punch socket ([`nat.reflect_udp`](../ops/nat.reflect_udp.md)). A sender without a reflection advertises its public IPv4 address and the socket's local port, so `port` equals `bind_port`.
 
 ## Example
 
@@ -22,7 +22,7 @@ The `offer` and `answer` signals advertise the socket's local port as `port`, so
     "signal": "offer",
     "session": "8fA1b2c3d4e5f6A=",
     "ip": "198.51.100.7",
-    "port": 41000,
+    "port": 6635,
     "bind_port": 41000,
     "pair_nonce": "0"
   }
