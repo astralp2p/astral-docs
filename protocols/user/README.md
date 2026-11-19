@@ -97,9 +97,10 @@ expelled node's own expulsion included, and synchronises nothing else with it.
 Every `reconcile_interval` (`user.yaml`, default 1 hour) a node pushes the
 user's expulsions to every linked swarm member and to every linked node its
 user has expelled. A zero or negative `reconcile_interval` selects the default.
-A node that receives an expulsion it already holds ignores it. A node that
-receives its own expulsion leaves the swarm: it stops maintaining its links to
-the members, closes them and clears its active contract.
+A node that receives an expulsion it already holds stores nothing new and closes
+its links to the expelled node again. A node that receives its own expulsion
+leaves the swarm: it stops maintaining its links to the members, closes them and
+clears its active contract.
 
 A node contacts the nodes [`nearby`](../nearby/README.md) finds on the local
 network only when the peer's `mod.nearby.peer_seen` names the node's own user.
