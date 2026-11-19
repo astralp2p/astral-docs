@@ -149,7 +149,8 @@ Three operator paths make a node outside the swarm reachable:
 * **Visible nearby on a shared LAN.** A node in nearby mode `1` (Visible)
   broadcasts its node identity in a public profile. A node of any user on the
   same IPv4 link verifies the status and resolves the node at the status's
-  source IP, `tcp` on port `1791` and `kcp` on port `1792`, until the cache
+  source IP, `tcp` and `kcp` on the listen ports the status carries (`1791`
+  and `1792` when it carries none), until the cache
   entry expires 5 minutes after the last status
   ([nearby](../protocols/nearby/README.md)). A claimed node broadcasts in
   Stealth by default; a node of another user caches its status as an

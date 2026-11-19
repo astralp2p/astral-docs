@@ -55,8 +55,10 @@ network through [`nearby`](../../nearby/README.md): its `user` module opens a
 with the identity of the swarm node `node` names. A hint that opens names that
 node and the user the hint carries. nearby then checks the status proof's
 nonce and verifies its signature under the swarm node's key, as for every
-recognised status, and resolves the swarm node at the status's source IP, on
-`tcp` port `1791` and `kcp` port `1792`. A swarm node in Visible mode names
+recognised status, opens the sealed listen ports with the swarm node's
+identity, and resolves the swarm node at the status's source IP on the `tcp`
+and `kcp` ports the status carries, `1791` and `1792` when it carries none. A
+swarm node in Visible mode names
 itself in its profile and resolves the same way. A swarm node in Silent mode
 answers no scan.
 
@@ -72,8 +74,8 @@ Elsewhere the swarm node provides the route. The default gate refuses
 `unclaimed` node, so this node cannot add the swarm node's endpoint before the
 claim. The swarm node opens a link to this node with
 [`nodes.new_link`](../../nodes/ops/nodes.new_link.md), and the join travels
-over it. A swarm node on another network, one that listens on other ports
-than `1791` and `1792`, and one in Silent mode are reached this way.
+over it. A swarm node on another network and one in Silent mode are reached
+this way.
 [User and Swarm, The route between the nodes](../../../topics/user-and-swarm.md#the-route-between-the-nodes)
 shows the commands.
 

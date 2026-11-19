@@ -42,8 +42,9 @@ Each object carries the TTL its resolver assigns, in seconds:
   [`nodes.add_endpoint`](nodes.add_endpoint.md) wrote starts at `7776000`
   (90 days); a row stored from a swarm member's answer starts at the TTL of
   that answer. A verified [`nearby`](../../nearby/README.md) peer adds a
-  `mod.tcp.endpoint` on port `1791` and a `mod.kcp.endpoint` on port `1792`
-  at its source IP, with the remaining life of its cache entry, at most `300`.
+  `mod.tcp.endpoint` and a `mod.kcp.endpoint` at its source IP on the ports
+  its status carries, `1791` and `1792` when it carries none, with the
+  remaining life of its cache entry, at most `300`.
 
 ## Examples
 
