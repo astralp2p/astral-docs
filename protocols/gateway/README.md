@@ -42,7 +42,7 @@ gateways:
       - tcp:203.0.113.7:1791
 ```
 
-A `gateways` entry that is not a mapping with these keys, such as a bare identity, stops node startup.
+A `gateways` entry that is not a mapping with these keys, such as a bare identity, stops node startup. An entry without `id`, and a second entry with the same `id`, also stop node startup.
 
 ## Registering with a configured gateway
 
@@ -53,7 +53,13 @@ For each `gateways` entry the node does the following:
 3. The node calls `gateway.node_register` with its `visibility`. A failed attempt is retried after 1 second, with the delay doubling up to 15 minutes. A new local network address restarts the delay at 1 second and retries at once.
 4. A successful registration starts the idle connections. The registration is up from the `mod.gateway.socket` answer until the idle connections fail: three consecutive failed dials or connections the gateway closes before their first frame. The node then registers again from step 3.
 
-The node stores the entry's endpoints again with a fresh TTL before every later registration attempt, so the rows do not expire while the gateway stays configured.
+The node stores the entry's endpoints again with a fresh TTL at these points:
+
+* After every successful registration.
+* Every 24 hours while the registration is up.
+* Before every later registration attempt.
+
+The rows for a configured gateway therefore do not expire while the node runs, whether the registration is up or not.
 
 ## Advertised gateway endpoints
 
