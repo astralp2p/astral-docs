@@ -58,6 +58,11 @@ An app, or any other identity, holds it through one of two paths:
 An app authorized through a grant, or through a contract the node issues,
 remains the caller. The action names the app as its actor.
 
+A delegation to an identity outside the swarm, such as a node of another user
+that should read the node's endpoints, admits that identity to every operation
+the action gates, not only to `nodes.resolve_endpoints`
+([Node Exposure, Endpoint exchange](../../../topics/node-exposure.md#endpoint-exchange)).
+
 The NAT link strategy and session migration submit queries to the peer node as
 the node's own identity: `nat.node_punch`, `nat.node_consume_hole`,
 `kcp.new_ephemeral_listener`, `kcp.set_endpoint_local_port`,
