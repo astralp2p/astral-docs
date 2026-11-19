@@ -31,7 +31,7 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
   signed. The claim contract is one.
 * When a node first links to another member, the two exchange the contracts
   that prove membership, the user's expulsions, the relay contracts of the
-  apps each hosts, and the user's asset list. A node that is already linked
+  apps the members host, and the user's asset list. A node that is already linked
   to a node when that node's first membership contract reaches it
   synchronises with that node as well.
 * The user and every member may read the swarm, for example with
