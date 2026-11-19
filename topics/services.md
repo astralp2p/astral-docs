@@ -115,7 +115,7 @@ for range w.Changed() {
 
 | Signal | Meaning and consumer action |
 |--------|-----------------------------|
-| [`services.not_granted`](../protocols/services/types/services.not_granted.md) | The caller holds no permit for the listed services on some contributing node; private offerings there are filtered. Open offerings still arrive. Ask for a grant to see more. |
+| [`services.not_granted`](../protocols/services/types/services.not_granted.md) | The caller holds no permit for the listed services on some contributing node; private offerings there are filtered. Open offerings still arrive. Ask for a grant to see more. On a follow, a later one replaces the list after a grant or revoke; an empty list means every requested service is granted. |
 | `services.update`, `Available: true` | Add or replace the offering for `(ProviderID, Name)`. |
 | `services.update`, `Available: false` | The provider withdraws a previously shown offering; remove that key. An initially unavailable offering is not sent. |
 | [`services.removed`](../protocols/services/types/services.removed.md) | The listed keys left the caller's view; remove them. `Cause` says why: `member_lost` (on a follow the node retries the swarm member, and the offerings may return as updates), `member_left`, `member_removed`, `binding_closed`, or `hidden`. |
