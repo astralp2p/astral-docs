@@ -78,6 +78,30 @@ evaluations in [`services.incomplete`](../types/services.incomplete.md).
 The node retires unanswered asks at its request timeout. An answer with no
 matching outstanding `RequestID`, including a late answer, is ignored.
 
+## Liveness
+
+The node may send `services.ask` at any time, including a repeated ask for a
+caller and service the provider already answered. The provider answers a
+repeated ask like any other ask.
+
+While a follow stream of a caller requests a service of the binding, the node
+probes the binding: once per probe interval (60 s by default) it re-asks the
+provider for that caller and service. A probe is an ordinary `services.ask`.
+A probe's answer equal to the caller's current view sends nothing to the
+caller. The next probe asks again for a re-evaluation whose ask was retired;
+the late answer is ignored.
+
+The node may end a binding whose asks go unanswered. By default the node ends
+the binding at 2 consecutive retired asks; a valid answer resets the count.
+With the default request timeout of 10 s, a provider that stops answering is
+ended within about 140 s of its last answer. A native registration is never
+probed or ended for unanswered asks.
+
+Whenever the node ends a binding, it closes the advertise channel. Closure
+releases every name of the binding, so the provider may advertise them again
+at once. A provider whose channel closes while it still runs advertises again
+to stay discoverable.
+
 ## Returned objects
 
 * `error_message`, then close: invalid names or an already-bound pair.
