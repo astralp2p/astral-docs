@@ -260,6 +260,12 @@ Lifecycle:
   `apphost.bind`, send `mod.apphost.bind_msg{Token}` on the resulting
   bytestream, and keep that bind connection open. When the bind connection
   closes, every handler registered with that `Token` is removed.
+- A failed dial also ends the guest's bind session for the handler's `Token`,
+  at most once per guest in any 30 s window, so a guest that re-binds on a
+  closed bind connection registers its handlers again. A failed dial before
+  the guest's `bind_msg` for that `Token` ends the next session that binds the
+  `Token` within 30 s. See
+  [`apphost.bind`](../protocols/apphost/ops/apphost.bind.md).
 
 ## Error codes (`mod.apphost.error_msg.Code`)
 
