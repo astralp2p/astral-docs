@@ -253,6 +253,14 @@ endpoint is its address and the TCP port its `tcp.yaml` listens on, 1791 by
 default. Nodes of one user on a shared local network find each other through
 [`nearby`](../protocols/nearby/README.md).
 
+A member advertises its local interface addresses to its siblings. A member
+behind 1:1 NAT or a router port forward advertises its public address only
+when its `tcp.yaml` lists it under `configEndpoints`
+([tcp, Advertising a public or forwarded endpoint](../protocols/tcp/README.md#advertising-a-public-or-forwarded-endpoint)).
+Without that entry a sibling off the member's network holds no TCP endpoint of
+the member that it can dial. Automatic advertisement of an observed public
+address is deferred to a later iteration.
+
 ### Adopting from the swarm node
 
 On the swarm node, under the user's token, with the new node `02f7...`
