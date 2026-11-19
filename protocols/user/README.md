@@ -75,7 +75,13 @@ synchronisation, not only the first link to the member. The alias and asset
 pulls query the member as the user, and the member admits them only once it
 holds this node's contract. A node also synchronises with a linked node when a
 pushed membership contract admits that node to its local swarm, because the
-link to that node preceded the contract. The relay contracts
+link to that node preceded the contract. A node also synchronises with a
+member when one of its links to the member closes and another link to the
+member remains. A new link to a member makes the node probe its older links to
+that member ([Link Mux, Keepalive](../../topics/link-mux.md#keepalive)), so a
+dead older link closes within its ping timeout and the synchronisation runs
+over a remaining link. The node runs one such synchronisation per member at a
+time; closes during it start at most one more after it. The relay contracts
 it pushes are those it holds that pass the admission rule of
 [App Routing](../../topics/app-routing.md#reach), except those whose subject is
 the member. A pushed app relay contract lets the member route a query addressed
