@@ -134,6 +134,8 @@ A follow with `reach=swarm` tracks the local swarm member set while it is open:
 * A member that leaves the swarm stops contributing. Its shown offerings are
   removed with `services.removed`, and the node stops asking it for the follow.
   A member that leaves before reporting its initial outcome counts as lost.
+  A member leaves when it is expelled, when its last membership contract
+  expires, or when the active contract changes or is cleared.
 
 Membership changes reach the follow through the user module's
 [`mod.user.swarm_member_joined`](../../user/types/mod.user.swarm_member_joined.md)
