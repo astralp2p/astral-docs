@@ -98,14 +98,19 @@
 * A `Node` gives the `Contract` of an `App` it hosts to the members it is linked to when the `App`
   registers. A member not linked at that moment receives it at its next first `Link` to any member
   that holds it.
-* A `Node` indexes a relay `Contract`, one whose every `Permit` is for
-  `mod.nodes.relay_for_action`, only when it passes one admission rule:
+* A relay `Contract` is one that carries a `Permit` for `mod.nodes.relay_for_action`, alone or
+  beside other `Permits`. Routing finds an `App`'s hosts by that `Permit`, so every relay
+  `Contract` routes.
+* A `Node` indexes a relay `Contract` only when it passes one admission rule:
   * its `Subject` is the `Node` itself or a member of the `Node`'s
     [`Local Swarm`](../core-definitions/local-swarm.md), and an expelled `Node` is not a member;
   * the `Issuer` signature and the `Subject` signature verify;
   * it has not expired.
 * A relay `Contract` that another `Node` delivers is indexed only when the delivering `Node` is a
   member of the `Local Swarm` as well. The delivering `Node` need not be the `Subject`.
+* Between `Nodes`, only a relay `Contract` whose every `Permit` is for
+  `mod.nodes.relay_for_action` travels. A `Node` refuses a delivered relay `Contract` that carries
+  another `Permit`, and gives no such `Contract` to a member.
 * The rule holds on every path into the index: a `Contract` another `Node` delivers, a `Contract`
   the `Node` signs for an `App` it hosts, and a `Contract` the `Node` reads again from its own
   storage when it rebuilds its index. A rebuilt index therefore holds no `Contract` whose `Subject`
