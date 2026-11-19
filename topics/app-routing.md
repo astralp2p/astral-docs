@@ -33,6 +33,12 @@
 * A `Node` routing a `Query` whose `Target` is an `App` searches the `Contracts` it holds for those
   the `Target` issued carrying a `mod.nodes.relay_for_action` `Permit`, and takes each `Subject` as
   a `Node` hosting the `Target`. Those `Nodes` are the relay candidates.
+* A `claimed` `Node` ([User and Swarm](user-and-swarm.md)) keeps as candidates only the
+  `Subjects` that are current members of its
+  [`Local Swarm`](../core-definitions/local-swarm.md). A `Subject` the `User` expelled, or whose
+  membership `Contract` expired, is no candidate, so the `Node` neither links to it nor sends it
+  the calling `App`'s `Contract` for this `Query`. A `Node` that is not `claimed` keeps every
+  `Subject`.
 * The `Node` links to a candidate and sends the `Query` as a relay frame naming the original
   `Caller` and the `Target`, rather than as a `Query` of its own. The framing is in
   [`Link Multiplexer`](link-mux.md).
@@ -70,6 +76,11 @@
 * A `Node` receiving a relayed `Query` whose `Caller` is not the `Node` on the other end of the
   `Link` authorizes the relay before routing it: the relaying `Node` must be permitted to relay for
   that `Caller`.
+* A `claimed` `Node` first requires the relaying `Node` to be a current member of its
+  `Local Swarm`. It refuses a relaying `Node` that is not one, an expelled or lapsed former member
+  included, whatever `Contracts` it holds, with the refused code (`1`), and it refuses as well when
+  it cannot read its `Local Swarm`. A `Node` that is not `claimed` skips this check. A relayed
+  `Query` whose `Caller` is the relaying `Node` itself is not a relay and is not checked.
 * The permission resolves through the `Contract` the `Caller` issued. The relaying `Node` is its
   `Subject`, and re-evaluating as the `Issuer` reaches an `Identity` relaying for itself, which is
   permitted. Authority therefore flows from the `App` that granted it and from nowhere else.
@@ -85,7 +96,7 @@
 |---------|---------------|-----------------|
 | unavailable (`7`) | host unreachable, host's `Link` closed while routing, host starting | retry with backoff, 1 s doubling to 30 s, bounded |
 | timeout | host behind a dead `Link` | retry with backoff, bounded |
-| route not found | `App` not registered on its host, removed, unknown, or its relay `Contract` held neither by the `Node` nor by any linked member | discover again, or stop |
+| route not found | `App` not registered on its host, removed, unknown, its relay `Contract` held neither by the `Node` nor by any linked member, or every host a former member | discover again, or stop |
 | rejected `1` or another code | host refused the relay or the calling `App`'s `Contract` (for one, the host was expelled from the `Swarm`), or the `App` refused the `Query` | stop |
 | target not allowed | the `Caller`'s `Node` policy excludes the `Target` | stop |
 
