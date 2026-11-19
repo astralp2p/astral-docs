@@ -23,7 +23,7 @@ withdraws an offering by the provider's own answer.
 * `3` – member_removed: the contributing swarm member sent `services.removed`
   for the offering.
 * `4` – binding_closed: the provider's advertise binding or native registration
-  on the node ended.
+  on the node ended, including a binding the node ended for unanswered asks.
 * `5` – hidden: the caller may no longer see the offering.
 
 A cause describes the hop the node itself saw. A `services.removed` that a swarm
