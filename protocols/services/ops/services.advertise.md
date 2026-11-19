@@ -13,6 +13,12 @@ A query over a [Link](../../../core-definitions/link.md) is answered
 `origin not allowed: network`. The node identity, or a caller without that
 permit, is answered `not permitted`.
 
+The node checks the permit again after each grant written for or revoked from
+the provider, and after each contract withdrawn on the node. A provider that no
+longer holds it loses every binding: the node closes each advertise channel
+without an error object, and streams that showed its offerings receive
+[`services.removed`](../types/services.removed.md) with cause `binding_closed`.
+
 [`apphost.register`](../../apphost/ops/apphost.register.md) returns an app token
 and requests the advertising grant, subject to registration policy. The node's
 token authenticates as the rejected node identity. Under default apphost

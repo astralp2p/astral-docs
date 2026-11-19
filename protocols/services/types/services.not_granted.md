@@ -2,7 +2,11 @@
 
 The requested services a caller holds no discovery permit for, sent first on a
 [`services.discover`](../ops/services.discover.md) stream that names services.
-It appears at most once, before any other object.
+A one-shot stream carries it at most once, before any other object. A follow
+sends it again whenever an
+[authority change](../ops/services.discover.md#authority-changes) alters the
+list; each one replaces the previous list, and an empty `Services` means the
+caller holds every requested permit.
 
 `Services` lists each requested service for which the caller lacks
 [`mod.services.service_discovery_action`](mod.services.service_discovery_action.md)

@@ -56,6 +56,33 @@ contributing node. Without such a service, or without `services`, no
 `services.not_granted` is sent. The list depends only on the caller's permits,
 never on providers.
 
+### Authority changes
+
+A follow applies the caller's current authority for as long as it is open. The
+node re-checks every follow of a caller after any of these changes is
+recorded:
+
+* a grant written for or revoked from the caller;
+* a contract indexed whose issuer or subject is the caller, or a contract
+  withdrawn on the node;
+* a [`mod.user.swarm_member_joined`](../../user/types/mod.user.swarm_member_joined.md)
+  or [`mod.user.swarm_member_left`](../../user/types/mod.user.swarm_member_left.md)
+  event, which re-checks every follow.
+
+The re-check runs after the change is recorded, never inside the operation that
+records it. It answers the swarm caller question and every permit question
+again. An offering the caller may no longer see is removed with
+`services.removed`, cause `hidden`, and later results of that provider are
+filtered. An offering of a hosted provider the caller may now see is evaluated
+again and arrives as a `services.update`. When the caller may now see more, a
+follow with `reach=swarm` restarts the carry to each member; an offering shown
+before and after the restart stays shown without a removal.
+
+A re-check that changes the `services.not_granted` list sends a new
+`services.not_granted` with the current list. An empty list means the caller
+holds a permit for every requested service on every contributing node. A
+one-shot discovery keeps the authority it was admitted with.
+
 ## Discovery in an app's name
 
 A hosting node pushes the app's relay contract to a swarm member, then queries
@@ -77,6 +104,14 @@ when its visibility changes. Without `tagged`, the member sends plain
 `services.update` objects. A query with `for` is never forwarded and never
 receives `services.not_granted`. Invalid or unauthorized `for` requests return
 `error_message` before evaluation.
+
+The member re-checks an open stream with `for` after the same changes as a
+follow. When the sending node no longer holds the relay right for the app, no
+longer holds the discovery permission, or, without `services`, is no longer a
+member of the local swarm, the member closes the stream without an error object.
+A sending node that leaves the local swarm has its streams with `for` closed
+when the `mod.user.swarm_member_left` event arrives, whether or not the link
+stays up. The sending node's carry retries and is refused at admission.
 
 A member that predates visibility ignores `tagged` and sends plain
 `services.update` objects. The requesting node treats an untagged offering
@@ -118,7 +153,9 @@ initial attempt. It carries:
   including `Available: false` to withdraw a previously shown key;
 * [`services.removed`](../types/services.removed.md): previously shown keys
   whose provider or contributing swarm member was lost, or that stopped being
-  visible to the caller, with the cause of the removal.
+  visible to the caller, with the cause of the removal;
+* [`services.not_granted`](../types/services.not_granted.md): the current list
+  after an [authority change](#authority-changes) altered it.
 
 Each update replaces the complete offering. Slow readers receive the latest
 value per key; a write exceeding the node's timeout closes the channel.
@@ -163,8 +200,10 @@ followers of their services.
   or a refused `for` request.
 * An optional `services.not_granted`, `services.update` objects (or
   `services.tagged_update` objects with `tagged`), an optional
-  `services.incomplete`, then `eos`; with `follow`, later updates and removals
-  until closure. Provider loss can also remove a shown offering before `eos`.
+  `services.incomplete`, then `eos`; with `follow`, later updates, removals and
+  `services.not_granted` lists until closure. Provider loss or an authority
+  change can also remove a shown offering, and an authority change can send a
+  new `services.not_granted`, before `eos`.
 
 ## Examples
 

@@ -46,7 +46,10 @@ bindings and streams; providers and consumers reopen them.
   [private list](types/mod.services.private_list.md) covers it. See
   [Visibility](ops/services.discover.md#visibility).
 * [`services.not_granted`](types/services.not_granted.md) opens a stream that
-  names services when the caller lacks a permit for some of them.
+  names services when the caller lacks a permit for some of them. A follow
+  applies later grants, revokes, contracts and membership changes, and sends a
+  new list when one alters it. See
+  [Authority changes](ops/services.discover.md#authority-changes).
 * [`services.incomplete`](types/services.incomplete.md) precedes `eos` when
   initial work remains unresolved or fails. It does not invalidate received
   offerings. A close before `eos` is discovery failure.
