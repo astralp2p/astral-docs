@@ -50,6 +50,7 @@ policies:
   swarm_join: reject_all
   swarm_invite: reject_all
   contract_accept: reject_all
+reconcile_interval: 1h
 ```
 
 Two actions gate the protocol. `mod.user.see_swarm_action` covers every read
@@ -65,15 +66,16 @@ the local swarm.
 to this one. A node contract issued to a management node
 carries both, delegable one hop.
 
-When a node first links to a swarm member it synchronises with it, in this
-order: it pushes the active contract, the user's expulsions and the membership
-contracts of the other members, pulls the member's alias, pushes the relay
-contracts of the apps the swarm's members host, and pulls the member's asset
-updates. The alias
-and asset pulls query the member as the user, and the member admits them only
-once it holds this node's contract. A node also synchronises with a linked node
-when a pushed membership contract admits that node to its local swarm, because
-the first link to that node preceded the contract. The relay contracts
+Each time a node gains a link to a swarm member, inbound or outbound, it
+synchronises with it, in this order: it pushes the active contract, the user's
+expulsions and the membership contracts of the other members, pulls the
+member's alias, pushes the relay contracts of the apps the swarm's members
+host, and pulls the member's asset updates. Every new link runs the
+synchronisation, not only the first link to the member. The alias and asset
+pulls query the member as the user, and the member admits them only once it
+holds this node's contract. A node also synchronises with a linked node when a
+pushed membership contract admits that node to its local swarm, because the
+link to that node preceded the contract. The relay contracts
 it pushes are those it holds that pass the admission rule of
 [App Routing](../../topics/app-routing.md#reach), except those whose subject is
 the member. A pushed app relay contract lets the member route a query addressed
@@ -88,6 +90,17 @@ A node wakes its link to a member of its local swarm when a
 names the member: a node that is not linked to the member dials at once instead
 of waiting out the link's backoff of up to 15 minutes
 ([Endpoint exchange in the local swarm](../nodes/README.md#endpoint-exchange-in-the-local-swarm)).
+
+A node redelivers the user's expulsions. Each time a node gains a link to a
+node its user has expelled, it pushes the user's expulsions to that node, the
+expelled node's own expulsion included, and synchronises nothing else with it.
+Every `reconcile_interval` (`user.yaml`, default 1 hour) a node pushes the
+user's expulsions to every linked swarm member and to every linked node its
+user has expelled. A zero or negative `reconcile_interval` selects the default.
+A node that receives an expulsion it already holds stores nothing new and closes
+its links to the expelled node again. A node that receives its own expulsion
+leaves the swarm: it stops maintaining its links to the members, closes them and
+clears its active contract.
 
 A node contacts the nodes [`nearby`](../nearby/README.md) finds on the local
 network only when the peer's `mod.nearby.peer_seen` names the node's own user.

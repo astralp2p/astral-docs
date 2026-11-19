@@ -52,10 +52,9 @@ contract.
   members' contracts to this node. No step of this node's own synchronisation
   reads contracts from the named node.
 * A named node that does not synchronise when a pushed contract admits a linked
-  node ([user](../README.md)) synchronises with this node at its next first
-  link to this node. Closing the link
-  ([`nodes.close_link`](../../nodes/ops/nodes.close_link.md)) and running
-  `user.introduce` again opens a first link.
+  node ([user](../README.md)) synchronises with this node at its next new
+  link to this node. Running `user.introduce` again after closing the link
+  ([`nodes.close_link`](../../nodes/ops/nodes.close_link.md)) opens a new link.
 * This node reaches another member only over a link this node opens, to the
   endpoints the named node holds for that member.
 
