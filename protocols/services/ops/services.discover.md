@@ -106,9 +106,10 @@ receives `services.not_granted`. Invalid or unauthorized `for` requests return
 `error_message` before evaluation.
 
 The member re-checks an open stream with `for` after the same changes as a
-follow. When the sending node no longer holds the relay right for the app, no
-longer holds the discovery permission, or, without `services`, is no longer a
-member of the local swarm, the member closes the stream without an error object.
+follow, recorded for the app or for the sending node. When the sending node no
+longer holds the relay right for the app, no longer holds the discovery
+permission, or, without `services`, is no longer a member of the local swarm,
+the member closes the stream without an error object.
 A sending node that leaves the local swarm has its streams with `for` closed
 when the `mod.user.swarm_member_left` event arrives, whether or not the link
 stays up. The sending node's carry retries and is refused at admission.
