@@ -62,14 +62,24 @@
   [Reach](#reach), with the answering member as the delivering `Node`, and stops asking. The
   candidates are then the `Subjects` of the relay `Contracts` the `Target` issued that the `Node`
   holds.
-* The ask lasts at most 1 s. `Queries` to one `Target` that miss while an ask for it runs share
-  that ask, so each miss asks the members once.
+* The ask is a detached flight that lasts at most 10 s, so it runs on when the `Query` that
+  started it ends. A `Query` waits for the flight at most 3 s, then routes on without a candidate.
+  `Queries` to one `Target` that miss while a flight for it runs share that flight, so each miss
+  asks the members once. A `Contract` that arrives after the `Query` stopped waiting, within the
+  10 s, is indexed all the same, and the next `Query` to the `Target` finds its candidate in the
+  index without an ask.
 * The `Node` never asks for a `Target` that is the `Node` itself, a member of its
   [`Local Swarm`](../core-definitions/local-swarm.md), or its `User`. The ask's own `Queries`
   target members, so an ask never starts another ask.
-* An ask that yields no candidate leaves the `Query` failing as route not found. For 30 s after
-  such an ask, the `Node` asks nothing for that `Target`, and a `Query` to it with no held
+* An ask that yields no candidate leaves the `Query` failing as route not found.
+* The `Node` records a miss for a `Target` only when every member it asked answered without an
+  error before the 10 s ended and none held a `Contract` the `Node` admits. For 30 s after a
+  recorded miss, the `Node` asks nothing for that `Target`, and a `Query` to it with no held
   `Contract` fails as route not found without an ask.
+* An ask whose 10 s ended before every member answered, or in which any member's ask failed with
+  an error, records no miss, so the next `Query` to the `Target` asks again. A `Node` with no
+  `Link` to a member of its `Swarm` has nobody to ask, and that is an answer of none: the miss is
+  recorded.
 
 ## Authorizing the relay
 
