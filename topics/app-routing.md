@@ -108,6 +108,26 @@
 * A `Node` that holds no `Contract` for the `Caller` refuses the relay. Holding one is what
   distinguishes a `Caller` a `Node` will carry from one it will not.
 
+## Sending to a node over its own link
+
+* A `Node` that routes a `Query` of a local `App` to a `Node` identity over a `Link` to that `Node`,
+  held or retrieved for the `Query`, pushes the calling `App`'s `Contract` to the `Target` before
+  it sends the `Query`. The `Contract` is the one the `Query` carries
+  ([Resolving the host](#resolving-the-host)). The `Target` then holds the `Contract` the relay
+  authorization of [Authorizing the relay](#authorizing-the-relay) asks for, whether or not a
+  synchronisation or an earlier push delivered it.
+* The `Node` pushes once per `Link` and `Contract`. A later `Query` of the same `App` over the same
+  `Link` pushes nothing, and a `Query` over another `Link` pushes again. `Queries` that start
+  together over one `Link` push once.
+* A push lasts at most 5 s. A push that fails, is refused or reaches the 5 s is not remembered, so
+  the next `Query` over the `Link` pushes again. The `Query` is sent after every push, whatever its
+  outcome, and the `Target` admits or refuses it by the `Contracts` it holds.
+* A `Node` pushes nothing when the `Caller` is the `Node` itself, or when the `Query` carries no
+  `Contract`.
+* A `Node` that receives a pushed `Contract` it holds already accepts it and changes nothing.
+* The relay path of [Resolving the host](#resolving-the-host) is unchanged: it pushes the
+  `Contract` to each candidate before the `Query`.
+
 ## Failures
 
 * A `Query` to an `App` ends in one of the
