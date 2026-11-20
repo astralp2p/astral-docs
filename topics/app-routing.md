@@ -76,8 +76,9 @@
   reading the index back share one deadline 2 s past the 10 s, so a flight, which later `Queries`
   to the `Target` join, lasts at most until the deadline. A flight ends as soon as a `Contract`
   is indexed and read back or every member has answered, and runs past the 10 s only while a
-  `Contract` that arrived by the 10 s is indexed and read back. The deadline is advisory: the `Node` passes it as a context, and the flight outlasts it by as long as the
-  index ignores that context.
+  `Contract` that arrived by the 10 s is indexed and read back. The deadline is advisory: the
+  `Node` passes it as a context, and the flight outlasts it by as long as the index ignores that
+  context.
 * The `Node` never asks for a `Target` that is the `Node` itself, a member of its
   [`Local Swarm`](../core-definitions/local-swarm.md), or its `User`. The ask's own `Queries`
   target members, so an ask never starts another ask.
