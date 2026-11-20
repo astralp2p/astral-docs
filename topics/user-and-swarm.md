@@ -39,6 +39,9 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
   it, and to every linked member and every linked expelled node every
   `reconcile_interval`, by default once an hour. A node that missed an
   expulsion receives it this way.
+* A node refuses links with an expelled node once that node has answered
+  its own expulsion from this node; until then it admits them, so the
+  expelled node can receive its expulsion.
 * The user and every member may read the swarm, for example with
   [`user.info`](../protocols/user/ops/user.info.md) and
   [`user.list_siblings`](../protocols/user/ops/user.list_siblings.md).

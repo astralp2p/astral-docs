@@ -41,6 +41,10 @@ On success both sides hold an encrypted, authenticated stream and know each
 other's Identity. Every byte described below travels inside that encrypted
 stream.
 
+The responder checks the initiator's Identity against its
+[link admission](../protocols/nodes/README.md#link-admission) rules right after
+the handshake. A refused initiator's connection is closed before Negotiation.
+
 ## Negotiation
 
 Negotiation runs as a short [*Channel*](../core-definitions/channel.md) over the
