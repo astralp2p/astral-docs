@@ -148,8 +148,27 @@ transport that carries no end-of-stream signal, such as `kcp`, needs it most.
   back; in particular it never answers with a `close` of its own.
 * **Best effort.** The sender writes the frame within a bounded time and closes
   the Link whether or not the write finished. A peer that never reads delays the
-  close by at most that bound. The peer can still miss the frame, so the
-  keepalive stays the backstop.
+  close by at most that bound. The reference bound is 1 s (`closeNoticeBound`).
+  The peer can still miss the frame, so the keepalive stays the backstop.
+* **Simultaneous close.** Both ends can close the same Link at once, so each
+  sends `close` and each receives the other's. A node that already closes the
+  Link ignores a `close` it receives, and sends nothing in return. Both ends
+  end the Link once.
+* **No frame.** A node sends no `close` when:
+  * the Link has already ended on its side: the transport reported
+    end-of-stream or an error, a frame could not be decoded, or the peer's
+    `close` arrived (the Link is the peer's to end, so nothing is echoed);
+  * the Link was already closing: only the first close of a Link sends the
+    frame;
+  * the connection never became a Link, because the handshake or the
+    negotiation failed before the framing phase;
+  * the node stops without closing its Links: a killed process, a power cut,
+    or a dropped network sends nothing, and the peer's keepalive detects it.
+
+  A write that is blocked when the bound ends sends no complete frame either.
+  That is the usual outcome of a [write stall](#write-stall): the `close` write
+  queues behind the stuck write, so the peer learns of the close through the
+  transport or its keepalive.
 * **Closing Links only.** A node sends `close` only on a Link it closes. It
   never sends `close` on a Link it keeps, including the Link it keeps when it
   closes an `excess` one.
@@ -182,33 +201,105 @@ Each node runs the keepalive on its own:
 * The ping timeout starts before the probe is written. A probe that cannot be
   written within `T`, because the peer stopped reading, closes the Link like a
   missing `pong`.
-* A node that adds a Link to a peer while it holds other Links to that peer
-  sends one probe on each of those older Links at once, whatever their idle
-  interval. A new Link often means the peer moved and an older Link is dead.
-  A dead older Link closes within its `T`; a healthy one answers and stays.
 * Closing the Link tears down every session on it (see [sessions](#sessions)).
   A Link whose peer stopped responding therefore closes within `N + T` of the
-  last frame received from that peer.
+  last frame received from that peer, plus the slack described under
+  [detection bound](#detection-bound).
 * On an idle healthy Link each end sends one probe and one `pong` per `N`.
 
+### Per-transport values
+
 `N` and `T` belong to the Link's transport: each transport sets its own pair,
-and the two ends of one Link may use different pairs. A transport that sets
-none gets `N` 15 s and `T` 10 s. The reference node reads the pair from the
-transport module's config keys `link_idle_ping` and `link_ping_timeout`, with
-these defaults:
+and the two ends of one Link may use different pairs. The reference node reads
+the pair from the transport module's config keys `link_idle_ping` and
+`link_ping_timeout`. A transport that sets none (a key left at 0, or a conn
+that reports no keepalive) gets the pair of its network's **transport profile**
+(`TransportProfile`: `IdlePing`, `PingTimeout`); a network without a profile
+gets `N` 15 s and `T` 10 s. The transport's own pair wins over the profile.
 
-| Transport | `N` | `T` |
-|-----------|-----|-----|
-| `tcp`     | 15 s | 10 s |
-| `kcp`     | 10 s | 10 s |
-| `gw`      | 20 s | 15 s |
-| `tor`     | 30 s | 30 s |
+| Transport | `N` (config default) | `T` (config default) | Bound `N + T` | Profile `N` / `T` |
+|-----------|----------------------|----------------------|---------------|-------------------|
+| `tcp`     | 15 s | 10 s | 25 s | 15 s / 10 s |
+| `kcp`     | 10 s | 10 s | 20 s | 10 s / 10 s |
+| `gw`      | 20 s | 15 s | 35 s | 15 s / 10 s |
+| `tor`     | 30 s | 30 s | 60 s | 15 s / 10 s |
 
-The `kcp` idle interval is 10 s because a `kcp` Link rides a UDP NAT mapping.
-On common NATs a fresh UDP mapping survives 15 s without traffic and is gone
-by 30 s. A mapping that has carried traffic for a while lives several times
-longer. A probe every 10 s keeps a fresh mapping open from the moment the Link
-opens. Both ends probe, so traffic crosses the mapping in both directions.
+The bound is the longest time a dead Link stays open after the last frame
+received from its peer, with a node running the default pair of its transport.
+A node that sets another pair has the bound of that pair. The `gw` and `tor`
+config defaults are larger than their profile, so the profile applies only
+where the config gives 0.
+
+* `kcp` rides UDP, which never reports a broken connection, so a `kcp` Link
+  relies entirely on the keepalive (and on a received `close`) to end. The
+  `kcp` idle interval is 10 s because a `kcp` Link rides a UDP NAT mapping.
+  On common NATs a fresh UDP mapping survives 15 s without traffic and is gone
+  by 30 s. A mapping that has carried traffic for a while lives several times
+  longer. A probe every 10 s keeps a fresh mapping open from the moment the Link
+  opens. Both ends probe, so traffic crosses the mapping in both directions.
+* A `tcp` Link also ends when the OS reports the connection broken, which can
+  precede the bound; a `tor` Link may stay open for up to 60 s after a peer
+  vanishes.
+
+### Detection bound
+
+The bound `N + T` counts from the last frame received from the peer. The
+reference node adds slack on top of it, so a Link closes a little later than the
+bound, never earlier:
+
+* the idle timer and the timeout timer run on the scheduler of the node, which
+  adds scheduling delay to each;
+* the best-effort `close` write (see [close notice](#close-notice)) waits up to
+  its bound of 1 s before the transport closes, when the peer does not read.
+
+### Early probes
+
+`N` is the longest a node waits before it probes. The reference node probes
+earlier, once, on each of these events. An early probe closes a dead Link within
+`T`, and a healthy Link answers it and stays. Early probes requested while one
+probe waits for its `pong` cause at most one more probe.
+
+* **A new Link to the peer.** A node that adds a Link to a peer while it holds
+  other Links to that peer sends one probe on each of those older Links at once,
+  whatever their idle interval. A new Link often means the peer moved and an
+  older Link is dead. A dead older Link closes within its `T`; a healthy one
+  answers and stays.
+* **A query deadline with no answer.** A query routed over the Link whose
+  deadline passes with no `response` probes the Link once. A caller that cancels
+  its query does not: only the deadline counts. A dead Link then closes within
+  `T` of the deadline instead of within `N + T` of the last frame.
+* **A removed local address.** When the node's own network addresses change and
+  one is removed, the Links whose local endpoint holds a removed address are
+  probed once, after a 500 ms wait that groups changes. A Link whose local
+  endpoint is not an IP address, or is a wildcard address (the `kcp` listener
+  reports one), never matches and keeps relying on its idle keepalive. An
+  address that only appeared probes nothing.
+* **The NAT keepalive.** A Link that the NAT traversal strategy punched is
+  probed every 5 s during its first minute and every 15 s afterwards, to keep
+  the NAT mapping open. This schedule is separate from `N`, and the more
+  frequent of the two applies.
+
+No other event probes early. A node may also send a probe in order to confirm a
+Link live before it picks between duplicate Links to one peer; that probe joins
+one already in flight.
+
+### Write stall
+
+A Link closes when one write stays blocked for `T`. A write blocks when the
+transport takes no more bytes, because the peer stopped reading and the
+transport's buffers are full. Each frame is one write, so the rule bounds one
+frame, not the Link's throughput.
+
+* A peer that leaves one write blocked for `T` is closed, so a reader slower
+  than that loses the Link, as does a peer that never reads. A peer cannot keep
+  a Link open by answering probes while it stops reading other frames.
+* A peer observes this close as the transport ending. The node attempts a
+  `close` with `Reason` `0` (`closed`), but the frame waits behind the stuck
+  write, so the node closes the transport at the close notice bound (see
+  [close notice](#close-notice)) and the frame is not delivered.
+* The rule is separate from the ping timeout: the ping timeout starts when a
+  probe is written and also covers that write, and the write stall rule covers
+  every frame.
 
 ## Sessions
 
