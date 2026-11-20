@@ -108,6 +108,7 @@ The frame types, by their wire type name and payload layout:
 | `nodes.frames.data`        | `Nonce` nonce64, `Payload` bytes (`uint16` length prefix)     |
 | `nodes.frames.migrate`     | `Nonce` nonce64                                               |
 | `nodes.frames.reset`       | `Nonce` nonce64                                               |
+| `nodes.frames.close`       | `Reason` [`uint8`](../primitive-types/uint8.md)               |
 
 Notes on the payload layouts:
 
@@ -125,6 +126,37 @@ Notes on the payload layouts:
 * `ping.Pong` false is a probe; the peer must answer with a `ping` bearing the
   same `Nonce` and `Pong` true. Pings double as the Link's keepalive (see
   [keepalive](#keepalive)).
+* `close.Reason` names why the sender closes the Link:
+
+  | `Reason` | Name       | Meaning |
+  |----------|------------|---------|
+  | `0`      | `closed`   | the sender closes the Link for a cause no other value names |
+  | `1`      | `excess`   | the sender keeps another Link to the same peer and closes this one |
+  | `2`      | `shutdown` | the sender's node is shutting down |
+
+  The set is append-only: a later revision adds values and never changes or
+  reuses these. A receiver treats a `Reason` it does not know as `closed`.
+
+## Close notice
+
+A node that closes a Link sends one `close` frame first, so the peer learns of
+the close at once instead of when its [keepalive](#keepalive) gives up. A
+transport that carries no end-of-stream signal, such as `kcp`, needs it most.
+
+* **Receiver.** A node that receives `close` closes its end of the Link and
+  tears down every session on it (see [sessions](#sessions)). It sends nothing
+  back; in particular it never answers with a `close` of its own.
+* **Best effort.** The sender writes the frame within a bounded time and closes
+  the Link whether or not the write finished. A peer that never reads delays the
+  close by at most that bound. The peer can still miss the frame, so the
+  keepalive stays the backstop.
+* **Closing Links only.** A node sends `close` only on a Link it closes. It
+  never sends `close` on a Link it keeps, including the Link it keeps when it
+  closes an `excess` one.
+* **Mixed versions.** A receiver that has no `nodes.frames.close` type cannot
+  decode the frame. The reference node ends such a Link on any frame type it
+  cannot decode, so the receiver closes the Link. The sender closes the same
+  Link, so the outcome equals the close the frame announces.
 
 ## Keepalive
 
