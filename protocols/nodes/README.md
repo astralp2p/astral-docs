@@ -39,18 +39,35 @@ subject.
   member at a time; closes during a pull start at most one more pull after it.
 * When a pushed membership contract reaches the node, the node pulls the
   endpoints of the contract's subject from the sender.
-* When a node's own set of local addresses changes, the node announces the
+* When a node's own set of advertised endpoints changes, the node announces the
   change to its linked members. A member that receives the announcement pulls
   the endpoints of the announcing node.
 
 ### Announcing a change
 
-* A [`mod.ip.events.network_address_changed`](../ip/types/mod.ip.events.network_address_changed.md)
-  event starts a 5 s wait, unless a wait is already running. A change during
-  the wait joins that wait and starts no second one.
+* Each of these starts a 5 s wait, unless a wait is already running. A trigger
+  during the wait joins that wait and starts no second one:
+  * a [`mod.ip.events.network_address_changed`](../ip/types/mod.ip.events.network_address_changed.md)
+    event;
+  * a link of the node created or closed, whichever identity it holds a link
+    with;
+  * the start of the node, once, when the node's scheduler is ready.
 * An event whose `Added` and `Removed` hold only IPv6 link-local addresses
   starts no wait. A node never advertises an IPv6 link-local address.
-* When the wait ends, the node pushes one
+* When the wait ends, the node computes the fingerprint of its advertised
+  endpoint set: the SHA-256 of the sorted, deduplicated strings
+  `<network>:<address>` of every endpoint that
+  [`nodes.resolve_endpoints`](ops/nodes.resolve_endpoints.md) returns for the
+  node's own identity. TTLs and the order of the endpoints do not enter the
+  fingerprint.
+* The node pushes only when the fingerprint differs from the one it announced
+  last. The first fingerprint after the node starts always differs, so the node
+  pushes once then, whatever the set holds. A wait that ends with an unchanged fingerprint pushes
+  nothing.
+* The node stores the fingerprint before it pushes. A push that reaches no
+  member, because the node holds no link with one, still counts as announced;
+  a member that links later pulls the endpoints on its first link.
+* To push, the node sends one
   [`mod.nodes.endpoints_changed_message`](types/mod.nodes.endpoints_changed_message.md)
   with `Subject` set to its own identity to every member of its local swarm it
   holds a link with. Each push is bounded to 15 s. A failed push is not retried.

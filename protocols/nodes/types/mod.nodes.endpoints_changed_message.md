@@ -1,7 +1,7 @@
 # mod.nodes.endpoints_changed_message
 
 A message a node pushes to its linked [Local Swarm](../../../core-definitions/local-swarm.md)
-members after its own set of local addresses changed. It asks the receiver to pull the
+members after its own set of advertised endpoints changed. It asks the receiver to pull the
 endpoints of `Subject` from the sender with
 [`nodes.resolve_endpoints`](../ops/nodes.resolve_endpoints.md). It carries no endpoints.
 
