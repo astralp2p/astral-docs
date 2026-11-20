@@ -2,6 +2,26 @@
 
 The `nodes` protocol manages encrypted links and multiplexed sessions between Astral nodes. It exposes operations for inspecting and managing links, resolving and registering known endpoints, and migrating sessions between links.
 
+## Link admission
+
+A node decides which identities it holds links with. Modules of the node
+register admission rules; a rule refuses an identity or admits it. A node
+without a rule that refuses an identity admits that identity, so apps, other
+users' nodes, relays and unknown nodes link as before.
+
+* A request for a link to a refused identity fails at once, without a dial. A
+  query to a refused identity that no existing link carries answers route not
+  found, and the node routes it through no relay.
+* The node refuses an inbound connection from a refused identity right after the
+  [Handshake](../../topics/link-mux.md#handshake): it closes the connection
+  before [Negotiation](../../topics/link-mux.md#negotiation).
+* The node checks every link before it adds the link to its links, and closes a
+  link to a refused identity instead of adding it.
+* When a rule starts to refuse an identity, the node closes every link it holds
+  with that identity.
+
+The [user](../user/README.md) module refuses nodes its user has expelled.
+
 ## Endpoint exchange in the local swarm
 
 A node learns the endpoints of a member of its

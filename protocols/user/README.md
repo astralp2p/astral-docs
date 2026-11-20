@@ -108,6 +108,18 @@ its links to the expelled node again. A node that receives its own expulsion
 leaves the swarm: it stops maintaining its links to the members, closes them and
 clears its active contract.
 
+A node refuses links with a node its user has expelled once the expelled node
+has answered a push of its own expulsion from this node, by accepting it or by
+rejecting it ([Link admission](../nodes/README.md#link-admission)). Until that
+answer the node admits the expelled node's links, so the expelled node can
+receive its expulsion over them. When the answer arrives, the node closes its
+links with the expelled node, and it neither dials the expelled node nor
+accepts its connections again. The node keeps the answers in memory only: after
+a restart it admits the expelled node until the expelled node answers again. A
+node without an active contract refuses no node. On the node that issues the
+expulsion, the answer ends the direct push of the expulsion to the expelled
+node, so that push completes before the node closes its links with it.
+
 A node contacts the nodes [`nearby`](../nearby/README.md) finds on the local
 network only when the peer's `mod.nearby.peer_seen` names the node's own user.
 It links at once to such a peer that is a member of its local swarm and is not
