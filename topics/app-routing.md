@@ -72,6 +72,9 @@
   asks the members once. A `Contract` that arrives after the `Query` stopped waiting, within the
   10 s, is indexed all the same, and the next `Query` to the `Target` finds its candidate in the
   index without an ask.
+* A `Contract` that arrived within the 10 s is indexed even when the 10 s end first: the `Node`
+  gives indexing it a bound of its own, 2 s, so the flight stays registered at most 2 s past the
+  10 s.
 * The `Node` never asks for a `Target` that is the `Node` itself, a member of its
   [`Local Swarm`](../core-definitions/local-swarm.md), or its `User`. The ask's own `Queries`
   target members, so an ask never starts another ask.
