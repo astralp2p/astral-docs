@@ -51,6 +51,8 @@ policies:
   swarm_invite: reject_all
   contract_accept: reject_all
 reconcile_interval: 1h
+sibling_sync_interval: 6h
+sibling_sync_disabled: false
 ```
 
 Two actions gate the protocol. `mod.user.see_swarm_action` covers every read
@@ -58,8 +60,8 @@ except `user.contract` — `user.info`, `user.assets`, `user.sync_assets`,
 `user.list_siblings`, `user.swarm_status` and `user.list_expelled` — and
 `user.new_node_contract` when `user` is omitted on a claimed node.
 `user.contract` asks for no action and answers every directly linked caller.
-`user.relay_contracts` asks for no action and answers only the other members of
-the local swarm.
+`user.relay_contracts` and `user.relay_digest` ask for no action and answer only
+the other members of the local swarm.
 `mod.user.admin_swarm_action` covers every change to what the swarm holds —
 `user.adopt`, `user.expel`, `user.introduce`, `user.add_asset`,
 `user.remove_asset` and `user.sync_with`, which applies another node's entries
@@ -70,8 +72,8 @@ Each time a node gains a link to a swarm member, inbound or outbound, it
 synchronises with it, in this order: it pushes the active contract, the user's
 expulsions and the membership contracts of the other members, pulls the
 member's alias, pushes the relay contracts of the apps the swarm's members
-host, and pulls the member's asset updates. Every new link runs the
-synchronisation, not only the first link to the member. The alias and asset
+host that the member lacks, and pulls the member's asset updates. Every new
+link runs the synchronisation, not only the first link to the member. The alias and asset
 pulls query the member as the user, and the member admits them only once it
 holds this node's contract. A node also synchronises with a linked node when a
 pushed membership contract admits that node to its local swarm, because the
@@ -84,12 +86,41 @@ over a remaining link. The node runs one such synchronisation per member at a
 time; closes during it start at most one more after it. The relay contracts
 it pushes are those it holds that pass the admission rule of
 [App Routing](../../topics/app-routing.md#reach), except those whose subject is
-the member. A pushed app relay contract lets the member route a query addressed
+the member and except those the member holds. Before it pushes, the node asks
+the member which relay contracts it holds with
+[`user.relay_digest`](ops/user.relay_digest.md), as itself, within 10 seconds,
+and skips each relay contract whose object ID the member lists. A node pushes
+no relay contract when the member lists all of them. A relay contract the member
+refused or never received is absent from its digest, so the node pushes it on
+the next synchronisation. A digest that fails, whether by error, refusal,
+unknown operation, an unfinished stream or the 10 seconds, leaves the node
+pushing every relay contract it would push without a digest. The digest changes
+no admission: the member admits each pushed relay contract by the same rule as
+any other. A pushed app relay contract lets the member route a query addressed
 to the app through the app's host. An app registered while the two nodes are
-already linked reaches the member when it registers.
+already linked reaches the member when it registers: the node pushes the
+registered app's relay contract to every linked member at once, and pushes it
+again to a member the push did not reach, up to 3 times, after 10 seconds, after
+1 minute and after 5 minutes. A member's retries stop at its first answer,
+whether the member accepts the contract or refuses it, when the member is no
+longer a linked member, and when the node stops. A member that refuses the
+contract receives it again from a later synchronisation, once its local swarm
+lists the node.
 A member that routes a query to an app whose relay contract it does not hold
 asks its linked members for it with `user.relay_contracts`, once per miss
 ([App Routing, Resolving the host](../../topics/app-routing.md#resolving-the-host)).
+
+A node synchronises with every linked member again every `sibling_sync_interval`
+(`user.yaml`, default 6 hours), in the order and by the rules of a new link's
+synchronisation, so a member that missed a relay contract for any reason holds it
+within one interval. Each wait lasts the interval plus a random delay of up to
+10 % of it. A zero `sibling_sync_interval` selects the default; a negative one,
+or `sibling_sync_disabled: true`, turns the periodic synchronisation off. The
+periodic synchronisation reaches linked members only. It starts one
+synchronisation per linked member, concurrently, and skips a member whose
+previous periodic synchronisation has not finished. A link-triggered
+synchronisation with the member is unaffected and runs when its link event
+fires.
 
 A node wakes its link to a member of its local swarm when a
 [`mod.nodes.endpoints_updated_event`](../nodes/types/mod.nodes.endpoints_updated_event.md)
