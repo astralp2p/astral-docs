@@ -66,12 +66,19 @@
   [Reach](#reach), with the answering member as the delivering `Node`, and stops asking. The
   candidates are then the `Subjects` of the relay `Contracts` the `Target` issued that the `Node`
   holds.
-* The ask is a detached flight that lasts at most 10 s, so it runs on when the `Query` that
+* The ask lasts at most 10 s and runs as a detached flight, so it runs on when the `Query` that
   started it ends. A `Query` waits for the flight at most 3 s, then routes on without a candidate.
   `Queries` to one `Target` that miss while a flight for it runs share that flight, so each miss
   asks the members once. A `Contract` that arrives after the `Query` stopped waiting, within the
   10 s, is indexed all the same, and the next `Query` to the `Target` finds its candidate in the
   index without an ask.
+* A `Contract` that arrived within the 10 s is still indexed after the 10 s end. Indexing it and
+  reading the index back share one deadline 2 s past the 10 s, so a flight, which later `Queries`
+  to the `Target` join, lasts at most until the deadline. A flight ends as soon as a `Contract`
+  is indexed and read back or every member has answered, and runs past the 10 s only while a
+  `Contract` that arrived by the 10 s is indexed and read back. The deadline is advisory: the
+  `Node` passes it as a context, and the flight outlasts it by as long as the index ignores that
+  context.
 * The `Node` never asks for a `Target` that is the `Node` itself, a member of its
   [`Local Swarm`](../core-definitions/local-swarm.md), or its `User`. The ask's own `Queries`
   target members, so an ask never starts another ask.
