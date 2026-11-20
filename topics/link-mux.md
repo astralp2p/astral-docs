@@ -168,9 +168,15 @@ these defaults:
 | Transport | `N` | `T` |
 |-----------|-----|-----|
 | `tcp`     | 15 s | 10 s |
-| `kcp`     | 15 s | 10 s |
+| `kcp`     | 10 s | 10 s |
 | `gw`      | 20 s | 15 s |
 | `tor`     | 30 s | 30 s |
+
+The `kcp` idle interval is 10 s because a `kcp` Link rides a UDP NAT mapping.
+On common NATs a fresh UDP mapping survives 15 s without traffic and is gone
+by 30 s. A mapping that has carried traffic for a while lives several times
+longer. A probe every 10 s keeps a fresh mapping open from the moment the Link
+opens. Both ends probe, so traffic crosses the mapping in both directions.
 
 ## Sessions
 
