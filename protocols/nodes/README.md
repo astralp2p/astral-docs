@@ -35,22 +35,51 @@ subject.
   node pulls the endpoints of that member from that member.
 * When one of the node's links to a member of its local swarm closes and
   another link to that member remains, the node pulls the endpoints of that
-  member from that member over a remaining link. The node runs one such pull per
-  member at a time; closes during a pull start at most one more pull after it.
+  member from that member over a remaining link.
+* Every 24 h, shifted by a random share of at most 10% of the period in either
+  direction, the node pulls the endpoints of every member of its local swarm,
+  other than itself, it holds a link with, each from that member over an
+  existing link. The first pull comes one such period after the node starts.
+  The pull never dials. It stores the returned endpoints with their TTLs, so a
+  row of a member that stays linked gets a new expiry and does not lapse.
+* The node runs one pull per member at a time for the link close and the 24 h
+  triggers together; a request during a pull starts at most one more pull after
+  it. Each of these pulls is bounded to 20 s. A failed pull is logged and not
+  retried before its next trigger.
 * When a pushed membership contract reaches the node, the node pulls the
   endpoints of the contract's subject from the sender.
-* When a node's own set of local addresses changes, the node announces the
+* When a node's own set of advertised endpoints changes, the node announces the
   change to its linked members. A member that receives the announcement pulls
   the endpoints of the announcing node.
 
 ### Announcing a change
 
-* A [`mod.ip.events.network_address_changed`](../ip/types/mod.ip.events.network_address_changed.md)
-  event starts a 5 s wait, unless a wait is already running. A change during
-  the wait joins that wait and starts no second one.
+* Each of these starts a 5 s wait, unless a wait is already running. A trigger
+  during the wait joins that wait and starts no second one:
+  * a [`mod.ip.events.network_address_changed`](../ip/types/mod.ip.events.network_address_changed.md)
+    event;
+  * a link of the node created or closed, whichever identity it holds a link
+    with;
+  * the start of the node, once, when the node's scheduler is ready;
+  * each run of the 24 h pull of the members' endpoints, once per run, whatever
+    the number of members, so a change without an event, such as an onion
+    address that became available, is announced within about 24 h.
 * An event whose `Added` and `Removed` hold only IPv6 link-local addresses
   starts no wait. A node never advertises an IPv6 link-local address.
-* When the wait ends, the node pushes one
+* When the wait ends, the node computes the fingerprint of its advertised
+  endpoint set: the SHA-256 of the sorted, deduplicated strings
+  `<network>:<address>` of every endpoint that
+  [`nodes.resolve_endpoints`](ops/nodes.resolve_endpoints.md) returns for the
+  node's own identity. TTLs and the order of the endpoints do not enter the
+  fingerprint.
+* The node pushes only when the fingerprint differs from the one it announced
+  last. The first fingerprint after the node starts always differs, so the node
+  pushes once then, whatever the set holds. A wait that ends with an unchanged fingerprint pushes
+  nothing.
+* The node stores the fingerprint before it pushes. A push that reaches no
+  member, because the node holds no link with one, still counts as announced;
+  a member that links later pulls the endpoints on its first link.
+* To push, the node sends one
   [`mod.nodes.endpoints_changed_message`](types/mod.nodes.endpoints_changed_message.md)
   with `Subject` set to its own identity to every member of its local swarm it
   holds a link with. Each push is bounded to 15 s. A failed push is not retried.
