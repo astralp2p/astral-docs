@@ -47,6 +47,10 @@
 * The `Node` tries the candidates one at a time, in the order it found them. The first candidate
   that accepts the `Query` ends the routing. A candidate that does not accept does not end it, and
   the next candidate is tried.
+* A `Node` that holds candidates tries them before it links to the `Target`. A `Link` the `Node`
+  already holds to the `Target` takes the `Query` ahead of every candidate. When no candidate
+  accepts, the `Node` does not link to the `Target` afterwards. Linking to the candidates shares one
+  budget of 120 s, which the caller's deadline ends earlier.
 * Each candidate that does not accept leaves one of three answers: a refusal (any `Reject Code`
   other than `7`, the generic `1` included, or a candidate that received the calling `App`'s
   `Contract` and did not accept it), unavailable (`Reject Code` `7`, or a candidate the `Node`
