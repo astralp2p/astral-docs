@@ -6,9 +6,11 @@ member before it pushes relay contracts, and pushes only the relay contracts
 whose IDs the member did not list
 ([user](../README.md)).
 
-A relay contract is a contract with a permit for
+A relay contract is a contract whose every permit is for
 [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
-([App Routing, Reach](../../../topics/app-routing.md#reach)). The node streams
+([App Routing, Reach](../../../topics/app-routing.md#reach)). A contract that
+carries any other permit beside it is not a relay contract for this operation,
+matching [`user.relay_contracts`](user.relay_contracts.md). The node streams
 the [`Object ID`](../../../core-definitions/object-id.md) of each active
 relay contract in its own index, in no particular order: a contract that is
 started, not expired and not withdrawn on this node. The ID is the one of the
