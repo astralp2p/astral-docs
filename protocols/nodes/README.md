@@ -36,15 +36,23 @@ subject.
 * When one of the node's links to a member of its local swarm closes and
   another link to that member remains, the node pulls the endpoints of that
   member from that member over a remaining link.
-* Every 24 h, shifted by a random share of at most 10% of the period in either
-  direction, the node pulls the endpoints of every member of its local swarm,
-  other than itself, it holds a link with, each from that member over an
-  existing link. The first pull comes one such period after the node starts.
-  The pull never dials. It stores the returned endpoints with their TTLs, so a
-  row of a member that stays linked gets a new expiry and does not lapse.
-* The node runs one pull per member at a time for the link close and the 24 h
-  triggers together; a request during a pull starts at most one more pull after
-  it. Each of these pulls is bounded to 20 s. A failed pull is logged and not
+* Every 35 minutes, shifted by a random share of at most 10% of the period in
+  either direction, the node runs a periodic pull. Each run pulls, from that
+  member over an existing link, the endpoints of every member of its local
+  swarm, other than itself, it holds a link with and holds an unexpired
+  `mod.tcp.endpoint` or `mod.kcp.endpoint` row of on a non-public address.
+  The first run comes one such period after the node starts.
+* The first run at least 24 h, shifted by a random share of at most 10% in
+  either direction, after the node started or after the previous such run
+  pulls every member of its local swarm, other than itself, it holds a link
+  with.
+* A periodic pull never dials. It stores the returned endpoints with their
+  TTLs, so a row of a member that stays linked gets a new expiry and does not
+  lapse. A member the node holds no link with is not pulled, so its rows on
+  non-public addresses lapse within their 2 h TTL.
+* The node runs one pull per member at a time for the link close and the
+  periodic triggers together; a request during a pull starts at most one more
+  pull after it. Each of these pulls is bounded to 20 s. A failed pull is logged and not
   retried before its next trigger.
 * When a pushed membership contract reaches the node, the node pulls the
   endpoints of the contract's subject from the sender.
@@ -61,9 +69,9 @@ subject.
   * a link of the node created or closed, whichever identity it holds a link
     with;
   * the start of the node, once, when the node's scheduler is ready;
-  * each run of the 24 h pull of the members' endpoints, once per run, whatever
-    the number of members, so a change without an event, such as an onion
-    address that became available, is announced within about 24 h.
+  * each run of the periodic pull of the members' endpoints, once per run,
+    whatever the number of members, so a change without an event, such as an
+    onion address that became available, is announced within about 40 minutes.
 * An event whose `Added` and `Removed` hold only IPv6 link-local addresses
   starts no wait. A node never advertises an IPv6 link-local address.
 * When the wait ends, the node computes the fingerprint of its advertised
@@ -119,5 +127,50 @@ The [user](../user/README.md) module wakes the link to `Subject` on a
 `mod.nodes.endpoints_updated_event`: a node that is not linked to `Subject`
 dials at once instead of waiting out its backoff of up to 15 minutes.
 
-An announcement withdraws no endpoint. An endpoint the announcing node no longer
-holds stays stored until its TTL ends.
+An announcement carries no endpoints and withdraws none itself. The pull from
+the announcing node that follows it withdraws the endpoints that node no longer
+lists, as [Withdrawn endpoints](#withdrawn-endpoints) states.
+
+### Withdrawn endpoints
+
+A pull is first-hand when the resolver is the subject. After a first-hand pull
+whose answer holds at least one endpoint, the node caps the expiry of some
+stored rows of the subject at 1 hour from the pull:
+
+* A row is capped when its network appears in the answer and its address does
+  not.
+* A row that expires earlier, and a row of a network the answer does not list,
+  keep their expiry.
+* A row without an expiry gets one 1 hour from the pull.
+
+A pull that is not first-hand, and a first-hand pull with an empty answer,
+change no expiry. The node never deletes a row because a dial of it failed.
+
+## Dial order
+
+The node records the outcome of every dial of a known endpoint by the basic,
+tor and nat strategies, per subject, network and address: the time of the last
+success and of the last failure, the number of successes, the number of
+failures since the last success, and the dial and handshake time of the last
+success. A handshake that reaches another identity is a failure. A dial that
+ends because its round ended first, as when another dial of the round linked,
+is not recorded. The record is kept when the endpoint row expires, and is
+deleted 30 days after its last update.
+
+The basic strategy waits up to 150 ms for the subject's rows, then dials them
+in three tiers:
+
+1. Rows with a success in the last 24 h, the most recent success first.
+2. Rows with neither a recent success nor 3 or more failures since the last
+   success.
+3. Rows with 3 or more failures since the last success, and `mod.tcp.endpoint`
+   or `mod.kcp.endpoint` rows on a non-public, non-loopback address outside
+   every subnet of the node's interfaces that have no recent success.
+
+The node dials a tier 3 row once every earlier row's dial has returned, or
+500 ms after the earlier rows started, whichever comes first. A tier 3 row on an
+address outside every subnet of the node's interfaces dials under a 1 s budget.
+When the node cannot read the subnets of its interfaces, no row counts as
+outside them. A row that arrives after the 150 ms wait dials after the ordered
+rows. Every
+row is dialed; the order never skips one.
