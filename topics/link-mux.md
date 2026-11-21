@@ -163,12 +163,12 @@ transport that carries no end-of-stream signal, such as `kcp`, needs it most.
   * the connection never became a Link, because the handshake or the
     negotiation failed before the framing phase;
   * the node stops without closing its Links: a killed process, a power cut,
-    or a dropped network sends nothing, and the peer's keepalive detects it.
+    or a dropped network sends nothing, and the peer's keepalive detects it;
+  * the Link closes for a [write stall](#write-stall): a `close` write would
+    queue behind the stuck write, so the node closes the transport at once.
 
-  A write that is blocked when the bound ends sends no complete frame either.
-  That is the usual outcome of a [write stall](#write-stall): the `close` write
-  queues behind the stuck write, so the peer learns of the close through the
-  transport or its keepalive.
+  A write that is blocked when the bound ends sends no complete frame either,
+  so the peer learns of the close through the transport or its keepalive.
 * **Closing Links only.** A node sends `close` only on a Link it closes. It
   never sends `close` on a Link it keeps, including the Link it keeps when it
   closes an `excess` one.
@@ -293,10 +293,10 @@ frame, not the Link's throughput.
 * A peer that leaves one write blocked for `T` is closed, so a reader slower
   than that loses the Link, as does a peer that never reads. A peer cannot keep
   a Link open by answering probes while it stops reading other frames.
-* A peer observes this close as the transport ending. The node attempts a
-  `close` with `Reason` `0` (`closed`), but the frame waits behind the stuck
-  write, so the node closes the transport at the close notice bound (see
-  [close notice](#close-notice)) and the frame is not delivered.
+* A peer observes this close as the transport ending. The node sends no
+  `close` (see [close notice](#close-notice)) and closes the transport at once,
+  so every write blocked on the Link returns without waiting for the close
+  notice bound.
 * The rule is separate from the ping timeout: the ping timeout starts when a
   probe is written and also covers that write, and the write stall rule covers
   every frame.
