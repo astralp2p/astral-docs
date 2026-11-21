@@ -141,10 +141,19 @@ stored rows of the subject at 1 hour from the pull:
   not.
 * A row that expires earlier, and a row of a network the answer does not list,
   keep their expiry.
+* A row that [`nodes.add_endpoint`](ops/nodes.add_endpoint.md) wrote keeps its
+  expiry.
 * A row without an expiry gets one 1 hour from the pull.
 
 A pull that is not first-hand, and a first-hand pull with an empty answer,
-change no expiry. The node never deletes a row because a dial of it failed.
+cap no row. The node never deletes a row because a dial of it failed.
+
+A row the answer lists is stored with the expiry its TTL gives, with two
+exceptions that keep a later expiry:
+
+* A pull that is not first-hand never moves the expiry of a stored row
+  earlier.
+* No pull moves the expiry of a row that `nodes.add_endpoint` wrote earlier.
 
 ## Dial order
 
@@ -153,8 +162,10 @@ tor and nat strategies, per subject, network and address: the time of the last
 success and of the last failure, the number of successes, the number of
 failures since the last success, and the dial and handshake time of the last
 success. A handshake that reaches another identity is a failure. A dial that
-ends because its round ended first, as when another dial of the round linked,
-is not recorded. The record is kept when the endpoint row expires, and is
+ends because its round was cancelled, as when another dial of the round linked
+or every caller of the round left, is not recorded. A dial that the round's
+budget ends is a failure. A row the round has not started to dial when the
+round ends is not dialed and not recorded. The record is kept when the endpoint row expires, and is
 deleted 30 days after its last update.
 
 The basic strategy waits up to 150 ms for the subject's rows, then dials them
