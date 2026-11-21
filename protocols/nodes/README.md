@@ -209,7 +209,8 @@ the rows in two tiers:
    every subnet of the node's interfaces that have no recent success.
 
 Within a tier the node dials rows by descending score, and keeps the order of
-rows with equal scores. The score of a row is the sum of:
+rows with equal scores; in tier 2 it dials every row with fewer than 3 failures
+since the last success before any row with 3 or more. The score of a row is the sum of:
 
 * 0.01 for each point of the row's network rank: `tcp` 50, `kcp` 40, `gw` 20,
   `tor` 10, any other network 0;
