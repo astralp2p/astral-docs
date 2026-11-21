@@ -157,31 +157,71 @@ exceptions that keep a later expiry:
 
 ## Dial order
 
+The node keeps a health record per subject, network, address and scope. The
+record holds two kinds of fact.
+
+Claim facts say how consistently the subject lists the endpoint:
+
+* the time of the first and of the last first-hand pull that listed it;
+* the number of UTC days on which such a pull listed it.
+
+Each first-hand pull counts the day for every endpoint its answer lists, once
+per UTC day however many pulls come that day. A pull that is not first-hand
+changes no claim fact. A claim fact never extends the expiry of an endpoint
+row, and the node writes it under the scope `""`.
+
+Dial facts say how the node's dials of the endpoint went:
+
+* the time of the last success and of the last failure;
+* the number of failures since the last success;
+* a decaying success rate: each success moves it a share of 0.3 towards 1 and
+  each failure a share of 0.3 towards 0; it starts from 0.5 before the first
+  dial;
+* a decaying dial and handshake time of the successes, which each success
+  moves a share of 0.3 towards that success and the first success sets.
+
 The node records the outcome of every dial of a known endpoint by the basic,
-tor and nat strategies, per subject, network and address: the time of the last
-success and of the last failure, the number of successes, the number of
-failures since the last success, and the dial and handshake time of the last
-success. A handshake that reaches another identity is a failure. A dial that
-ends because its round was cancelled, as when another dial of the round linked
-or every caller of the round left, is not recorded. A dial that the round's
-budget ends is a failure. A row the round has not started to dial when the
-round ends is not dialed and not recorded. The record is kept when the endpoint row expires, and is
-deleted 30 days after its last update.
+tor and nat strategies. A handshake that reaches another identity is a failure.
+A dial that ends because its round was cancelled, as when another dial of the
+round linked or every caller of the round left, is not recorded. A dial that
+the round's budget ends is a failure. A row the round has not started to dial
+when the round ends is not dialed and not recorded. The record is kept when the
+endpoint row expires, and is deleted 30 days after its last update.
 
-The basic strategy waits up to 150 ms for the subject's rows, then dials them
-in three tiers:
+The node writes the dial facts of a `mod.tcp.endpoint` or `mod.kcp.endpoint` on
+a non-public address under the scope of the network it dials from, the network
+fingerprint, and the dial facts of every other endpoint under the scope `""`.
+The network fingerprint is the first 8 bytes, in hexadecimal, of the SHA-256 of
+the node's non-loopback interface subnets, each as network address and mask in
+CIDR form, sorted, without repeats and joined by newlines. It is stable while
+the node's subnets stay the same and changes when one changes. The node
+recomputes it when it observes a change of its interface addresses. The node
+sends it to no peer. When the node cannot read its interfaces, every endpoint
+keeps its dial facts under the scope `""`.
 
-1. Rows with a success in the last 24 h, the most recent success first.
-2. Rows with neither a recent success nor 3 or more failures since the last
-   success.
-3. Rows with 3 or more failures since the last success, and `mod.tcp.endpoint`
+The basic strategy waits up to 150 ms for the subject's rows, then reads the
+subject's records under the scopes `""` and the current fingerprint and dials
+the rows in two tiers:
+
+1. Every row not in tier 2.
+2. Rows with 3 or more failures since the last success, and `mod.tcp.endpoint`
    or `mod.kcp.endpoint` rows on a non-public, non-loopback address outside
    every subnet of the node's interfaces that have no recent success.
 
-The node dials a tier 3 row once every earlier row's dial has returned, or
-500 ms after the earlier rows started, whichever comes first. A tier 3 row on an
+Within a tier the node dials rows by descending score, and keeps the order of
+rows with equal scores. The score of a row is the sum of:
+
+* 0.01 for each point of the row's network rank: `tcp` 50, `kcp` 40, `gw` 20,
+  `tor` 10, any other network 0;
+* the success rate of the row's dial facts under the scope the node dials the
+  row from, or 0.5 for a row with no dial recorded under that scope;
+* minus 0.2 times the dial and handshake time divided by 5 s, at most 0.2, for
+  a row with a recorded success;
+* 0.1 for a row whose subject listed it on 3 or more UTC days.
+
+The node dials a tier 2 row once every earlier row's dial has returned, or
+500 ms after the earlier rows started, whichever comes first. A tier 2 row on an
 address outside every subnet of the node's interfaces dials under a 1 s budget.
 When the node cannot read the subnets of its interfaces, no row counts as
 outside them. A row that arrives after the 150 ms wait dials after the ordered
-rows. Every
-row is dialed; the order never skips one.
+rows. Every row is dialed; the order never skips one.
