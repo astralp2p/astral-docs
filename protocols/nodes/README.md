@@ -49,9 +49,12 @@ subject.
   retried before its next trigger.
 * When a pushed membership contract reaches the node, the node pulls the
   endpoints of the contract's subject from the sender. When the sender is the
-  contract's subject, the node then forwards the
-  [first-hand notice](#first-hand-notice) of the subject. A contract pushed by
-  any other sender forwards nothing.
+  contract's subject and the subject was not yet in the node's local swarm, the
+  node first pushes the contract to every member of its local swarm it holds a
+  link with, except the subject, waiting for each push (bounded to 15 s), and
+  then forwards the [first-hand notice](#first-hand-notice) of the subject. A
+  contract the node already held, and a contract pushed by any other sender,
+  forward nothing.
 * When a node's own set of advertised endpoints changes, the node announces the
   change to its linked members. A member that receives the announcement pulls
   the endpoints of the announcing node.
@@ -69,6 +72,9 @@ subject.
   [Receiving an announcement](#receiving-an-announcement): to every member of the
   node's local swarm the node holds a link with, except that member, each push
   bounded to 15 s. A failed push is not retried.
+* A member accepts the message only for a subject its local swarm lists. The
+  node therefore gives the members the subject's contract before it forwards the
+  notice of a subject that joined with a contract.
 * The node forwards whether or not the pull stored a new row, because a member
   that linked to the subject first already holds its rows and its own siblings
   still need the notice.
