@@ -37,10 +37,13 @@ configEndpoints:
 * **Load.** The node reads the list at start only. A change takes effect at
   the next start.
 
-The node advertises every entry with a TTL of 7 days, next to the endpoints
-of its local interface addresses. A sibling stores the advertised endpoints
-with that TTL each time a link between the two nodes forms while no other link
-between them is open. A sibling that receives the node's contract from another
+The node advertises every entry with a TTL of 7 days, whatever its address
+class, next to the endpoints of its local interface addresses. An interface
+endpoint on a public address has a TTL of 7 days. An interface endpoint on any
+other address (private, CGNAT, ULA, link-local) has a TTL of 2 hours; kcp uses
+the same two TTLs. A sibling stores the advertised endpoints with their TTLs
+each time a link between the two nodes forms while no other link between them
+is open. A sibling that receives the node's contract from another
 member asks that member for the node's endpoints and stores them as well. A
 sibling's
 [`nodes.resolve_endpoints`](../nodes/ops/nodes.resolve_endpoints.md) of the
@@ -49,8 +52,8 @@ its remaining TTL in seconds:
 
 ```shellsession
 $ astral-query nodes.resolve_endpoints -identity 02f7... -out json
-{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.kcp.endpoint","Object":"10.0.0.4:1792"},"TTL":604725}}
-{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tcp.endpoint","Object":"10.0.0.4:1791"},"TTL":604725}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.kcp.endpoint","Object":"10.0.0.4:1792"},"TTL":7125}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tcp.endpoint","Object":"10.0.0.4:1791"},"TTL":7125}}
 {"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tcp.endpoint","Object":"203.0.113.5:1791"},"TTL":604725}}
 {"Type":"eos","Object":null}
 ```
@@ -64,9 +67,11 @@ nat and gateway modules read.
 
 The operator edits the entry and restarts the node when the public address or
 the forwarded port changes. Until then the node keeps advertising the stale
-entry. A sibling learns a changed entry only at its next store, and keeps a
-row the node no longer advertises until its 7 days run out; until then it
-dials the stale row along with the others.
+entry. A sibling learns a changed entry at its next pull from the node. A pull
+from the node itself caps the stale row at 1 hour
+([nodes](../nodes/README.md#withdrawn-endpoints)); a row the sibling only
+learns from other members stays until its 7 days run out. Until the row
+expires the sibling dials it along with the others.
 
 The list covers TCP only. The node does not advertise a public address that
 its peers observe for it: automatic advertisement of an observed public

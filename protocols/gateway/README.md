@@ -49,7 +49,7 @@ A `gateways` entry that is not a mapping with these keys, such as a bare identit
 For each `gateways` entry the node does the following:
 
 1. Once every module has loaded its dependencies, the node parses the entry's endpoints. An endpoint with an unknown network or an invalid address is logged and skipped. The node still registers with the gateway, which it then reaches only through endpoints it learned elsewhere.
-2. The node stores each parsed endpoint for the gateway's identity with a TTL of 7 days (604800 seconds), as [`nodes.add_endpoint`](../nodes/ops/nodes.add_endpoint.md) stores a row. A query to the gateway, `gateway.node_register` included, links to the gateway through these rows.
+2. The node stores each parsed endpoint for the gateway's identity with a TTL of 7 days (604800 seconds). Unlike a row that [`nodes.add_endpoint`](../nodes/ops/nodes.add_endpoint.md) writes, a first-hand pull of the gateway's endpoints can cap this row, as [Withdrawn endpoints](../nodes/README.md#withdrawn-endpoints) states; the node stores it again at the points below. A query to the gateway, `gateway.node_register` included, links to the gateway through these rows.
 3. The node calls `gateway.node_register` with its `visibility`. A failed attempt is retried after 1 second, with the delay doubling up to 15 minutes. A new local network address restarts the delay at 1 second and retries at once.
 4. A successful registration starts the idle connections. The registration is up from the `mod.gateway.socket` answer until the idle connections fail: three consecutive failed dials or connections the gateway closes before their first frame. The node then registers again from step 3.
 

@@ -1,6 +1,9 @@
 # nodes.add_endpoint
 
 Register a network endpoint for a given identity. The endpoint is stored with a default TTL of 90 days.
+A pull of the identity's endpoints never moves the expiry of this row earlier,
+whether or not the answer lists the endpoint
+([Withdrawn endpoints](../README.md#withdrawn-endpoints)).
 
 The caller must hold
 [`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).

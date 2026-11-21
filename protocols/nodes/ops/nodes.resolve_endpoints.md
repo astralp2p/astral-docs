@@ -33,15 +33,17 @@ The operation returns a stream of `mod.nodes.endpoint_with_ttl` objects, termina
 Each object carries the TTL its resolver assigns, in seconds:
 
 * The node's own identity: a `mod.tcp.endpoint` and a `mod.kcp.endpoint` at
-  each local interface address while the module listens, and each
-  [`configEndpoints`](../../tcp/README.md#advertising-a-public-or-forwarded-endpoint) entry of `tcp.yaml`, with
+  each local interface address while the module listens, with `604800`
+  (7 days) on a public address and `7200` (2 hours) on any other address;
+  each [`configEndpoints`](../../tcp/README.md#advertising-a-public-or-forwarded-endpoint) entry of `tcp.yaml`, with
   `604800` (7 days); the `mod.tor.endpoint` of the onion service while tor
   listens, with `7776000` (90 days); and a `mod.gateway.endpoint` for each
   gateway the node uses ([gateway](../../gateway/README.md)).
 * Any other identity: each stored row with its remaining TTL. A row that
   [`nodes.add_endpoint`](nodes.add_endpoint.md) wrote starts at `7776000`
   (90 days); a row stored from a swarm member's answer starts at the TTL of
-  that answer. A verified [`nearby`](../../nearby/README.md) peer adds a
+  that answer, except where
+  [Withdrawn endpoints](../README.md#withdrawn-endpoints) keeps a later expiry. A verified [`nearby`](../../nearby/README.md) peer adds a
   `mod.tcp.endpoint` and a `mod.kcp.endpoint` at its source IP on the ports
   its status carries, `1791` and `1792` when it carries none, with the
   remaining life of its cache entry, at most `300`.
@@ -53,8 +55,8 @@ is up, a caller that holds the action resolves the node's own identity:
 
 ```shellsession
 $ astral-query nodes.resolve_endpoints -identity 037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590 -out json
-{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.kcp.endpoint","Object":"192.168.1.10:1792"},"TTL":604800}}
-{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tcp.endpoint","Object":"192.168.1.10:1791"},"TTL":604800}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.kcp.endpoint","Object":"192.168.1.10:1792"},"TTL":7200}}
+{"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tcp.endpoint","Object":"192.168.1.10:1791"},"TTL":7200}}
 {"Type":"mod.nodes.endpoint_with_ttl","Object":{"Endpoint":{"Type":"mod.tor.endpoint","Object":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaad.onion:1791"},"TTL":7776000}}
 {"Type":"eos","Object":null}
 ```
