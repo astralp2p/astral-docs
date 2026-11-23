@@ -10,10 +10,12 @@ caller holds every requested permit.
 
 `Services` lists each requested service for which the caller lacks
 [`mod.services.service_discovery_action`](mod.services.service_discovery_action.md)
-on at least one contributing node. The caller still receives open offerings of
-those services; private offerings on those nodes are filtered. The list depends
-only on the caller's permits, never on providers. An app can ask for a permit
-with [`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md).
+on at least one contributing node. On those nodes a
+[swarm caller](../ops/services.discover.md#visibility) still receives the open
+offerings of those services and no private one; any other caller receives
+none. The list depends only on the caller's permits, never on providers. An
+app can ask for a permit with
+[`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md).
 
 ## Fields
 
