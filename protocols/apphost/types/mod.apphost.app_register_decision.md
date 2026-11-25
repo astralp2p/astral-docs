@@ -3,7 +3,7 @@
 An app register policy's answer to a
 [`mod.apphost.app_register_request`](mod.apphost.app_register_request.md). A
 delegate set by
-[`apphost.set_app_register_policy`](../ops/apphost.set_app_register_policy.md)
+`apphost.set_app_register_policy` (removed)
 writes one to its output stream.
 
 ## Fields

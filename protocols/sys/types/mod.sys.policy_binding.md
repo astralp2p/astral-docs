@@ -10,9 +10,9 @@ binding as the policy's delegate, with the manager as `identity`.
 * Policy (string8) – The policy: `app_register`, `grant_request`,
   `swarm_join`, `swarm_invite` or `contract_accept`. They decide
   [`apphost.register`](../../apphost/ops/apphost.register.md),
-  [`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md),
-  [`user.request_membership`](../../user/ops/user.request_membership.md),
-  [`user.accept_membership`](../../user/ops/user.accept_membership.md) and
+  `apphost.request_grant` (removed),
+  `user.request_membership` (removed),
+  `user.accept_membership` (removed) and
   [`user.accept_contract`](../../user/ops/user.accept_contract.md).
 * Operation (string8) – The operation the node queries on the manager for each
   decision. Required.

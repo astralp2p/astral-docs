@@ -5,8 +5,8 @@ registered app that needs an action its node does not grant it. The permits
 arrive as a contract the app's host signs, not as node-local grants
 ([Contract requests](../README.md#contract-requests)).
 
-The running node does not route this operation yet. A node that routes it
-before its SwarmState is in place answers `contract requests not available`.
+A node without the `user` module has no SwarmState and answers `contract
+requests not available`.
 
 The requester is the identity of the session's access token. A query the
 session makes as another identity under a
@@ -18,8 +18,8 @@ After accepting the query, the operation reads
 [`mod.auth.permit`](../../auth/types/mod.auth.permit.md) objects from the
 channel until an `eos`. Each permit carries its constraints. The operation
 checks every permit before it files anything, with the check
-[`apphost.request_grant`](apphost.request_grant.md) applies
-([Grants](../README.md#grants)).
+`apphost.request_grant` (removed) applies
+([Permits](../README.md#permits)).
 
 The node then files a
 [`mod.user.signed_contract_request`](../../user/types/mod.user.signed_contract_request.md)

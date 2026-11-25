@@ -1,9 +1,9 @@
 # mod.user.swarm_join_request
 
 The join request a swarm join policy decides. A delegate set by
-[`user.set_swarm_join_policy`](../ops/user.set_swarm_join_policy.md) reads one
+`user.set_swarm_join_policy` (removed) reads one
 from its input stream for each
-[`user.request_membership`](../ops/user.request_membership.md) call.
+`user.request_membership` (removed) call.
 
 ## Fields
 

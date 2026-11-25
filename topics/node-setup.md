@@ -291,7 +291,7 @@ $ astral-query mcp.create_agent -alias agent -out json
 
 The agent's token reaches `.spec`, `apphost.whoami` and the operations every
 identity may call. Each further action is a grant the user writes with
-[`apphost.grant`](../protocols/apphost/ops/apphost.grant.md), for example
+`apphost.grant` (removed), for example
 reading the node's state:
 
 ```shellsession

@@ -1,8 +1,8 @@
 # user.answer_request
 
-Answer a request stored in SwarmState with an approval or a decline signed by this node, add the answer to SwarmState, and return it. The caller must hold `mod.user.admin_swarm_action` whose `Subject` is the identity the request names: a contract request's `Identity`, a join request's `Joiner`, or an expel request's `Subject`; answered `not permitted` otherwise. The node does not serve this operation yet ([SwarmState entries](../README.md#swarmstate-entries)).
+Answer a request stored in SwarmState with an approval or a decline signed by this node, add the answer to SwarmState, and return it. The caller must hold `mod.user.admin_swarm_action` whose `Subject` is the identity the request names: a contract request's `Identity`, a join request's `Joiner`, or an expel request's `Subject`; answered `not permitted` otherwise.
 
-This node answers only within its tier, read from its membership: a `privileged_member` answers every request, a `trusted` node answers only a join request at tier `member`, and a `member` answers none ([`mod.user.approval`](../types/mod.user.approval.md)). An approval answers only a `pending` request. A decline answers a `pending` or an `approved` request, since a decline beats every approval. Nobody answers an `expired` or a `declined` request. A refused answer writes nothing.
+This node answers only within its tier, read from its membership; a node that is its own root (unclaimed) answers every request: a `privileged_member` answers every request, a `trusted` node answers only a join request at tier `member`, and a `member` answers none ([`mod.user.approval`](../types/mod.user.approval.md)). An approval answers only a `pending` request. A decline answers a `pending` or an `approved` request, since a decline beats every approval. Nobody answers an `expired` or a `declined` request. A refused answer writes nothing.
 
 ## Arguments
 

@@ -3,53 +3,46 @@
 The `user` protocol manages the identity of the user that owns this node, the
 swarm of nodes operating under that user, and the user's asset list.
 
-A node joins a user's swarm by holding an active `mod.user.swarm_membership_action`
-contract issued by that user. Once a node has an active contract it can serve
-information about the user (`user.info`), enumerate the swarm
+A node joins a user's swarm by holding a membership: a
+[`mod.auth.signed_contract`](../auth/types/mod.auth.signed_contract.md) with one
+tier permit (`member`, `trusted` or `privileged_member`) whose link holds in
+SwarmState ([SwarmState entries](#swarmstate-entries)). The swarm's members are
+the identities whose membership holds there. Once a node has an active contract
+it can serve information about the user (`user.info`), enumerate the swarm
 (`user.swarm_status`, `user.list_siblings`), maintain a synchronised list of
 user assets (`user.assets`, `user.add_asset`, `user.remove_asset`,
 `user.sync_assets`, `user.sync_with`). `user.contract` answers the active
 contract to any caller that holds a direct link to the node.
 
-Swarm membership is managed through contract ops: a user adopts a node with
-`user.adopt` or lets it request membership with `user.request_membership`; a
-node accepts an inbound contract with `user.accept_membership`, or activates an
-already-signed contract with `user.accept_contract` (node setup and the
-cold-card path). `user.bootstrap` claims a node without an active contract in one call: it
-derives the user's key from BIP-39 words, signs the claim contract for both
-parties, activates it and issues an access token for the user.
+The user key signs every `privileged_member` membership in a ceremony.
+`user.bootstrap` claims a node without an active contract in one call: it
+derives the user's key from BIP-39 words, signs the node's privileged
+membership for both parties, activates it and issues an access token for the
+user. `user.accept_contract` activates a privileged membership already signed
+by the user key and by this node (node setup and the cold-card path).
 `user.derive_identity` answers the user that words derive and changes nothing.
 `user.mnemonic` answers the words `user.bootstrap` stored, to the user or the
 manager, for a later backup; `user.forget_mnemonic` deletes them.
-`user.join` makes a node without an active contract request membership from a node of a swarm.
-`user.introduce` pushes a claimed node's active contract to a member of its
-user's swarm, which admits the node to that member's local swarm; a node claimed
-with the user's words rejoins the swarm this way. A user permanently bans a node with `user.expel`, and the list
-of bans is inspectable via `user.list_expelled`. Banned nodes hold a
-`mod.user.signed_expulsion` and are refused new contracts.
+[`user.join`](ops/user.join.md) makes a node without an active contract ask to
+join through a `trusted` or `privileged_member` node, its carrier, with a join
+request; the carrier writes it into SwarmState with
+[`user.carry_join`](ops/user.carry_join.md) and hands over the membership once
+the request is answered. `user.introduce` pushes a claimed node's active
+contract to a member of its user's swarm. Only the user expels: `user.expel`
+needs `mod.user.expel_action`, signs the ban with the user key and adds it to
+SwarmState; the list of bans is inspectable via `user.list_expelled`. Banned
+nodes hold a `mod.user.signed_expulsion`.
+
+The user module applies no admission policy. A join, an invitation and an app's
+permits are requests in SwarmState that a node with the right tier answers
+([SwarmState entries](#swarmstate-entries)).
 
 A node emits a
 [`mod.user.swarm_member_joined`](types/mod.user.swarm_member_joined.md) or
 [`mod.user.swarm_member_left`](types/mod.user.swarm_member_left.md) event for
 each node that enters or leaves its local swarm member set.
 
-Three policies decide membership from outside the node. The swarm join policy
-decides each `user.request_membership`, the swarm invite policy decides each
-`user.accept_membership`, and the contract accept policy decides each
-`user.accept_contract`. `policies.swarm_join`, `policies.swarm_invite` and
-`policies.contract_accept` in `user.yaml` hold their config values, and all
-three default to `reject_all`. `user.set_swarm_join_policy`,
-`user.set_swarm_invite_policy` and `user.set_contract_accept_policy` delegate
-each decision to an operation of another identity. A stored delegate outranks
-the config value. Every setter requires
-`mod.auth.configure_node_state_action`, which the node's manager holds
-([sys, Manager](../sys/README.md#manager)).
-
 ```yaml
-policies:
-  swarm_join: reject_all
-  swarm_invite: reject_all
-  contract_accept: reject_all
 reconcile_interval: 1h
 sibling_sync_interval: 6h
 sibling_sync_disabled: false
@@ -63,10 +56,12 @@ except `user.contract` — `user.info`, `user.assets`, `user.sync_assets`,
 `user.relay_contracts` and `user.relay_digest` ask for no action and answer only
 the other members of the local swarm.
 `mod.user.admin_swarm_action` covers every change to what the swarm holds —
-`user.adopt`, `user.expel`, `user.introduce`, `user.add_asset`,
-`user.remove_asset` and `user.sync_with`, which applies another node's entries
-to this one. A node contract issued to a management node
-carries both, delegable one hop.
+`user.introduce`, `user.add_asset`, `user.remove_asset`, `user.sync_with`, which
+applies another node's entries to this one, and `user.answer_request`.
+`mod.user.expel_action` covers `user.expel`. The user holds every action; a
+`privileged_member` node holds every action but these two and
+`mod.user.expel_action` through the swarm root
+([auth](../auth/README.md)).
 
 Each time a node gains a link to a swarm member, inbound or outbound, it
 synchronises with it, in this order: it pushes the active contract, the user's
@@ -167,22 +162,25 @@ active contract, and the two synchronise. A failed check sends nothing of the
 node's own. Unowned nodes and nodes of other users are listed, never contacted.
 A `user.introduce` call is unaffected.
 
-The active contract is validated on every application — both signatures, subject
-identity match, remaining validity, and a swarm-membership permit — so a stored
-value that fails validation never takes effect.
+The active contract is validated on every application — the issuer's signature,
+the subject's when present, subject identity match, remaining validity, and one
+tier permit — so a stored value that fails validation never takes effect. A node
+a carrier admitted stores the user identity beside it, since its membership's
+issuer is the carrier.
 
 ## SwarmState entries
 
 The `user` protocol defines the entry types of SwarmState, the signed record of
-who belongs to a user's swarm and what its members asked for and were given. No
-operation stores, serves or accepts these entries yet, and the running node
-does not consult them.
+who belongs to a user's swarm and what its members asked for and were given.
+The `nodes` module stores each node's copy in the node's own VFS and syncs it
+([nodes, SwarmState](../nodes/README.md#swarmstate)); the `user` module decides
+what an entry means and checks every entry before it is stored.
 [`user.swarm_requests`](ops/user.swarm_requests.md) lists the stored requests
 with their status, and [`user.answer_request`](ops/user.answer_request.md)
 answers one with an approval or a decline signed by the node.
 [`user.confirm_join`](ops/user.confirm_join.md) is the user's confirmation of a
 join request at tier `privileged_member` when the user key is a software key
-held on the node; it is accepted only from a local query by the user. The node does not serve these operations yet.
+held on the node; it is accepted only from a local query by the user.
 
 An entry is a signed object, stored as `swarmstate/<kind>/<object id>`, where
 the kind is a [`mod.user.entry_kind`](types/mod.user.entry_kind.md):

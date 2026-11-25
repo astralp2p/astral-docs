@@ -32,9 +32,9 @@ of an access token acts as the identity the token authenticates.
 Granting is administration on the same footing. A caller that may mint an access
 token for any identity already acts as that identity, so recording a grant
 confers no authority this action did not already carry.
-[`apphost.grant`](../../apphost/ops/apphost.grant.md),
-[`apphost.revoke`](../../apphost/ops/apphost.revoke.md) and
-[`apphost.list_grants`](../../apphost/ops/apphost.list_grants.md) therefore
+`apphost.grant` (removed),
+`apphost.revoke` (removed) and
+`apphost.list_grants` (removed) therefore
 share the action rather than naming one of their own.
 
 An MCP agent's credential and a messaging participant's credential are apphost
@@ -55,9 +55,9 @@ bundle is non-empty is refused rather than granted in full.
 The user identity and the node's own identity hold this action by default, and
 nobody else. A local caller that carries no identity acts as the node's own
 identity. Any other identity holds the action through a node-local grant, which
-[`apphost.grant`](../../apphost/ops/apphost.grant.md),
+`apphost.grant` (removed),
 [`apphost.register`](../../apphost/ops/apphost.register.md) or an approved
-[`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md) records,
+`apphost.request_grant` (removed) records,
 or through a [`mod.auth.signed_contract`](mod.auth.signed_contract.md) the node
 has indexed.
 
@@ -73,7 +73,7 @@ or a contract it receives. These paths grant it to whoever asks:
   [`sys.register_manager`](../../sys/ops/sys.register_manager.md),
   which asks no policy.
 * While the grant request policy is `accept_all`, any app with a token obtains
-  it with [`apphost.request_grant`](../../apphost/ops/apphost.request_grant.md).
+  it with `apphost.request_grant` (removed).
   Only the config value `policies.grant_request` in `apphost.yaml` selects
   `accept_all`; its code default, `reject_all`, refuses every request.
 

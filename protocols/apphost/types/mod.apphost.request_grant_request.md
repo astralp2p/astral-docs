@@ -1,7 +1,7 @@
 # mod.apphost.request_grant_request
 
 The grants a session asks
-[`apphost.request_grant`](../ops/apphost.request_grant.md) for. The grantee is
+`apphost.request_grant` (removed) for. The grantee is
 the identity of the session's access token; the request names no identity.
 
 ## Fields
