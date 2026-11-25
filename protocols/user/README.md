@@ -170,3 +170,66 @@ A `user.introduce` call is unaffected.
 The active contract is validated on every application — both signatures, subject
 identity match, remaining validity, and a swarm-membership permit — so a stored
 value that fails validation never takes effect.
+
+## SwarmState entries
+
+The `user` protocol defines the entry types of SwarmState, the signed record of
+who belongs to a user's swarm and what its members asked for and were given. No
+operation stores, serves or accepts these entries yet, and the running node
+does not consult them.
+
+An entry is a signed object, stored as `swarmstate/<kind>/<object id>`, where
+the kind is a [`mod.user.entry_kind`](types/mod.user.entry_kind.md):
+
+| Kind | Entry | Signed by |
+|------|-------|-----------|
+| `requests` | [`mod.user.signed_contract_request`](types/mod.user.signed_contract_request.md) | the filing node |
+| `requests` | [`mod.user.signed_join_request`](types/mod.user.signed_join_request.md) | the joining node |
+| `requests` | [`mod.user.signed_expel_request`](types/mod.user.signed_expel_request.md) | the filing member |
+| `approvals` | [`mod.user.signed_approval`](types/mod.user.signed_approval.md) | the answering member or the user key |
+| `declines` | [`mod.user.signed_decline`](types/mod.user.signed_decline.md) | the answering member or the user key |
+| `contracts` | [`mod.auth.signed_contract`](../auth/types/mod.auth.signed_contract.md), memberships included | issuer, and subject when present |
+| `expels` | [`mod.user.signed_expulsion`](types/mod.user.signed_expulsion.md) | the user key |
+
+An entry's ID is the object ID of the signed form exactly as stored, signatures
+included. Every reference holds that ID: an answer's `RequestID` and a
+contract's `ApprovalID`. It differs from the ID of the unsigned body, which the
+signatures commit to.
+
+A request stays answerable for at most 1 hour: its `Timeout` is after its
+`FiledAt` and at most 1 hour after it, and a new request defaults to exactly 1
+hour. Its status is a [`mod.user.request_status`](types/mod.user.request_status.md),
+derived from the stored answers and never stored. A decline beats every
+approval of the same request. Who may answer a request depends on the
+answerer's [tier](types/mod.user.tier.md), as
+[`mod.user.approval`](types/mod.user.approval.md) lists. The merge check decides
+each offered entry with a
+[`mod.user.entry_verdict`](types/mod.user.entry_verdict.md).
+
+Each signed body's signable text is one ASCII line of at most 240 bytes, the
+signer's commitment included, so a Coldcard can sign it
+([coldcard](../coldcard/README.md)).
+
+### Memberships
+
+A membership is a [`mod.auth.contract`](../auth/types/mod.auth.contract.md) by
+which the issuer admits the subject at a [tier](types/mod.user.tier.md). There
+is no separate membership wire type: SwarmState stores a membership as a
+`mod.auth.signed_contract` in `contracts`.
+
+A contract is a membership when it carries exactly one tier permit, one of
+[`mod.user.member_action`](types/mod.user.member_action.md),
+[`mod.user.trusted_action`](types/mod.user.trusted_action.md) and
+[`mod.user.privileged_member_action`](types/mod.user.privileged_member_action.md);
+that permit names its tier. A contract with no tier permit, or with more than
+one, is not a membership. Reading a contract as a membership checks neither its
+signatures, its expiry, its approval nor the user's expels.
+
+A new membership carries that one tier permit, with no constraints and no
+delegation, and an expiry. Its `ApprovalID` names the approval it carries out,
+or is `null` when the user key signs it directly. The permit puts the tier in
+the contract's signable text, so a Coldcard shows it, for example:
+
+```
+<issuer> grants <subject> privileged_member permits (1) until 2027-11-25 10:00:00
+```

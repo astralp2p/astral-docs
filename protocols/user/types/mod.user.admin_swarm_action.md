@@ -15,7 +15,10 @@ Subject and ObjectID declare the nouns a call touches. Neither is evaluated. A
 permit carrying constraints is refused, so honouring a narrowed permit would
 grant it in full.
 
-This action replaces `mod.user.adopt_action` and `mod.user.expel_action`.
+This action replaced `mod.user.adopt_action` and `mod.user.expel_action`.
+[`mod.user.expel_action`](mod.user.expel_action.md) is defined again, because
+expelling is the one action a `privileged_member` membership does not cover; no
+operation asks for it yet, and `user.expel` still asks for this action.
 
 ## Fields
 
