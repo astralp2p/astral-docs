@@ -13,6 +13,11 @@ Describes a single active link between two identities.
 * Network (string8) – The transport network name (e.g. `tcp`, `tor`).
 * HighPressure (bool) – True if the link is currently under back-pressure.
 * BytesThroughput (uint64) – Current measured throughput in bytes per second.
+* Age (duration) – Nanoseconds since the link was created.
+* RTT (optional duration) – The link's smoothed round-trip time: an exponentially weighted moving average of its ping round trips, each new round trip weighted 1/8 (the SRTT of RFC 6298). Null until the link's first pong.
+* RTTAge (optional duration) – Nanoseconds since the link's last pong. Null until the link's first pong.
+
+`RTT` and `RTTAge` come from the pings that double as the link's keepalive ([Link multiplexer protocol](../../../topics/link-mux.md#framing)).
 
 ## Example
 
@@ -34,7 +39,10 @@ Describes a single active link between two identities.
     "Outbound": true,
     "Network": "tcp",
     "HighPressure": false,
-    "BytesThroughput": 1024
+    "BytesThroughput": 1024,
+    "Age": 8040000000000,
+    "RTT": 18000000,
+    "RTTAge": 120000000000
   }
 }
 ```
