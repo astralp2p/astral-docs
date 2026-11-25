@@ -96,6 +96,25 @@ The grant request policy decides `apphost.request_grant`: a delegate stored by
 else the config value `policies.grant_request` (`accept_all`, `reject_all` or a
 delegate), else the code default `reject_all`.
 
+## Contract requests
+
+A contract request asks the swarm for permits for an app, in place of a grant.
+[`apphost.request_contract`](ops/apphost.request_contract.md) files a
+[`mod.user.signed_contract_request`](../user/types/mod.user.signed_contract_request.md)
+into SwarmState ([SwarmState entries](../user/README.md#swarmstate-entries)).
+The app's host files and signs the request, and the request names the app. The
+running node does not route `apphost.request_contract` yet.
+
+A Privileged node answers the request with an approval or a decline. The host
+carries out an approval of a request it filed: it signs a contract from itself
+to the identity the request names, with exactly the request's permits and the
+approval's entry ID as `ApprovalID`. The host never signs a contract on an
+approval of a request another node filed, and never for another identity. An
+app moved to another node files a new request there.
+
+Registration stays local: [`apphost.register`](ops/apphost.register.md) issues
+the identity and the access token at once. Only the permits wait in SwarmState.
+
 ## Node states and the manager
 
 The node's state (`fresh`, `unclaimed` or `claimed`) and its manager belong to
