@@ -179,8 +179,10 @@ operation stores, serves or accepts these entries yet, and the running node
 does not consult them.
 [`user.swarm_requests`](ops/user.swarm_requests.md) lists the stored requests
 with their status, and [`user.answer_request`](ops/user.answer_request.md)
-answers one with an approval or a decline signed by the node; the node does not
-serve either operation yet.
+answers one with an approval or a decline signed by the node.
+[`user.confirm_join`](ops/user.confirm_join.md) is the user's confirmation of a
+join request at tier `privileged_member` when the user key is a software key
+held on the node. The node does not serve these operations yet.
 
 An entry is a signed object, stored as `swarmstate/<kind>/<object id>`, where
 the kind is a [`mod.user.entry_kind`](types/mod.user.entry_kind.md):
