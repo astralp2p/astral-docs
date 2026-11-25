@@ -12,7 +12,7 @@ The operation returns one of:
 * An `error_message` reading `not permitted` if the caller is not authorized.
 * An `error_message` if SwarmState cannot be read.
 * For each request, three objects in this order:
-  * an `object_id`, the request's entry ID, which [`user.answer_request`](user.answer_request.md) takes as `id`;
+  * an `object_id.sha256`, the request's entry ID, which [`user.answer_request`](user.answer_request.md) takes as `id`;
   * a [`mod.user.request_status`](../types/mod.user.request_status.md), the request's status;
   * the stored request: a [`mod.user.signed_contract_request`](../types/mod.user.signed_contract_request.md), a [`mod.user.signed_join_request`](../types/mod.user.signed_join_request.md) or a [`mod.user.signed_expel_request`](../types/mod.user.signed_expel_request.md).
 * An `eos` object terminating the stream.
@@ -23,7 +23,7 @@ Requests are ordered by `FiledAt`; requests filed at the same time are ordered b
 
 ```shellsession
 $ astral-query user.swarm_requests -out json
-{"Type":"object_id","Object":"data1..."}
+{"Type":"object_id.sha256","Object":"data1..."}
 {"Type":"mod.user.request_status","Object":"pending"}
 {"Type":"mod.user.signed_join_request","Object":{...}}
 {"Type":"eos","Object":""}
