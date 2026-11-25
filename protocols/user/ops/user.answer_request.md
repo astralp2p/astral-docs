@@ -18,7 +18,7 @@ The operation returns one of:
 * An `error_message` reading `outside this node's tier` if this node has no membership, or its tier may not answer the request.
 * An `error_message` reading `request is not open to this answer` if the request's status admits no such answer.
 * An `error_message` if signing fails or SwarmState refuses the answer.
-* A [`mod.user.signed_approval`](../types/mod.user.signed_approval.md) for `approve`, or a [`mod.user.signed_decline`](../types/mod.user.signed_decline.md) for `decline`, signed by this node and naming the request's entry ID as `RequestID`.
+* A [`mod.user.signed_approval`](../types/mod.user.signed_approval.md) for `approve`, or a [`mod.user.signed_decline`](../types/mod.user.signed_decline.md) for `decline`, signed by this node and naming the request's entry ID as `RequestID`. It is also returned when SwarmState holds the answer until the entries it needs arrive: a held answer is not stored yet, and a later merge may store it.
 
 ## Examples
 
