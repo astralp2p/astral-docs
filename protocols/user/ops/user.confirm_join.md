@@ -1,6 +1,6 @@
 # user.confirm_join
 
-Confirm, as the user, a pending join request at tier `privileged_member`: the user key signs the joining node's privileged membership, adds it to SwarmState, and returns it. The node that carries the join hands it to the joiner. Only the user identity may call this operation; every other caller, the node included, is answered `not permitted`, whatever it is granted. The node does not serve this operation yet ([SwarmState entries](../README.md#swarmstate-entries)).
+Confirm, as the user, a pending join request at tier `privileged_member`: the user key signs the joining node's privileged membership, adds it to SwarmState, and returns it. The node that carries the join hands it to the joiner. The confirmation is accepted only from a local query by the user identity on the node that holds the user key. A query of any other origin is answered `origin not allowed`, even with the user as caller, since a node allowed to relay as the user reaches this node with the user as caller. A local caller other than the user, the node included, is answered `not permitted`, whatever it is granted. The node does not serve this operation yet ([SwarmState entries](../README.md#swarmstate-entries)).
 
 A privileged membership is signed only after a user action. A Coldcard shows the membership's tier and signs on a press, and that press is the action. A software user key held on the node signs with no action, so the carrier of such a join signs nothing and waits for this confirmation, until the request is declined or times out. [`user.swarm_requests`](user.swarm_requests.md) lists the pending request with the entry ID this operation takes. An approval of the request does not stand in for the confirmation.
 
@@ -13,6 +13,7 @@ A confirmation is refused, writing nothing, when the request is declined or expi
 ## Returned objects
 
 The operation returns one of:
+* An `error_message` reading `origin not allowed: <origin>` if the query's origin is `network`, `mcp` or any origin other than local.
 * An `error_message` reading `no user key on this node` if this node cannot reach the user key.
 * An `error_message` reading `not permitted` if the caller is not the user.
 * An `error_message` reading `unknown request` if `id` names no stored request.

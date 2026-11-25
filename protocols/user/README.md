@@ -182,7 +182,7 @@ with their status, and [`user.answer_request`](ops/user.answer_request.md)
 answers one with an approval or a decline signed by the node.
 [`user.confirm_join`](ops/user.confirm_join.md) is the user's confirmation of a
 join request at tier `privileged_member` when the user key is a software key
-held on the node. The node does not serve these operations yet.
+held on the node; it is accepted only from a local query by the user. The node does not serve these operations yet.
 
 An entry is a signed object, stored as `swarmstate/<kind>/<object id>`, where
 the kind is a [`mod.user.entry_kind`](types/mod.user.entry_kind.md):
