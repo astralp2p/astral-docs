@@ -49,28 +49,6 @@ The default gate admits `apphost.register`, with a token or without, on an
 ([Gate](../README.md#gate)). A `fresh` node appoints a manager first with
 [`sys.register_manager`](../../sys/ops/sys.register_manager.md).
 
-A stored delegate decides first. Without one, `policies.app_register` in
-`apphost.yaml` decides ([Policies](../README.md#policies)). Its default,
-`reject_all`, refuses every registration with `registration declined`. Under
-`accept_all`, the policy writes every permit an app asks for,
-[`mod.auth.admin_manage_apps_action`](../../auth/types/mod.auth.admin_manage_apps_action.md)
-included, and any local program, or any page open in a local browser, that
-registers holds what it asks for.
-`accept_all` copies a `mod.auth.sudo_action` contract permit into its
-decision, so a request that asks for one is declined.
-
-Every registration also asks for node-local grants of
-[`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md)
-and
-[`mod.auth.use_blueprints_action`](../../auth/types/mod.auth.use_blueprints_action.md)
-for the new identity, whatever the app asked for. The register policy decides
-whether the grants are written, and `accept_all` writes them, so a new
-app can register a handler with
-[`apphost.register_handler`](apphost.register_handler.md), advertise itself
-with [`services.advertise`](../../services/ops/services.advertise.md), and sync
-its blueprints with the node. Every grant written at registration expires with
-the access token.
-
 After the access token is minted, the operation creates the
 [`VFS`](../../vfs/README.md) of the new identity with the default quotas: the
 `byte_limit` and `inode_limit` of the `vfs` module configuration, `1073741824`
@@ -132,9 +110,6 @@ The operation returns one of:
 * An `error_message` object if any later step failed.
 * An `apphost.access_token` object containing the new guest's token.
 
-The operation accepts the query before the register policy decides, so a
-refused registration receives `registration declined` rather than a rejection.
-
 ## Examples
 
 ```shellsession
@@ -154,13 +129,6 @@ Asking for discovery of one service:
 ```shellsession
 $ echo '{"Type":"mod.apphost.register_request","Object":{"Name":"smithd","GrantPermits":[{"Action":"mod.services.service_discovery_action","Constraints":[{"Type":"mod.services.discovery_scope","Object":{"Rules":[{"Services":["inference"],"Nodes":[]}]}}]}],"ContractPermits":[]}}' | astral-query apphost.register -in json -out json
 {"Type":"apphost.access_token","Object":{"Identity":"03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f","Token":"b9c2e1a3d4f5867a","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
-```
-
-Naming the app, refused by a delegated register policy or by `reject_all`:
-
-```shellsession
-$ echo '{"Type":"mod.apphost.register_request","Object":{"Name":"notes","GrantPermits":[],"ContractPermits":[]}}' | astral-query apphost.register -in json -out json
-{"Type":"error_message","Object":"registration declined"}
 ```
 
 Registering without the evaluator, so the new VFS asks no one:

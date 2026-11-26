@@ -170,19 +170,4 @@ gate:
     unclaimed: [.spec, user.info, user.derive_identity, user.bootstrap, user.join, apphost.register,
                 apphost.bind, apphost.register_handler, apphost.cancel, nodes.resolve_endpoints]
     claimed: ["*"]
-policies:
-  app_register: reject_all
-  grant_request: reject_all
 ```
-
-## Policies
-
-`policies.app_register` and `policies.grant_request` in `apphost.yaml` hold the
-config values of the app register and grant request policies: `accept_all`,
-`reject_all`, or a delegate mapping. Both default to `reject_all`. A delegate
-stored with
-[`apphost.set_app_register_policy`](ops/apphost.set_app_register_policy.md) or
-[`apphost.set_grant_request_policy`](ops/apphost.set_grant_request_policy.md)
-outranks the config value.
-[Node Policies](../../topics/node-policies.md#config-values) describes the
-values.

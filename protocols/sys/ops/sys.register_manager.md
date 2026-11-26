@@ -39,14 +39,6 @@ expire with the access token.
 signs it, although [`apphost.register`](../../apphost/ops/apphost.register.md)
 refuses it.
 
-For each binding, the node stores a delegate with the new identity as
-`identity`, the binding's `Operation` as `operation` and its `Timeout` as
-`timeout`, at the tree path of the policy
-([Node Policies](../../../topics/node-policies.md#the-five-policies)).
-The node clears the stored delegate of every policy the request does not name.
-On a node without the `user` module, the
-node leaves the three `user` policies untouched.
-
 The node writes the manager record at `/mod/sys/manager` last and answers
 the access token. The node is then `unclaimed`. A failure before the record is
 written leaves the node `fresh`. A repeat call binds every policy again, so it

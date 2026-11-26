@@ -33,23 +33,7 @@ A node emits a
 [`mod.user.swarm_member_left`](types/mod.user.swarm_member_left.md) event for
 each node that enters or leaves its local swarm member set.
 
-Three policies decide membership from outside the node. The swarm join policy
-decides each `user.request_membership`, the swarm invite policy decides each
-`user.accept_membership`, and the contract accept policy decides each
-`user.accept_contract`. `policies.swarm_join`, `policies.swarm_invite` and
-`policies.contract_accept` in `user.yaml` hold their config values, and all
-three default to `reject_all`. `user.set_swarm_join_policy`,
-`user.set_swarm_invite_policy` and `user.set_contract_accept_policy` delegate
-each decision to an operation of another identity. A stored delegate outranks
-the config value. Every setter requires
-`mod.auth.configure_node_state_action`, which the node's manager holds
-([sys, Manager](../sys/README.md#manager)).
-
 ```yaml
-policies:
-  swarm_join: reject_all
-  swarm_invite: reject_all
-  contract_accept: reject_all
 reconcile_interval: 1h
 sibling_sync_interval: 6h
 sibling_sync_disabled: false

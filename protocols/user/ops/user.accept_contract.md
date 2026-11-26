@@ -18,9 +18,6 @@ The wait for the delegate also ends when the caller disconnects.
 
 The operation returns one of:
 * An `error_message` object if validation or storage fails.
-* An `error_message` reading `contract declined` if the contract accept
-  policy declines the contract, or its delegate cannot be reached or answers
-  nothing within its timeout.
 * An `error_message` reading `the node has an active contract` if another
   claim completes after this query is accepted and before this claim.
 * An `ack` object once the contract is stored and set as the active contract.
