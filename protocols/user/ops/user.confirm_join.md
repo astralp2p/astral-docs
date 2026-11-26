@@ -4,6 +4,8 @@ Confirm, as the user, a pending join request at tier `privileged_member`: the us
 
 A privileged membership is signed only after a user action. A Coldcard shows the membership's tier and signs on a press, and that press is the action. A software user key held on the node signs with no action, so the carrier of such a join signs nothing and waits for this confirmation, until the request is declined or times out. [`user.swarm_requests`](user.swarm_requests.md) lists the pending request with the entry ID this operation takes. An approval of the request does not stand in for the confirmation.
 
+With a software user key, "the user" is not a separate party: the node holds the key, so the node, or a local caller the node promotes to its own identity, can mint a user token with [`apphost.create_token`](../../apphost/ops/apphost.create_token.md) and confirm as the user. On such a node the confirmation is in effect "the user or the node", as [`auth.sign_contract`](../../auth/ops/auth.sign_contract.md) already is. Only a Coldcard makes the confirmation the user's own action.
+
 A confirmation is refused, writing nothing, when the request is declined or expired or its joiner is expelled. A repeated confirmation returns the membership the first one stored.
 
 ## Arguments

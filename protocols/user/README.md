@@ -231,7 +231,10 @@ signatures, its expiry, its approval nor the user's expels.
 
 A new membership carries that one tier permit, with no constraints and no
 delegation, and an expiry. Its `ApprovalID` names the approval it carries out,
-or is `null` when the user key signs it directly. The permit puts the tier in
+or is `null` when the user key signs it directly. A membership a carrier signs
+to carry out a join's approval holds only when that tier permit is its only
+permit, with no constraints and no delegation. A carrier's membership with any
+other permit grants nothing, not even its tier. The permit puts the tier in
 the contract's signable text, so a Coldcard shows it, for example:
 
 ```

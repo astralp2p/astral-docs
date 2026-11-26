@@ -7,12 +7,16 @@ name identifies a contract, such as `player`; it need not match an operation
 namespace. An offering grants no permission to invoke its operations.
 
 A query to a provider that advertises a private service on a node passes that
-node only when its caller holds a discovery permit there for one of the
-provider's private services, walked through the caller's contract chain: the
-user decides whether an app reaches a service (Gate 1), and the provider
-decides what the app may do there (Gate 2). The provider itself and the node
-are not gated, and a provider of open services only is reached as before.
-A refused query is answered as rejected.
+node only when its caller holds a discovery permit there for the service the
+query reaches, walked through the caller's contract chain: the user decides
+whether an app reaches a service (Gate 1), and the provider decides what the
+app may do there (Gate 2). The service a query reaches is the provider's
+private service its path names: the path is the name, or the name followed by
+`.` and an operation, the longest such name when several match. A query whose
+path names none of the provider's private services passes with a permit for
+any one of them. The provider itself and the node are not gated, and a
+provider of open services only is reached as before. A refused query is
+answered as rejected.
 
 | Operation | Purpose |
 |-----------|---------|

@@ -26,6 +26,16 @@ A contract grants an action if any of its permits matches the action's
 object type and the action's constraint evaluation (if any) accepts the
 permit's `Constraints` bundle.
 
+On a node with a swarm, a contract whose `ApprovalID` is `null` and whose issuer
+is not the user key grants none of the user's authority: no
+[`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
+for the user, no
+[`mod.user.admin_swarm_action`](../../user/types/mod.user.admin_swarm_action.md),
+no [`mod.auth.sudo_action`](mod.auth.sudo_action.md) as the user and no
+[`mod.user.expel_action`](../../user/types/mod.user.expel_action.md), whatever
+its permits say. Its other permits grant as before. An app's relay contract
+names the app itself and is not affected.
+
 The signable form of a contract is one ASCII line, used when signing with
 text-only schemes (e.g. `bip137`):
 
