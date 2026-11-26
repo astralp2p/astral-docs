@@ -63,6 +63,17 @@ subject.
   then forwards the [first-hand notice](#first-hand-notice) of the subject. A
   contract the node already held, and a contract pushed by any other sender,
   forward nothing.
+* When the node's local swarm lists a member for the first time, as when its
+  membership arrives through [SwarmState](#swarmstate), the node learns that
+  member's endpoints. When it holds a link with the member, it makes a
+  first-hand pull and forwards the [first-hand notice](#first-hand-notice).
+  Otherwise it pulls the member's endpoints from the members it holds a link
+  with, one at a time, each pull bounded to 20 s, until a pull stores a new row.
+  It then emits a
+  [`mod.nodes.endpoints_updated_event`](types/mod.nodes.endpoints_updated_event.md)
+  naming the member. A membership reaches the members only through SwarmState,
+  and both the first-link pull and the joiner's first announcement come before
+  the members list the joiner.
 * When a node's own set of advertised endpoints changes, the node announces the
   change to its linked members. A member that receives the announcement pulls
   the endpoints of the announcing node.
@@ -121,8 +132,10 @@ subject.
   with `Subject` set to its own identity to every member of its local swarm it
   holds a link with. Each push is bounded to 15 s. A failed push is not retried.
 * The message carries no endpoints. Endpoints travel only through
-  `nodes.resolve_endpoints`, which requires
-  [`mod.auth.admin_network_action`](../auth/types/mod.auth.admin_network_action.md).
+  `nodes.resolve_endpoints`, which answers a holder of
+  [`mod.auth.admin_network_action`](../auth/types/mod.auth.admin_network_action.md)
+  and a member of the local swarm asking about a member
+  ([Swarm only](ops/nodes.resolve_endpoints.md#swarm-only)).
 
 ### Receiving an announcement
 
@@ -283,5 +296,11 @@ every identity whose membership holds here. `nodes.swarm_push` serves every
 identified caller, since the check decides what enters. A node pulls (digest,
 then fetch of what it lacks, at most 256 IDs per fetch) from every linked swarm
 member every 15 seconds. On a first link of a claimed node it first offers the
-peer its own membership, so the peer admits its pull, and then pulls. Every
-entry this node stores is pushed to its linked swarm members.
+peer its own membership, so the peer admits its pull, and then pulls. When the
+node stores its own membership, as at a claim, it does the same with every
+peer it holds a link with. A node claimed while already linked therefore needs
+no new link. Every entry this node stores is pushed to its linked swarm
+members. Each member gets its own push, in the order the entries were stored,
+and each push is bounded to 15 s. The write that stored the entries does not
+wait for these pushes. A failed push is not retried: the member's pull repairs
+it.
