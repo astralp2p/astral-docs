@@ -1,9 +1,9 @@
 # mod.apphost.register_request
 
 The registration an app sends to
-[`apphost.register`](../ops/apphost.register.md). No policy is asked: the
-node files both permit lists, after `mod.auth.serve_apps_action` and
-`mod.auth.use_blueprints_action`, as one contract request in SwarmState.
+[`apphost.register`](../ops/apphost.register.md). The node files both permit
+lists, after `mod.auth.serve_apps_action` and `mod.auth.use_blueprints_action`,
+as one contract request in SwarmState.
 
 ## Fields
 

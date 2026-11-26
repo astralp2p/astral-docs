@@ -47,6 +47,8 @@ The operation returns one of:
   if `user` is omitted and the node has no active contract.
 * An `error_message` reading `user id missing` if `user` resolves to the
   anonymous identity, as `anyone` does.
+* An `error_message` reading `node id missing` if `node` resolves to the
+  anonymous identity.
 * An `error_message` if either identity could not be resolved, the duration
   failed to parse, or contract construction failed.
 

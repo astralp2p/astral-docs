@@ -12,8 +12,9 @@ After accepting the query, the operation reads one
 [`mod.sys.register_manager_request`](../types/mod.sys.register_manager_request.md)
 from the channel. `Name`, `GrantPermits` and `ContractPermits` mean what they
 mean in a [`mod.apphost.register_request`](../../apphost/types/mod.apphost.register_request.md).
-`Policies` must be empty: the five policies are requests in SwarmState, which a
-node answers with [`user.answer_request`](../../user/ops/user.answer_request.md).
+`Policies` must be empty. A request with any binding is refused; requests in
+SwarmState are answered with
+[`user.answer_request`](../../user/ops/user.answer_request.md).
 
 The operation checks the request before it changes anything:
 
