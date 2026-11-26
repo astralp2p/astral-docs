@@ -3,7 +3,7 @@
 A grant request policy's answer to a
 [`mod.apphost.grant_policy_request`](mod.apphost.grant_policy_request.md). A
 delegate set by
-[`apphost.set_grant_request_policy`](../ops/apphost.set_grant_request_policy.md)
+`apphost.set_grant_request_policy` (removed)
 writes one to its output stream.
 
 ## Fields

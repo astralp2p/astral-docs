@@ -36,11 +36,12 @@ this action.
 The node's own identity holds this action, including before the claim, when
 no swarm exists yet.
 
-Every current node member of the node's swarm holds this action. A current node
-member holds an unexpelled
-[`mod.user.swarm_membership_action`](../../user/types/mod.user.swarm_membership_action.md)
-contract from the node's user. A network link does not make a node a member. An app registration
-does not make an identity a member.
+A Privileged member of the node's swarm holds this action through the swarm
+root. A Member or a Trusted node does not hold it. Such a node reads the
+endpoints of other members through
+[`nodes.resolve_endpoints`](../../nodes/ops/nodes.resolve_endpoints.md#swarm-only)
+without holding it. A network link does not make a node a member. An app
+registration does not make an identity a member.
 
 The user identity holds this action, as it holds the other node-wide actions. A
 user that adopts and expels swarm members already decides what the network is.

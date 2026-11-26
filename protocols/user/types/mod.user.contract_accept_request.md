@@ -1,7 +1,7 @@
 # mod.user.contract_accept_request
 
 The contract a contract accept policy decides. A delegate set by
-[`user.set_contract_accept_policy`](../ops/user.set_contract_accept_policy.md)
+`user.set_contract_accept_policy` (removed)
 reads one from its input stream for each
 [`user.accept_contract`](../ops/user.accept_contract.md) call that reaches the
 contract accept policy: the node holds no active contract, and the contract

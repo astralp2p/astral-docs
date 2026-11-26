@@ -174,9 +174,9 @@ An app needs a scoped grant or contract to see private providers. A
 pairs services with allowed nodes; an unconstrained permit allows nothing.
 An app asks for a scoped grant at registration, in the `GrantPermits` of
 [`apphost.register`](../protocols/apphost/ops/apphost.register.md), or later
-with [`apphost.request_grant`](../protocols/apphost/ops/apphost.request_grant.md).
+with `apphost.request_grant` (removed).
 The user can grant it on the app's node with
-[`apphost.grant`](../protocols/apphost/ops/apphost.grant.md):
+`apphost.grant` (removed):
 
 ```shellsession
 $ echo '{"Type":"mod.apphost.grant_request","Object":{"Identity":"<app>","Duration":0,"Permits":[{"Action":"mod.services.service_discovery_action","Constraints":[{"Type":"mod.services.discovery_scope","Object":{"Rules":[{"Services":["player"]}]}}]}]}}' \

@@ -1,9 +1,9 @@
 # mod.apphost.grant_policy_request
 
 The request a grant request policy decides. A delegate set by
-[`apphost.set_grant_request_policy`](../ops/apphost.set_grant_request_policy.md)
+`apphost.set_grant_request_policy` (removed)
 reads one from its input stream for each
-[`apphost.request_grant`](../ops/apphost.request_grant.md) call.
+`apphost.request_grant` (removed) call.
 
 ## Fields
 

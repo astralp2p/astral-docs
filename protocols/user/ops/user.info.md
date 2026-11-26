@@ -15,8 +15,14 @@ to every caller, and leaves `NodeAlias`, `UserAlias`, `ContractID` and
 sessions reach the operation.
 
 On a `claimed` node, the caller must hold `mod.user.see_swarm_action`; the user
-(issuer of the active contract) and every node in the same local swarm hold it
-by default. Answers `not permitted` if the caller is not authorized.
+this node belongs to and every node in the same local swarm hold it by default.
+Answers `not permitted` if the caller is not authorized.
+
+The user is the root of the node's swarm, which is not always the issuer of
+the active contract. The user key issues a Privileged node's membership; the
+carrier that brought a Member or Trusted node in issues that node's membership
+([Memberships](../README.md#memberships)). `UserAlias` names the user. A client that
+reads the user from `Contract` reads the carrier for a Member.
 
 ## Arguments
 

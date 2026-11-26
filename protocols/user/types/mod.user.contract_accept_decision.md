@@ -3,7 +3,7 @@
 A contract accept policy's answer to a
 [`mod.user.contract_accept_request`](mod.user.contract_accept_request.md). A
 delegate set by
-[`user.set_contract_accept_policy`](../ops/user.set_contract_accept_policy.md)
+`user.set_contract_accept_policy` (removed)
 writes one to its output stream.
 
 ## Fields

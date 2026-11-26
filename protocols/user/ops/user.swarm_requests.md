@@ -1,6 +1,6 @@
 # user.swarm_requests
 
-Stream the requests stored in SwarmState with their status, oldest filed first, terminated by `eos`. Without `all` it streams only the pending requests. The caller must hold `mod.user.see_swarm_action`; answered `not permitted` otherwise. The node does not serve this operation yet ([SwarmState entries](../README.md#swarmstate-entries)).
+Stream the requests stored in SwarmState with their status, oldest filed first, terminated by `eos`. Without `all` it streams only the pending requests. The caller must hold `mod.user.see_swarm_action`; answered `not permitted` otherwise.
 
 ## Arguments
 

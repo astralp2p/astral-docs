@@ -2,7 +2,7 @@
 
 A swarm join policy's answer to a
 [`mod.user.swarm_join_request`](mod.user.swarm_join_request.md). A delegate set
-by [`user.set_swarm_join_policy`](../ops/user.set_swarm_join_policy.md) writes
+by `user.set_swarm_join_policy` (removed) writes
 one to its output stream.
 
 ## Fields

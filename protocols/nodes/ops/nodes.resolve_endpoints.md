@@ -3,17 +3,23 @@
 Resolve all known endpoints for an identity by querying every registered endpoint resolver.
 
 The caller must hold
-[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md).
-The operation answers an `error_message` reading `not permitted` before the
-identity is resolved when the caller is not authorized.
+[`mod.auth.admin_network_action`](../../auth/types/mod.auth.admin_network_action.md),
+or be a current member of this node's local swarm asking about a current member
+or about this node. A caller that neither holds the action nor is a member gets
+an `error_message` reading `not permitted` before the identity is resolved. A
+member that asks about a node outside the swarm gets `not permitted` after the
+identity is resolved.
 
 ## Swarm only
 
 The endpoints a node advertises, and the endpoints it stores for other nodes,
 are private to its user's swarm. The holders of
-`mod.auth.admin_network_action` are the user identity, the node itself and the
-current node members of the swarm, plus an identity the action is delegated to
-([Holders](../../auth/types/mod.auth.admin_network_action.md#holders)). A node
+`mod.auth.admin_network_action` are the user identity, the node itself and a
+Privileged member, plus an identity the action is delegated to
+([Holders](../../auth/types/mod.auth.admin_network_action.md#holders)). Any
+other current member of the swarm reads the endpoints of the members and of
+this node, and nothing else: every member links to every other member, and
+endpoints travel only through this operation. Expelled nodes are not members. A node
 of another user, a gateway the user never adopted, a hosting node and any other
 linked peer outside the swarm receive `not permitted`. A link with such a peer
 stores no endpoints on either side: a node pulls endpoints when a link forms
