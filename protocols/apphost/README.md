@@ -68,6 +68,22 @@ the identity and the access token at once, and files one contract request for
 the registration asks. Only the permits wait in SwarmState. The host checks
 SwarmState for answers every 5 seconds, and indexes the contract it signs.
 
+Two `apphost.yaml` keys tune contract requests. An omitted key, or `0`, keeps
+the default:
+
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `contract_requests_per_node` | `64` | The most new contract requests the node files in a sliding window of 1 hour, all apps together. The limit per requesting identity, 4, is fixed. |
+| `contract_request_poll` | `5s` | How often the host checks SwarmState for answers to the requests it filed. A duration such as `500ms`. |
+
+```yaml
+contract_requests_per_node: 64
+contract_request_poll: 5s
+```
+
+A device keeps the defaults. A test world that registers many apps on one node
+within the hour raises the first and shortens the second.
+
 ## Node states and the manager
 
 The node's state (`fresh`, `unclaimed` or `claimed`) and its manager belong to

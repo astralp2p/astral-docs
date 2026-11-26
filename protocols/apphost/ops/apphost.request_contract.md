@@ -33,7 +33,8 @@ permits' order does not matter. A changed set of permits is a new request.
 The node rate-limits the requests it files, over a sliding window of 1 hour:
 
 * at most 4 new requests per requesting identity;
-* at most 64 new requests for the whole node.
+* at most 64 new requests for the whole node, or the node's
+  `contract_requests_per_node` ([Contract requests](../README.md#contract-requests)).
 
 A live request answered again does not count. A request over either limit is
 refused, and nothing is filed.
