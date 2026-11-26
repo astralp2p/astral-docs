@@ -16,9 +16,12 @@ A shell permit is always unconstrained. The action does not evaluate a permit's
 `Constraints` bundle, so a permit for it admits the holder to a full session
 whatever constraints the permit carries.
 
-The user identity and the node's own identity hold this action by default, and
-nobody else. A node member of the node's swarm does not hold it. Any other
-identity holds it through a node-local grant or a signed contract. A local
+The user identity and the node's own identity hold this action by default. A
+`privileged_member` node of the node's swarm holds it through the swarm root
+([auth, Authorization](../../auth/README.md#authorization)). A node member of
+another tier does not hold it. Any other identity holds it only
+through a contract chain the node has indexed, such as the contract an app's
+host signs to carry out an Approval. A local
 caller carrying no identity is routed as the node's own identity.
 
 ## Fields

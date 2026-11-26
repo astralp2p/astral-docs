@@ -2,7 +2,7 @@
 
 Ask the swarm for permits for the calling session's own identity. Used by a
 registered app that needs an action its node does not grant it. The permits
-arrive as a contract the app's host signs, not as node-local grants
+arrive as a contract the app's host signs
 ([Contract requests](../README.md#contract-requests)).
 
 A node without the `user` module has no SwarmState and answers `contract
@@ -17,8 +17,7 @@ ask. Asking needs no permit.
 After accepting the query, the operation reads
 [`mod.auth.permit`](../../auth/types/mod.auth.permit.md) objects from the
 channel until an `eos`. Each permit carries its constraints. The operation
-checks every permit before it files anything, with the check
-`apphost.request_grant` (removed) applies
+checks every permit before it files anything
 ([Permits](../README.md#permits)).
 
 The node then files a

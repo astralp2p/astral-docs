@@ -1,8 +1,10 @@
 # mod.user.expel_action
 
 A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission
-for the actor to expel Subject from the swarm. It is the one action a
-`privileged_member` membership does not cover: only the user key expels.
+for the actor to expel Subject from the swarm. It is one of the
+two actions a `privileged_member` membership does not cover, with
+[`mod.auth.sudo_action`](../../auth/types/mod.auth.sudo_action.md): only the
+user key expels.
 
 [`user.expel`](../ops/user.expel.md) asks for this action. Only the user
 identity holds it: the swarm root never answers it.

@@ -7,7 +7,7 @@ names Subject. Wrap it in
 [`mod.user.signed_expel_request`](mod.user.signed_expel_request.md) before
 storing or propagating it.
 
-No operation stores, serves or accepts this type yet. It is a [SwarmState entry](../README.md#swarmstate-entries).
+No operation files one yet. [`user.swarm_requests`](../ops/user.swarm_requests.md) streams one stored in SwarmState, and [`user.answer_request`](../ops/user.answer_request.md) answers it. It is a [SwarmState entry](../README.md#swarmstate-entries).
 
 ## Fields
 

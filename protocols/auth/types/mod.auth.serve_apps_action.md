@@ -22,14 +22,16 @@ identity does not hold it.
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
 
-The user identity and the node's own identity hold this action by default, and
-nobody else. Any other identity holds it through a node-local grant or a signed
-contract. A node-local grant is a permit the node records for an identity in its
-own database; no other node reads it.
+The user identity and the node's own identity hold this action by default.
+A `privileged_member` node of the node's swarm holds it through the swarm
+root ([auth, Authorization](../README.md#authorization)).
+Any other identity holds it only
+through a contract chain the node has indexed, such as the contract an app's
+host signs to carry out an Approval.
 
-[`apphost.register`](../../apphost/ops/apphost.register.md) asks for a
-node-local grant of this action for each new app. The node's register policy
-decides whether the grant is written, and the default policy writes it.
+[`apphost.register`](../../apphost/ops/apphost.register.md) files a contract
+request for this action for each new app. The app holds it once the swarm
+approves the request.
 
 ## Fields
 

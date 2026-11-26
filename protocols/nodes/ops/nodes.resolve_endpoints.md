@@ -20,7 +20,7 @@ Privileged member, plus an identity the action is delegated to
 other current member of the swarm reads the endpoints of the members and of
 this node, and nothing else: every member links to every other member, and
 endpoints travel only through this operation. Expelled nodes are not members. A node
-of another user, a gateway the user never adopted, a hosting node and any other
+of another user, a gateway outside the swarm, a hosting node and any other
 linked peer outside the swarm receive `not permitted`. A link with such a peer
 stores no endpoints on either side: a node pulls endpoints when a link forms
 only from a member of its own swarm.

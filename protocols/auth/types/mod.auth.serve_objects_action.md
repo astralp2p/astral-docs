@@ -30,11 +30,15 @@ permit outright, even alongside a role that matches.
 
 The role names are `describer`, `finder`, `searcher` and `indexer`.
 
-The user identity holds this action for the `indexer` role by default, and
-nobody else holds any role by default. The node's own identity holds no role: a
+The user module's handler allows the user identity the `indexer` role and no
+other identity any role. Its handler gives the node's own identity no role: a
 local caller that presents no identity acts as the node, so a default for the
-node would reach every such caller. Any other identity holds a role through a
-node-local grant or a signed contract.
+node would reach every such caller. The swarm root, which Authorize asks before
+the handlers, holds every role: the user identity, the node's own identity
+while the node has no user, and a `privileged_member` node
+([auth, Authorization](../README.md#authorization)).
+Any other identity holds a role only through a contract chain the node has indexed, such as the contract an app's
+host signs to carry out an Approval.
 
 ## Fields
 

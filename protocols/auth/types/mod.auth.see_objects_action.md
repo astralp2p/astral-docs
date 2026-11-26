@@ -17,8 +17,7 @@ answers to
 
 ObjectID and Repo declare the nouns the call touches. An operation that names
 no single object leaves ObjectID absent; one that names no single repository
-leaves Repo empty. The handlers of the user module and of node-local grants
-ignore both. The [`vfs`](../../vfs/README.md) module's handler evaluates ObjectID
+leaves Repo empty. The handlers of the user module ignore both. The [`vfs`](../../vfs/README.md) module's handler evaluates ObjectID
 and ignores Repo.
 
 The `vfs` handler allows an action when all of these hold:
@@ -50,21 +49,24 @@ folder and is refused.
 [`objects.find`](../../objects/ops/objects.find.md) leave ObjectID absent, and
 `objects.scan`, `objects.search` and `objects.repositories` name no object, so
 the `vfs` handler allows none of the five. A caller that another handler allows,
-such as an app with a node-local grant of this action, can still call them.
+such as an app with a contract for this action, can still call them.
 
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
 
-The user identity, the node's own identity and every node member of the node's
-swarm hold this action by default, and nobody else. A node shows the objects in
-its repositories to its swarm peers: a node that authorized its own caller asks
-a peer as itself, and the peer trusts that decision. An app or any other
-identity holds it through a node-local grant or a signed contract. A local
-caller carrying no identity is routed as the node's own identity.
+The user identity and the node's own identity hold this action by default.
+A `privileged_member` node of the node's swarm holds it through the swarm
+root ([auth, Authorization](../README.md#authorization)). A
+node that authorized its own caller asks a peer as itself, and a peer answers a
+`privileged_member` node and trusts that decision. A node member of another
+tier, an app, or any other identity holds it only
+through a contract chain the node has indexed, such as the contract an app's
+host signs to carry out an Approval. A local caller carrying no identity is routed as the node's own identity.
 
-A node member of the node's swarm holds
+A `privileged_member` node holds
 [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
-for the user. A query it relays for the user reaches the node as the user.
+for the user, and no other node does. A query it relays for the user reaches
+the node as the user.
 
 ## Fields
 

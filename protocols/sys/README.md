@@ -40,11 +40,9 @@ removes the manager. A claim keeps it.
 
 The manager:
 
-* is the delegate of each policy its appointment binds;
 * holds
   [`mod.auth.configure_node_state_action`](../auth/types/mod.auth.configure_node_state_action.md)
-  in every node state, `claimed` included, so it may call the policy setters
-  ([Node Policies, Delegating a decision](../../topics/node-policies.md#delegating-a-decision));
+  in every node state, `claimed` included, so it may change any tree value;
 * holds [`mod.vfs.manage_action`](../vfs/types/mod.vfs.manage_action.md) and
   [`mod.vfs.read_action`](../vfs/types/mod.vfs.read_action.md) for every VFS of
   the node in every node state, so it lists, creates and limits every VFS, sets
@@ -64,4 +62,4 @@ The manager:
 ## Types
 
 * [`mod.sys.register_manager_request`](types/mod.sys.register_manager_request.md) – the registration an app sends to become the manager
-* [`mod.sys.policy_binding`](types/mod.sys.policy_binding.md) – one policy the manager decides
+* [`mod.sys.policy_binding`](types/mod.sys.policy_binding.md) – an element of the refused `Policies` field

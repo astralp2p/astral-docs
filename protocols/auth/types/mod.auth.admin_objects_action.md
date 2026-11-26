@@ -27,13 +27,12 @@ path.
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
 
-The user identity and the node's own identity hold this action by default, and
-nobody else. It is narrower than
-[`mod.auth.see_objects_action`](mod.auth.see_objects_action.md) and
-[`mod.auth.store_objects_action`](mod.auth.store_objects_action.md), which the
-whole local swarm holds: swarm membership is granted on request, so granting the
-swarm here would leave a sibling free to attach a host directory. Widening it is
-an operator's decision, not a default.
+The user identity and the node's own identity hold this action by default. A
+`privileged_member` node of the node's swarm holds it through the swarm root
+([auth, Authorization](../README.md#authorization)). A node member of another
+tier does not: a sibling would be free to attach a host directory. Any other
+identity holds it only through a contract chain the node has indexed, such as the contract an app's
+host signs to carry out an Approval. Widening it is an operator's decision, not a default.
 
 ## Fields
 

@@ -3,9 +3,10 @@
 This page lists the surfaces a fresh astrald node opens, who reaches each
 surface, and the setting that opens or closes it. The values are astrald
 defaults at commit `0f7da199`, checked on a throwaway node; the rule for
-settings set through the tree is from commit `5f17900d`. The apphost gate, the
-node states and the policy defaults are read from astrald source at commit
-`5b4dde12`; a node checked them under the E2E overrides only. The ether and
+settings set through the tree is from commit `5f17900d`. The apphost gate and
+the node states are read from astrald source at commit `5b4dde12`, and the
+linked-peer operations at commit `9d90aaea`; a node checked them under the E2E
+overrides only. The ether and
 nearby rows, `user.contract` under [Linked peers](#linked-peers) and the dials
 that nearby triggers follow the ether and nearby specification, not a checked
 node. A setting lives in `<name>.yaml` in the node's config directory.
@@ -26,7 +27,7 @@ node. A setting lives in `<name>.yaml` in the node's config directory.
 | fwd forwards | none | per forward | each TCP client runs the `astral://` target query as the node, or as the `caller@` the target names | same | `fwd.yaml` `forwards` |
 
 * "Without a token" means a session that presents no token, or a peer that
-  holds no grant. [Session Identity](session-identity.md) lists the gate's
+  holds no contract. [Session Identity](session-identity.md) lists the gate's
   default lists. "Before the claim" covers the `fresh` and `unclaimed` states
   ([apphost, Node states](../protocols/sys/README.md#node-states)).
 * `listen` in `tcp.yaml` and `kcp.yaml`, and `mode` in `nearby.yaml`, write
@@ -43,17 +44,15 @@ node. A setting lives in `<name>.yaml` in the node's config directory.
   `/mod/tor/settings/listen` and `/mod/tor/settings/dial` at every start. A
   runtime change of either lasts until the next start.
 * `listen` in `ether.yaml` takes effect at the next start.
-* The app register policy refuses every registration by default. A delegate
-  set by
-  `apphost.set_app_register_policy` (removed)
-  or `policies.app_register: accept_all` admits registrations
-  ([Node Policies](node-policies.md)).
+* [`apphost.register`](../protocols/apphost/ops/apphost.register.md) is never
+  declined: it answers a token at once, and the app holds no permit until the
+  swarm approves the contract request it files.
 * Any page open in a local browser reaches `/.ws`. On a `fresh` node, that page
   can appoint itself the manager with
   [`sys.register_manager`](../protocols/sys/ops/sys.register_manager.md)
   and then claim the node with the manager's token. On an `unclaimed` or
-  `claimed` node, that page can call `apphost.register`, which the app register
-  policy decides.
+  `claimed` node, that page can call `apphost.register`, which files the
+  permits it asks for as a contract request.
 * [`mod.nearby.mode`](../protocols/nearby/types/mod.nearby.mode.md) lists what
   each nearby mode discloses. A node without an active contract broadcasts in Visible unless
   its stored mode is `0` (Silent). A claimed node broadcasts in Stealth by
@@ -67,7 +66,7 @@ node. A setting lives in `<name>.yaml` in the node's config directory.
 ## Linked peers
 
 Any identity links to the node: the node checks no peer identity before the
-link. A linked peer that holds no grant reaches these operations:
+link. A linked peer that holds no contract reaches these operations:
 
 * In every state: `apphost.whoami`, `bip137sig.derive_key`,
   `bip137sig.mnemonic`, `bip137sig.new_entropy`, `bip137sig.seed`,
@@ -78,23 +77,23 @@ link. A linked peer that holds no grant reaches these operations:
   `gateway.node_route` naming the node itself, and
   [`user.contract`](../protocols/user/ops/user.contract.md). On a claimed node
   `user.contract` answers the active contract. The contract names the user.
-  Its permits show whether the node is a management node
-  ([user](../protocols/user/README.md)). Its expiry, by default 365 days after
-  the contract was made, shows when the user claimed or adopted the node.
+  Its tier permit shows the node's tier ([user](../protocols/user/README.md)).
+  Its expiry shows when the membership ends; the claim contract expires 365
+  days after the claim.
   Before the claim `user.contract` answers `no active contract`.
 * On a `fresh` or `unclaimed` node only:
-  [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md),
-  `user.accept_membership` (removed),
+  [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md)
   and [`user.info`](../protocols/user/ops/user.info.md), which answers the
   node's `State` and `Manager`. The apphost gate does not apply to a linked
-  peer.
-  The default swarm invite policy, `reject_all`, declines an invitation from a
-  linked peer ([Node Policies](node-policies.md#before-the-claim)).
-* On a claimed node only:
-  `user.request_membership` (removed).
-  The default swarm join policy, `reject_all`, declines the peer. Under
-  `accept_all`, the node signs the peer a swarm membership contract. A swarm member passes the checks that admit the user's nodes, such
-  as [`mod.auth.admin_network_action`](../protocols/auth/types/mod.auth.admin_network_action.md).
+  peer. `user.accept_contract` activates only a privileged membership the
+  user key signed and this node countersigned.
+* On a claimed node that holds a `trusted` or `privileged_member` membership:
+  [`user.carry_join`](../protocols/user/ops/user.carry_join.md). The node
+  files the peer's join request in SwarmState and signs the peer a membership
+  only once the swarm approves it. A membership of tier `member` or `trusted`
+  passes no check that admits the user's own nodes, such as
+  [`mod.auth.admin_network_action`](../protocols/auth/types/mod.auth.admin_network_action.md):
+  only the user, the node and a `privileged_member` node hold it.
 
 Every other operation refuses a network caller, or requires an authorization
 that the peer fails under the default config.
@@ -119,11 +118,11 @@ to its user's swarm. This section is read from astrald source at commit
 [`nodes.resolve_endpoints`](../protocols/nodes/ops/nodes.resolve_endpoints.md)
 answers only a holder of
 [`mod.auth.admin_network_action`](../protocols/auth/types/mod.auth.admin_network_action.md):
-the user identity, the node itself, a current node member of the swarm, or an
-identity the action is delegated to. A node pulls a peer's endpoints when the
+the user identity, the node itself, a `privileged_member` node of the swarm,
+or an identity the action is delegated to. A node pulls a peer's endpoints when the
 first link with the peer forms only when the peer is a member of its own
 swarm. A link with a node outside the swarm, such as a node of another user, a
-gateway the user never adopted or a hosting node, therefore stores no
+gateway outside the swarm or a hosting node, therefore stores no
 endpoints on either side.
 
 Three operator paths make a node outside the swarm reachable:
@@ -160,7 +159,7 @@ Three operator paths make a node outside the swarm reachable:
 ## Reset
 
 Removing the data directory resets the node. The node gets a new identity, and
-its claim, issued tokens, grants and the settings set through the tree are
+its claim, issued tokens and the settings set through the tree are
 removed. A node whose tor listens gets a new onion address. A token that
 `tokens:` in `apphost.yaml` lists returns at the next start when its identity
 resolves without the database: `localnode`, a public key or a DNS name. By
@@ -168,5 +167,5 @@ default on macOS and Windows, the data directory is the config directory, so a
 reset there also removes the `<name>.yaml` settings.
 
 No operation resets a node in place. An expulsion that names the node clears
-its active contract, and the node is `unclaimed` again; its identity, tokens,
-grants and manager stay.
+its active contract, and the node is `unclaimed` again; its identity, tokens
+and manager stay.

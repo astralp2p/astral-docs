@@ -37,8 +37,9 @@ whole set. The initial `ack` confirms readiness.
 
 * **Identity and permission:** the caller must be an app identity holding
   [`mod.auth.serve_apps_action`](../protocols/auth/types/mod.auth.serve_apps_action.md).
-  [`apphost.register`](../protocols/apphost/ops/apphost.register.md) requests that
-  grant; registration policy decides whether to issue it. A query over a link is
+  [`apphost.register`](../protocols/apphost/ops/apphost.register.md) files a
+  contract request for it; the app holds it once the swarm approves the
+  request. A query over a link is
   answered `origin not allowed: network`; the node identity, or a caller without
   the permit, is answered `not permitted`. With default apphost settings, a token-less session is denied
   before routing. See [Session Identity](session-identity.md).
@@ -115,7 +116,7 @@ for range w.Changed() {
 
 | Signal | Meaning and consumer action |
 |--------|-----------------------------|
-| [`services.not_granted`](../protocols/services/types/services.not_granted.md) | The caller holds no permit for the listed services on some contributing node; private offerings there are filtered, and open ones still arrive only to a [swarm caller](#who-sees-an-offering). Ask for a grant to see more. On a follow, a later one replaces the list after a grant or revoke; an empty list means every requested service is granted. |
+| [`services.not_granted`](../protocols/services/types/services.not_granted.md) | The caller holds no permit for the listed services on some contributing node; private offerings there are filtered, and open ones still arrive only to a [swarm caller](#who-sees-an-offering). Ask for a contract to see more. On a follow, a later one replaces the list after a contract arrives or lapses; an empty list means the caller holds a permit for every requested service. |
 | `services.update`, `Available: true` | Add or replace the offering for `(ProviderID, Name)`. |
 | `services.update`, `Available: false` | The provider withdraws a previously shown offering; remove that key. An initially unavailable offering is not sent. |
 | [`services.removed`](../protocols/services/types/services.removed.md) | The listed keys left the caller's view; remove them. `Cause` says why: `member_lost` (on a follow the node retries the swarm member, and the offerings may return as updates), `member_left`, `member_removed`, `binding_closed`, or `hidden`. |
@@ -155,8 +156,10 @@ who asked even when the answer is filtered. Asks always carry the caller
 identity. A consumer that must reach one specific provider pins its
 `ProviderID`.
 
-The user holds the action for all services; swarm members hold it on other
-members. The node has no default grant for its own identity.
+The user holds the action for all services, and so does a `privileged_member`
+node, which holds the user's authority. Any other member, and every app,
+discovers through its contract chain. The node's own identity does not hold
+it.
 
 The user can hide a provider without changing the app: an entry of the node's
 [`mod.services.private_list`](../protocols/services/types/mod.services.private_list.md)
@@ -169,22 +172,22 @@ $ echo '{"Type":"mod.services.private_list","Object":{"Entries":[{"Service":"pla
     | astral-query tree.set -path /mod/services/private -in json
 ```
 
-An app needs a scoped grant or contract to see private providers. A
+An app needs a scoped contract to see private providers. A
 [`mod.services.discovery_scope`](../protocols/services/types/mod.services.discovery_scope.md)
 pairs services with allowed nodes; an unconstrained permit allows nothing.
-An app asks for a scoped grant at registration, in the `GrantPermits` of
+An app asks for a scoped permit at registration, in the permits of
 [`apphost.register`](../protocols/apphost/ops/apphost.register.md), or later
-with `apphost.request_grant` (removed).
-The user can grant it on the app's node with
-`apphost.grant` (removed):
+with [`apphost.request_contract`](../protocols/apphost/ops/apphost.request_contract.md).
+Either files a contract request in SwarmState; on an approval the app's host
+signs the app a contract that carries the permit:
 
 ```shellsession
-$ echo '{"Type":"mod.apphost.grant_request","Object":{"Identity":"<app>","Duration":0,"Permits":[{"Action":"mod.services.service_discovery_action","Constraints":[{"Type":"mod.services.discovery_scope","Object":{"Rules":[{"Services":["player"]}]}}]}]}}' \
-    | astral-query apphost.grant -in json
+$ printf '%s\n' '{"Type":"mod.auth.permit","Object":{"Action":"mod.services.service_discovery_action","Constraints":[{"Type":"mod.services.discovery_scope","Object":{"Rules":[{"Services":["player"]}]}}]}}' '{"Type":"eos","Object":""}' \
+    | astral-query apphost.request_contract -in json -out json
 ```
 
-Grants for different services add up: an app holding a `player` grant and an
-`inference` grant sees the private providers of both services.
+Contracts for different services add up: an app holding a `player` contract
+and an `inference` contract sees the private providers of both services.
 
 A rule with no `Nodes` allows its services on every node within discovery's reach.
 

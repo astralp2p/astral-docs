@@ -1,17 +1,16 @@
 # mod.apphost.register_request
 
 The registration an app sends to
-[`apphost.register`](../ops/apphost.register.md). The node passes it to the app
-register policy as a
-[`mod.apphost.app_register_request`](mod.apphost.app_register_request.md),
-which adds the caller's web origin and begins `GrantPermits` with
-`mod.auth.serve_apps_action` and `mod.auth.use_blueprints_action`.
+[`apphost.register`](../ops/apphost.register.md). No policy is asked: the
+node files both permit lists, after `mod.auth.serve_apps_action` and
+`mod.auth.use_blueprints_action`, as one contract request in SwarmState.
 
 ## Fields
 
 * Name (string8) – The name the app gives itself. The node does not verify it.
-* GrantPermits ([]mod.auth.permit) – The permits the app asks to hold as
-  node-local grants, with their constraints.
+* GrantPermits ([]mod.auth.permit) – Permits the app asks for, with their
+  constraints. They join `ContractPermits` in the same contract request; both
+  lists mean the same.
 * ContractPermits ([]mod.auth.permit) – The permits the app asks to hold in a
   signed node→app contract, with their constraints.
 * Vfs (bool, optional) – `true` asks the node to create the

@@ -61,9 +61,9 @@ lists the peers it hears and emits no `mod.nearby.peer_seen`.
   status.
 * A node linked to this node reads its active contract with
   [`user.contract`](../../user/ops/user.contract.md). The contract names the
-  user. Its permits show whether the node is a management node
-  ([user](../../user/README.md)). Its expiry, by default 365 days after the
-  contract was made, shows when the user claimed or adopted the node.
+  user. Its tier permit shows the node's tier
+  ([user](../../user/README.md)). Its expiry shows when the membership ends;
+  the claim contract expires 365 days after the claim.
 * An observer on the local network sees UDP traffic on the ether port (`8822`
   by default) and TCP traffic on the node's `tcp` listen port, `1791` by
   default, which shows that the device runs astral. No mode hides the

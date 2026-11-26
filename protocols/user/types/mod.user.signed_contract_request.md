@@ -4,7 +4,7 @@ A [`mod.user.contract_request`](mod.user.contract_request.md) body paired with
 the filer's signature. It is the stored and propagated form of a contract
 request, kept in the `requests` directory of SwarmState.
 
-No operation stores, serves or accepts this type yet. It is a [SwarmState entry](../README.md#swarmstate-entries).
+[`apphost.register`](../../apphost/ops/apphost.register.md) and [`apphost.request_contract`](../../apphost/ops/apphost.request_contract.md) file one; [`user.swarm_requests`](../ops/user.swarm_requests.md) streams it and [`user.answer_request`](../ops/user.answer_request.md) answers it. It is a [SwarmState entry](../README.md#swarmstate-entries).
 
 ## Fields
 

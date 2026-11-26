@@ -59,9 +59,9 @@ the other members of the local swarm.
 `user.introduce`, `user.add_asset`, `user.remove_asset`, `user.sync_with`, which
 applies another node's entries to this one, and `user.answer_request`.
 `mod.user.expel_action` covers `user.expel`. The user holds every action; a
-`privileged_member` node holds every action but these two and
-`mod.user.expel_action` through the swarm root
-([auth](../auth/README.md)).
+`privileged_member` node holds every action but `mod.user.expel_action` and
+`mod.auth.sudo_action` through the swarm root, `mod.user.see_swarm_action` and
+`mod.user.admin_swarm_action` included ([auth](../auth/README.md)).
 
 Each time a node gains a link to a swarm member, inbound or outbound, it
 synchronises with it, in this order: it pushes the active contract, the user's
@@ -155,7 +155,7 @@ after the peer's contract failed the check. A failed link or query holds the nex
 attempt for a minute only. The node keeps these limits for at most 512 peers; when
 it holds 512, it forgets the peer whose next attempt comes first. It links to the peer at the
 endpoints nearby resolves, reads the peer's contract with `user.contract`, and
-checks it: a node contract issued by the node's user to the peer, both
+checks it: a membership (exactly one tier permit) the node's user issued to the peer, both
 signatures valid, not expired, and the peer not expelled. Only when the check
 passes does the node introduce itself as `user.introduce` does: it pushes its
 active contract, and the two synchronise. A failed check sends nothing of the

@@ -44,20 +44,16 @@ without holding it. A network link does not make a node a member. An app
 registration does not make an identity a member.
 
 The user identity holds this action, as it holds the other node-wide actions. A
-user that adopts and expels swarm members already decides what the network is.
+user that admits and expels swarm members already decides what the network is.
 
-An app, or any other identity, holds it through one of two paths:
+An app, or any other identity, holds it only through a signed contract chain: a
+chain of `mod.auth.signed_contract`s, each carrying a permit for the action,
+from an identity that holds the action on the node down to the caller. Every
+link must be valid. Every link must carry the delegation the links below it
+use. A contract that carries out an Approval continues the chain at the
+approver ([auth, Authorization](../README.md#authorization)).
 
-* A node-local grant – the node records a permit for the action against the
-  identity. A grant is valid on the granting node alone and carries no portable
-  evidence.
-* A signed contract chain – a chain of `mod.auth.signed_contract`s, each
-  carrying a permit for the action, from an identity that holds the action on
-  the node down to the caller. Every link must be valid. Every link must carry
-  the delegation the links below it use.
-
-An app authorized through a grant, or through a contract the node issues,
-remains the caller. The action names the app as its actor.
+An app authorized through a contract remains the caller. The action names the app as its actor.
 
 A delegation to an identity outside the swarm, such as a node of another user
 that should read the node's endpoints, admits that identity to every operation
@@ -69,8 +65,8 @@ the node's own identity: `nat.node_punch`, `nat.node_consume_hole`,
 `kcp.new_ephemeral_listener`, `kcp.set_endpoint_local_port`,
 `kcp.close_ephemeral_listener`, `kcp.remove_endpoint_local_port` and
 `nodes.migrate_session`. The peer answers them when the node holds this action
-on the peer: as a member of the peer's swarm, or through a grant or a contract
-there.
+on the peer: as a `privileged_member` node of the peer's swarm, or through a
+contract there.
 
 A punch side calls `nat.reflect_udp` as the node's own identity on the node it
 reflects its punch socket off, which is the punch peer or another node it

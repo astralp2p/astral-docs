@@ -4,7 +4,7 @@ A [`mod.user.join_request`](mod.user.join_request.md) body paired with the
 joiner's signature. It is the stored and propagated form of a join request,
 kept in the `requests` directory of SwarmState.
 
-No operation stores, serves or accepts this type yet. It is a [SwarmState entry](../README.md#swarmstate-entries).
+[`user.join`](../ops/user.join.md) signs one and [`user.carry_join`](../ops/user.carry_join.md) adds it to SwarmState; [`user.swarm_requests`](../ops/user.swarm_requests.md) streams it, [`user.answer_request`](../ops/user.answer_request.md) answers it and [`user.confirm_join`](../ops/user.confirm_join.md) confirms one at tier `privileged_member`. It is a [SwarmState entry](../README.md#swarmstate-entries).
 
 ## Fields
 

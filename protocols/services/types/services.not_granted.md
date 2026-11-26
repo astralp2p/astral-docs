@@ -15,7 +15,7 @@ on at least one contributing node. On those nodes a
 offerings of those services and no private one; any other caller receives
 none. The list depends only on the caller's permits, never on providers. An
 app can ask for a permit with
-`apphost.request_grant` (removed).
+[`apphost.request_contract`](../../apphost/ops/apphost.request_contract.md).
 
 ## Fields
 

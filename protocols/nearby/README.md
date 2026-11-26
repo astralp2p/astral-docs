@@ -32,6 +32,6 @@ The [`user`](../user/README.md) module acts on a `mod.nearby.peer_seen` only whe
 
 `silent_listen` in `nearby.yaml`, the tree value `/mod/nearby/silent_listen`, decides whether a Silent node acts on what it hears. It defaults to `true`, and a Silent node then contacts peers of its own user by the same rules as in the other modes. When it is `false`, a Silent node caches and lists peers but emits no `mod.nearby.peer_seen`.
 
-nearby needs roughly synchronised clocks. The other nodes drop the statuses of a node whose clock is more than 5 minutes off. A device with no battery-backed clock and no time server cannot be found through nearby. Such a device is adopted by its node identity.
+nearby needs roughly synchronised clocks. The other nodes drop the statuses of a node whose clock is more than 5 minutes off. A device with no battery-backed clock and no time server cannot be found through nearby. Such a device joins through [`user.join`](../user/ops/user.join.md) over a link the swarm node opens to it, or is claimed.
 
 Three ops are exposed, each gated by [`mod.auth.admin_network_action`](../auth/types/mod.auth.admin_network_action.md): `nearby.broadcast` broadcasts the node's status now, `nearby.scan` asks the local network for statuses, and `nearby.list` streams the cache.

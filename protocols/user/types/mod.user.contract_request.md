@@ -7,7 +7,7 @@ key, answers it with a [`mod.user.approval`](mod.user.approval.md) or a
 [`mod.user.signed_contract_request`](mod.user.signed_contract_request.md)
 before storing or propagating it.
 
-No operation stores, serves or accepts this type yet. It is a [SwarmState entry](../README.md#swarmstate-entries).
+[`apphost.register`](../../apphost/ops/apphost.register.md) and [`apphost.request_contract`](../../apphost/ops/apphost.request_contract.md) file one, as a [`mod.user.signed_contract_request`](mod.user.signed_contract_request.md); [`user.swarm_requests`](../ops/user.swarm_requests.md) streams it and [`user.answer_request`](../ops/user.answer_request.md) answers it. It is a [SwarmState entry](../README.md#swarmstate-entries).
 
 ## Fields
 

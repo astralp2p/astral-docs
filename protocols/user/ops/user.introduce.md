@@ -73,9 +73,10 @@ session without a token ([Gate](../../apphost/README.md#gate)). An
 `user.introduce` for the op to run.
 
 `gate.tokenless` never lists `user.introduce`. A local caller without a token
-acts as the node, and a node that `user.bootstrap` claims holds
-`mod.user.admin_swarm_action` by delegation, so the entry lets every local
-program push the node's contract to any node.
+acts as the node, and a node that `user.bootstrap` claims holds a
+`privileged_member` membership, so it answers `mod.user.admin_swarm_action`
+through the swarm root, and the entry lets every local program push the node's
+contract to any node.
 
 ## Disclosure
 

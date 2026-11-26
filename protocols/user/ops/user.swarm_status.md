@@ -1,8 +1,8 @@
 # user.swarm_status
 
 List all nodes currently in the user's swarm, with their alias and link
-status. A node belongs to the swarm if it holds an active SwarmAccess contract
-issued by the same user as this node.
+status. A node belongs to the swarm if its membership holds in SwarmState,
+signed by this node's user or by the node that carried its join.
 
 The caller must hold `mod.user.see_swarm_action`. Answers an `error_message` reading `no active contract` if
 this node has no active contract. Answers `not permitted` if the caller is not

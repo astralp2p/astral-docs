@@ -19,7 +19,7 @@ Who may answer depends on the answering node's [tier](mod.user.tier.md):
 | `member` | none |
 | the user key | every request; it needs no tier |
 
-No operation stores, serves or accepts this type yet. It is a [SwarmState entry](../README.md#swarmstate-entries).
+[`user.answer_request`](../ops/user.answer_request.md) signs one, as a [`mod.user.signed_approval`](mod.user.signed_approval.md), and adds it to SwarmState. It is a [SwarmState entry](../README.md#swarmstate-entries).
 
 ## Fields
 

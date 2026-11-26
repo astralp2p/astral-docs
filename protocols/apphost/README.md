@@ -49,7 +49,7 @@ when it authorizes ([auth](../auth/README.md)).
 
 ## Contract requests
 
-A contract request asks the swarm for permits for an app, in place of a grant.
+A contract request asks the swarm for permits for an app.
 [`apphost.request_contract`](ops/apphost.request_contract.md) files a
 [`mod.user.signed_contract_request`](../user/types/mod.user.signed_contract_request.md)
 into SwarmState ([SwarmState entries](../user/README.md#swarmstate-entries)).

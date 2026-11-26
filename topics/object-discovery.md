@@ -53,8 +53,10 @@
   * `sources` names `Nodes` the caller chooses, on `objects.search` and `objects.describe`.
     `sources_only` asks them alone, without the registered providers; without it they are asked on
     top of the providers.
-* The `Node` authorizes its caller, then asks other `Nodes` as itself. A swarm member holds
-  `mod.auth.see_objects_action` and trusts that authorization.
+* The `Node` authorizes its caller, then asks other `Nodes` as itself. The other `Node` answers
+  a `privileged_member` `Node`, which holds `mod.auth.see_objects_action` through the swarm root,
+  and trusts that authorization. Any other member holds the action only through its contract
+  chain.
 * A query arriving from another `Node` runs without the `network` zone, so the receiving `Node`
   answers from its own providers and never asks back.
 

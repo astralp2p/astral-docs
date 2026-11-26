@@ -13,17 +13,20 @@ The permit's `Constraints` bundle must contain exactly one
 the pair. Missing constraints, an empty bundle, multiple objects, or another
 object type allow nothing.
 
-The user has default permission for all services. Local swarm members have
-default permission on other members, allowing them to carry app discoveries.
-The hosting node checks the app's own scope when it filters the members'
-results. The node has no default grant for its own identity.
+The user holds the action for all services, and so does a `privileged_member`
+node through the swarm root. No other identity holds it by default, and the
+node's own identity does not hold it. A member that carries an app's discovery
+to another member does so under
+[`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
+for the app, and the hosting node checks the app's own scope when it filters
+the members' results.
 
-Other identities need a scoped node-local grant or a signed contract. A grant
-comes from [`apphost.register`](../../apphost/ops/apphost.register.md),
-`apphost.request_grant` (removed) or
-`apphost.grant` (removed). apphost refuses a
-discovery permit whose constraints do not hold exactly one scope naming a
-service before it writes the grant. Grants for different services add up.
+Other identities need a scoped permit in a signed contract. An app asks for
+one with [`apphost.register`](../../apphost/ops/apphost.register.md) or
+[`apphost.request_contract`](../../apphost/ops/apphost.request_contract.md),
+which file a contract request in SwarmState; the app's host signs the contract
+once the swarm approves the request. Contracts for different services add
+up.
 
 ## Fields
 

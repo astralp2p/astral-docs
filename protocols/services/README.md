@@ -43,7 +43,8 @@ bindings and streams; providers and consumers reopen them.
 
 * Advertising requires the caller's app identity and
   [`mod.auth.serve_apps_action`](../auth/types/mod.auth.serve_apps_action.md).
-  [`apphost.register`](../apphost/ops/apphost.register.md) requests the grant.
+  [`apphost.register`](../apphost/ops/apphost.register.md) files a contract
+  request for it.
   The node identity and queries arriving over a link are rejected. See
   [Session Identity](../../topics/session-identity.md).
 * An [answer](types/services.answer.md) echoes the ask's `RequestID`.
@@ -59,7 +60,7 @@ bindings and streams; providers and consumers reopen them.
   [Visibility](ops/services.discover.md#visibility).
 * [`services.not_granted`](types/services.not_granted.md) opens a stream that
   names services when the caller lacks a permit for some of them. A follow
-  applies later grants, revokes, contracts and membership changes, and sends a
+  applies later contracts, withdrawals and membership changes, and sends a
   new list when one alters it. See
   [Authority changes](ops/services.discover.md#authority-changes).
 * [`services.incomplete`](types/services.incomplete.md) precedes `eos` when

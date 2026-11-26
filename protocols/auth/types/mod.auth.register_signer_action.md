@@ -11,11 +11,14 @@ The node verifies every signature a holder returns.
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
 
-Nobody holds this action by default. An identity holds it through a node-local
-grant or a signed contract.
-[`apphost.register`](../../apphost/ops/apphost.register.md) asks for a node-local
-grant when `grant_permits` names the action. The node's register policy decides
-whether the grant is written, and the default policy writes it.
+No handler allows this action. The swarm root holds it: the user identity, or
+the node's own identity while the node has no user, and a `privileged_member`
+node ([auth, Authorization](../README.md#authorization)). Any other identity
+holds it only through a contract chain the node has indexed, such as the contract an app's
+host signs to carry out an Approval.
+An app asks for it in the permits of
+[`apphost.register`](../../apphost/ops/apphost.register.md) or with
+[`apphost.request_contract`](../../apphost/ops/apphost.request_contract.md).
 
 ## Fields
 

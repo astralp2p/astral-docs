@@ -5,8 +5,9 @@ for ordinary queries and handlers. Each operation checks that identity's permits
 a token establishes identity, not permission.
 
 [`apphost.register`](../protocols/apphost/ops/apphost.register.md) creates an app
-identity, grants the permits allowed by the
-[registration policy](node-policies.md), and returns its token.
+identity, files the permits it asks for as a contract request in SwarmState,
+and returns its token. Registration is never declined; the app holds the
+permits only once the swarm approves the request.
 For a query with an empty caller, the session determines the effective identity:
 
 ```text
@@ -70,5 +71,5 @@ permit.
 |---------|---------|
 | Appoint the manager of a `fresh` node | No token, or any token: `sys.register_manager`. |
 | Claim a node | The manager's App token, or the node's token, on an `unclaimed` node. |
-| Obtain an app identity | No token: `apphost.register`, subject to the app register policy. |
+| Obtain an app identity | No token: `apphost.register`; the permits wait for an approval. |
 | Run app queries, handlers, or [services](services.md) | The app's token, with the required permits. |

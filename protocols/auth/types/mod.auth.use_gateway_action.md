@@ -19,9 +19,9 @@ gateway use: it keeps its link handshake and submits no action.
 `gateway.node_unregister` and `gateway.node_list` submit no action.
 
 Every actor holds this action while the node's gateway is enabled
-(`gateway.enabled` in the gateway module's config). No grant, contract, or swarm
+(`gateway.enabled` in the gateway module's config). No contract or swarm
 membership is required. A disabled gateway refuses registration, reservation,
-and forwarding even when a contract, a grant, or an external authority permits
+and forwarding even when a contract or an external authority permits
 the action.
 
 Gateway use is service consumption, not network administration. Holding this

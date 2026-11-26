@@ -1,6 +1,6 @@
 # messaging.delete_mailbox
 
-Remove a mailbox: revoke all its apphost tokens and local grants, unset its
+Remove a mailbox: revoke all its apphost tokens, unset its
 alias, and delete its index entry and owned mail, including archived mail.
 Correspondents' copies and signed contracts remain.
 
@@ -22,7 +22,7 @@ record.
 * An `ack` when removed.
 * An `error_message` reading `unknown identity` when the name does not resolve.
 * An `error_message` reading `identity not found` for the zero identity or an identity absent from the mailbox index. Nothing is revoked.
-* An `error_message` on index lookup, token/grant revocation, alias removal, or mailbox deletion failure.
+* An `error_message` on index lookup, token revocation, alias removal, or mailbox deletion failure.
 
 ## Examples
 

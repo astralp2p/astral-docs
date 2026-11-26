@@ -1,19 +1,22 @@
 # mod.auth.admin_manage_apps_action
 
 A [`mod.auth.action`](mod.auth.action.md) requesting permission for the actor to
-administer the node's app, agent and participant credentials and the node-local
-grants it records: the [`apphost`](../../apphost/README.md) access tokens the
-node issues, the [`mcp`](../../mcp/README.md) agents, the
+administer the node's app, agent and participant credentials: the
+[`apphost`](../../apphost/README.md) access tokens the node issues and the relay
+contracts it signs, the [`mcp`](../../mcp/README.md) agents, the
 [`messaging`](../../messaging/README.md) participants whose mailboxes the node
-hosts, and the grants that say what an identity may do here.
+hosts, and the external authorizers the node asks.
 
-The action gates eleven operations — `apphost.create_token`,
-`apphost.list_tokens`, `apphost.delete_token`, `apphost.grant`,
-`apphost.revoke`, `apphost.list_grants`, `mcp.create_agent`,
-`mcp.list_agents`, `mcp.delete_agent`, `messaging.create_mailbox` and
-`messaging.delete_mailbox`. Each operation submits the action before it reads
-or changes a credential or a grant, and answers a refused caller with an
-`error_message` reading `not permitted`.
+The action gates twelve operations — `apphost.create_token`,
+`apphost.list_tokens`, `apphost.delete_token`,
+[`apphost.withdraw_relay`](../../apphost/ops/apphost.withdraw_relay.md),
+`mcp.create_agent`, `mcp.list_agents`, `mcp.delete_agent`,
+`messaging.create_mailbox`, `messaging.delete_mailbox`,
+[`auth.set_authorizer`](../ops/auth.set_authorizer.md),
+[`auth.list_authorizers`](../ops/auth.list_authorizers.md) and
+[`auth.remove_authorizer`](../ops/auth.remove_authorizer.md). Each operation
+submits the action before it reads or changes a credential or an assignment,
+and answers a refused caller with an `error_message` reading `not permitted`.
 
 Two further operations submit the action as an administrative override rather
 than a gate. [`apphost.bind`](../../apphost/ops/apphost.bind.md) and
@@ -29,55 +32,36 @@ Listing is administration, not a separate read tier. `apphost.list_tokens` and
 `mcp.list_agents` hand out the bearer credentials they enumerate, and a bearer
 of an access token acts as the identity the token authenticates.
 
-Granting is administration on the same footing. A caller that may mint an access
-token for any identity already acts as that identity, so recording a grant
-confers no authority this action did not already carry.
-`apphost.grant` (removed),
-`apphost.revoke` (removed) and
-`apphost.list_grants` (removed) therefore
-share the action rather than naming one of their own.
-
 An MCP agent's credential and a messaging participant's credential are apphost
 access tokens, so one action covers all three protocols.
 
-`apphost.delete_token`, `apphost.grant`, `apphost.revoke`,
-`apphost.list_grants`, `mcp.create_agent`, `mcp.list_agents`,
-`mcp.delete_agent`, `messaging.create_mailbox` and
-`messaging.delete_mailbox` also answer `origin not allowed: network` to a query
+`apphost.create_token`, `apphost.list_tokens`, `apphost.delete_token`,
+`apphost.withdraw_relay`, `mcp.create_agent`, `mcp.list_agents`,
+`mcp.delete_agent`, `messaging.create_mailbox`, `messaging.delete_mailbox` and
+`auth.set_authorizer` also answer `origin not allowed: network` to a query
 that arrived over a [`Link`](../../../core-definitions/link.md), whatever the
-caller holds. A grant
-authorizes on one node and travels nowhere, so it is neither written nor
-enumerated over a link.
+caller holds. A `privileged_member` node holds the action through the swarm
+root, so this refusal is what keeps it from minting credentials on another
+node over a link.
 
 A permit for this action carries no constraints. A permit whose `Constraints`
 bundle is non-empty is refused rather than granted in full.
 
-The user identity and the node's own identity hold this action by default, and
-nobody else. A local caller that carries no identity acts as the node's own
-identity. Any other identity holds the action through a node-local grant, which
-`apphost.grant` (removed),
-[`apphost.register`](../../apphost/ops/apphost.register.md) or an approved
-`apphost.request_grant` (removed) records,
-or through a [`mod.auth.signed_contract`](mod.auth.signed_contract.md) the node
-has indexed.
+## Holders
 
-An app, an agent or another participant holds this action only through a grant
-or a contract it receives. These paths grant it to whoever asks:
+* The user identity and the node's own identity. A local caller that carries
+  no identity acts as the node's own identity.
+* A `privileged_member` node of the swarm, through the swarm root
+  ([auth](../README.md)).
+* Any other identity only through a contract chain the node has indexed, back
+  to a holder: an app through a contract its host signed to carry out an
+  Approval ([apphost, Contract requests](../../apphost/README.md#contract-requests)).
 
-* While the app register policy is `accept_all`, any local program, or any page
-  open in a local browser, obtains it by naming it in the `GrantPermits` of
-  [`apphost.register`](../../apphost/ops/apphost.register.md). The default
-  app register policy, `reject_all`, refuses every registration.
-* On a `fresh` node, any local program, or any page open in a local browser,
-  obtains it by naming it in the `GrantPermits` of
-  [`sys.register_manager`](../../sys/ops/sys.register_manager.md),
-  which asks no policy.
-* While the grant request policy is `accept_all`, any app with a token obtains
-  it with `apphost.request_grant` (removed).
-  Only the config value `policies.grant_request` in `apphost.yaml` selects
-  `accept_all`; its code default, `reject_all`, refuses every request.
-
-Either holder then mints or reads another identity's credentials.
+On a `fresh` node, any local program, or any page open in a local browser,
+obtains the action by naming it in the permits of
+[`sys.register_manager`](../../sys/ops/sys.register_manager.md): the fresh node
+is its own root and signs the manager's contract at once. The holder then mints
+or reads another identity's credentials.
 
 ## Fields
 

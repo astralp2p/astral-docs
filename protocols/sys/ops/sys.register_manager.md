@@ -76,8 +76,15 @@ The operation checks the request before it checks the node state.
 ## Examples
 
 ```shellsession
-$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"control-plane","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"app_register","Operation":"cp.approve_app","Timeout":0},{"Policy":"swarm_join","Operation":"cp.approve_join","Timeout":300000000000}]}}' | astral-query sys.register_manager -in json -out json
+$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"control-plane","GrantPermits":[],"ContractPermits":[],"Policies":[]}}' | astral-query sys.register_manager -in json -out json
 {"Type":"apphost.access_token","Object":{"Identity":"03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f","Token":"b9c2e1a3d4f5867a","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
+```
+
+A request that binds a policy:
+
+```shellsession
+$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"control-plane","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"swarm_join","Operation":"cp.approve_join","Timeout":0}]}}' | astral-query sys.register_manager -in json -out json
+{"Type":"error_message","Object":"policies are removed: answer the requests in SwarmState with user.answer_request"}
 ```
 
 A node that is not fresh:

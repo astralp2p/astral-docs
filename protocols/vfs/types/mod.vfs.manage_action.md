@@ -4,7 +4,7 @@ A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission
 
 The action names no VFS, and the node never asks a VFS's [evaluator](../README.md#evaluator) about it. The operations that submit it act on every VFS of the node, so a query that arrives from the network is answered `not permitted` whatever the caller holds.
 
-The node's user, the node and the node's [manager](../../sys/README.md#manager) hold this action by default. On a node without a user, the node and the manager hold it. The manager holds it in every node state, on this node alone: a contract the manager signs passes nothing through this rule. Any other identity holds it through a node-local grant or a signed contract. A permit for this action carries no constraints. A permit whose `Constraints` bundle is non-empty is refused rather than granted in full, so it grants nothing.
+The node's user, the node and the node's [manager](../../sys/README.md#manager) hold this action by default. On a node without a user, the node and the manager hold it. The manager holds it in every node state, on this node alone: a contract the manager signs passes nothing through this rule. A `privileged_member` node holds it through the swarm root ([auth, Authorization](../../auth/README.md#authorization)). Any other identity holds it only through a signed contract. A permit for this action carries no constraints. A permit whose `Constraints` bundle is non-empty is refused rather than granted in full, so it grants nothing.
 
 ## Fields
 

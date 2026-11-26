@@ -11,7 +11,7 @@ issuer distinct from the subject, remaining validity, exactly one tier permit
 contract. It is the activation step for node setup and the cold-card path: the
 user key signs in the ceremony, and this node signs as subject only through
 [`auth.sign_contract`](../../auth/ops/auth.sign_contract.md), whose claim rule
-decides who may claim it. No policy is asked.
+decides who may claim it.
 
 ## Arguments
 

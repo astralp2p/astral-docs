@@ -18,9 +18,10 @@ the node, and is answered `not permitted`.
 
 ## Disclosure
 
-The contract names the node's user. Its permits show whether the node is a
-management node ([user](../README.md)). Its expiry, by default 365 days after
-the contract was made, shows when the user claimed or adopted the node. Every
+The contract names the node's user. Its tier permit shows the node's tier
+([user](../README.md)). Its expiry shows when the membership ends; the claim
+contract expires 365 days after the claim, so its expiry shows when the user
+claimed the node. Every
 node that links to this node reads the contract, also a node outside the
 user's swarm. In mode `1` (Visible) every node on the local
 network learns this node's identity from its

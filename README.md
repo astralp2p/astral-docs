@@ -70,7 +70,7 @@ Contents:
   * [zone](primitive-types/zone.md)
 * Protocols
   * [Basics](protocols/README.md) – protocol documentation structure
-  * [apphost](protocols/apphost/README.md) - on-device API for local apps (tokens, handlers, contracts, grants, holds)
+  * [apphost](protocols/apphost/README.md) - on-device API for local apps (tokens, handlers, contract requests, relay contracts, holds)
   * [auth](protocols/auth/README.md) - capability contracts, signing, and action authorization
   * [bip137sig](protocols/bip137sig/README.md) - BIP-39/32/137 seed, key derivation, and message signing
   * [crypto](protocols/crypto/README.md) - signing and verifying hashes and text, public key derivation
@@ -81,7 +81,7 @@ Contents:
   * [mcp](protocols/mcp/README.md) - AI agents, mail tools, and declared queries over MCP
   * [messaging](protocols/messaging/README.md) - hosted mailboxes and mail between identities
   * [nat](protocols/nat/README.md) - NAT traversal via UDP hole punching
-  * [nearby](protocols/nearby/README.md) - LAN discovery over ether: signed statuses, scans, adoption and same-user introduction
+  * [nearby](protocols/nearby/README.md) - LAN discovery over ether: signed statuses, scans and same-user introduction
   * [nodes](protocols/nodes/README.md) - encrypted links and multiplexed sessions between nodes
   * [objects](protocols/objects/README.md) - typed object storage, retrieval, and provider discovery
   * [player](protocols/player/README.md) - music playback and play queue control
@@ -97,7 +97,7 @@ Contents:
   * Narratives
     * [Node Setup](topics/node-setup.md) - start here: how a new node gets a manager and an owner, its three states, what guards it, and how a distribution differs from a test node
     * [User and Swarm](topics/user-and-swarm.md) - what a user and a swarm are, the user key, claiming a node in one call or step by step, joining a swarm, losing the owner, and the refusals
-    * [Node Policies](topics/node-policies.md) - the gate in each node state, the five admission policies, their config values and delegates, approval apps, and the distribution and test configurations
+    * [Node Gate](topics/node-gate.md) - the gate in each node state, and the distribution and test configurations
     * [Session Identity](topics/session-identity.md) - every query runs as an identity: what the gate admits with and without a token in each node state, the settings that change it, and the node's token
     * [Node Exposure](topics/node-exposure.md) - what a fresh node opens: each surface's default bind, who reaches it before and after the claim, what a linked peer reaches, the setting that closes it, and how a node outside the swarm reaches the node
     * [Network Architecture](topics/network-architecture.md) - how identities, nodes, links, swarms, and contracts compose at runtime

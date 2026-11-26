@@ -62,7 +62,6 @@ A follow applies the caller's current authority for as long as it is open. The
 node re-checks every follow of a caller after any of these changes is
 recorded:
 
-* a grant written for or revoked from the caller;
 * a contract indexed whose issuer or subject is the caller, or a contract
   withdrawn on the node;
 * a [`mod.user.swarm_member_joined`](../../user/types/mod.user.swarm_member_joined.md)

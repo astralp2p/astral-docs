@@ -45,8 +45,8 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
 * The user and every member may read the swarm, for example with
   [`user.info`](../protocols/user/ops/user.info.md) and
   [`user.list_siblings`](../protocols/user/ops/user.list_siblings.md).
-* The user may change the swarm: adopt a node, or expel one for good with
-  [`user.expel`](../protocols/user/ops/user.expel.md).
+* The user may change the swarm: answer a node's request to join, or expel
+  one for good with [`user.expel`](../protocols/user/ops/user.expel.md).
 
 [user](../protocols/user/README.md) describes the protocol.
 
@@ -67,8 +67,8 @@ to the node. The claim runs as [one call](#one-call), or
 * A BIP-39 passphrase is optional. The same words with another passphrase derive
   another `User`.
 * The node keeps the user's private key after the claim. The node signs as the
-  user with it, for example in
-  `user.adopt` (removed).
+  user with it, for example a privileged membership in
+  [`user.confirm_join`](../protocols/user/ops/user.confirm_join.md).
 
 ### Who may claim
 
@@ -83,7 +83,7 @@ to the node. The claim runs as [one call](#one-call), or
   the node's token acts as the node.
 * The default gate admits the claim operations on an `unclaimed` node, to a
   session with a token. A `fresh` node appoints a manager first
-  ([Node Policies](node-policies.md#the-gate)).
+  ([Node Gate](node-gate.md#the-gate)).
 * The node's token is a token that `tokens:` in `apphost.yaml` maps to
   `localnode`.
 
@@ -153,7 +153,7 @@ token, because the `fresh` and `unclaimed` lists name none of their
 operations. A node set up step by step lists them in `gate.states` for its
 state: `fresh` for a new node, and `unclaimed` for a node that has a manager
 or held a contract before. A list `apphost.yaml` supplies replaces the default
-list ([Node Policies](node-policies.md#the-gate)):
+list ([Node Gate](node-gate.md#the-gate)):
 
 ```yaml
 gate:
@@ -227,23 +227,29 @@ read: `head -1` keeps the result alone.
 
 ## Joining a swarm
 
-A node of an existing swarm brings a new node under its user in one of two ways:
+A new node asks to join a user's swarm through a node of that swarm, its
+carrier:
 
-* The swarm node adopts the new node:
-  `user.adopt` (removed) on the swarm node sends
-  a membership contract to the new node's
-  `user.accept_membership` (removed).
-  The new node calls `user.info` until the claim lands.
-* The new node asks to join:
-  [`user.join`](../protocols/user/ops/user.join.md) `-node <swarm node>` on
-  the new node sends
-  `user.request_membership` (removed)
-  to the swarm node, as the new node. The reply is the membership contract the
-  new node now holds as its active contract.
+* [`user.join`](../protocols/user/ops/user.join.md) `-node <swarm node>` on
+  the new node signs a join request at a tier, `member` by default, and sends
+  it to the carrier's
+  [`user.carry_join`](../protocols/user/ops/user.carry_join.md), as the new
+  node. The carrier holds a `trusted` or `privileged_member` membership.
+* The carrier adds the request to SwarmState, where
+  [`user.swarm_requests`](../protocols/user/ops/user.swarm_requests.md) lists
+  it as `pending`. A node of the swarm answers it with
+  [`user.answer_request`](../protocols/user/ops/user.answer_request.md), within
+  its own tier. At tier `privileged_member` the user key signs the membership
+  instead: the user presses the Coldcard, or confirms with
+  [`user.confirm_join`](../protocols/user/ops/user.confirm_join.md) on the
+  node that holds a software user key.
+* On an approval the carrier signs the new node's membership and hands it
+  over. The reply to `user.join` is the membership the new node now holds as
+  its active contract. A decline answers `join request declined`.
 
 ### The route between the nodes
 
-Both ways need a route between the two nodes. A node before the claim cannot
+The join needs a route between the two nodes. A node before the claim cannot
 add an endpoint itself: the default gate refuses
 [`nodes.add_endpoint`](../protocols/nodes/ops/nodes.add_endpoint.md) on an
 `unclaimed` node, to the manager's token and the node's token alike. A new
@@ -257,15 +263,12 @@ node that knows no route answers `user.join` with `route not found`.
   nearby mode is Stealth, the default of a node with a user, or Visible. The
   new node learns the swarm node's user identity from the hint before the
   swarm node admits it.
-* For an adoption, the swarm node learns the new node's endpoint with
-  `nodes.add_endpoint`.
 * For any other join, the swarm node opens a link to the new node with
   [`nodes.new_link`](../protocols/nodes/ops/nodes.new_link.md), and the join
   travels over that link. An endpoint the swarm node knows does not give the
   new node a route back.
 
-`nodes.add_endpoint` and `nodes.new_link` run on the swarm node under the
-user's token. The new node's endpoint is its address and the TCP port its
+`nodes.new_link` runs on the swarm node under the user's token. The new node's endpoint is its address and the TCP port its
 `tcp.yaml` listens on, 1791 by default. Nodes of one user on a shared local
 network find each other through `nearby`.
 
@@ -276,18 +279,6 @@ when its `tcp.yaml` lists it under `configEndpoints`
 Without that entry a sibling off the member's network holds no TCP endpoint of
 the member that it can dial. Automatic advertisement of an observed public
 address is deferred to a later iteration.
-
-### Adopting from the swarm node
-
-On the swarm node, under the user's token, with the new node `02f7...`
-listening at `192.168.1.30:1791`:
-
-```shellsession
-$ astral-query nodes.add_endpoint -identity 02f7... -endpoint tcp:192.168.1.30:1791 -out json
-{"Type":"ack","Object":null}
-$ astral-query user.adopt -identity 02f7... -out json
-{"Type":"mod.auth.signed_contract","Object":{...}}
-```
 
 ### Joining from the new node
 
@@ -314,51 +305,23 @@ $ astral-query user.join -node 03b1... -out json
 {"Type":"mod.auth.signed_contract","Object":{...}}
 ```
 
-### Policies
+### Answering the request
 
-The swarm node's join policy decides a request, and the new node's invite
-policy decides an invitation. The new node's contract accept policy decides a
-contract activated with `user.accept_contract`. The join and invite policies
-decline everything by default, and the contract accept policy accepts every
-contract that passes validation ([user](../protocols/user/README.md)).
-
-The manager decides them. A policy the manager binds at its appointment names
-the manager as its delegate: the node asks the manager for each decision, and
-the answer outranks `user.yaml`
-([Node Policies, Delegating a decision](node-policies.md#delegating-a-decision)).
-On the new node the appointment is the only way to name a delegate, because
-the default gate refuses the setters until the claim. The new node's manager
-binds `swarm_invite` to an operation it serves:
+While the new node waits, the request is pending on the carrier. On the
+carrier, under the user's token, list it and approve it by its entry ID:
 
 ```shellsession
-$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"setup","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"swarm_invite","Operation":"setup.decide_invite","Timeout":60000000000}]}}' \
-    | astral-query sys.register_manager -in json -out json
+$ astral-query user.swarm_requests -out json
+{"Type":"object_id.sha256","Object":"data1..."}
+{"Type":"mod.user.request_status","Object":"pending"}
+{"Type":"mod.user.signed_join_request","Object":{...}}
+{"Type":"eos","Object":""}
+$ astral-query user.answer_request -id data1... -answer approve -out json
+{"Type":"mod.user.signed_approval","Object":{...}}
 ```
 
-For a join, the swarm node's manager binds `swarm_join` the same way at its
-appointment, or the user names a delegate on the claimed swarm node with
-`user.set_swarm_join_policy` (removed).
-An adoption needs no join policy.
-
-The manager then runs as an app on its token and serves the operation; the
-default gate admits `apphost.bind` and `apphost.register_handler` on an
-`unclaimed` node. For each question the manager reads one
-[`mod.user.swarm_invite_request`](../protocols/user/types/mod.user.swarm_invite_request.md)
-or [`mod.user.swarm_join_request`](../protocols/user/types/mod.user.swarm_join_request.md)
-and answers one
-[`mod.user.swarm_invite_decision`](../protocols/user/types/mod.user.swarm_invite_decision.md)
-or [`mod.user.swarm_join_decision`](../protocols/user/types/mod.user.swarm_join_decision.md)
-with `Allow`. A manager that is not running, answers nothing within the
-timeout, or answers any other object declines: an adoption then answers
-`invitation declined`.
-
-`astral-query` exits after each command and answers no question. A node set
-up from a shell without a running manager sets `policies.swarm_invite:
-accept_all` in the new node's `user.yaml`, and for a join
-`policies.swarm_join: accept_all` in the swarm node's, for the join alone. It
-sets them back to `reject_all` after the claim: under `accept_all`, any node
-that reaches the swarm node joins the swarm, and any user's node adopts the
-new node. The node reads `user.yaml` when it starts.
+The request expires an hour after the new node signs it. An expired or
+declined request ends the join, and the new node forgets it.
 
 After the claim the user holds no token on the new node, and the manager's
 token reads nothing of the swarm (`user.swarm_status` answers `not
@@ -434,9 +397,7 @@ $ astral-query user.swarm_status -out json
   contract is cleared.
 
 Either way the node is `unclaimed` again, never `fresh`: it keeps its manager,
-its identity, its tokens and its grants. It can be claimed again, and the swarm
-invite and contract accept policies decide again while it has no active
-contract ([Node Policies](node-policies.md#before-the-claim)).
+its identity and its tokens. It can be claimed again.
 
 ## Refusals
 
@@ -449,12 +410,12 @@ contract ([Node Policies](node-policies.md#before-the-claim)).
 | `user.bootstrap`: `not permitted` | The caller is neither the node nor the manager. | Call with the manager's App token, or with the node's own token. |
 | `user.bootstrap`: `claim refused: the claim rule of auth.sign_contract refuses this user` | The node was claimed while the claim was signed. | — |
 | `user.bootstrap`: `invalid mnemonic` | The words fail the BIP-39 checksum. | Check the words. |
-| any operation: `denied` | The gate refuses the operation: a session without a token sent an operation outside `gate.tokenless`, or the list of the node's state in `gate.states` does not name it. | Authenticate with a token, or wait for the state that lists the operation ([Node Policies](node-policies.md#the-gate)). |
+| any operation: `denied` | The gate refuses the operation: a session without a token sent an operation outside `gate.tokenless`, or the list of the node's state in `gate.states` does not name it. | Authenticate with a token, or wait for the state that lists the operation ([Node Gate](node-gate.md#the-gate)). |
 | `user.join`: `unknown identity`, `zero identity` or `cannot join self` | `node` does not resolve, resolves to the anonymous identity, or names this node. | Name a node of the swarm. |
 | `user.introduce`: `cannot introduce to self` | `identity` names this node or the user. | Name a running member of the swarm. |
 | `user.introduce`: `not permitted` | The caller does not hold `mod.user.admin_swarm_action`, or the user has expelled the caller. | Call with the user's token. |
 | `user.introduce`: `push to <identity>: rejected` | The named node refuses the contract: it has no active contract, another user owns it, or the user has expelled this node. | Name a running member of the user's swarm. |
-| `user.join`: `route not found` | The new node knows no route to the swarm node, and found none through `nearby` within 3 seconds. | Open a link from the swarm node with `nodes.new_link`, or adopt the node from there ([The route between the nodes](#the-route-between-the-nodes)). |
-| `user.join`: `request declined` | The swarm node's join policy declines the request. Its default, `reject_all`, declines every request. | Approve the request on the swarm node, set its `policies.swarm_join`, or adopt the node from it. |
-| `user.join`: `invitation declined` | This node's invite policy declines the contract. Its default, `reject_all`, declines every invitation. | Bind `swarm_invite` to the manager, or set `policies.swarm_invite`. |
-| `user.accept_contract`: `contract declined` | The node's contract accept policy declines the contract, or its delegate does not answer. | Approve the contract on the delegate, or clear the delegate with `user.set_contract_accept_policy`. |
+| `user.join`: `route not found` | The new node knows no route to the swarm node, and found none through `nearby` within 3 seconds. | Open a link from the swarm node with `nodes.new_link` ([The route between the nodes](#the-route-between-the-nodes)). |
+| `user.join`: `join request declined` | A node of the swarm declined the request in SwarmState. | Ask again, and approve the request with `user.answer_request`. |
+| `user.join`: `join request expired` | Nobody answered the request within its hour. | Ask again, and answer the request while it is pending. |
+| `user.join`: `only a trusted or privileged member carries a join request` | `node` holds no `trusted` or `privileged_member` membership. | Name a `trusted` or `privileged_member` node of the swarm. |

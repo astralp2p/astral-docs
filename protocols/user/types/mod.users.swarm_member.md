@@ -1,8 +1,8 @@
 # mod.users.swarm_member
 
 One entry in the swarm membership listing returned by `user.swarm_status`. It
-describes a single node that holds an active SwarmAccess contract from the
-user.
+describes a single node whose membership holds in SwarmState, signed by the
+user or by the node that carried its join.
 
 ## Fields
 

@@ -11,7 +11,7 @@ member may answer only a join request at tier `member`. A Privileged member's
 approval of a join at `privileged_member` does not let the carrier sign the
 membership: only the user key signs a `privileged_member` membership.
 
-No operation stores, serves or accepts this type yet. It is a [SwarmState entry](../README.md#swarmstate-entries).
+[`user.join`](../ops/user.join.md) signs one, as a [`mod.user.signed_join_request`](mod.user.signed_join_request.md), and [`user.carry_join`](../ops/user.carry_join.md) adds it to SwarmState; [`user.swarm_requests`](../ops/user.swarm_requests.md) streams it, [`user.answer_request`](../ops/user.answer_request.md) answers it and [`user.confirm_join`](../ops/user.confirm_join.md) confirms one at tier `privileged_member`. It is a [SwarmState entry](../README.md#swarmstate-entries).
 
 ## Fields
 

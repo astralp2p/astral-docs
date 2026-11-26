@@ -29,8 +29,11 @@ The caller is the signer. Each refusal below is answered with an
    the entire set with `key already claimed by a signer` and leaves the existing
    binding untouched.
 
-[`apphost.register`](../../apphost/ops/apphost.register.md) requests the action
-when `grant_permits` names it, subject to registration policy.
+An app asks for the action in the permits of
+[`apphost.register`](../../apphost/ops/apphost.register.md) or with
+[`apphost.request_contract`](../../apphost/ops/apphost.request_contract.md).
+Either files a contract request in SwarmState, and the app holds the action
+only once the swarm approves it.
 
 ### Supported pairs
 

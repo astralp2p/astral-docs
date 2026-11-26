@@ -4,7 +4,7 @@ A [`mod.user.approval`](mod.user.approval.md) body paired with the issuer's
 signature. It is the stored and propagated form of the answer, kept in the
 `approvals` directory of SwarmState.
 
-No operation stores, serves or accepts this type yet. It is a [SwarmState entry](../README.md#swarmstate-entries).
+[`user.answer_request`](../ops/user.answer_request.md) signs one and adds it to SwarmState. It is a [SwarmState entry](../README.md#swarmstate-entries).
 
 ## Fields
 

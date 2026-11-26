@@ -2,8 +2,8 @@
 
 The node's list of providers made private by the user. An entry makes every
 binding it covers private, whatever the binding advertised. An entry never
-makes a binding open. To show a private provider to an app, the user grants
-the app [`mod.services.service_discovery_action`](mod.services.service_discovery_action.md).
+makes a binding open. To show a private provider to an app, the swarm approves
+the app's contract request for [`mod.services.service_discovery_action`](mod.services.service_discovery_action.md).
 
 The list is stored in the node's tree at `/mod/services/private`. It is set
 and read with [`tree.set`](../../tree/ops/tree.set.md) and

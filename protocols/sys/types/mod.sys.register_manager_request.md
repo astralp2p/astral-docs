@@ -7,12 +7,14 @@ node's manager.
 ## Fields
 
 * Name (string8) – The name the app gives itself. The node does not verify it.
-* GrantPermits ([]mod.auth.permit) – The permits the app asks to hold as
-  node-local grants, with their constraints.
+* GrantPermits ([]mod.auth.permit) – Permits the app asks for, with their
+  constraints. The node puts them in the same node→manager contract as
+  `ContractPermits`; both lists mean the same.
 * ContractPermits ([]mod.auth.permit) – The permits the app asks to hold in a
-  signed node→app contract, with their constraints.
-* Policies ([]mod.sys.policy_binding) – The policies the manager decides,
-  one [`mod.sys.policy_binding`](mod.sys.policy_binding.md) each.
+  signed node→manager contract, with their constraints.
+* Policies ([]mod.sys.policy_binding) – Must be empty. A request with any
+  [`mod.sys.policy_binding`](mod.sys.policy_binding.md) is refused: the
+  admission policies are removed.
 
 ## Example
 
@@ -25,10 +27,7 @@ node's manager.
       { "Action": "mod.user.see_swarm_action" }
     ],
     "ContractPermits": [],
-    "Policies": [
-      { "Policy": "app_register", "Operation": "cp.approve_app", "Timeout": 0 },
-      { "Policy": "swarm_join", "Operation": "cp.approve_join", "Timeout": 60000000000 }
-    ]
+    "Policies": []
   }
 }
 ```

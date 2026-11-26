@@ -6,8 +6,7 @@ it an app that looks after it, the manager, and an owner, a
 explains the whole path in plain words and links to the pages that hold the
 details.
 
-* [Node Policies](node-policies.md) – what is open in each state, and who
-  decides what is let in.
+* [Node Gate](node-gate.md) – what is open in each state.
 * [User and Swarm](user-and-swarm.md) – what a user and a swarm are, and how a
   node is claimed or joins a swarm.
 * [Setting up from a shell](#setting-up-from-a-shell) – a node with no setup
@@ -21,8 +20,9 @@ details.
 3. The manager claims the node for a user: it creates a new user from 24 words,
    restores a user from words the user already has, or joins a swarm the user
    already runs. The node is now `claimed`.
-4. From then on, the user's authorization and the node's policies decide who
-   may do what. The manager keeps answering the policies it took on.
+4. From then on, the user's authorization decides who may do what. A node's
+   request to join and an app's request for permits wait in SwarmState until
+   the swarm answers them.
 
 ## A new node
 
@@ -72,9 +72,8 @@ states.
 
 The manager is an [`App`](../core-definitions/app.md), for example the setup
 or settings app a distribution ships. It exists because a node has to ask
-someone before it lets anything in: which apps may register, which nodes may
-join the user's swarm, which invitations to accept. Before a user owns the
-node, nobody is there to ask. The manager is that someone.
+someone to set it up and claim it for a user. Before a user owns the node,
+nobody speaks for it. The manager is that someone.
 
 ### Appointing the manager
 
@@ -83,27 +82,21 @@ The app calls
 on a `fresh` node, from a local session. It sends one
 [`mod.sys.register_manager_request`](../protocols/sys/types/mod.sys.register_manager_request.md):
 the permits it asks for, as in
-[`apphost.register`](../protocols/apphost/ops/apphost.register.md), and the
-policies it takes on, one
-[`mod.sys.policy_binding`](../protocols/sys/types/mod.sys.policy_binding.md)
-each. A binding names the policy, the operation the node asks on the manager,
-and how long the node waits for one answer.
+[`apphost.register`](../protocols/apphost/ops/apphost.register.md), and an
+empty `Policies` list.
 
 ```shellsession
-$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"setup","GrantPermits":[],"ContractPermits":[],"Policies":[{"Policy":"app_register","Operation":"setup.approve_app","Timeout":0},{"Policy":"swarm_join","Operation":"setup.approve_join","Timeout":300000000000}]}}' \
+$ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"setup","GrantPermits":[],"ContractPermits":[],"Policies":[]}}' \
     | astral-query sys.register_manager -in json -out json
 {"Type":"apphost.access_token","Object":{"Identity":"03864ef0...","Token":"k7m2q5x9r3v4n8p1","ExpiresAt":"2036-05-25T12:00:00+02:00"}}
 ```
 
 The node then:
 
-1. checks the request: valid permits, known policy names, none named twice, an
-   operation in every binding, and a timeout of at most 10 minutes;
-2. creates the app identity as `apphost.register` does, without asking the app
-   register policy, since no policy has anyone to ask yet;
-3. stores each binding as the delegate of its policy, with the manager as the
-   delegate, and clears the delegate of every policy the request does not
-   name;
+1. checks the request: valid permits, and no policy binding;
+2. creates the app identity as `apphost.register` does;
+3. signs, as its own root, a node→manager contract of the permits the
+   request asks for;
 4. records the manager at `/mod/sys/manager`, and answers the manager's
    access token.
 
@@ -117,18 +110,14 @@ distribution appoints its manager before it starts anything else.
 
 ### What the manager may do
 
-* Answer the policies it took on. The node asks the manager each time
-  ([Node Policies](node-policies.md)).
-* Change any policy, and any other tree value: the manager holds
+* Change any tree value: the manager holds
   [`mod.auth.configure_node_state_action`](../protocols/auth/types/mod.auth.configure_node_state_action.md),
   also after the claim.
 * Claim the node for the user with its own token
   ([User and Swarm, Claiming a node](user-and-swarm.md#claiming-a-node)).
 
 A node has at most one manager. No operation removes or replaces it, and the
-claim keeps it. A policy the manager did not take on applies its configured
-value: out of the box, a manager that takes on no policy leaves the node
-refusing every app registration.
+claim keeps it.
 
 ## Claiming
 
@@ -138,8 +127,9 @@ Claiming makes a user the node's owner. The user signs a contract that says
 * **A new user.** The node generates 24 words, the user writes them down, and
   the same words claim the node.
 * **An existing user.** The user types the words they already have.
-* **An existing swarm.** The node asks a node the user already owns to take it
-  in, or that node adopts this one. No words are typed on the new node.
+* **An existing swarm.** The node asks a node the user already owns to carry
+  its request to join, and the swarm approves it. No words are typed on the
+  new node.
 
 The first two run as one call,
 [`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), which answers an
@@ -162,12 +152,12 @@ Two things decide what reaches the node:
   has a token and what state the node is in. A caller without a token only
   reaches the node itself, never an app on it, and only a few operations. A
   `fresh` node opens only `.spec`, the manager appointment and `user.info`.
-* **The policies** decide when someone knocks: may this app register, may this
-  node join the swarm, should this node accept that invitation. Each one
-  accepts everything, refuses everything, or asks a delegate, usually the
-  manager.
+* **Authorization** decides what a caller may do once an operation is open.
+  Each operation checks the caller's actions: the user, the node, a
+  `privileged_member` node, and contracts the swarm approved
+  ([auth](../protocols/auth/README.md)).
 
-[Node Policies](node-policies.md) describes both, and
+[Node Gate](node-gate.md) describes the gate, and
 [Session Identity](session-identity.md) describes what a session is.
 
 ## Two kinds of node
@@ -177,28 +167,24 @@ configuration chooses between them.
 
 * **A distribution** – a phone, a desktop install, a device. The default
   configuration leaves one clear path: appoint the manager, then let the
-  manager claim. A `fresh` node opens nothing else, and app registration,
-  grant requests, swarm joins and swarm invitations are refused until the
-  manager takes them on.
+  manager claim. A `fresh` node opens nothing else.
 * **A test or development node.** A test that only needs a claimed node should
   not have to bring up a manager first. Its configuration opens every
-  operation on a `fresh` node, lets a session without a token claim, and sets
-  all five admission policies to accept everything.
+  operation on a `fresh` node and lets a session without a token claim.
 
-[Node Policies, Distribution and test configuration](node-policies.md#distribution-and-test-configuration)
+[Node Gate, Distribution and test configuration](node-gate.md#distribution-and-test-configuration)
 shows both configurations.
 
 ## After the claim
 
 * Each operation checks whether the caller is authorized. The user and the
   user's other nodes are authorized for the swarm's own operations, such as
-  `user.info`. Other identities need a grant or a contract.
+  `user.info`. Other identities need a contract.
 * A caller without a token reaches only `.spec`, app registration, the manager
   appointment and `user.info`. The node is not `fresh`, so the appointment
-  answers `node is not fresh`, and app registration follows the app register
-  policy, which refuses by default.
-* The manager stays. It keeps answering the policies it took on, and it may
-  still change them.
+  answers `node is not fresh`. App registration answers a token at once, and
+  files the app's permits as a contract request in SwarmState.
+* The manager stays, with its contract and its tree access.
 * The contract `user.bootstrap` signs expires after 365 days. An expired or
   expelled node is `unclaimed` again, and it can be claimed again
   ([User and Swarm, Losing the owner](user-and-swarm.md#losing-the-owner)).
@@ -207,7 +193,7 @@ shows both configurations.
 
 A node with no setup app, such as a server or a node an AI agent installs, is
 set up with [`astral-query`](../tools/astral-query.md). The shell takes the
-manager's place: it appoints a manager that takes on no policy, and claims with
+manager's place: it appoints a manager, and claims with
 that manager's token. Every command runs on the node's host.
 
 ### Before the first start
@@ -242,10 +228,7 @@ the appointment as the first command after the node starts.
    {"Type":"mod.user.info","Object":{"NodeAlias":"","UserAlias":"","ContractID":null,"Contract":null,"State":"fresh","Manager":null}}
    ```
 
-2. Appoint the manager. The request names no policy, so app registration,
-   swarm joins and swarm invitations keep refusing. A node that is to join a
-   swarm binds `swarm_invite` to a manager that keeps running instead
-   ([User and Swarm, Policies](user-and-swarm.md#policies)). Run it with the
+2. Appoint the manager, with an empty `Policies` list. Run it with the
    node's token when `apphost.yaml` sets one, and without a token otherwise.
 
    ```shellsession
@@ -278,8 +261,8 @@ variable, or writes them to a file it deletes after the claim.
 
 ### Giving an agent access
 
-An agent that uses a claimed node needs its own token. App registration
-refuses by default, so the user creates the agent instead:
+An agent that uses a claimed node needs its own token. The user creates the
+agent:
 [`mcp.create_agent`](../protocols/mcp/ops/mcp.create_agent.md) under the
 user's token answers the agent's identity and token.
 
@@ -290,14 +273,25 @@ $ astral-query mcp.create_agent -alias agent -out json
 ```
 
 The agent's token reaches `.spec`, `apphost.whoami` and the operations every
-identity may call. Each further action is a grant the user writes with
-`apphost.grant` (removed), for example
-reading the node's state:
+identity may call. The agent asks for each further action with
+[`apphost.request_contract`](../protocols/apphost/ops/apphost.request_contract.md),
+for example reading the node's state. The call files a contract request and
+waits for its answer:
 
 ```shellsession
-$ echo '{"Type":"mod.apphost.grant_request","Object":{"Identity":"02f40933...","Duration":0,"Permits":[{"Action":"mod.auth.see_node_state_action"}]}}' \
-    | astral-query apphost.grant -in json -out json
-{"Type":"ack","Object":null}
+$ export ASTRALD_APPHOST_TOKEN=h4d8s2w6y1b9t3n7
+$ printf '%s\n' '{"Type":"mod.auth.permit","Object":{"Action":"mod.auth.see_node_state_action"}}' '{"Type":"eos","Object":""}' \
+    | astral-query apphost.request_contract -in json -out json
+{"Type":"object_id","Object":"data1..."}
+```
+
+The user approves it under the user's token, and the node hands the agent its
+contract:
+
+```shellsession
+$ export ASTRALD_APPHOST_TOKEN=b9c2e1a3d4f5867a
+$ astral-query user.answer_request -id data1... -answer approve -out json
+{"Type":"mod.user.signed_approval","Object":{...}}
 ```
 
 The agent never needs the user's token, the manager's token or the words.

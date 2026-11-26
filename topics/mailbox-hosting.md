@@ -43,7 +43,7 @@ Deliveries and receipts then receive `route_not_found`; mail operations refuse
 the owner. An admitted delivery, receipt, or wait runs to its normal end.
 
 [`messaging.delete_mailbox`](../protocols/messaging/ops/messaging.delete_mailbox.md)
-revokes tokens, withdraws local grants, unsets the alias, then removes the
+revokes tokens, unsets the alias, then removes the
 mailbox index entry and owned mail together. Correspondents' copies remain.
 Signed relay and hosting contracts remain valid until expiry; deletion withdraws
 this node's indexed mailbox rather than revoking those contracts.
