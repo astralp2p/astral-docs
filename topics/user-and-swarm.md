@@ -68,7 +68,7 @@ to the node. The claim runs as [one call](#one-call), or
   another `User`.
 * The node keeps the user's private key after the claim. The node signs as the
   user with it, for example in
-  [`user.adopt`](../protocols/user/ops/user.adopt.md).
+  `user.adopt` (removed).
 
 ### Who may claim
 
@@ -230,14 +230,14 @@ read: `head -1` keeps the result alone.
 A node of an existing swarm brings a new node under its user in one of two ways:
 
 * The swarm node adopts the new node:
-  [`user.adopt`](../protocols/user/ops/user.adopt.md) on the swarm node sends
+  `user.adopt` (removed) on the swarm node sends
   a membership contract to the new node's
-  [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md).
+  `user.accept_membership` (removed).
   The new node calls `user.info` until the claim lands.
 * The new node asks to join:
   [`user.join`](../protocols/user/ops/user.join.md) `-node <swarm node>` on
   the new node sends
-  [`user.request_membership`](../protocols/user/ops/user.request_membership.md)
+  `user.request_membership` (removed)
   to the swarm node, as the new node. The reply is the membership contract the
   new node now holds as its active contract.
 
@@ -337,7 +337,7 @@ $ echo '{"Type":"mod.sys.register_manager_request","Object":{"Name":"setup","Gra
 
 For a join, the swarm node's manager binds `swarm_join` the same way at its
 appointment, or the user names a delegate on the claimed swarm node with
-[`user.set_swarm_join_policy`](../protocols/user/ops/user.set_swarm_join_policy.md).
+`user.set_swarm_join_policy` (removed).
 An adoption needs no join policy.
 
 The manager then runs as an app on its token and serves the operation; the

@@ -92,12 +92,14 @@ as itself with `for` naming the app and `tagged` set. The member requires:
 * the sending node's
   [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
   for that app;
-* the sending node's discovery permission for every requested service there;
-  without `services`, the sending node is a member of this node's local swarm.
+* the sending node is a member of this node's local swarm.
 
-Providers evaluate the named app. The member does not filter: it returns every
-offering of its hosted providers, and the requesting node applies
-[Visibility](#visibility). With `tagged`, the member sends each offering as a
+Providers evaluate the named app. The member filters as the app: an open
+offering passes, and a private one passes only when the app holds a discovery
+permit for its service on the member, walked through the app's own contract
+chain. The member re-applies the app's permits after a change of its
+authority. The requesting node then applies [Visibility](#visibility) for its
+caller. With `tagged`, the member sends each offering as a
 [`services.tagged_update`](../types/services.tagged_update.md) carrying the
 provider's effective visibility on the member, and re-sends a shown offering
 when its visibility changes. Without `tagged`, the member sends plain
@@ -107,8 +109,8 @@ receives `services.not_granted`. Invalid or unauthorized `for` requests return
 
 The member re-checks an open stream with `for` after the same changes as a
 follow, recorded for the app or for the sending node. When the sending node no
-longer holds the relay right for the app, no longer holds the discovery
-permission, or, without `services`, is no longer a member of the local swarm,
+longer holds the relay right for the app, or is no longer a member of the
+local swarm,
 the member closes the stream without an error object.
 A sending node that leaves the local swarm has its streams with `for` closed
 when the `mod.user.swarm_member_left` event arrives, whether or not the link

@@ -4,11 +4,9 @@ A single capability. A permit names the object type of an action and,
 optionally, a bundle of constraints that narrow the grant.
 
 A permit is carried by a `mod.auth.contract`, which is signed and portable, or
-recorded as a node-local grant, which authorizes on one node and travels
-nowhere. `Delegation` is meaningful only on the first: a grant is never
-delegable. [`apphost.list_grants`](../../apphost/ops/apphost.list_grants.md)
-returns one [`mod.apphost.grant`](../../apphost/types/mod.apphost.grant.md) per
-grant one node has recorded for an identity, each carrying the recorded permit.
+asked for in a
+[`mod.user.contract_request`](../../user/types/mod.user.contract_request.md).
+No node records a node-local grant.
 
 ## Fields
 

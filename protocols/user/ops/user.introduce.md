@@ -1,10 +1,11 @@
 # user.introduce
 
-Push this node's active contract to the node `identity` names, then
-synchronise with that node. The named node checks the contract as it checks
-every pushed node contract and indexes it, so this node becomes a member of the
-named node's [`Local Swarm`](../../../core-definitions/local-swarm.md). The
-reply is an `ack`.
+Offer this node's active contract, its membership, to the SwarmState of the
+node `identity` names, then synchronise with that node. The named node checks
+the membership as it checks every SwarmState entry and stores it, so this node
+becomes a member of the named node's
+[`Local Swarm`](../../../core-definitions/local-swarm.md). The reply is an
+`ack`.
 
 `user.introduce` brings a node claimed with the user's words back into the
 user's swarm. [`user.bootstrap`](user.bootstrap.md) leaves the node holding
@@ -30,17 +31,22 @@ The node refuses the query in these cases, in this order:
 * The user has expelled the named node: answered with
   `identity expelled from swarm`.
 
-The node then pushes its active contract to the named node with
-[`objects.push`](../../objects/ops/objects.push.md), as itself, with the
+The node then offers its active contract to the named node with
+[`nodes.swarm_push`](../../nodes/ops/nodes.swarm_push.md), as itself, with the
 `Network` [`Zone`](../../../core-definitions/zone.md), and waits at most 30
-seconds for the answer. The named node refuses the contract when it has no
-active contract, when its user is not this node's user, and when its user has
-expelled this node. A refused or unanswered push is answered with an
-`error_message` reading `push to <identity>: <reason>`, and no
+seconds for the answer. The named node drops the entry when its user did not
+sign it and no member of its swarm may issue it, as a merge does
+([SwarmState entries](../README.md#swarmstate-entries)); a membership of an
+expelled node grants nothing there. A dropped or unanswered offer is answered
+with an `error_message` reading `push to <identity>: <reason>`, and no
 synchronisation follows.
 
-After an accepted push the node schedules a synchronisation with the named node
-and answers `ack`. The answer does not wait for the synchronisation. The named
+After an accepted offer the node pulls the named node's SwarmState
+([`nodes.swarm_digest`](../../nodes/ops/nodes.swarm_digest.md),
+[`nodes.swarm_fetch`](../../nodes/ops/nodes.swarm_fetch.md)), schedules a
+synchronisation with the named node and answers `ack`. A pull that fails does
+not change the answer. The named node passes the stored membership on to its
+peers, so the other members learn this node through SwarmState. The answer does not wait for the synchronisation. The named
 node, which now holds this node's contract and is linked to this node,
 synchronises with this node as well. That synchronisation pushes the named
 node's contract, the user's expulsions and the contracts of the other members
@@ -51,9 +57,9 @@ contract.
 * The named node's synchronisation is the only step that brings the other
   members' contracts to this node. No step of this node's own synchronisation
   reads contracts from the named node.
-* A named node that does not synchronise when a pushed contract admits a linked
-  node ([user](../README.md)) synchronises with this node at its next new
-  link to this node. Running `user.introduce` again after closing the link
+* A named node that does not synchronise when an offered membership admits a
+  linked node ([user](../README.md)) synchronises with this node at its next
+  new link to this node. Running `user.introduce` again after closing the link
   ([`nodes.close_link`](../../nodes/ops/nodes.close_link.md)) opens a new link.
 * This node reaches another member only over a link this node opens, to the
   endpoints the named node holds for that member.
@@ -73,9 +79,10 @@ program push the node's contract to any node.
 
 ## Disclosure
 
-The named node reads this node's user from the pushed contract, also when the
-named node is outside the swarm. A node outside the swarm refuses the contract
-and indexes nothing. The pusher reads a bare refusal, which names no reason.
+The named node reads this node's user from the offered membership, also when
+the named node is outside the swarm. A node outside the swarm drops the entry
+and stores nothing. The node reads `swarm entry dropped` with the entry's ID,
+which names no reason.
 
 ## Arguments
 
@@ -90,10 +97,10 @@ and indexes nothing. The pusher reads a bare refusal, which names no reason.
 
 The query is answered with the `error_message` named in the cases above.
 Otherwise the operation returns one of:
-* An `ack` once the named node accepted the contract. The synchronisation
+* An `ack` once the named node accepted the membership. The synchronisation
   runs after the answer.
 * An `error_message` reading `push to <identity>: <reason>` if the named node
-  refuses the contract, cannot be reached, or does not answer within 30
+  drops the membership, cannot be reached, or does not answer within 30
   seconds.
 
 ## Examples

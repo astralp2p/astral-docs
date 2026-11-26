@@ -1,9 +1,9 @@
 # mod.user.swarm_invite_request
 
 The invitation a swarm invite policy decides. A delegate set by
-[`user.set_swarm_invite_policy`](../ops/user.set_swarm_invite_policy.md) reads
+`user.set_swarm_invite_policy` (removed) reads
 one from its input stream for each
-[`user.accept_membership`](../ops/user.accept_membership.md) call that reaches
+`user.accept_membership` (removed) call that reaches
 the invite policy: the node holds no active contract, and the contract passes
 validation, the expulsion check and issuer verification.
 

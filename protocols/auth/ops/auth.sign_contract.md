@@ -27,9 +27,10 @@ The node signs it while all of these hold:
 * The caller is the node. A local caller that presents no identity is
   rewritten to the node's identity.
 * The subject is the node. The issuer is not the node.
-* The permits are exactly the permits
+* The contract is the privileged membership
   [`user.new_node_contract`](../../user/ops/user.new_node_contract.md) writes:
-  the same actions in the same order, the same delegation, and no constraints.
+  exactly one permit, `mod.user.privileged_member_action`, with delegation 0
+  and no constraints, and no `ApprovalID`.
 * The contract expires more than 1 hour from now and at most 365 days and
   1 hour from now. 365 days is the default validity of
   `user.new_node_contract`.

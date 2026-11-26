@@ -2,8 +2,7 @@
 
 The `apphost` protocol exposes on-device APIs that let local apps access the
 astral network via the node — access token issuance, query handler
-registration, app contract signing, node-local grant administration, grant
-requests, and object holds.
+registration, app contract signing, contract requests, and object holds.
 
 A local app connects as an anonymous guest or authenticates with an access
 token. An anonymous (or expired-token) guest is confined to the `Device` and
@@ -17,61 +16,19 @@ A guest arriving over the WebSocket endpoint carries its browser origin under
 the `origin-web` key in the query's `Extra`; per-origin authorization is left
 to the individual operations.
 
-## Grants
+## Permits
 
-A grant is a node-local record that an identity may perform an action on this
-node. A grant is recorded, not signed: it authorizes on this node and travels
-nowhere. [`apphost.register`](ops/apphost.register.md),
-[`apphost.grant`](ops/apphost.grant.md) and
-[`apphost.request_grant`](ops/apphost.request_grant.md) write grants.
+An app holds no node-local grant. Every action an app takes, on its own node or
+another, is authorized by its contract chain: a contract from its host that
+carries out an Approval, back to the user
+([user, SwarmState](../user/README.md#swarmstate-entries)). The node keeps no
+grant table; a node upgraded from a release that kept one drops
+`apphost__grants` at start.
 
-Grants accumulate. A write adds its grants beside the identity's other grants
-and never removes a grant. An identity can hold several grants for one action,
-for example one `mod.services.service_discovery_action` grant per service. A
-permit identical to a held one, with the same action and constraints, is stored
-once: writing it again sets that grant's expiry to the new value, shorter or
-longer.
-
-Authorization allows an action when any unexpired grant the identity holds for
-that action allows it.
-
-The node reads grants for these seventeen actions:
-
-* [`mod.auth.serve_objects_action`](../auth/types/mod.auth.serve_objects_action.md)
-* [`mod.auth.see_objects_action`](../auth/types/mod.auth.see_objects_action.md)
-* [`mod.auth.store_objects_action`](../auth/types/mod.auth.store_objects_action.md)
-* [`mod.auth.use_blueprints_action`](../auth/types/mod.auth.use_blueprints_action.md)
-* [`mod.user.see_swarm_action`](../user/types/mod.user.see_swarm_action.md)
-* [`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)
-* [`mod.auth.admin_network_action`](../auth/types/mod.auth.admin_network_action.md)
-* [`mod.auth.admin_manage_apps_action`](../auth/types/mod.auth.admin_manage_apps_action.md)
-* [`mod.auth.configure_node_state_action`](../auth/types/mod.auth.configure_node_state_action.md)
-* [`mod.auth.serve_apps_action`](../auth/types/mod.auth.serve_apps_action.md)
-* [`mod.auth.register_signer_action`](../auth/types/mod.auth.register_signer_action.md)
-* [`mod.auth.see_node_state_action`](../auth/types/mod.auth.see_node_state_action.md)
-* [`mod.shell.shell_action`](../shell/types/mod.shell.shell_action.md)
-* [`mod.services.service_discovery_action`](../services/types/mod.services.service_discovery_action.md)
-* [`mod.vfs.read_action`](../vfs/types/mod.vfs.read_action.md)
-* [`mod.vfs.write_action`](../vfs/types/mod.vfs.write_action.md)
-* [`mod.vfs.manage_action`](../vfs/types/mod.vfs.manage_action.md)
-
-Each answers from this node's grants alone, so a contract never extends a
-grant: an identity that holds a grant gains nothing by issuing a contract for
-the action. A grant of any other known action is written and listed and
-authorizes nothing.
-
-Each grant has an ID. [`apphost.list_grants`](ops/apphost.list_grants.md)
-reports grants as [`mod.apphost.grant`](types/mod.apphost.grant.md) objects.
-[`apphost.revoke`](ops/apphost.revoke.md) withdraws one grant by `id`, or every
-grant of the identity for one `action`. Narrowing a grant takes two steps:
-grant the narrow permit, then revoke the wide grant by `id`. The identity holds
-access throughout.
-
-`apphost.register`, `apphost.grant` and `apphost.request_grant` check every
-permit they receive before any policy is asked and before any grant is written.
-A permit that fails the check refuses the whole call with an `error_message`
-reading `invalid permit: <action>: <detail>`, and nothing is written. The check
-refuses:
+`apphost.register` and `apphost.request_contract` check every permit they
+receive before anything is filed. A permit that fails the check refuses the
+whole call with an `error_message` reading `invalid permit: <action>:
+<detail>`, and nothing is filed. The check refuses:
 
 * a permit without an action, as `invalid permit: missing action`;
 * an action the node does not know, as `invalid permit: <action>: unknown
@@ -86,15 +43,46 @@ refuses:
 
 Constraints on an action that does not evaluate them have no effect.
 [`mod.shell.shell_action`](../shell/types/mod.shell.shell_action.md) ignores
-constraints, so a constrained grant of it allows the action in full. Every
+constraints, so a constrained permit of it allows the action in full. Every
 other action that does not evaluate constraints refuses a constrained permit
-when it authorizes ([auth](../auth/README.md)): such a grant passes the check,
-is written, and allows nothing.
+when it authorizes ([auth](../auth/README.md)).
 
-The grant request policy decides `apphost.request_grant`: a delegate stored by
-[`apphost.set_grant_request_policy`](ops/apphost.set_grant_request_policy.md),
-else the config value `policies.grant_request` (`accept_all`, `reject_all` or a
-delegate), else the code default `reject_all`.
+## Contract requests
+
+A contract request asks the swarm for permits for an app, in place of a grant.
+[`apphost.request_contract`](ops/apphost.request_contract.md) files a
+[`mod.user.signed_contract_request`](../user/types/mod.user.signed_contract_request.md)
+into SwarmState ([SwarmState entries](../user/README.md#swarmstate-entries)).
+The app's host files and signs the request, and the request names the app.
+
+A Privileged node answers the request with an approval or a decline. The host
+carries out an approval of a request it filed: it signs a contract from itself
+to the identity the request names, with exactly the request's permits and the
+approval's entry ID as `ApprovalID`. The host never signs a contract on an
+approval of a request another node filed, and never for another identity. An
+app moved to another node files a new request there.
+
+Registration stays local: [`apphost.register`](ops/apphost.register.md) issues
+the identity and the access token at once, and files one contract request for
+`mod.auth.serve_apps_action`, `mod.auth.use_blueprints_action` and the permits
+the registration asks. Only the permits wait in SwarmState. The host checks
+SwarmState for answers every 5 seconds, and indexes the contract it signs.
+
+Two `apphost.yaml` keys tune contract requests. An omitted key, or `0`, keeps
+the default:
+
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `contract_requests_per_node` | `64` | The most new contract requests the node files in a sliding window of 1 hour, all apps together. The limit per requesting identity, 4, is fixed. |
+| `contract_request_poll` | `5s` | How often the host checks SwarmState for answers to the requests it filed. A duration such as `500ms`. |
+
+```yaml
+contract_requests_per_node: 64
+contract_request_poll: 5s
+```
+
+A device keeps the defaults. A test world that registers many apps on one node
+within the hour raises the first and shortens the second.
 
 ## Node states and the manager
 
@@ -143,9 +131,7 @@ it holds a token. A node whose `apphost.yaml` supplies its own lists adds
 The `unclaimed` list holds [`apphost.bind`](ops/apphost.bind.md),
 [`apphost.register_handler`](ops/apphost.register_handler.md) and
 [`apphost.cancel`](ops/apphost.cancel.md), so an app with a token serves before the
-claim. The manager answers the policies delegated to it only through its handler,
-an invitation from the owner's other device among them. The `tokenless` list holds
-none of the three.
+claim. The `tokenless` list holds none of the three.
 
 The `unclaimed` list holds
 [`nodes.resolve_endpoints`](../nodes/ops/nodes.resolve_endpoints.md), so the

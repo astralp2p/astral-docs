@@ -1,6 +1,6 @@
 # mod.apphost.grant_request
 
-The grants a caller asks [`apphost.grant`](../ops/apphost.grant.md) to write
+The grants a caller asks `apphost.grant` (removed) to write
 for one identity. Each permit becomes one node-local grant.
 
 ## Fields

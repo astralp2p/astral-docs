@@ -45,7 +45,7 @@ node. A setting lives in `<name>.yaml` in the node's config directory.
 * `listen` in `ether.yaml` takes effect at the next start.
 * The app register policy refuses every registration by default. A delegate
   set by
-  [`apphost.set_app_register_policy`](../protocols/apphost/ops/apphost.set_app_register_policy.md)
+  `apphost.set_app_register_policy` (removed)
   or `policies.app_register: accept_all` admits registrations
   ([Node Policies](node-policies.md)).
 * Any page open in a local browser reaches `/.ws`. On a `fresh` node, that page
@@ -84,14 +84,14 @@ link. A linked peer that holds no grant reaches these operations:
   Before the claim `user.contract` answers `no active contract`.
 * On a `fresh` or `unclaimed` node only:
   [`user.accept_contract`](../protocols/user/ops/user.accept_contract.md),
-  [`user.accept_membership`](../protocols/user/ops/user.accept_membership.md),
+  `user.accept_membership` (removed),
   and [`user.info`](../protocols/user/ops/user.info.md), which answers the
   node's `State` and `Manager`. The apphost gate does not apply to a linked
   peer.
   The default swarm invite policy, `reject_all`, declines an invitation from a
   linked peer ([Node Policies](node-policies.md#before-the-claim)).
 * On a claimed node only:
-  [`user.request_membership`](../protocols/user/ops/user.request_membership.md).
+  `user.request_membership` (removed).
   The default swarm join policy, `reject_all`, declines the peer. Under
   `accept_all`, the node signs the peer a swarm membership contract. A swarm member passes the checks that admit the user's nodes, such
   as [`mod.auth.admin_network_action`](../protocols/auth/types/mod.auth.admin_network_action.md).

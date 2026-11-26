@@ -1,9 +1,9 @@
 # mod.apphost.grant
 
 One node-local grant, as
-[`apphost.list_grants`](../ops/apphost.list_grants.md) reports it. A grant
+`apphost.list_grants` (removed) reports it. A grant
 authorizes its permit on one node and travels nowhere. `ID` names the grant to
-[`apphost.revoke`](../ops/apphost.revoke.md).
+`apphost.revoke` (removed).
 
 ## Fields
 

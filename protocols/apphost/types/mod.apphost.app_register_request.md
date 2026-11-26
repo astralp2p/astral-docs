@@ -3,7 +3,7 @@
 The registration an app register policy decides. The node builds it from the
 caller's [`mod.apphost.register_request`](mod.apphost.register_request.md) and
 fills `Origin`. A delegate set by
-[`apphost.set_app_register_policy`](../ops/apphost.set_app_register_policy.md)
+`apphost.set_app_register_policy` (removed)
 reads one from its input stream for each
 [`apphost.register`](../ops/apphost.register.md) call.
 

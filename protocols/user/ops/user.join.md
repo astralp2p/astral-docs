@@ -1,18 +1,28 @@
 # user.join
 
-Ask a node of a swarm to admit this node, which has no active contract. The node sends
-[`user.request_membership`](user.request_membership.md) to the node `node`
-names, as itself, with the `Network` [`Zone`](../../../core-definitions/zone.md).
-The swarm node's join policy decides the request. On admission the swarm node
-issues a membership contract signed by its user and sends it to this node's
-[`user.accept_membership`](user.accept_membership.md). This node's invite policy
-decides the invitation; on acceptance this node signs as the subject, stores the
-contract and sets it as the active contract. The reply is the signed contract
-the swarm node returns.
+Ask to join a user's swarm through `node`, a `trusted` or `privileged_member`
+node of that swarm, its carrier. This node has no active contract. It signs a
+[`mod.user.signed_join_request`](../types/mod.user.signed_join_request.md)
+naming itself as `Joiner`, `node` as `Carrier` and `tier` as `Tier`, with the
+default timeout of 1 hour, and keeps it in its tree until the join ends. It
+sends the request to the carrier's [`user.carry_join`](user.carry_join.md) as
+itself, with the `Network` [`Zone`](../../../core-definitions/zone.md), and
+waits while the carrier waits for the answer in SwarmState.
 
-`user.join` is the joining node's side of a membership. The swarm node's side is
-[`user.adopt`](user.adopt.md), which sends the same contract to
-`user.accept_membership` without a request.
+* On an approval, the carrier hands over the membership it signed, and the
+  user identity. This node stores the user identity, activates the membership,
+  adds it to SwarmState and pulls SwarmState from the carrier. The reply is the
+  membership.
+* At tier `privileged_member` the user key signs the membership in a ceremony
+  instead: on a Coldcard the user presses the device; with a software user key
+  on the carrier, the user confirms with
+  [`user.confirm_join`](user.confirm_join.md).
+* A decline, the request's timeout, or a carrier that may not carry the request
+  ends the join, and this node forgets the request.
+* Any other failure, such as a dropped connection, keeps the request: the next
+  `user.join` through the same carrier at the same tier resends the same
+  request, with the same entry ID, and an answer given in between still counts
+  within the request's hour. A join through another carrier is a new request.
 
 The node refuses the query in these cases, in this order:
 
@@ -79,15 +89,18 @@ this way.
 [User and Swarm, The route between the nodes](../../../topics/user-and-swarm.md#the-route-between-the-nodes)
 shows the commands.
 
-The join policy of the swarm node and the invite policy of this node decline
-everything by default ([user](../README.md)). The swarm node sets
-`policies.swarm_join` and this node sets `policies.swarm_invite` to
-`accept_all`, or names delegates, for the join to succeed.
+Nobody answers a join by default. A `privileged_member` node answers a join
+request at any tier, a `trusted` node only one at tier `member`, with
+[`user.answer_request`](user.answer_request.md); the request is listed by
+[`user.swarm_requests`](user.swarm_requests.md).
 
 ## Arguments
 
-* node (string8) – The node of the swarm to join: a hex public key or a name,
-  resolved as [`dir.resolve`](../../dir/ops/dir.resolve.md) does. Required.
+* node (string8) – The carrier: a `trusted` or `privileged_member` node of the
+  swarm to join, as a hex public key or a name, resolved as
+  [`dir.resolve`](../../dir/ops/dir.resolve.md) does. Required.
+* tier (string8) – The tier asked for: `member` (the default), `trusted` or
+  `privileged_member`.
 * in (string) – Optional input stream format (e.g. `json`).
 * out (string) – Optional output stream format (e.g. `json`).
 
@@ -95,22 +108,27 @@ everything by default ([user](../README.md)). The swarm node sets
 
 The query is answered with the `error_message` named in the cases above.
 Otherwise the operation returns one of:
-* A `mod.auth.signed_contract` holding the membership contract. The node holds
-  it as its active contract.
-* An `error_message` reading `request declined` if the swarm node's join policy
-  declines this node.
-* An `error_message` reading `invitation declined` if this node's invite policy
-  declines the contract.
+* A `mod.auth.signed_contract` holding the membership. The node holds it as its
+  active contract.
+* An `error_message` reading `invalid tier` if `tier` names no tier.
+* An `error_message` reading `join request declined` or `join request expired`
+  when the request is declined or times out.
+* An `error_message` reading `join request names another carrier` or `only a
+  trusted or privileged member carries a join request` when the carrier may
+  not carry it.
+* An `error_message` reading `a privileged membership needs the user key's
+  signature` when the carrier reaches no user key for a `privileged_member`
+  join.
 * An `error_message` reading `route not found` if this node knows no route to
   the swarm node after the wait.
-* An `error_message` reading `no active contract` if the swarm node has no
-  active contract.
-* An `error_message` if the swarm node cannot be reached, or if issuing,
-  signing or storing the contract fails.
+* An `error_message` reading `no active contract` if the carrier has no active
+  contract.
+* An `error_message` if the carrier cannot be reached, or if signing, storing
+  or activating the membership fails.
 
 ## Examples
 
 ```shellsession
-$ astral-query user.join -node 03b1... -out json
+$ astral-query user.join -node 03b1... -tier member -out json
 {"Type":"mod.auth.signed_contract","Object":{...}}
 ```

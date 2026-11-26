@@ -12,15 +12,43 @@ be indexed by the `auth` module.
 * Subject (identity) – Identity receiving the permissions.
 * Permits ([mod.auth.permit]) – List of permits granted by this contract.
 * ExpiresAt (time) – Time at which the contract stops being active.
+* ApprovalID (object_id, optional) – Entry ID of the stored
+  [`mod.user.signed_approval`](../../user/types/mod.user.signed_approval.md)
+  this contract carries out, not the ID of the unsigned approval body. `null`
+  when the contract carries out no approval, for example a membership the user
+  key signs directly.
+
+Fields encode in order, without tags. ApprovalID comes last, so the earlier
+fields keep their offsets, but adding it changed the encoding and object ID of
+every contract: a contract encoded before ApprovalID existed no longer decodes.
 
 A contract grants an action if any of its permits matches the action's
 object type and the action's constraint evaluation (if any) accepts the
 permit's `Constraints` bundle.
 
-The signable form of a contract is the human-readable string
-`<issuer> grants <subject> permissions until <YYYY-MM-DD HH:MM:SS>`, used
-when signing with text-only schemes (e.g. `bip137`); binary schemes
-(e.g. `asn1`) sign the contract's object ID.
+On a node with a swarm, a contract whose `ApprovalID` is `null` and whose issuer
+is not the user key grants none of the user's authority: no
+[`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
+for the user, no
+[`mod.user.admin_swarm_action`](../../user/types/mod.user.admin_swarm_action.md),
+no [`mod.auth.sudo_action`](mod.auth.sudo_action.md) as the user and no
+[`mod.user.expel_action`](../../user/types/mod.user.expel_action.md), whatever
+its permits say. Its other permits grant as before. An app's relay contract
+names the app itself and is not affected.
+
+The signable form of a contract is one ASCII line, used when signing with
+text-only schemes (e.g. `bip137`):
+
+```
+<issuer> grants <subject> [<word> ]permits (<n>) until <YYYY-MM-DD hh:mm:ss>
+```
+
+`<n>` is the number of permits and the time is ExpiresAt. `<word>` is the
+first valid permit word among the permits' actions, such as the tier of a
+membership (`member`, `trusted` or `privileged_member`), and is absent when no
+action declares one. A word is valid when it is 1 to 17 bytes of `a`–`z` and
+`_`. The signer's commitment binds everything else, ApprovalID included.
+Binary schemes (e.g. `asn1`) sign the contract's object ID.
 
 ## Example
 
@@ -33,7 +61,8 @@ when signing with text-only schemes (e.g. `bip137`); binary schemes
     "Permits": [
       { "Action": "mod.user.see_swarm_action" }
     ],
-    "ExpiresAt": "2027-05-27T12:00:00+02:00"
+    "ExpiresAt": "2027-05-27T12:00:00+02:00",
+    "ApprovalID": null
   }
 }
 ```

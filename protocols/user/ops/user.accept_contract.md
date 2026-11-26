@@ -1,14 +1,17 @@
 # user.accept_contract
 
-Activate a fully-signed contract as the node's active contract. Answers an `error_message` reading `node already claimed` if the node already has an active contract. The contract is validated — both signatures, subject identity match, an issuer distinct from the subject, remaining validity, and a swarm-membership permit — then decided by the contract accept policy, then stored and set as the active contract. It is the activation step for node setup and the cold-card path, where the contract is already signed by both parties; the interactive counterpart is `user.accept_membership`.
-
-The contract accept policy decides in this order: a delegate stored by
-[`user.set_contract_accept_policy`](user.set_contract_accept_policy.md), else the
-config value `policies.contract_accept` in `user.yaml`, else the code default
-`reject_all`, which declines every contract. A delegate is an operation of
-another identity, which receives a
-[`mod.user.contract_accept_request`](../types/mod.user.contract_accept_request.md).
-The wait for the delegate also ends when the caller disconnects.
+Activate a privileged membership the user key signed for this node, and this
+node countersigned, as the node's active contract. Answers an `error_message`
+reading `node already claimed` if the node already has an active contract. The
+contract is validated — the issuer's signature, subject identity match, an
+issuer distinct from the subject, remaining validity, exactly one tier permit
+(`contract is not a membership` otherwise), the tier `privileged_member`
+(`contract is not a privileged membership`), and this node's subject signature
+(`contract lacks this node's signature`) — then stored and set as the active
+contract. It is the activation step for node setup and the cold-card path: the
+user key signs in the ceremony, and this node signs as subject only through
+[`auth.sign_contract`](../../auth/ops/auth.sign_contract.md), whose claim rule
+decides who may claim it. No policy is asked.
 
 ## Arguments
 

@@ -4,8 +4,7 @@ Provision a fresh App identity and appoint it the node's
 [manager](../README.md#manager). The operation provisions the identity as
 [`apphost.register`](../../apphost/ops/apphost.register.md) does: a new keypair, an app contract
 between the new identity and the node, and an access token. The node then
-binds the policies the request names to the new identity and records the
-appointment. Only a `fresh` node ([Node states](../README.md#node-states))
+records the appointment. Only a `fresh` node ([Node states](../README.md#node-states))
 appoints a manager. Local-only — a query from the network is answered
 `origin not allowed: network`.
 
@@ -13,27 +12,21 @@ After accepting the query, the operation reads one
 [`mod.sys.register_manager_request`](../types/mod.sys.register_manager_request.md)
 from the channel. `Name`, `GrantPermits` and `ContractPermits` mean what they
 mean in a [`mod.apphost.register_request`](../../apphost/types/mod.apphost.register_request.md).
-`Policies` lists the policies the manager decides, one
-[`mod.sys.policy_binding`](../types/mod.sys.policy_binding.md) each.
+`Policies` must be empty: the five policies are requests in SwarmState, which a
+node answers with [`user.answer_request`](../../user/ops/user.answer_request.md).
 
 The operation checks the request before it changes anything:
 
 * Every permit of both lists passes the permit check of
-  [Grants](../../apphost/README.md#grants).
-* Every binding names one of `app_register`, `grant_request`, `swarm_join`,
-  `swarm_invite` and `contract_accept`, and no name appears twice.
-* Every binding names an operation.
-* Every binding's `Timeout` lies in 0 to 10 minutes.
-* A binding of `swarm_join`, `swarm_invite` or `contract_accept` requires the
-  `user` module.
+  [Permits](../../apphost/README.md#permits).
+* The request binds no policy.
 
-The app register policy is not asked. The node writes node-local grants of
-[`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md)
-and
+No contract request is filed: the `fresh` node is its own root and signs one
+node→app contract holding
+[`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md),
 [`mod.auth.use_blueprints_action`](../../auth/types/mod.auth.use_blueprints_action.md),
-every permit of `GrantPermits` as a node-local grant, and every permit of
-`ContractPermits` in a signed node→app contract. Every grant and the contract
-expire with the access token.
+every permit of `GrantPermits` and every permit of `ContractPermits`. The
+contract expires with the access token.
 `ContractPermits` may hold
 [`mod.auth.sudo_action`](../../auth/types/mod.auth.sudo_action.md): the node
 signs it, although [`apphost.register`](../../apphost/ops/apphost.register.md)
@@ -41,8 +34,7 @@ refuses it.
 
 The node writes the manager record at `/mod/sys/manager` last and answers
 the access token. The node is then `unclaimed`. A failure before the record is
-written leaves the node `fresh`. A repeat call binds every policy again, so it
-replaces the delegates a failed call stored.
+written leaves the node `fresh`.
 
 Calls run one at a time. Of two concurrent calls on a `fresh` node, one
 appoints the manager and the other answers `node is not fresh`.
@@ -72,17 +64,8 @@ The operation returns one of:
   `unexpected object: eos` for an `eos`.
 * An `error_message` object reading `invalid permit: <action>: <detail>`, or
   `invalid permit: missing action`, if a permit fails the check.
-* An `error_message` object reading `unknown policy: <name>` if a binding names
-  another policy.
-* An `error_message` object reading `policy bound twice: <name>` if two
-  bindings name one policy.
-* An `error_message` object reading `policy <name>: no operation named` if a
-  binding names no operation.
-* An `error_message` object reading `policy <name>: timeout outside 0..10m0s`
-  if a binding's `Timeout` is negative or above 10 minutes.
-* An `error_message` object reading
-  `policy <name>: the user module is not loaded` if a binding names a `user`
-  policy on a node without the `user` module.
+* An `error_message` object reading `policies are removed: answer the requests
+  in SwarmState with user.answer_request` if `Policies` is not empty.
 * An `error_message` object reading `node is not fresh` if the node has a
   manager, has an active contract, or has held one before.
 * An `error_message` object if any later step failed. The node stays `fresh`.

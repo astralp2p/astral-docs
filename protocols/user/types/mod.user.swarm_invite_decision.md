@@ -2,7 +2,7 @@
 
 A swarm invite policy's answer to a
 [`mod.user.swarm_invite_request`](mod.user.swarm_invite_request.md). A delegate
-set by [`user.set_swarm_invite_policy`](../ops/user.set_swarm_invite_policy.md)
+set by `user.set_swarm_invite_policy` (removed)
 writes one to its output stream.
 
 ## Fields
