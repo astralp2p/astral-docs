@@ -18,8 +18,7 @@ to the individual operations.
 
 ## Permits
 
-An app holds no node-local grant. Every action an app takes, on its own node or
-another, is authorized by its contract chain: a contract from its host that
+Every action an app takes, on its own node or another, is authorized by its contract chain: a contract from its host that
 carries out an Approval, back to the user
 ([user, SwarmState](../user/README.md#swarmstate-entries)). The node keeps no
 grant table; a node upgraded from a release that kept one drops

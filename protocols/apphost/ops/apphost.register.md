@@ -9,7 +9,7 @@ After accepting the query, the operation reads one
 [`mod.apphost.register_request`](../types/mod.apphost.register_request.md) from
 the channel. The request carries the name the app gives itself and the permits
 it asks to hold, with their constraints, in `GrantPermits` and
-`ContractPermits`. Both lists mean the same: no node-local grant exists
+`ContractPermits`. Both lists go into the one contract request
 ([Permits](../README.md#permits)).
 
 The operation checks every permit of both lists first

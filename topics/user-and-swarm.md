@@ -51,8 +51,12 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
 * The user and every member may read the swarm, for example with
   [`user.info`](../protocols/user/ops/user.info.md) and
   [`user.list_siblings`](../protocols/user/ops/user.list_siblings.md).
-* The user may change the swarm: answer a node's request to join, or expel
-  one for good with [`user.expel`](../protocols/user/ops/user.expel.md).
+* The user may answer a node's request to join with
+  [`user.answer_request`](../protocols/user/ops/user.answer_request.md), and
+  so may a `privileged_member` node or an unclaimed node, its own swarm root;
+  the answering node answers only within its tier.
+* Only the user may expel a node for good, with
+  [`user.expel`](../protocols/user/ops/user.expel.md).
 
 [user](../protocols/user/README.md) describes the protocol.
 

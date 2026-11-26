@@ -8,12 +8,16 @@ matches a permit to the action by object type.
 
 One action gates every read op in the `user` protocol except `user.contract`
 — `user.info`, `user.assets`, `user.sync_assets`, `user.list_siblings`,
-`user.swarm_status` and `user.list_expelled`. Between them they answer one
-question: who and what belongs to this swarm. `user.new_node_contract` asks it when `user` is omitted on
+`user.swarm_status`, `user.list_expelled` and `user.swarm_requests`. Between
+them they answer one question: who and what belongs to this swarm. `user.new_node_contract` asks it when `user` is omitted on
 a node with an active contract, since its default user is the active contract's
 issuer. [`user.contract`](../ops/user.contract.md) asks for no action: it
 answers the active contract to every caller that holds a direct link to the
 node.
+
+The user holds this action, and so does every current member of the swarm,
+at any tier, so members may see the requests to join. A `privileged_member`
+node also holds it through the swarm root ([auth](../../auth/README.md)).
 
 A permit carrying constraints is refused. This action evaluates no constraint,
 so honouring a narrowed permit would grant it in full.

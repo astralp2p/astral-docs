@@ -16,7 +16,7 @@ An [`Identity`](../../../core-definitions/identity.md) is a public key, so
 signing under another party's key is that party acting rather than a capability
 of its own, and the signing operations name this action instead of one of their
 own. A signature outlives the node's decision to produce it: it verifies on
-every node for as long as the key lives, so a contract or grant signed under a
+every node for as long as the key lives, so a contract signed under a
 key the caller does not hold is genuine rather than merely accepted.
 
 The node's own key is refused on the self branch. A local caller that presents no

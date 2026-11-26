@@ -50,8 +50,9 @@ sibling_sync_disabled: false
 
 Two actions gate the protocol. `mod.user.see_swarm_action` covers every read
 except `user.contract` — `user.info`, `user.assets`, `user.sync_assets`,
-`user.list_siblings`, `user.swarm_status` and `user.list_expelled` — and
-`user.new_node_contract` when `user` is omitted on a claimed node.
+`user.list_siblings`, `user.swarm_status`, `user.list_expelled` and
+`user.swarm_requests` — and `user.new_node_contract` when `user` is omitted on
+a claimed node. The user and every current member, at any tier, hold it.
 `user.contract` asks for no action and answers every directly linked caller.
 `user.relay_contracts` and `user.relay_digest` ask for no action and answer only
 the other members of the local swarm.

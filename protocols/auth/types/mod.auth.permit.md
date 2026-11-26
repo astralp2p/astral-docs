@@ -6,7 +6,6 @@ optionally, a bundle of constraints that narrow the grant.
 A permit is carried by a `mod.auth.contract`, which is signed and portable, or
 asked for in a
 [`mod.user.contract_request`](../../user/types/mod.user.contract_request.md).
-No node records a node-local grant.
 
 ## Fields
 
