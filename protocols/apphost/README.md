@@ -20,9 +20,7 @@ to the individual operations.
 
 Every action an app takes, on its own node or another, is authorized by its contract chain: a contract from its host that
 carries out an Approval, back to the user
-([user, SwarmState](../user/README.md#swarmstate-entries)). The node keeps no
-grant table; a node upgraded from a release that kept one drops
-`apphost__grants` at start.
+([user, SwarmState](../user/README.md#swarmstate-entries)).
 
 `apphost.register` and `apphost.request_contract` check every permit they
 receive before anything is filed. A permit that fails the check refuses the
