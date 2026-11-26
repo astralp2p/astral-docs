@@ -5,25 +5,24 @@ for the actor to change what the swarm is: which nodes belong to it, and which
 objects it carries. When evaluating the request the auth module matches a permit
 to the action by object type.
 
-One action gates every mutating op in the `user` protocol — `user.adopt`,
-`user.expel`, `user.introduce`, `user.add_asset`, `user.remove_asset` and
-`user.sync_with`.
-Membership and the asset set are one authority: both decide what the swarm
-holds, and both propagate from this node to every sibling.
+One action gates the swarm-administering ops in the `user` protocol:
+`user.answer_request`, `user.introduce`, `user.add_asset`,
+`user.remove_asset` and `user.sync_with`. The user identity holds it, and so
+does the swarm root: a node holding a `privileged_member` membership the user
+key signed, or an unclaimed node, which is its own root.
 
 Subject and ObjectID declare the nouns a call touches. Neither is evaluated. A
 permit carrying constraints is refused, so honouring a narrowed permit would
 grant it in full.
 
-This action replaced `mod.user.adopt_action` and `mod.user.expel_action`.
-[`mod.user.expel_action`](mod.user.expel_action.md) is defined again, because
-expelling is the one action a `privileged_member` membership does not cover; no
-operation asks for it yet, and `user.expel` still asks for this action.
+`user.expel` asks for [`mod.user.expel_action`](mod.user.expel_action.md)
+instead, because expelling is the one action a `privileged_member` membership
+does not cover.
 
 ## Fields
 
 * Action ([`mod.auth.action`](../../auth/types/mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID.
-* Subject (identity) – Identity of the node being adopted, expelled, introduced to or synced with. Zero for an asset call.
+* Subject (identity) – Identity of the node introduced to or synced with, or the identity the answered request names. Zero for an asset call.
 * ObjectID (object_id) – ID of the asset being added or removed. Zero for a membership call.
 
 In JSON the embedded action's fields appear directly in the `Object` value,

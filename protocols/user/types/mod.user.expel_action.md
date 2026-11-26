@@ -4,8 +4,8 @@ A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission
 for the actor to expel Subject from the swarm. It is the one action a
 `privileged_member` membership does not cover: only the user key expels.
 
-No operation asks for this action yet; [`user.expel`](../ops/user.expel.md)
-still asks for [`mod.user.admin_swarm_action`](mod.user.admin_swarm_action.md).
+[`user.expel`](../ops/user.expel.md) asks for this action. Only the user
+identity holds it: the swarm root never answers it.
 
 A permit carrying constraints is refused. This action evaluates no constraint.
 
