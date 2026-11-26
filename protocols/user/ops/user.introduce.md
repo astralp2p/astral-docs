@@ -9,8 +9,8 @@ becomes a member of the named node's
 
 `user.introduce` brings a node claimed with the user's words back into the
 user's swarm. [`user.bootstrap`](user.bootstrap.md) leaves the node holding
-its own contract alone: no other member holds that contract, and a node
-synchronises with a linked node only when it holds that node's contract
+its own contract alone: no other member lists that node, and a node
+synchronises with a linked node only when its local swarm lists that node
 ([user](../README.md)). [User and Swarm, Replacing a node](../../../topics/user-and-swarm.md#replacing-a-node)
 shows the whole path.
 
@@ -47,16 +47,13 @@ After an accepted offer the node pulls the named node's SwarmState
 synchronisation with the named node and answers `ack`. A pull that fails does
 not change the answer. The named node passes the stored membership on to its
 peers, so the other members learn this node through SwarmState. The answer does not wait for the synchronisation. The named
-node, which now holds this node's contract and is linked to this node,
-synchronises with this node as well. That synchronisation pushes the named
-node's contract, the user's expulsions and the contracts of the other members
-to this node. This node then links to the other members and synchronises
-with each of them, and each member synchronises back once it holds this node's
-contract.
+node, which now lists this node and is linked to it, synchronises with this
+node as well. That synchronisation pushes the user's expulsions and pulls this
+node's SwarmState entries; it pushes no membership contracts. This node learns
+the other members from the SwarmState it pulled, links to them and
+synchronises with each of them, and each member synchronises back once its
+local swarm lists this node.
 
-* The named node's synchronisation is the only step that brings the other
-  members' contracts to this node. No step of this node's own synchronisation
-  reads contracts from the named node.
 * A named node that does not synchronise when an offered membership admits a
   linked node ([user](../README.md)) synchronises with this node at its next
   new link to this node. Running `user.introduce` again after closing the link

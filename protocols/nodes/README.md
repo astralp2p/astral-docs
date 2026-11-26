@@ -55,14 +55,6 @@ subject.
   periodic triggers together; a request during a pull starts at most one more
   pull after it. Each of these pulls is bounded to 20 s. A failed pull is logged and not
   retried before its next trigger.
-* When a pushed membership contract reaches the node, the node pulls the
-  endpoints of the contract's subject from the sender. When the sender is the
-  contract's subject and the subject was not yet in the node's local swarm, the
-  node first pushes the contract to every member of its local swarm it holds a
-  link with, except the subject, waiting for each push (bounded to 15 s), and
-  then forwards the [first-hand notice](#first-hand-notice) of the subject. A
-  contract the node already held, and a contract pushed by any other sender,
-  forward nothing.
 * When the node's local swarm lists a member for the first time, as when its
   membership arrives through [SwarmState](#swarmstate), the node learns that
   member's endpoints. When it holds a link with the member, it makes a
@@ -81,19 +73,16 @@ subject.
 ### First-hand notice
 
 * A first-hand pull is a pull of a member's endpoints from that member itself.
-  A node starts one on its first link to a member and on a membership contract
-  that the subject itself pushes, which is how a node that joins with
-  `user.introduce` reaches its first sibling before that sibling lists it in its
-  local swarm.
+  A node starts one on its first link to a member and when its local swarm
+  lists a linked member for the first time through
+  [SwarmState](#swarmstate).
 * After a first-hand pull ends, the node forwards one
   [`mod.nodes.endpoints_changed_message`](types/mod.nodes.endpoints_changed_message.md)
   with `Subject` set to that member, as in step 4 of
   [Receiving an announcement](#receiving-an-announcement): to every member of the
   node's local swarm the node holds a link with, except that member, each push
   bounded to 15 s. A failed push is not retried.
-* A member accepts the message only for a subject its local swarm lists. The
-  node therefore gives the members the subject's contract before it forwards the
-  notice of a subject that joined with a contract.
+* A member accepts the message only for a subject its local swarm lists.
 * The node forwards whether or not the pull stored a new row, because a member
   that linked to the subject first already holds its rows and its own siblings
   still need the notice.

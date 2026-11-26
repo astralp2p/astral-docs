@@ -35,11 +35,11 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
 * A node is a member while its membership holds in SwarmState: the user key
   signed it, or a carrier signed it to carry out an approval of its join, and
   the user has not expelled the node.
-* Each time a node gains a link to another member, the two exchange the
-  contracts that prove membership, the user's expulsions, the relay contracts
-  of the apps the members host, and the user's asset list. A node that is
-  already linked to a node when that node's first membership contract reaches it
-  synchronises with that node as well, and so does a node whose link to a
+* Each time a node gains a link to another member, the two exchange the user's
+  expulsions, the SwarmState entries the other lacks, the relay contracts of
+  the apps the members host, and the user's asset list. A node that is already
+  linked to a node when its local swarm first lists that node through
+  SwarmState synchronises with that node as well, and so does a node whose link to a
   member closes while another link to that member remains.
 * A node pushes the user's expulsions to an expelled node at each new link to
   it, and to every linked member and every linked expelled node every
@@ -352,10 +352,11 @@ introduces itself ([user](../protocols/user/README.md)). Where the nodes share
 no local network, `user.introduce` introduces them.
 
 [`user.introduce`](../protocols/user/ops/user.introduce.md) `-identity <member>`
-on the new node pushes the new node's contract to one running member, and the
-two synchronise. The member sends the contracts of the other members and the
-user's expulsions. The new node then links to the other members and
-synchronises with each of them.
+on the new node offers the new node's membership to the SwarmState of one
+running member, and the two synchronise. The new node pulls the member's
+SwarmState, which lists the other members, and the member pushes the user's
+expulsions. The new node then links to the other members and synchronises with
+each of them.
 
 The commands below run on the new node. The manager claims it with the user's
 words, and the user's token from the claim adds an endpoint of a running

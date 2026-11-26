@@ -8,8 +8,9 @@ before the caller is authorized, and no repository is registered.
 The caller must hold
 [`mod.auth.admin_objects_action`](../../auth/types/mod.auth.admin_objects_action.md).
 The operation answers an `error_message` reading `not permitted` when the caller
-is not authorized. The user identity and the node's own identity hold the action
-by default; a sibling node does not.
+is not authorized. The user identity and the node's own identity hold the action by default. A
+`privileged_member` node of the node's swarm holds it through the swarm root; a
+node member of another tier does not.
 
 Unless `temporary` is `true`, the repository is saved to the tree at `/mod/fs/repos/<name>` and registered again at the next node start. The entry holds the child nodes `path` (`string8`), `label` (`string8`) and `writable` (`bool`, `false`). [`objects.remove_repository`](../../objects/ops/objects.remove_repository.md) deletes the entry.
 

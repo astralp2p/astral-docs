@@ -43,8 +43,9 @@ endpoint on a public address has a TTL of 7 days. An interface endpoint on any
 other address (private, CGNAT, ULA, link-local) has a TTL of 2 hours; kcp uses
 the same two TTLs. A sibling stores the advertised endpoints with their TTLs
 each time a link between the two nodes forms while no other link between them
-is open. A sibling that receives the node's contract from another
-member asks that member for the node's endpoints and stores them as well. A
+is open. A sibling whose local swarm lists the node for the first time through
+SwarmState asks a linked member for the node's endpoints and stores them as
+well. A
 sibling's
 [`nodes.resolve_endpoints`](../nodes/ops/nodes.resolve_endpoints.md) of the
 node then lists the entry next to the node's interface endpoints, each with

@@ -11,8 +11,9 @@ A repository created by either op is saved to the tree under `/mod/fs/repos/<nam
 Both ops answer to
 [`mod.auth.admin_objects_action`](../auth/types/mod.auth.admin_objects_action.md):
 attaching a directory makes every file under it an addressable object, so the
-grant reaches further than the repository it names. The user identity and the
-node's own identity hold the action by default; a sibling node does not.
+grant reaches further than the repository it names. The user identity and the node's own identity hold the action by default. A
+`privileged_member` node of the node's swarm holds it through the swarm root; a
+node member of another tier does not.
 
 ## Writable repositories
 

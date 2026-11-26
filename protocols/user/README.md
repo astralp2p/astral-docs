@@ -33,8 +33,8 @@ needs `mod.user.expel_action`, signs the ban with the user key and adds it to
 SwarmState; the list of bans is inspectable via `user.list_expelled`. Banned
 nodes hold a `mod.user.signed_expulsion`.
 
-The user module applies no admission policy. A join, an invitation and an app's
-permits are requests in SwarmState that a node with the right tier answers
+A node's join, an app's contract request and an expel request are requests in
+SwarmState that a node with the right tier answers
 ([SwarmState entries](#swarmstate-entries)).
 
 A node emits a
@@ -64,15 +64,15 @@ applies another node's entries to this one, and `user.answer_request`.
 `mod.user.admin_swarm_action` included ([auth](../auth/README.md)).
 
 Each time a node gains a link to a swarm member, inbound or outbound, it
-synchronises with it, in this order: it pushes the active contract, the user's
-expulsions and the membership contracts of the other members, pulls the
+synchronises with it, in this order: it pushes the user's expulsions, pulls
+the member's [SwarmState](#swarmstate-entries) entries it lacks, pulls the
 member's alias, pushes the relay contracts of the apps the swarm's members
 host that the member lacks, and pulls the member's asset updates. Every new
-link runs the synchronisation, not only the first link to the member. The alias and asset
-pulls query the member as the user, and the member admits them only once it
-holds this node's contract. A node also synchronises with a linked node when a
-pushed membership contract admits that node to its local swarm, because the
-link to that node preceded the contract. A node also synchronises with a
+link runs the synchronisation, not only the first link to the member. The
+alias pull queries the member as this node, and the member answers it only
+once its local swarm lists this node. A node also synchronises with a linked
+node when its local swarm lists that node as a member for the first time
+through SwarmState, because the link to that node preceded the membership. A node also synchronises with a
 member when one of its links to the member closes and another link to the
 member remains. A new link to a member makes the node probe its older links to
 that member ([Link Mux, Keepalive](../../topics/link-mux.md#keepalive)), so a
