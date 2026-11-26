@@ -11,12 +11,17 @@ relies on.
 
 A user is a person, represented on the network by an
 [`Identity`](../core-definitions/identity.md): a key derived from words the
-person keeps. A user sends no queries itself. It acts through the nodes it
-controls, and it proves that control by signing a
-[`Contract`](../core-definitions/contract.md) with each node: the user is the
-issuer, the node is the subject, and the contract says "this node acts for
-me". A node holding such a contract, active and unexpired, is `claimed`, and
-the issuer is its owner.
+person keeps. A user sends no queries itself. It acts through the nodes of
+its swarm. Each node holds a membership: a
+[`Contract`](../core-definitions/contract.md) whose subject is the node and
+whose one permit names its tier, `member`, `trusted` or `privileged_member`.
+The user key signs a `privileged_member` membership itself; the claim
+contract is one. A `trusted` or `privileged_member` node that carries another
+node's join signs that node's `member` or `trusted` membership, which names
+the approval it carries out ([user, Memberships](../protocols/user/README.md#memberships)).
+A node holding a membership, active and unexpired, is `claimed`, and the user
+is its owner: the issuer of a user-signed membership, or the user identity the
+node stores beside a carrier-signed one.
 
 The node keeps the user's private key once claimed, so it can sign as the
 user, for example when it brings another node into the swarm.
@@ -27,8 +32,9 @@ A swarm is a group of nodes that check each other's membership themselves.
 The nodes one user owns form that user's swarm. From a node's point of view,
 the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm.md).
 
-* A node is a member while it holds an active membership contract the user
-  signed. The claim contract is one.
+* A node is a member while its membership holds in SwarmState: the user key
+  signed it, or a carrier signed it to carry out an approval of its join, and
+  the user has not expelled the node.
 * Each time a node gains a link to another member, the two exchange the
   contracts that prove membership, the user's expulsions, the relay contracts
   of the apps the members host, and the user's asset list. A node that is
@@ -53,8 +59,8 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
 ## Claiming a node
 
 Claiming makes a user the owner of a node that has none: afterwards the node
-holds the user's private key and an active node contract that the user issues
-to the node. The claim runs as [one call](#one-call), or
+holds the user's private key and an active privileged membership, which the
+user key signs for the node. The claim runs as [one call](#one-call), or
 [step by step](#step-by-step) with the same contract and the same rules.
 
 ### The user key

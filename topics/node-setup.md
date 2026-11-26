@@ -54,8 +54,8 @@ manager to any session the gate lets through.
 * `fresh` – no manager, and no user has ever owned the node.
 * `unclaimed` – no user owns the node right now, but it has a manager, or a
   user owned it before.
-* `claimed` – a user owns the node: it holds an active contract the user
-  signed.
+* `claimed` – a user owns the node: it holds an active membership of the
+  user's swarm.
 
 A node never goes back to `fresh`. A node whose contract expired, or whose user
 expelled it, is `unclaimed`, so the first local app that comes along cannot
@@ -121,19 +121,22 @@ claim keeps it.
 
 ## Claiming
 
-Claiming makes a user the node's owner. The user signs a contract that says
-"this node acts for me", and the node signs it too. There are three ways in:
+Claiming makes a user the node's owner: the node gets an active membership of
+the user's swarm. There are three ways in:
 
 * **A new user.** The node generates 24 words, the user writes them down, and
   the same words claim the node.
 * **An existing user.** The user types the words they already have.
 * **An existing swarm.** The node asks a node the user already owns to carry
-  its request to join, and the swarm approves it. No words are typed on the
-  new node.
+  its request to join, and the swarm approves it. The carrier signs a
+  `member` or `trusted` membership that names the approval; for a
+  `privileged_member` join the user key signs it instead. No words are typed
+  on the new node.
 
 The first two run as one call,
-[`user.bootstrap`](../protocols/user/ops/user.bootstrap.md), which answers an
-access token for the user. Whoever made the call, the manager in a
+[`user.bootstrap`](../protocols/user/ops/user.bootstrap.md): the user key
+signs the node's `privileged_member` membership, the node signs it too, and
+the call answers an access token for the user. Whoever made the call, the manager in a
 distribution, now holds the user's credential. A node claimed with words the
 user already has holds its own contract alone. Nodes of the same user that
 share a local network find and introduce each other through

@@ -3,9 +3,9 @@
 This page lists the surfaces a fresh astrald node opens, who reaches each
 surface, and the setting that opens or closes it. The values are astrald
 defaults at commit `0f7da199`, checked on a throwaway node; the rule for
-settings set through the tree is from commit `5f17900d`. The apphost gate and
-the node states are read from astrald source at commit `5b4dde12`, and the
-linked-peer operations at commit `9d90aaea`; a node checked them under the E2E
+settings set through the tree is from commit `5f17900d`. The apphost gate,
+the node states, the linked-peer operations and the endpoint exchange are read
+from astrald source at commit `9d90aaea`; a node checked them under the E2E
 overrides only. The ether and
 nearby rows, `user.contract` under [Linked peers](#linked-peers) and the dials
 that nearby triggers follow the ether and nearby specification, not a checked
@@ -113,13 +113,14 @@ in mode `0` (Silent) dials as well, unless `silent_listen` in `nearby.yaml` is
 ## Endpoint exchange
 
 A node's endpoints, and the endpoints it stores for other nodes, are private
-to its user's swarm. This section is read from astrald source at commit
-`5b64abb0`.
+to its user's swarm.
 [`nodes.resolve_endpoints`](../protocols/nodes/ops/nodes.resolve_endpoints.md)
-answers only a holder of
-[`mod.auth.admin_network_action`](../protocols/auth/types/mod.auth.admin_network_action.md):
-the user identity, the node itself, a `privileged_member` node of the swarm,
-or an identity the action is delegated to. A node pulls a peer's endpoints when the
+answers a holder of
+[`mod.auth.admin_network_action`](../protocols/auth/types/mod.auth.admin_network_action.md)
+for any identity: the user identity, the node itself, a `privileged_member`
+node of the swarm, or an identity the action is delegated to. It answers any
+other current member of the swarm only about the members and about this node.
+Expelled nodes are not members. A node pulls a peer's endpoints when the
 first link with the peer forms only when the peer is a member of its own
 swarm. A link with a node outside the swarm, such as a node of another user, a
 gateway outside the swarm or a hosting node, therefore stores no
