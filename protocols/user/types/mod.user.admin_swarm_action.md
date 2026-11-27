@@ -1,13 +1,11 @@
 # mod.user.admin_swarm_action
 
 A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission
-for the actor to change what the swarm is: which nodes belong to it, and which
-objects it carries. When evaluating the request the auth module matches a permit
+for the actor to change what the swarm is: which nodes belong to it. When evaluating the request the auth module matches a permit
 to the action by object type.
 
 One action gates the swarm-administering ops in the `user` protocol:
-`user.answer_request`, `user.introduce`, `user.add_asset`,
-`user.remove_asset` and `user.sync_with`. The user identity holds it, and so
+`user.answer_request` and `user.introduce`. The user identity holds it, and so
 does the swarm root: a node holding a `privileged_member` membership the user
 key issued, or an unclaimed node, which is its own root. A Privileged member uses
 the action itself and cannot pass it on: a contract grants this permit only
@@ -15,7 +13,7 @@ when the root issued it ([auth, Authority in a
 swarm](../../auth/README.md#authority-in-a-swarm)). An app therefore holds it
 only through a contract from the root.
 
-Subject and ObjectID declare the nouns a call touches. Neither is evaluated. A
+Subject declares the noun a call touches. It is not evaluated. A
 permit carrying constraints is refused, so honouring a narrowed permit would
 grant it in full.
 
@@ -26,11 +24,10 @@ does not cover.
 ## Fields
 
 * Action ([`mod.auth.action`](../../auth/types/mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID.
-* Subject (identity) – Identity of the node introduced to or synced with, or the identity the answered request names. Zero for an asset call.
-* ObjectID (object_id) – ID of the asset being added or removed. Zero for a membership call.
+* Subject (identity) – Identity of the node introduced to, or the identity the answered request names.
 
 In JSON the embedded action's fields appear directly in the `Object` value,
-beside `Subject` and `ObjectID`, not under an `Action` key.
+beside `Subject`, not under an `Action` key.
 
 ## Example
 
@@ -40,8 +37,7 @@ beside `Subject` and `ObjectID`, not under an `Action` key.
   "Object": {
     "Nonce": "a1b2c3d4e5f60718",
     "ActorID": "0282fee8775757cdd8fda8b220195f5b8611312cd145c5a1a3aa55df210e779b2c",
-    "Subject": "037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590",
-    "ObjectID": "data1"
+    "Subject": "037f990e61acee8a7697966afd29dd88f3b1f8a7b14d625c4f8742bd952003a590"
   }
 }
 ```

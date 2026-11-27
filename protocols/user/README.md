@@ -1,7 +1,7 @@
 # user
 
 The `user` protocol manages the identity of the user that owns this node, the
-swarm of nodes operating under that user, and the user's asset list.
+swarm of nodes operating under that user.
 
 A node joins a user's swarm by holding a membership: a
 [`mod.auth.signed_contract`](../auth/types/mod.auth.signed_contract.md) with one
@@ -9,10 +9,8 @@ tier permit (`member`, `trusted` or `privileged_member`), signed by its issuer
 and by its subject, whose issuer may issue that tier
 ([SwarmState entries](#swarmstate-entries)). The swarm's members are the
 identities whose membership holds there. Once a node has an active contract
-it can serve information about the user (`user.info`), enumerate the swarm
-(`user.swarm_status`, `user.list_siblings`), maintain a synchronised list of
-user assets (`user.assets`, `user.add_asset`, `user.remove_asset`,
-`user.sync_assets`, `user.sync_with`). `user.contract` answers the active
+it can serve information about the user (`user.info`) and enumerate the swarm
+(`user.swarm_status`, `user.list_siblings`). `user.contract` answers the active
 contract to any caller that holds a direct link to the node.
 
 The user key signs every `privileged_member` membership in a ceremony.
@@ -51,15 +49,14 @@ sibling_sync_disabled: false
 ```
 
 Two actions gate the protocol. `mod.user.see_swarm_action` covers every read
-except `user.contract` — `user.info`, `user.assets`, `user.sync_assets`,
-`user.list_siblings`, `user.swarm_status` and `user.list_expelled` — and
+except `user.contract` — `user.info`, `user.list_siblings`,
+`user.swarm_status` and `user.list_expelled` — and
 `user.new_node_contract` when `user` is omitted on a claimed node.
 `user.contract` asks for no action and answers every directly linked caller.
 `user.relay_contracts` and `user.relay_digest` ask for no action and answer only
 the other members of the local swarm.
 `mod.user.admin_swarm_action` covers every change to what the swarm holds —
-`user.introduce`, `user.add_asset`, `user.remove_asset`, `user.sync_with`, which
-applies another node's entries to this one, and `user.answer_request`.
+`user.introduce` and `user.answer_request`.
 `mod.user.expel_action` covers `user.expel`. The user holds every action; a
 `privileged_member` node holds `mod.user.see_swarm_action` and
 `mod.user.admin_swarm_action`, but not `mod.user.expel_action`, through the
@@ -74,10 +71,9 @@ Each time a node gains a link to a swarm member, inbound or outbound, it
 synchronises with it, in this order: it pushes the active contract, the user's
 expulsions and the membership contracts of the other members, pulls the
 member's alias, pushes the relay contracts of the apps the swarm's members
-host that the member lacks, and pulls the member's asset updates. Every new
-link runs the synchronisation, not only the first link to the member. The alias and asset
-pulls query the member as the user, and the member admits them only once it
-holds this node's contract. A node also synchronises with a linked node when a
+host that the member lacks. Every new link runs the synchronisation, not only
+the first link to the member. The alias pull queries the member as the node, and
+the member admits it only once it holds this node's contract. A node also synchronises with a linked node when a
 pushed membership contract admits that node to its local swarm, because the
 link to that node preceded the contract. A node also synchronises with a
 member when one of its links to the member closes and another link to the

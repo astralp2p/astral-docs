@@ -88,7 +88,7 @@ Contents:
   * [sys](protocols/sys/README.md) - node lifecycle: the node states and the manager appointment
   * [tor](protocols/tor/README.md) - onion-service transport over Tor
   * [tree](protocols/tree/README.md) - hierarchical key-value configuration store
-  * [user](protocols/user/README.md) - user identity, swarm membership, asset list
+  * [user](protocols/user/README.md) - user identity, swarm membership
   * [utp](protocols/utp/README.md) - uTP-over-UDP transport
   * [vfs](protocols/vfs/README.md) - per-identity trees of folders and files whose files are objects, with quotas and per-VFS permits
 * [Tools](tools/README.md) – command-line tools

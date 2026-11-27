@@ -49,10 +49,8 @@ exchanges it, not by its `Object Type` alone.
 * typed final object — an `Op`'s documentation can name an `Object Type` that ends
   its output in place of an [`eos`](../primitive-types/eos.md). The named `Object` is
   the last one the `Op` sends and carries a value of its own; no `eos` follows it.
-  [`user.sync_assets`](../protocols/user/ops/user.sync_assets.md) ends its output
-  with a `uint64`, the next height to request. A client never blocks waiting for the
-  named `Object` and treats EOF as a legitimate end of the response, as it does for
-  `eos`.
+  A client never blocks waiting for the named `Object` and treats EOF as a
+  legitimate end of the response, as it does for `eos`.
 * typed input terminator — an `Op`'s documentation can name an `Object Type` that
   ends the caller's input. The `Op` stops reading at the first input `Object` of that
   type. [`objects.create`](../protocols/objects/ops/objects.create.md) ends its input

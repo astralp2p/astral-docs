@@ -33,11 +33,11 @@ the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm
   ([user, Memberships](../protocols/user/README.md#memberships)). The claim
   contract is one.
 * Each time a node gains a link to another member, the two exchange the
-  contracts that prove membership, the user's expulsions, the relay contracts
-  of the apps the members host, and the user's asset list. A node that is
-  already linked to a node when that node's first membership contract reaches it
-  synchronises with that node as well, and so does a node whose link to a
-  member closes while another link to that member remains.
+  contracts that prove membership, the user's expulsions, and the relay
+  contracts of the apps the members host. A node that is already linked to a
+  node when that node's first membership contract reaches it synchronises with
+  that node as well, and so does a node whose link to a member closes while
+  another link to that member remains.
 * A node pushes the user's expulsions to an expelled node at each new link to
   it, and to every linked member and every linked expelled node every
   `reconcile_interval`, by default once an hour. A node that missed an
