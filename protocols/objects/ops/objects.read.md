@@ -46,8 +46,8 @@ answers from its own repositories and asks no further candidate.
 The `id` can be a
 [`Partial Object ID`](../../../core-definitions/object-id.md). The lookup
 matches it by `Hash` inside the selected repository, or inside each candidate's
-repository. An `id` with a nonzero
-`Size` matches only an object with that `Size` and that `Hash`.
+repository. An `id` that is a full `Object ID` matches only an object with
+that `Size` and that `Hash`.
 
 `offset` and `limit` apply to the object the lookup matched, so a
 `Partial Object ID` and the `Object ID` of the same object read the same bytes.

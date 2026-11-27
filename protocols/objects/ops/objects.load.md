@@ -18,15 +18,15 @@ repository is opened when the caller is not authorized.
 
 Each id, given as `id` or streamed, can be a
 [`Partial Object ID`](../../../core-definitions/object-id.md). The lookup
-matches it by `Hash` inside the selected repository. An id with a nonzero
-`Size` matches only an object with that `Size` and that `Hash`.
+matches it by `Hash` inside the selected repository. A full `Object ID`
+matches only an object with that `Size` and that `Hash`.
 
 A load reads the whole object, and it counts as a read of the object by the rules of [`objects.read`](objects.read.md#read-counting).
 
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the repository is not found, the load fails, or an unexpected object is received on the input stream. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`; that `error_message` carries the text `hash lookup: unsupported operation`. A repository that cannot look up by `Hash` reports it for a `Partial Object ID` alone, never for an `Object ID` with a nonzero `Size`.
+* An `error_message` object if the repository is not found, the load fails, or an unexpected object is received on the input stream. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`; that `error_message` carries the text `hash lookup: unsupported operation`. A repository that cannot look up by `Hash` reports it for a `Partial Object ID` alone, never for a full `Object ID`.
 * The decoded typed object for each id (one shot if `id` was given, otherwise one per streamed id). Non-astral payloads come back as `blob`.
 * An `eos` object answering an explicit `eos` input.
 

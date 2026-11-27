@@ -11,7 +11,7 @@ The caller must hold [`mod.vfs.read_action`](../types/mod.vfs.read_action.md) fo
 * offset (uint64) – Byte offset to start reading from. Defaults to 0.
 * limit (uint64) – Maximum number of bytes to read. Defaults to 0, which reads to the end of the file.
 
-The content comes from the `local` repository group of this node, in the device zone. The node asks no other node for it. An `offset` below the `Size` of the file starts the read at that byte, and an `offset` equal to the `Size` reads 0 bytes. A `limit` above the remaining byte count reads to the end of the file. A file with no content reads 0 bytes without a repository.
+The content comes from the `local` repository group of this node, in the device zone. The node asks no other node for it. An `offset` below the `Size` of the file starts the read at that byte, and an `offset` equal to the `Size` reads 0 bytes. A `limit` above the remaining byte count reads to the end of the file. A file with no content reads 0 bytes.
 
 ## Returned objects
 
