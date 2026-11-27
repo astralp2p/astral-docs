@@ -133,8 +133,8 @@ expelled node's own expulsion included, and synchronises nothing else with it.
 Every `reconcile_interval` (`user.yaml`, default 1 hour) a node pushes the
 user's expulsions to every linked swarm member and to every linked node its
 user has expelled. A zero or negative `reconcile_interval` selects the default.
-A node that receives an expulsion it already holds stores nothing new and closes
-its links to the expelled node again. A node that receives its own expulsion
+A node that receives an expulsion it already holds stores nothing new. A node
+that receives its own expulsion
 leaves the swarm: it stops maintaining its links to the members, closes them and
 clears its active contract.
 
@@ -290,10 +290,6 @@ The merge check applies the rule to each entry offered under `contracts`:
     that request's `FiledBy`;
   * its permits follow the [offer depth rule](#app-grants);
   * its issuer may answer that request, and is not expelled;
-  * no other offer from the same issuer for that request is stored, half-signed
-    or completed, with a different unsigned body. An issuer offers at most once
-    per request: of two such offers, the first one stored is kept and the
-    second is dropped;
   * the request has no stored decline.
 
 An entry that fails these checks is neither stored nor passed on. A held entry
@@ -377,13 +373,11 @@ auth walks: app -> host -> approver -> handler or external authority
   completed approver-to-host contract has the offer's permits, so it follows
   the same rule. The host's contract to the app carries the offered permits,
   each byte-equal to its requested permit.
-* **Who offers.** A member whose tier may answer the request offers with
-  [`user.answer_request`](ops/user.answer_request.md), and the user key offers
-  with the same operation, run as the user with `as` set to `user`. Several
-  issuers may offer for one request, each once, while it is `pending` or
-  `offered`; the merge check drops a second offer from the same issuer. The
-  host co-signs one of them, and an offer that arrives after the host
-  co-signed stays unused.
+* **Who offers.** A node whose tier may answer the request offers with
+  [`user.answer_request`](ops/user.answer_request.md), which signs as that
+  node. Several offers may stand for one request while it is `pending` or
+  `offered`. The host co-signs one of them, and an offer that arrives after the
+  host co-signed stays unused.
 * **The host is in every chain.** The expiry nests: the app's contract ends no
   later than the host's, and the host's no later than the approver's. Expelling
   the host, or the end of its membership, ends the app's grant as well. A grant
@@ -517,5 +511,4 @@ it starts.
 | [`mod.user.swarm_request_approved`](types/mod.user.swarm_request_approved.md) | an expel request gets a counting approval, or the user key's expulsion of its subject |
 | [`mod.user.swarm_request_declined`](types/mod.user.swarm_request_declined.md) | a request's status becomes `declined` |
 | [`mod.user.swarm_request_expired`](types/mod.user.swarm_request_expired.md) | a request's status becomes `expired` |
-| [`mod.user.swarm_node_banned`](types/mod.user.swarm_node_banned.md) | a valid expulsion of a node takes effect on this node |
 | [`mod.user.swarm_member_joined`](types/mod.user.swarm_member_joined.md), [`mod.user.swarm_member_left`](types/mod.user.swarm_member_left.md) | the set of members changes |

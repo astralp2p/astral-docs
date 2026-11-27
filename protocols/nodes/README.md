@@ -278,9 +278,13 @@ copy, checks every entry, and serves the three operations that exchange it:
 [`user.swarm_push`](../user/ops/user.swarm_push.md)
 ([user, Synchronisation](../user/README.md#synchronisation)). The `nodes`
 module reacts to the events the `user` module emits when the member set
-changes or a node is banned
+changes
 ([`mod.user.swarm_member_joined`](../user/types/mod.user.swarm_member_joined.md),
-[`mod.user.swarm_member_left`](../user/types/mod.user.swarm_member_left.md),
-[`mod.user.swarm_node_banned`](../user/types/mod.user.swarm_node_banned.md)):
+[`mod.user.swarm_member_left`](../user/types/mod.user.swarm_member_left.md)):
 it reads the current member set and bans again, maintains links to the members,
-and closes the links of a node that left or was banned.
+and closes the links of a node that left and of every linked node the user
+banned. The `user` module emits no event for a ban. The `nodes` module closes
+the links of a banned node when that node answers the push of its own
+expulsion ([user, Synchronisation](../user/README.md#synchronisation)), or at
+the next member event or expulsion sweep. The links stay admitted until the
+answer, so the expulsion can travel over them.
