@@ -2,15 +2,14 @@
 
 A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission
 for the actor to read what the swarm is: the active contract's metadata, the
-sibling nodes and their link state, the bans the user has issued, and the asset
-set together with its delta ledger. When evaluating the request the auth module
-matches a permit to the action by object type.
+sibling nodes and their link state, and the bans the user has issued. When
+evaluating the request the auth module matches a permit to the action by object
+type.
 
 One action gates every read op in the `user` protocol except `user.contract`
-— `user.info`, `user.assets`, `user.sync_assets`, `user.list_siblings`,
-`user.swarm_status` and `user.list_expelled`. Between them they answer one
-question: who and what belongs to this swarm. `user.new_node_contract` asks it when `user` is omitted on
-a node with an active contract, since its default user is the active contract's
+— `user.info`, `user.list_siblings`, `user.swarm_status` and
+`user.list_expelled`. Between them they answer one question: who belongs to this
+swarm. `user.new_node_contract` asks it when `user` is omitted on a node with an active contract, since its default user is the active contract's
 issuer. [`user.contract`](../ops/user.contract.md) asks for no action: it
 answers the active contract to every caller that holds a direct link to the
 node.
