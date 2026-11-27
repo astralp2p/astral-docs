@@ -279,8 +279,9 @@ The merge check applies the rule to each entry offered under `contracts`:
       [offer depth rule](#app-grants), as an offer's do. This is the
       approver's contract to the host, the completed form of an offer;
     * or its issuer is the request's filer, its subject is the identity the
-      request names, and it carries out the request: each of its permits is
-      byte-equal to one of the requested permits
+      request names, and it carries out the request: it has at least one
+      permit, and each of its permits is byte-equal to one of the requested
+      permits
       ([`mod.user.contract_request`](types/mod.user.contract_request.md)).
       This is the host's contract to its app;
   * its issuer is the user key.
@@ -368,14 +369,16 @@ auth walks: app -> host -> approver -> root
   and published into SwarmState as an ordinary entry. It expires
   3650 days after signing, or when its issuer's membership expires, if earlier;
   an offer the user key issues expires 3650 days after signing.
-* **Offer depth.** Each offered permit has `Delegation` exactly one more than
-  the requested permit, so that the host may pass it on to the app. An offer
-  carries one such permit for each requested permit, with the requested
-  permit's action and constraints, and no other permit. A requested permit
-  with `Delegation` 0, as an app's permits are, is offered with `Delegation` 1.
-  The completed approver-to-host contract has the offer's permits, so it
-  follows the same rule, and the host's contract to the app carries the
-  requested permits byte-equal.
+* **Offer depth.** An offer is no wider than the request. It has at least one
+  permit. Each offered permit has the action and constraints of a requested
+  permit, byte-equal, and `Delegation` exactly one more than that permit's, so
+  that the host may pass it on to the app. No two offered permits are equal,
+  and the offer carries no other permit. An offer may carry all of the
+  requested permits or only some of them. A requested permit with
+  `Delegation` 0, as an app's permits are, is offered with `Delegation` 1. The
+  completed approver-to-host contract has the offer's permits, so it follows
+  the same rule. The host's contract to the app carries the offered permits,
+  each byte-equal to its requested permit.
 * **Who offers.** A member whose tier may answer the request offers with
   [`user.answer_request`](ops/user.answer_request.md), and the user key offers
   with the same operation, run as the user with `as` set to `user`. Several
@@ -443,10 +446,18 @@ connected to its carrier:
 4. The carrier stores the contract, with both signatures, in SwarmState and
    confirms it to the joiner: it answers the contract and the user identity.
 
-The joiner activates the membership only after the confirmation. The membership's expiry is a function of the request and the
-issuer's membership alone, never of the time of signing, so a joiner that
-resends the same request after a dropped connection receives a membership with
-the same body.
+The joiner activates the membership only after the confirmation.
+
+The membership expires at the request's `FiledAt` plus the membership validity
+the carrier is configured with, or when the issuer's own membership expires,
+if earlier. A membership the user key issues has no such cap, since the user
+key holds no membership. The expiry is never a function of the time of
+signing, so a joiner that resends the same request after a dropped connection
+receives a membership with the same body, while the carrier's configured
+validity and the issuer's membership are unchanged. `FiledAt` is the joiner's
+claim: a carrier refuses a join request whose `FiledAt` is later than the
+carrier's own time, and the cap at the issuer's membership bounds what a later
+`FiledAt` gains.
 
 * The membership's issuer is the carrier, or the user key. It is checked against
   the table of who may issue which tier, so a Trusted carrier issues only

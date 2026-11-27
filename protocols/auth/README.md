@@ -66,8 +66,8 @@ offer the user key made. An app that needs one of the four holds it through a
 contract the user key issues to the app itself.
 
 **App grants** are two contracts: the approver's to the app's host, whose
-permits each have a `Delegation` exactly one more than the requested permit's,
-then the host's to the app. The walk from the app passes the
+permits are requested permits, all or some, each with a `Delegation` exactly
+one more than the requested permit's, then the host's to the app. The walk from the app passes the
 host, then the approver, then the root, so the host is in every chain
 ([user, App grants](../user/README.md#app-grants)).
 

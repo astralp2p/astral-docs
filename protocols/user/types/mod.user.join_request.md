@@ -33,7 +33,8 @@ The signable text is one ASCII line:
 <joiner> asks <carrier> to join as <tier> until <YYYY-MM-DD hh:mm:ss>
 ```
 
-The time is Timeout. A Tier that is not one of the three tiers shows as
+The time is Timeout in UTC, to the second; a fraction of a
+second is dropped. A Tier that is not one of the three tiers shows as
 `invalid`.
 
 ## Example

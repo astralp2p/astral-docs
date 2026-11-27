@@ -60,11 +60,12 @@ The app's host files and signs the request, and the request names the app.
 A Privileged node, or the user key, answers the request with an offer or a
 decline ([`user.answer_request`](../user/ops/user.answer_request.md)). An offer
 is a contract from the approver to the host with only the approver's signature, the
-requested permits, each with a `Delegation` exactly one more than the requested
+requested permits, all or some, each with a `Delegation` exactly one more than the requested
 permit's ([user, App grants](../user/README.md#app-grants)), and the request's
 entry ID as `RequestID`. SwarmState carries it to the host like any entry. The host adds its
 signature to an offer for a request it filed, and then signs a contract from
-itself to the identity the request names, with exactly the request's permits.
+itself to the identity the request names, with the offered permits, each
+byte-equal to its requested permit.
 The grant is these two contracts: approver to host, host to app, and the
 authority of the app's permits is the chain app, host, approver, root. The host
 never signs on an offer for a request another node filed, and never for another
@@ -77,8 +78,9 @@ hold:
 * the request is not declined, not expired, and has no other co-signed offer;
 * the request is not superseded: the host has filed no later request for the
   same identity with the same set of permits;
-* the offer's permits follow the offer depth rule: the requested permits, each
-  with a `Delegation` exactly one more;
+* the offer's permits follow the offer depth rule: at least one permit, each
+  equal to a distinct requested permit except for a `Delegation` exactly one
+  more, and no other permit;
 * the offer's issuer may answer the request.
 
 A decline closes the request: the host refuses to co-sign a stored offer for
@@ -88,7 +90,7 @@ approver's contract to the host, and it expires 3650 days after signing at the
 latest, so expelling the host, or the end of its membership, ends the app's
 grant as well.
 
-**Residual risk.** The host holds the requested permits with one more
+**Residual risk.** The host holds the offered permits with one more
 `Delegation` than requested, `Delegation` 1 for an app's usual `Delegation` 0,
 and nothing limits to whom it passes them. It may sign them to any identity, including
 one outside the swarm, and need not publish that contract: a node's auth

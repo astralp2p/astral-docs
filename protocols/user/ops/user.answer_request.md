@@ -4,7 +4,7 @@ Answer a request stored in SwarmState with an offer, an approval or a decline si
 
 What `approve` signs depends on the request:
 
-* A contract request: an offer, a [`mod.auth.signed_contract`](../../auth/types/mod.auth.signed_contract.md) with only its issuer's signature, from the issuer to the node that filed the request. The issuer is this node, or the user key when `as` is `user`. It carries the requested permits, each with a `Delegation` exactly one more than the requested permit's (the offer depth rule), names the request as its `RequestID`, and expires 3650 days after signing, or when this node's membership expires, if earlier; an offer the user key issues expires 3650 days after signing ([App grants](../README.md#app-grants)). The filing node completes it.
+* A contract request: an offer, a [`mod.auth.signed_contract`](../../auth/types/mod.auth.signed_contract.md) with only its issuer's signature, from the issuer to the node that filed the request. The issuer is this node, or the user key when `as` is `user`. It carries every requested permit, each with a `Delegation` exactly one more than the requested permit's, which the offer depth rule allows (an offer may also carry only some of the requested permits), names the request as its `RequestID`, and expires 3650 days after signing, or when this node's membership expires, if earlier; an offer the user key issues expires 3650 days after signing ([App grants](../README.md#app-grants)). The filing node completes it.
 * An expel request: a [`mod.user.signed_approval`](../types/mod.user.signed_approval.md). Only the user key expels, by signing the expulsion.
 * A join request: nothing. Its carrier signs the membership, and `approve` is refused.
 

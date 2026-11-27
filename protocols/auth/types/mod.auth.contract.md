@@ -62,11 +62,18 @@ bytes (`MaxContractTextLen`), used when signing with text-only schemes (e.g.
   * otherwise `<module>.<name>`, for an action type `mod.<module>.<name>_action`
     whose module and name are each 1 or more bytes of `a`–`z`, `0`–`9` and `_`,
     for example `auth.sudo` for `mod.auth.sudo_action`.
-* An action with neither word is counted but not named. When the line has no
-  room for every word, or an action has no word, the list ends with `+<n>`,
-  the number of distinct actions not shown, so every action is counted. A
-  contract without permits shows `none`.
-* `<d>` is the largest `Delegation` among the permits. The time is ExpiresAt.
+* An action with neither word is counted but not named. The words are taken
+  in order, and a word is shown when the whole line, with that word, every
+  earlier word and the `+<n>` suffix for the actions left out after it, is at
+  most `MaxContractTextLen` bytes. The first word that does not fit ends the
+  list: no later word is shown, even one that would fit. The list shown is
+  the longest prefix of the words in which each word fits this way.
+* When an action is not shown, the list ends with `+<n>`, the number of
+  distinct actions not shown, so every action is counted. The suffix is
+  `,+<n>` after a shown word, and `+<n>` when no word is shown. A contract
+  without permits shows `none`.
+* `<d>` is the largest `Delegation` among the permits. The time is ExpiresAt
+  in UTC, to the second; a fraction of a second is dropped.
 * Constraints are not shown: they only narrow a permit. The text therefore never
   shows a grant narrower than the one signed.
 
