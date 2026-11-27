@@ -16,6 +16,8 @@ This node answers only within its tier, read from its membership; a node that is
 
 * id (object_id, required) – The request's entry ID, as [`user.swarm_requests`](user.swarm_requests.md) streams it.
 * answer (string8, required) – `approve` or `decline`.
+* in (string) – Optional input stream format (e.g. `json`).
+* out (string) – Optional output stream format (e.g. `json`).
 
 ## Returned objects
 
@@ -24,7 +26,7 @@ The operation returns one of:
 * An `error_message` reading `unknown request` if `id` names no stored request.
 * An `error_message` reading `not permitted` if the caller is not authorized.
 * An `error_message` reading `outside this node's tier` if this node has no membership, or its tier may not answer the request.
-* An `error_message` reading `request is not open to this answer` if the request's status admits no such answer, or the request is a join request and the answer is `approve`.
+* An `error_message` reading `request is not open to this answer` if the request's status admits no such answer, the request is a join request and the answer is `approve`, or the merge check drops the answer ([Two signatures](../README.md#two-signatures)).
 * An `error_message` if signing fails or SwarmState refuses the answer.
 * The signed answer, naming the request's entry ID: for `approve` on a contract request the offer, a `mod.auth.signed_contract`; for `approve` on an expel request a [`mod.user.signed_approval`](../types/mod.user.signed_approval.md); for `decline` a [`mod.user.signed_decline`](../types/mod.user.signed_decline.md). It is also returned when SwarmState holds the answer until the entries it needs arrive: a held answer is not stored yet, and a later merge may store it.
 

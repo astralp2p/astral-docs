@@ -64,4 +64,4 @@ The manager:
 ## Types
 
 * [`mod.sys.register_manager_request`](types/mod.sys.register_manager_request.md) – the registration an app sends to become the manager
-* [`mod.sys.policy_binding`](types/mod.sys.policy_binding.md) – one policy the manager decides
+* [`mod.sys.policy_binding`](types/mod.sys.policy_binding.md) – a policy binding, which `sys.register_manager` refuses
