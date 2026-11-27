@@ -57,8 +57,9 @@ A contract request asks the swarm for permits for an app, in place of a grant.
 into SwarmState ([SwarmState entries](../user/README.md#swarmstate-entries)).
 The app's host files and signs the request, and the request names the app.
 
-A Privileged node answers the request with an offer or a decline. An offer is a
-contract from the approver to the host with only the approver's signature, the
+A Privileged node, or the user key, answers the request with an offer or a
+decline ([`user.answer_request`](../user/ops/user.answer_request.md)). An offer
+is a contract from the approver to the host with only the approver's signature, the
 requested permits with a `Delegation` of 1 more, and the request's entry ID as
 `RequestID`. SwarmState carries it to the host like any entry. The host adds its
 signature to an offer for a request it filed, and then signs a contract from
@@ -73,6 +74,8 @@ hold:
 
 * the request is in the host's own records, not only in SwarmState;
 * the request is not declined, not expired, and has no other co-signed offer;
+* the request is not superseded: the host has filed no later request for the
+  same identity with the same set of permits;
 * the offer's permits are no wider than the request's;
 * the offer's issuer may answer the request.
 

@@ -28,8 +28,10 @@ stays connected ([Joins](../README.md#joins)):
      [`user.confirm_join`](user.confirm_join.md). A node that reaches no user
      key refuses.
 3. The caller checks the membership against its request, signs it as subject,
-   and sends the contract back. The operation checks both signatures and the
-   body it signed, adds the contract to SwarmState, and answers it.
+   and sends the contract back.
+4. The operation checks both signatures and the body it signed, adds the
+   contract to SwarmState, and confirms it: it answers the contract with both
+   signatures, then the user identity.
 
 A decline of the request, the request's timeout, or an expelled joiner ends the
 join: this node signs no membership for a declined or expired request. A

@@ -206,10 +206,12 @@ signatures commit to. A half-signed contract and its completed form are two
 entries with two IDs and one unsigned body, and the ID of that body matches
 them to each other.
 
-Each signed body's signable text is one ASCII line of at most 240 bytes, the
-signer's commitment included, so a Coldcard can sign it
-([coldcard](../coldcard/README.md)). A signer never shortens the text: a body
-whose text is longer is not signed by a text-only scheme.
+Each signed body's signable text is one ASCII line of at most 217 bytes, so
+with the signer's 23-byte commitment it is at most 240 bytes and a Coldcard can
+sign it ([coldcard](../coldcard/README.md)). A contract's text keeps that bound
+whatever the contract holds: it names each action by a short word and ends its
+list in a count of the actions it has no room to name
+([`mod.auth.contract`](../auth/types/mod.auth.contract.md)).
 
 ### Requests and answers
 
@@ -313,7 +315,7 @@ puts the tier in the contract's signable text, so a Coldcard shows it, for
 example:
 
 ```
-<issuer> grants <subject> privileged_member permits (1) mod.user.privileged_member_action:0 until 2027-11-25 10:00:00
+<issuer> grants <subject> privileged_member depth 0 until 2027-11-25 10:00:00
 ```
 
 **Who may issue which tier.** Tier permits cannot be delegated, so the chain of
@@ -355,8 +357,15 @@ auth walks: app -> host -> approver -> root
 
 * The approver answers a contract request with the offer, signed with its key
   and published into SwarmState as an ordinary entry. Its `Delegation` is one
-  more than the request's, so that the host may pass the permits on. Its expiry
-  is its own choice, no later than its issuer's membership.
+  more than the request's, so that the host may pass the permits on. It expires
+  3650 days after signing, or when its issuer's membership expires, if earlier;
+  an offer the user key issues expires 3650 days after signing.
+* **Who offers.** A member whose tier may answer the request offers with
+  [`user.answer_request`](ops/user.answer_request.md), and the user key offers
+  with the same operation, run as the user with `as` set to `user`. Several
+  issuers may offer for one request, each once, while it is `pending` or
+  `offered`. The host co-signs one of them, and an offer that arrives after the
+  host co-signed stays unused.
 * **The host is in every chain.** The expiry nests: the app's contract ends no
   later than the host's, and the host's no later than the approver's. Expelling
   the host, or the end of its membership, ends the app's grant as well. A grant
@@ -369,7 +378,9 @@ auth walks: app -> host -> approver -> root
 * **The host co-signs only what it asked for.** It adds its `SubjectSig` only
   when all of these hold:
   * the request is in the host's own records, not only in SwarmState;
-  * the request is not declined and has not expired;
+  * the request is not declined, has not expired and is not superseded: the
+    host has filed no later request for the same app with the same set of
+    permits;
   * the offer is no wider than the request;
   * the permits go onward only to that app;
   * the offer's issuer may answer the request;
@@ -391,13 +402,19 @@ auth walks: app -> host -> approver -> root
   that the host can pass them to identities that act without it, until the host
   is expelled or its contract expires. A swarm accepts this when it approves a
   request.
+* **User powers do not pass through an app grant.** The host issues the app's
+  contract, so the chain carries none of the four user powers
+  ([auth, Authority in a swarm](../auth/README.md#authority-in-a-swarm)), even
+  when the user key made the offer. An app that needs one of them holds a
+  contract the user key issues to the app itself. This protocol defines no
+  operation that requests such a contract.
 
 ### Joins
 
 A joiner is not a member and cannot read SwarmState, so its membership cannot
 travel to it for a second signature. It is signed while the joiner is
 connected to its carrier:
-[`user.carry_join`](ops/user.carry_join.md) runs three messages in one session.
+[`user.carry_join`](ops/user.carry_join.md) runs four messages in one session.
 
 1. The joiner sends its signed join request.
 2. The carrier answers a membership with the issuer's signature: the carrier's
@@ -405,10 +422,10 @@ connected to its carrier:
    `privileged_member`.
 3. The joiner checks the membership against its request, signs it as subject,
    and sends it back.
+4. The carrier stores the contract, with both signatures, in SwarmState and
+   confirms it to the joiner: it answers the contract and the user identity.
 
-The carrier stores the contract, with both signatures, in SwarmState and
-confirms it to the joiner. The joiner activates it only after the
-confirmation. The membership's expiry is a function of the request and the
+The joiner activates the membership only after the confirmation. The membership's expiry is a function of the request and the
 issuer's membership alone, never of the time of signing, so a joiner that
 resends the same request after a dropped connection receives a membership with
 the same body.

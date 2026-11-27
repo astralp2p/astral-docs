@@ -58,8 +58,10 @@ Privileged member answers swarm administration and relaying as the user only
 when it is the actor itself, and never passes them on: a contract it issues
 carries none of the four, so an app that reaches the root through a Privileged
 member holds none of them. The membership of a Privileged member covers neither
-expelling nor acting as the user. An app that needs one of the four holds it
-through a contract the user key issued.
+expelling nor acting as the user. An app grant passes through the app's host,
+which issues the app's contract, so it carries none of the four, even from an
+offer the user key made. An app that needs one of the four holds it through a
+contract the user key issues to the app itself.
 
 **App grants** are two contracts: the approver's to the app's host with
 `Delegation` 1, then the host's to the app. The walk from the app passes the

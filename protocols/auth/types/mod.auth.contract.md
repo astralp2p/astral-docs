@@ -43,24 +43,41 @@ its permits say and whatever its `RequestID` links to. Its other permits grant
 as before. A Privileged member uses swarm administration and relaying as the user
 itself and cannot pass them on. An app's relay contract names the app itself and is not affected.
 
-The signable form of a contract is one ASCII line, used when signing with
-text-only schemes (e.g. `bip137`):
+The signable form of a contract is one ASCII line of at most 217 bytes, used
+when signing with text-only schemes (e.g. `bip137`):
 
 ```
-<issuer> grants <subject> [<word> ]permits (<n>) <action>:<depth>[,<action>:<depth>]... until <YYYY-MM-DD hh:mm:ss>
+<issuer> grants <subject> <actions> depth <d> until <YYYY-MM-DD hh:mm:ss>
 ```
 
-`<n>` is the number of permits and the time is ExpiresAt. `<word>` is the
-first valid permit word among the permits' actions, such as the tier of a
-membership (`member`, `trusted` or `privileged_member`), and is absent when no
-action declares one. A word is valid when it is 1 to 17 bytes of `a`–`z` and
-`_`. `<action>:<depth>` lists each permit in order: the object type of its
-action and its `Delegation`, so a signer sees what the contract grants and how
-far the grantee may pass it on, not only how many permits it holds. A list
-omits constraints, which only narrow a permit. A text of more than 240 bytes is
-not signed by a text-only scheme, and the list is never shortened to fit. The
-signer's commitment binds everything else, RequestID included. Binary schemes
+* `<actions>` lists the distinct actions of the permits, in permit order and
+  separated by `,`, each by its word:
+  * the action's permit word, when its type declares a valid one, such as the
+    tier of a membership (`member`, `trusted` or `privileged_member`). A valid
+    permit word is 1 to 17 bytes of `a`–`z` and `_`;
+  * otherwise `<module>.<name>`, for an action type `mod.<module>.<name>_action`
+    whose module and name are each 1 or more bytes of `a`–`z`, `0`–`9` and `_`,
+    for example `auth.sudo` for `mod.auth.sudo_action`.
+* An action with neither word is counted but not named. When the line has no
+  room for every word, or an action has no word, the list ends with `+<n>`,
+  the number of distinct actions not shown, so every action is counted. A
+  contract without permits shows `none`.
+* `<d>` is the largest `Delegation` among the permits. The time is ExpiresAt.
+* Constraints are not shown: they only narrow a permit. The text therefore never
+  shows a grant narrower than the one signed.
+
+A text-only signer signs the line after a 23-byte commitment,
+`[<20 base64 characters>] `: the first 15 bytes of the contract's object ID
+hash, in standard base64. The signed line is therefore at most 240 bytes, which
+a Coldcard signs ([coldcard](../../coldcard/README.md)), whatever the contract
+holds. The commitment binds everything else, RequestID included. Binary schemes
 (e.g. `asn1`) sign the contract's object ID.
+
+A privileged membership, for example, reads:
+
+```
+<issuer> grants <subject> privileged_member depth 0 until 2027-11-25 10:00:00
+```
 
 ## Example
 
