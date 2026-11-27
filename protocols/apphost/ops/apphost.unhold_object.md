@@ -10,22 +10,22 @@ network is answered `origin not allowed: network`.
 * out (string) – Optional output stream format (e.g. `json`).
 * (stream) – Object IDs to release; consumed only when `id` is omitted, until EOS/EOF.
 
-Every `id`, given as `id` or streamed, is an
-[`Object ID`](../../../core-definitions/object-id.md) with a nonzero `Size`.
-The operation refuses an `Object ID` whose `Size` is 0 and releases nothing.
-Its `error_message` carries the text `partial object id`, and the text
-`missing object id` for the zero `Object ID`, which the operation refuses as a
-missing argument before it tests the `Size`.
+Every `id`, given as `id` or streamed, is a
+full [`Object ID`](../../../core-definitions/object-id.md). The operation
+refuses a `Partial Object ID` and releases nothing. Its `error_message` carries
+the text `partial object id`, and the text `missing object id` for the zero
+`Object ID`, which the operation refuses as a missing argument before it tests
+for a `Partial Object ID`.
 
-A hold is placed under an `Object ID` with a nonzero `Size`, because
+A hold is placed under a full `Object ID`, because
 [`apphost.hold_object`](apphost.hold_object.md) refuses any other. No hold is
 reachable by a
 [`Partial Object ID`](../../../core-definitions/object-id.md), so refusing one
 separates an unusable argument from the `ack` that releasing an absent hold
 returns.
 
-The `Object ID` of the `Empty Object` has a `Size` of 0 and a nonzero `Hash`,
-so this operation refuses it with the text `partial object id`.
+The `Object ID` of the `Empty Object` has a `Size` of 0 and is a full
+`Object ID`, so this operation releases its hold like any other.
 
 ## Returned objects
 

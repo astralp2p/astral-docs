@@ -18,24 +18,24 @@ no hold. The action names no repository and no type.
 * out (string) – Optional output stream format (e.g. `json`).
 * (stream) – Object IDs to hold; consumed only when `id` is omitted, until EOS/EOF.
 
-Every `id`, given as `id` or streamed, is an
-[`Object ID`](../../../core-definitions/object-id.md) with a nonzero `Size`.
-The operation refuses an `Object ID` whose `Size` is 0 and stores nothing. Its
-`error_message` carries the text `partial object id`, and the text
-`missing object id` for the zero `Object ID`, which the operation refuses as a
-missing argument before it tests the `Size`.
+Every `id`, given as `id` or streamed, is a
+full [`Object ID`](../../../core-definitions/object-id.md). The operation
+refuses a `Partial Object ID` and stores nothing. Its `error_message` carries
+the text `partial object id`, and the text `missing object id` for the zero
+`Object ID`, which the operation refuses as a missing argument before it tests
+for a `Partial Object ID`.
 
 [`objects.purge`](../../objects/ops/objects.purge.md) matches a hold by the
-`Object ID` it was placed under, and every `Object ID` it tests has a nonzero
-`Size`. A hold placed under a
+`Object ID` it was placed under, and every `Object ID` it tests is a full
+`Object ID`. A hold placed under a
 [`Partial Object ID`](../../../core-definitions/object-id.md) matches no such
 test, so the object it names is purged while the hold stands.
 
 An app can hold an object before the node has its bytes, so the operation reads
 no repository and resolves no `Partial Object ID`.
 
-The `Object ID` of the `Empty Object` has a `Size` of 0 and a nonzero `Hash`,
-so this operation refuses it with the text `partial object id`.
+The `Object ID` of the `Empty Object` has a `Size` of 0 and is a full
+`Object ID`, so this operation holds it like any other.
 
 ## Returned objects
 

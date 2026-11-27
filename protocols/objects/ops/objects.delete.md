@@ -17,13 +17,13 @@ repository is looked up when the caller is not authorized.
 
 Each id, given as `id` or streamed, can be a
 [`Partial Object ID`](../../../core-definitions/object-id.md). The lookup
-matches it by `Hash` inside the selected repository. An id with a nonzero
-`Size` matches only an object with that `Size` and that `Hash`.
+matches it by `Hash` inside the selected repository. A full `Object ID`
+matches only an object with that `Size` and that `Hash`.
 
 ## Returned objects
 
 The operation returns one of:
-* An `error_message` object if the repository is not found, the delete fails, or an unexpected object — including a stray `ack` — is received on the input stream. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`; that `error_message` carries the text `hash lookup: unsupported operation`. A repository that cannot look up by `Hash` reports it for a `Partial Object ID` alone, never for an `Object ID` with a nonzero `Size`.
+* An `error_message` object if the repository is not found, the delete fails, or an unexpected object — including a stray `ack` — is received on the input stream. A lookup of a `Partial Object ID` fails when a repository that stores objects itself does not support lookup by `Hash`; that `error_message` carries the text `hash lookup: unsupported operation`. A repository that cannot look up by `Hash` reports it for a `Partial Object ID` alone, never for a full `Object ID`.
 * An `eos` object answering an explicit `eos` input.
 * An `ack` object for each successful delete (one shot if `id` was given, otherwise one per streamed id).
 

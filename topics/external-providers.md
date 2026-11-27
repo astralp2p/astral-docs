@@ -81,7 +81,8 @@
 
 * A `Describer` or a `Finder` can receive a
   [`Partial Object ID`](../core-definitions/object-id.md) — an
-  [`Object ID`](../core-definitions/object-id.md) whose `Size` is 0. The `Node` resolves nothing
+  [`Object ID`](../core-definitions/object-id.md) whose `Size` is 0 and whose `Hash` is not the
+  SHA-256 hash of no bytes. The `Node` resolves nothing
   before the fan-out: it reads no repository for `objects.describe` or `objects.find`, so the
   `Object ID` a provider receives is the one the caller supplied.
 * A provider matching by exact `Object ID` contributes nothing for a `Partial Object ID`, since no
