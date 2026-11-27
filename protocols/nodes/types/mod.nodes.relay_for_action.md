@@ -2,9 +2,9 @@
 
 An `auth.Action` that requests permission for the actor to relay traffic on behalf of `ForID`. Used by the auth module to gate relay capability per identity.
 
-A permit for this action with the user as `ForID` is granted only by a contract
-the user key issued. A Privileged member relays as the user itself and cannot
-pass that on ([auth, Authority in a swarm](../../auth/README.md#authority-in-a-swarm)).
+With the user as `ForID`, the handler allows a node holding a `privileged_member`
+membership the user key issued. The handler is not node-local
+([auth, Authority in a swarm](../../auth/README.md#authority-in-a-swarm)).
 
 ## Fields
 

@@ -5,13 +5,13 @@ for the actor to change what the swarm is: which nodes belong to it. When evalua
 to the action by object type.
 
 One action gates the swarm-administering ops in the `user` protocol:
-`user.answer_request` and `user.introduce`. The user identity holds it, and so
-does the swarm root: a node holding a `privileged_member` membership the user
-key issued, or an unclaimed node, which is its own root. A Privileged member uses
-the action itself and cannot pass it on: a contract grants this permit only
-when the root issued it ([auth, Authority in a
-swarm](../../auth/README.md#authority-in-a-swarm)). An app therefore holds it
-only through a contract from the root.
+`user.answer_request` and `user.introduce`. Two handlers decide it ([auth,
+Authority in a swarm](../../auth/README.md#authority-in-a-swarm)). One allows the
+actor when it is the user identity; it is not node-local, so a contract the user
+signs may delegate the permit through the ordinary walk. The other allows a node
+holding a `privileged_member` membership the user key issued; it is node-local,
+so a Privileged member uses the action itself and no contract it signs passes
+the action on.
 
 Subject declares the noun a call touches. It is not evaluated. A
 permit carrying constraints is refused, so honouring a narrowed permit would

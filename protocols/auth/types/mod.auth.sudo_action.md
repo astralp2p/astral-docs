@@ -30,11 +30,10 @@ A sudo permit is always unconstrained. The action does not evaluate a permit's
 identity it names, including signing contracts in that identity's name,
 whatever constraints the permit carries.
 
-A permit for this action with the user as `AsID` is granted only by a contract
-the user key issued: a Privileged member's membership does not cover it, a
-Privileged member does not act as the user itself, and no contract a
-Privileged member issues passes it on ([auth, Authority in a
-swarm](../README.md#authority-in-a-swarm)).
+With the user as `AsID`, the handler allows the actor only when it is the user.
+The handler is not node-local, so a contract the user signs may delegate the
+permit through the ordinary walk. A Privileged member's membership does not
+cover it ([auth, Authority in a swarm](../README.md#authority-in-a-swarm)).
 
 ## Fields
 
