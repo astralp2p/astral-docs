@@ -27,8 +27,11 @@ A swarm is a group of nodes that check each other's membership themselves.
 The nodes one user owns form that user's swarm. From a node's point of view,
 the swarm of its own user is its [`Local Swarm`](../core-definitions/local-swarm.md).
 
-* A node is a member while it holds an active membership contract the user
-  signed. The claim contract is one.
+* A node is a member while it holds an active membership contract that the node
+  and its issuer both signed. The issuer is the user key, or a member whose tier
+  may issue the membership's tier
+  ([user, Memberships](../protocols/user/README.md#memberships)). The claim
+  contract is one.
 * Each time a node gains a link to another member, the two exchange the
   contracts that prove membership, the user's expulsions, the relay contracts
   of the apps the members host, and the user's asset list. A node that is

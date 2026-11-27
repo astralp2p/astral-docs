@@ -2,8 +2,12 @@
 
 The unsigned body of a request for permits for an identity, for example an app
 that the filing node hosts. FiledBy signs it. A Privileged member, or the user
-key, answers it with a [`mod.user.approval`](mod.user.approval.md) or a
-[`mod.user.decline`](mod.user.decline.md). Wrap it in
+key, answers it with an offer, a half-signed
+[`mod.auth.contract`](../../auth/types/mod.auth.contract.md) from the answerer
+to FiledBy that names this request as its `RequestID`, or closes it with a
+[`mod.user.decline`](mod.user.decline.md). FiledBy adds its signature to an
+offer for its own request only, and signs the permits onward to Identity
+([App grants](../README.md#app-grants)). Wrap it in
 [`mod.user.signed_contract_request`](mod.user.signed_contract_request.md)
 before storing or propagating it.
 
@@ -19,10 +23,12 @@ No operation stores, serves or accepts this type yet. It is a [SwarmState entry]
   is after FiledAt and at most 1 hour after it; a new request defaults to
   exactly 1 hour after FiledAt.
 
-A contract carries out the request only when it has at least one permit and
-each of its permits encodes byte-equal, Action, Constraints and Delegation
-alike, to one of the requested Permits. A contract that copies Permits always
-qualifies. Who issues that contract and whom it names are checked separately.
+A contract to Identity carries out the request only when it has at least one
+permit and each of its permits encodes byte-equal, Action, Constraints and
+Delegation alike, to one of the requested Permits. A contract that copies
+Permits always qualifies. An offer carries each requested permit with a
+Delegation 1 more, so that FiledBy may pass it on to Identity. Who issues that
+contract and whom it names are checked separately.
 
 The signable text is one ASCII line:
 

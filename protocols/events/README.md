@@ -25,5 +25,12 @@ These objects travel as the `Data` of a `mod.events.event`:
 * [`mod.nearby.peer_seen`](../nearby/types/mod.nearby.peer_seen.md)
 * [`mod.user.swarm_member_joined`](../user/types/mod.user.swarm_member_joined.md)
 * [`mod.user.swarm_member_left`](../user/types/mod.user.swarm_member_left.md)
+* [`mod.user.swarm_node_banned`](../user/types/mod.user.swarm_node_banned.md)
+* [`mod.user.swarm_request_filed`](../user/types/mod.user.swarm_request_filed.md)
+* [`mod.user.swarm_request_approved`](../user/types/mod.user.swarm_request_approved.md)
+* [`mod.user.swarm_request_declined`](../user/types/mod.user.swarm_request_declined.md)
+* [`mod.user.swarm_request_expired`](../user/types/mod.user.swarm_request_expired.md)
+* [`mod.user.swarm_offer_added`](../user/types/mod.user.swarm_offer_added.md)
+* [`mod.user.swarm_contract_added`](../user/types/mod.user.swarm_contract_added.md)
 
 The namespace exposes no operations.

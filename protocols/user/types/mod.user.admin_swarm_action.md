@@ -9,7 +9,11 @@ One action gates the swarm-administering ops in the `user` protocol:
 `user.answer_request`, `user.introduce`, `user.add_asset`,
 `user.remove_asset` and `user.sync_with`. The user identity holds it, and so
 does the swarm root: a node holding a `privileged_member` membership the user
-key signed, or an unclaimed node, which is its own root.
+key issued, or an unclaimed node, which is its own root. A Privileged member uses
+the action itself and cannot pass it on: a contract grants this permit only
+when the root issued it ([auth, Authority in a
+swarm](../../auth/README.md#authority-in-a-swarm)). An app therefore holds it
+only through a contract from the root.
 
 Subject and ObjectID declare the nouns a call touches. Neither is evaluated. A
 permit carrying constraints is refused, so honouring a narrowed permit would

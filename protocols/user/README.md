@@ -5,9 +5,10 @@ swarm of nodes operating under that user, and the user's asset list.
 
 A node joins a user's swarm by holding a membership: a
 [`mod.auth.signed_contract`](../auth/types/mod.auth.signed_contract.md) with one
-tier permit (`member`, `trusted` or `privileged_member`) whose link holds in
-SwarmState ([SwarmState entries](#swarmstate-entries)). The swarm's members are
-the identities whose membership holds there. Once a node has an active contract
+tier permit (`member`, `trusted` or `privileged_member`), signed by its issuer
+and by its subject, whose issuer may issue that tier
+([SwarmState entries](#swarmstate-entries)). The swarm's members are the
+identities whose membership holds there. Once a node has an active contract
 it can serve information about the user (`user.info`), enumerate the swarm
 (`user.swarm_status`, `user.list_siblings`), maintain a synchronised list of
 user assets (`user.assets`, `user.add_asset`, `user.remove_asset`,
@@ -26,15 +27,16 @@ manager, for a later backup; `user.forget_mnemonic` deletes them.
 [`user.join`](ops/user.join.md) makes a node without an active contract ask to
 join through a `trusted` or `privileged_member` node, its carrier, with a join
 request; the carrier writes it into SwarmState with
-[`user.carry_join`](ops/user.carry_join.md) and hands over the membership once
-the request is answered. `user.introduce` pushes a claimed node's active
+[`user.carry_join`](ops/user.carry_join.md) and signs the membership with the
+joiner in that session ([Joins](#joins)). `user.introduce` pushes a claimed node's active
 contract to a member of its user's swarm. Only the user expels: `user.expel`
 needs `mod.user.expel_action`, signs the ban with the user key and adds it to
 SwarmState; the list of bans is inspectable via `user.list_expelled`. Banned
 nodes hold a `mod.user.signed_expulsion`.
 
-The user module applies no admission policy. A join, an invitation and an app's
-permits are requests in SwarmState that a node with the right tier answers
+The user module applies no admission policy. A join is signed by a carrier whose
+tier may issue the tier asked for, and an app's permits are a request in
+SwarmState that a node with the right tier answers with an offer
 ([SwarmState entries](#swarmstate-entries)).
 
 A node emits a
@@ -59,9 +61,12 @@ the other members of the local swarm.
 `user.introduce`, `user.add_asset`, `user.remove_asset`, `user.sync_with`, which
 applies another node's entries to this one, and `user.answer_request`.
 `mod.user.expel_action` covers `user.expel`. The user holds every action; a
-`privileged_member` node holds every action but these two and
-`mod.user.expel_action` through the swarm root
-([auth](../auth/README.md)).
+`privileged_member` node holds `mod.user.see_swarm_action` and
+`mod.user.admin_swarm_action`, but not `mod.user.expel_action`, through the
+swarm root ([auth, Authority in a swarm](../auth/README.md#authority-in-a-swarm)).
+It uses them itself and cannot pass `mod.user.admin_swarm_action` or
+`mod.user.expel_action` on: a contract carries either only when the user key
+issued it.
 
 Each time a node gains a link to a swarm member, inbound or outbound, it
 synchronises with it, in this order: it pushes the active contract, the user's
@@ -163,7 +168,7 @@ node's own. Unowned nodes and nodes of other users are listed, never contacted.
 A `user.introduce` call is unaffected.
 
 The active contract is validated on every application — the issuer's signature,
-the subject's when present, subject identity match, remaining validity, and one
+the subject's signature, subject identity match, remaining validity, and one
 tier permit — so a stored value that fails validation never takes effect. A node
 a carrier admitted stores the user identity beside it, since its membership's
 issuer is the carrier.
@@ -172,12 +177,11 @@ issuer is the carrier.
 
 The `user` protocol defines the entry types of SwarmState, the signed record of
 who belongs to a user's swarm and what its members asked for and were given.
-The `nodes` module stores each node's copy in the node's own VFS and syncs it
-([nodes, SwarmState](../nodes/README.md#swarmstate)); the `user` module decides
-what an entry means and checks every entry before it is stored.
+The `user` module keeps each node's copy, checks every entry before it stores
+it, and syncs it ([Synchronisation](#synchronisation)).
 [`user.swarm_requests`](ops/user.swarm_requests.md) lists the stored requests
 with their status, and [`user.answer_request`](ops/user.answer_request.md)
-answers one with an approval or a decline signed by the node.
+answers one with an approval, an offer or a decline signed by the node.
 [`user.confirm_join`](ops/user.confirm_join.md) is the user's confirmation of a
 join request at tier `privileged_member` when the user key is a software key
 held on the node; it is accepted only from a local query by the user.
@@ -190,29 +194,100 @@ the kind is a [`mod.user.entry_kind`](types/mod.user.entry_kind.md):
 | `requests` | [`mod.user.signed_contract_request`](types/mod.user.signed_contract_request.md) | the filing node |
 | `requests` | [`mod.user.signed_join_request`](types/mod.user.signed_join_request.md) | the joining node |
 | `requests` | [`mod.user.signed_expel_request`](types/mod.user.signed_expel_request.md) | the filing member |
-| `approvals` | [`mod.user.signed_approval`](types/mod.user.signed_approval.md) | the answering member or the user key |
+| `approvals` | [`mod.user.signed_approval`](types/mod.user.signed_approval.md), of an expel request only | the answering member or the user key |
 | `declines` | [`mod.user.signed_decline`](types/mod.user.signed_decline.md) | the answering member or the user key |
-| `contracts` | [`mod.auth.signed_contract`](../auth/types/mod.auth.signed_contract.md), memberships included | issuer, and subject when present |
+| `contracts` | [`mod.auth.signed_contract`](../auth/types/mod.auth.signed_contract.md): a membership, an app contract, or an offer | issuer and subject; an offer, the issuer only |
 | `expels` | [`mod.user.signed_expulsion`](types/mod.user.signed_expulsion.md) | the user key |
 
 An entry's ID is the object ID of the signed form exactly as stored, signatures
 included. Every reference holds that ID: an answer's `RequestID` and a
-contract's `ApprovalID`. It differs from the ID of the unsigned body, which the
-signatures commit to.
+contract's `RequestID`. It differs from the ID of the unsigned body, which the
+signatures commit to. A half-signed contract and its completed form are two
+entries with two IDs and one unsigned body, and the ID of that body matches
+them to each other.
+
+Each signed body's signable text is one ASCII line of at most 240 bytes, the
+signer's commitment included, so a Coldcard can sign it
+([coldcard](../coldcard/README.md)). A signer never shortens the text: a body
+whose text is longer is not signed by a text-only scheme.
+
+### Requests and answers
 
 A request stays answerable for at most 1 hour: its `Timeout` is after its
 `FiledAt` and at most 1 hour after it, and a new request defaults to exactly 1
 hour. Its status is a [`mod.user.request_status`](types/mod.user.request_status.md),
-derived from the stored answers and never stored. A decline beats every
-approval of the same request. Who may answer a request depends on the
-answerer's [tier](types/mod.user.tier.md), as
+derived from the stored entries and never stored. Who may answer a request
+depends on the answerer's [tier](types/mod.user.tier.md), as
 [`mod.user.approval`](types/mod.user.approval.md) lists. The merge check decides
 each offered entry with a
 [`mod.user.entry_verdict`](types/mod.user.entry_verdict.md).
 
-Each signed body's signable text is one ASCII line of at most 240 bytes, the
-signer's commitment included, so a Coldcard can sign it
-([coldcard](../coldcard/README.md)).
+An answer is a reaction to a request and gives no authority to anything. What a
+request yields is a contract, and the contract's authority is its own two
+signatures ([Two signatures](#two-signatures)).
+
+* A contract request is answered by an **offer**: a half-signed contract that
+  names the request as its `RequestID` ([App grants](#app-grants)).
+* An expel request is answered by an **approval**. The user key carries it out
+  by signing a `mod.user.signed_expulsion`.
+* A join request is answered by no entry. Its carrier signs the membership in
+  the carrier session ([Joins](#joins)).
+* Any request may be closed by a **decline**.
+
+A decline only closes its request. The merge check drops every new offer for a
+declined request, and the node a half-signed offer names as subject refuses to
+co-sign a stored one; a carrier signs no membership for it. A decline takes
+nothing back: a contract that both parties already signed keeps its authority,
+and a signed expulsion stays. A contract is taken back only by expelling a
+party in its chain, or when it expires. The swarm cannot revoke a single
+contract, and an app contract lasts up to 3650 days, so a grant given in error
+lasts until its host is expelled.
+
+A request is `fulfilled` once a contract with both signatures names it. A
+request that is `fulfilled` stays so whatever the answers that follow.
+
+### Two signatures
+
+A contract carries authority only when both its issuer and its subject signed
+it. A contract with only the issuer's signature, an offer, is stored and passed
+on but never counts: it makes no one a member, grants no permit, and adds no
+link to a chain. A contract with a missing or invalid subject signature grants
+nothing, wherever it is held, and every producer of a membership collects the
+subject's signature: the carrier, the user key's ceremony, `user.bootstrap` and
+`user.confirm_join`.
+
+The authority of a contract is walked from the actor to the root through
+issuers ([auth, Authority in a swarm](../auth/README.md#authority-in-a-swarm)).
+A contract's `RequestID` only links it to the request it answers. It never adds
+authority, and it never redirects the walk to the node that answered the
+request.
+
+The merge check applies the rule to each entry offered under `contracts`:
+
+* A contract with both signatures valid is stored in these cases, and dropped
+  in every other:
+  * it is a membership, and its issuer is the user key, or a member, not
+    expelled, whose current tier may issue the membership's tier
+    ([Memberships](#memberships));
+  * it names a stored contract request as its `RequestID`, and either its
+    subject is the request's filer and its issuer may answer the request with
+    permits no wider than the request's (the approver's contract to the host),
+    or its issuer is the request's filer and its subject is the identity the
+    request names (the host's contract to its app);
+  * its issuer is the user key.
+* A contract with only the issuer's signature is an offer. It is stored only
+  when all of these hold; it waits while its request has not arrived, and is
+  dropped when one of the others fails:
+  * `RequestID` names a stored contract request, and the offer's subject is
+    that request's `FiledBy`;
+  * its permits are no wider than the request's: each permit has the action
+    and constraints of one requested permit and a delegation depth exactly 1
+    more than that permit's, and it carries no other permit;
+  * its issuer may answer that request, and is not expelled;
+  * the request has no stored decline.
+
+An entry that fails these checks is neither stored nor passed on. A held entry
+waits at most 1024 at once and is checked again after the next accepted merge.
 
 ### Memberships
 
@@ -227,16 +302,176 @@ A contract is a membership when it carries exactly one tier permit, one of
 [`mod.user.privileged_member_action`](types/mod.user.privileged_member_action.md);
 that permit names its tier. A contract with no tier permit, or with more than
 one, is not a membership. Reading a contract as a membership checks neither its
-signatures, its expiry, its approval nor the user's expels.
+signatures, its expiry nor the user's expels.
 
 A new membership carries that one tier permit, with no constraints and no
-delegation, and an expiry. Its `ApprovalID` names the approval it carries out,
-or is `null` when the user key signs it directly. A membership a carrier signs
-to carry out a join's approval holds only when that tier permit is its only
-permit, with no constraints and no delegation. A carrier's membership with any
-other permit grants nothing, not even its tier. The permit puts the tier in
-the contract's signable text, so a Coldcard shows it, for example:
+delegation, and an expiry. Its `RequestID` names the join request it answers,
+or is `null` when the user key signs it directly. A membership holds only when
+that tier permit is its only permit, with no constraints and no delegation: a
+membership with any other permit grants nothing, not even its tier. The permit
+puts the tier in the contract's signable text, so a Coldcard shows it, for
+example:
 
 ```
-<issuer> grants <subject> privileged_member permits (1) until 2027-11-25 10:00:00
+<issuer> grants <subject> privileged_member permits (1) mod.user.privileged_member_action:0 until 2027-11-25 10:00:00
 ```
+
+**Who may issue which tier.** Tier permits cannot be delegated, so the chain of
+contracts cannot say who may issue a membership. The merge check and the view
+apply this table to the membership's issuer, read from its current membership:
+
+| Issuer | May issue a membership at |
+|--------|---------------------------|
+| the user key | `member`, `trusted`, `privileged_member` |
+| `privileged_member` | `member`, `trusted` |
+| `trusted` | `member` |
+| `member` | none |
+
+A membership an issuer may not issue grants nothing and is dropped by the merge
+check. A membership holds only while its issuer's own membership holds, and
+expires with it at the latest.
+
+A node holds one membership at a time as far as the swarm is concerned, though
+it may have stored several, for example after joining again through another
+carrier. The view reads the membership of the highest tier, and among those the
+one that expires last. A tier is fixed when a node joins: there is no promotion.
+A higher tier means joining through an issuer allowed to grant it, and
+`privileged_member` comes only from the user key, signed in a ceremony with the
+joiner present. A lower tier takes expelling the node and a new join.
+
+### App grants
+
+An app's permits come from the swarm through the app's host. The grant is two
+contracts, each with both signatures:
+
+```
+host files ContractRequest{FiledBy: host, Identity: app, Permits: Q}
+approver publishes offer Contract{Issuer: approver, Subject: host, Q with
+                                  Delegation +1, RequestID}          IssuerSig
+host adds SubjectSig to the offer for its own request              approver -> host
+host signs Contract{Issuer: host, Subject: app, Q}; both keys are on the host
+auth walks: app -> host -> approver -> root
+```
+
+* The approver answers a contract request with the offer, signed with its key
+  and published into SwarmState as an ordinary entry. Its `Delegation` is one
+  more than the request's, so that the host may pass the permits on. Its expiry
+  is its own choice, no later than its issuer's membership.
+* **The host is in every chain.** The expiry nests: the app's contract ends no
+  later than the host's, and the host's no later than the approver's. Expelling
+  the host, or the end of its membership, ends the app's grant as well. A grant
+  issued straight from the approver to the app would leave the host out of the
+  chain, and an expelled host would keep its apps' grants while it holds their
+  keys; the protocol does not allow that.
+* **Travel.** The offer is pushed to the host as every entry is pushed to linked
+  members. The host is a member, so no other transport is needed. An offer that
+  arrives before its request waits in the held set.
+* **The host co-signs only what it asked for.** It adds its `SubjectSig` only
+  when all of these hold:
+  * the request is in the host's own records, not only in SwarmState;
+  * the request is not declined and has not expired;
+  * the offer is no wider than the request;
+  * the permits go onward only to that app;
+  * the offer's issuer may answer the request;
+  * the host has not co-signed another offer for this request. When several
+    offers qualify, the host takes the one the user key issued, then the one
+    that expires last, then the one with the lowest entry ID.
+
+  The host's consent is the request it signed, and the approver's decision is
+  its signature, so co-signing needs no other decision. Whether a person
+  confirms first is the host's policy, not part of the protocol.
+* **Residual risk.** The host's contract from the approver carries a
+  delegation depth of 1, and the depth limits how far a grant passes on, not
+  whom it passes to. The host may sign the permits to any identity, including
+  one outside the swarm, and need not publish that contract to SwarmState: a
+  node's auth indexes a contract it receives from anywhere. A permit's
+  constraints cannot narrow this, because an action evaluates them without
+  knowing the contract it was reached through. The host already holds the
+  app's key and acts as the app with these permits. What the protocol adds is
+  that the host can pass them to identities that act without it, until the host
+  is expelled or its contract expires. A swarm accepts this when it approves a
+  request.
+
+### Joins
+
+A joiner is not a member and cannot read SwarmState, so its membership cannot
+travel to it for a second signature. It is signed while the joiner is
+connected to its carrier:
+[`user.carry_join`](ops/user.carry_join.md) runs three messages in one session.
+
+1. The joiner sends its signed join request.
+2. The carrier answers a membership with the issuer's signature: the carrier's
+   own for a tier it may issue, or the user key's, signed in a ceremony, for
+   `privileged_member`.
+3. The joiner checks the membership against its request, signs it as subject,
+   and sends it back.
+
+The carrier stores the contract, with both signatures, in SwarmState and
+confirms it to the joiner. The joiner activates it only after the
+confirmation. The membership's expiry is a function of the request and the
+issuer's membership alone, never of the time of signing, so a joiner that
+resends the same request after a dropped connection receives a membership with
+the same body.
+
+* The membership's issuer is the carrier, or the user key. It is checked against
+  the table of who may issue which tier, so a Trusted carrier issues only
+  `member`, a Privileged carrier `member` or `trusted`, and `privileged_member`
+  is the user key's alone.
+* The carrier signs without waiting for any entry in SwarmState: the join
+  request, signed by the joiner, names it, and its tier decides what it may
+  issue. It signs nothing for a request that is declined or has expired, or
+  whose joiner is expelled.
+* The membership's `RequestID` is the join request's entry ID.
+
+### Synchronisation
+
+Each node's copy of SwarmState lives in the node's own [VFS](../vfs/README.md),
+owned by the node identity, under `swarmstate/<kind>/<object id>`. `/swarmhead`
+holds the number of stored entries in decimal; it only grows and is never
+synced. A merge is a union: nothing is overwritten or deleted. The merge check
+([Two signatures](#two-signatures)) runs on every entry from every route, and
+again on every stored entry when the node starts: an entry that fails it is left
+out of the copy and never served.
+
+Three operations exchange the set between nodes:
+
+* [`user.swarm_digest`](ops/user.swarm_digest.md) answers the entry IDs this
+  node stores;
+* [`user.swarm_fetch`](ops/user.swarm_fetch.md) answers the stored entries
+  among the IDs it receives;
+* [`user.swarm_push`](ops/user.swarm_push.md) offers one entry.
+
+`user.swarm_digest` and `user.swarm_fetch` serve this node, the user, and
+every identity whose membership holds here. `user.swarm_push` serves every
+identified caller, since the check decides what enters. A node pulls (digest,
+then fetch of what it lacks, at most 256 IDs per fetch) from every linked swarm
+member every 15 seconds. On a first link of a claimed node it first offers the
+peer its own membership, so the peer admits its pull, and then pulls. When the
+node stores its own membership, as at a claim, it does the same with every
+peer it holds a link with. A node claimed while already linked therefore needs
+no new link. Every entry this node stores is pushed to its linked swarm
+members. Each member gets its own push, in the order the entries were stored,
+and each push is bounded to 15 s. The write that stored the entries does not
+wait for these pushes. A failed push is not retried: the member's pull repairs
+it.
+
+### Events
+
+The module emits an event for each change of what the stored entries mean, as a
+`mod.events.event` to the node's own receivers
+([events](../events/README.md)). An event is a signal to read the entries
+again, and a receiver acts on the current state, not on the event. Each node
+emits an event for every valid entry it holds, and a receiver filters by the
+subject it serves. A node emits nothing for the entries it already holds when
+it starts.
+
+| Event | Emitted when |
+|-------|--------------|
+| [`mod.user.swarm_request_filed`](types/mod.user.swarm_request_filed.md) | a valid request appears |
+| [`mod.user.swarm_offer_added`](types/mod.user.swarm_offer_added.md) | a valid offer appears: its request is live and not declined, and its issuer is not expelled |
+| [`mod.user.swarm_contract_added`](types/mod.user.swarm_contract_added.md) | a contract that counts appears: both signatures are valid |
+| [`mod.user.swarm_request_approved`](types/mod.user.swarm_request_approved.md) | an expel request gets a counting approval |
+| [`mod.user.swarm_request_declined`](types/mod.user.swarm_request_declined.md) | a request's status becomes `declined` |
+| [`mod.user.swarm_request_expired`](types/mod.user.swarm_request_expired.md) | a request's status becomes `expired` |
+| [`mod.user.swarm_node_banned`](types/mod.user.swarm_node_banned.md) | a valid expulsion of a node takes effect on this node |
+| [`mod.user.swarm_member_joined`](types/mod.user.swarm_member_joined.md), [`mod.user.swarm_member_left`](types/mod.user.swarm_member_left.md) | the set of members changes |

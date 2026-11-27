@@ -9,9 +9,11 @@ The wire form is a `string8` holding the word itself. The text form is the word 
 
 | Value | Meaning |
 |-------|---------|
-| `declined` | A decline of the request exists. It beats any approval. |
-| `approved` | An approval of the request exists and no decline. |
-| `expired` | No answer exists and the request's Timeout has passed. |
+| `fulfilled` | A contract with both signatures names the request as its `RequestID`. Nothing that follows changes it. |
+| `declined` | A decline of the request exists. It closes the request. |
+| `approved` | An approval of an expel request exists and no decline. Only an expel request is `approved`. |
+| `expired` | The request's Timeout has passed, and no earlier value applies. |
+| `offered` | A valid offer for the request exists, and the Timeout has not passed. |
 | `pending` | No answer exists and the Timeout has not passed. |
 
 When more than one applies, the first listed wins.

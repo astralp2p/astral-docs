@@ -19,9 +19,11 @@ to the individual operations.
 ## Permits
 
 An app holds no node-local grant. Every action an app takes, on its own node or
-another, is authorized by its contract chain: a contract from its host that
-carries out an Approval, back to the user
-([user, SwarmState](../user/README.md#swarmstate-entries)). The node keeps no
+another, is authorized by its contract chain: a contract from its host, back through the
+approver's contract to the host, to the root
+([user, App grants](../user/README.md#app-grants)). Every contract in the chain
+carries both signatures ([auth, Authority in a
+swarm](../auth/README.md#authority-in-a-swarm)). The node keeps no
 grant table; a node upgraded from a release that kept one drops
 `apphost__grants` at start.
 
@@ -55,18 +57,47 @@ A contract request asks the swarm for permits for an app, in place of a grant.
 into SwarmState ([SwarmState entries](../user/README.md#swarmstate-entries)).
 The app's host files and signs the request, and the request names the app.
 
-A Privileged node answers the request with an approval or a decline. The host
-carries out an approval of a request it filed: it signs a contract from itself
-to the identity the request names, with exactly the request's permits and the
-approval's entry ID as `ApprovalID`. The host never signs a contract on an
-approval of a request another node filed, and never for another identity. An
-app moved to another node files a new request there.
+A Privileged node answers the request with an offer or a decline. An offer is a
+contract from the approver to the host with only the approver's signature, the
+requested permits with a `Delegation` of 1 more, and the request's entry ID as
+`RequestID`. SwarmState carries it to the host like any entry. The host adds its
+signature to an offer for a request it filed, and then signs a contract from
+itself to the identity the request names, with exactly the request's permits.
+The grant is these two contracts: approver to host, host to app, and the
+authority of the app's permits is the chain app, host, approver, root. The host
+never signs on an offer for a request another node filed, and never for another
+identity. An app moved to another node files a new request there.
+
+The host co-signs at most one offer per request, and only when all of these
+hold:
+
+* the request is in the host's own records, not only in SwarmState;
+* the request is not declined, not expired, and has no other co-signed offer;
+* the offer's permits are no wider than the request's;
+* the offer's issuer may answer the request.
+
+A decline closes the request: the host refuses to co-sign a stored offer for
+it, and SwarmState drops new ones. A decline takes back no contract that both
+parties signed. The host's contract to the app expires no later than the
+approver's contract to the host, and it expires 3650 days after signing at the
+latest, so expelling the host, or the end of its membership, ends the app's
+grant as well.
+
+**Residual risk.** The host passes the requested permits on with a delegation
+of 1 and nothing limits to whom. It may sign them to any identity, including
+one outside the swarm, and need not publish that contract: a node's auth
+indexes a contract it receives from anywhere. A permit's constraints cannot
+narrow this, since an action evaluates them without knowing the contract it was
+reached through. The host already holds the app's key. The added risk is that
+it can hand the permits to identities that act without it, until the host is
+expelled or its contract expires.
 
 Registration stays local: [`apphost.register`](ops/apphost.register.md) issues
 the identity and the access token at once, and files one contract request for
 `mod.auth.serve_apps_action`, `mod.auth.use_blueprints_action` and the permits
 the registration asks. Only the permits wait in SwarmState. The host checks
-SwarmState for answers every 5 seconds, and indexes the contract it signs.
+SwarmState for offers on its requests every 5 seconds, co-signs them, and
+indexes the contracts it signs.
 
 Two `apphost.yaml` keys tune contract requests. An omitted key, or `0`, keeps
 the default:

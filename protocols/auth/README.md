@@ -13,6 +13,59 @@ the node's own session while the node has no active contract. The node indexes e
 validly signed `mod.auth.signed_contract` in its local repository itself; no
 operation indexes a contract on request.
 
+## Authority in a swarm
+
+On a node with a swarm, a contract carries authority only when both its issuer
+and its subject signed it. A contract with a missing or invalid signature of
+either grants nothing, whatever its permits say, and a contract with the
+issuer's signature alone, an offer in
+[SwarmState](../user/README.md#swarmstate-entries), never counts.
+
+The node authorizes an action for an actor by walking contracts from the actor
+to the root:
+
+* The walk starts at the actor and takes a contract whose subject is the hop's
+  identity, that has both signatures, has not expired, and whose permit matches
+  the action and accepts its constraints.
+* It continues at the contract's **issuer**: the issuer must hold the permit in
+  turn, through a contract it received, until the walk reaches the root. The
+  walk never continues at the node that answered a request. A contract's
+  `RequestID` only links the contract to the request it answers; it adds no
+  authority and redirects nothing.
+* Each hop that passes a permit on needs a `Delegation` of at least 1 on the
+  contract that gave it, which a further hop reduces by 1. Constraints only
+  narrow along the walk.
+* A walk stops at a party that is expelled, and at a contract that has expired.
+  The expiry of a chain is the earliest expiry in it, and so expelling or
+  expiring a party ends everything that passes through it.
+
+**The root.** The root is the user key. A node that holds a
+`privileged_member` membership the user key issued answers as the root wherever
+the walk reaches it, for every action but the four user powers below, and so
+does an unclaimed node for itself. A grant from such a node therefore has the
+standing of the user's own authority.
+
+**User powers.** Four things belong to the user: expelling
+([`mod.user.expel_action`](../user/types/mod.user.expel_action.md)), administering
+the swarm
+([`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)),
+relaying as the user
+([`mod.nodes.relay_for_action`](../nodes/types/mod.nodes.relay_for_action.md)
+with the user as `ForID`) and acting as the user
+([`mod.auth.sudo_action`](types/mod.auth.sudo_action.md) with the user as
+`AsID`). A contract grants any of them only when its issuer is the root. A
+Privileged member answers swarm administration and relaying as the user only
+when it is the actor itself, and never passes them on: a contract it issues
+carries none of the four, so an app that reaches the root through a Privileged
+member holds none of them. The membership of a Privileged member covers neither
+expelling nor acting as the user. An app that needs one of the four holds it
+through a contract the user key issued.
+
+**App grants** are two contracts: the approver's to the app's host with
+`Delegation` 1, then the host's to the app. The walk from the app passes the
+host, then the approver, then the root, so the host is in every chain
+([user, App grants](../user/README.md#app-grants)).
+
 ## Actions
 
 An action names a capability. A permit matches an action by object type, and

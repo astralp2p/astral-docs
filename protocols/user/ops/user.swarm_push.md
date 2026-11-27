@@ -1,9 +1,10 @@
-# nodes.swarm_push
+# user.swarm_push
 
-Offer one SwarmState entry to this node ([SwarmState](../README.md#swarmstate)).
-After accepting the query, the operation reads one entry and adds it as a merge:
-the `user` module checks it, and an accepted entry is stored and passed on to
-this node's linked swarm members. Any caller with an identity may offer an
+Offer one SwarmState entry to this node
+([SwarmState synchronisation](../README.md#synchronisation)). After accepting
+the query, the operation reads one entry and adds it as a merge: the merge check
+decides it ([SwarmState entries](../README.md#swarmstate-entries)), and an
+accepted entry is stored and passed on to this node's linked swarm members. Any caller with an identity may offer an
 entry; a query without one is rejected.
 
 ## Arguments

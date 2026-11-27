@@ -4,8 +4,13 @@ The unsigned body of an answer of no to a stored request. Issuer signs it.
 Wrap it in [`mod.user.signed_decline`](mod.user.signed_decline.md) before storing
 or propagating it.
 
-A decline beats every approval of the same request, even one already carried
-out.
+A decline closes its request and nothing else. The merge check drops every new
+offer for the request, the node an offer names as subject refuses to co-sign a
+stored one, and a carrier signs no membership for it. A decline takes nothing
+back: a contract that both parties signed already keeps its authority, and a
+signed expulsion stays ([SwarmState entries](../README.md#requests-and-answers)).
+A contract is taken back only by expelling a party in its chain, or when it
+expires.
 
 Who may answer depends on the answering node's [tier](mod.user.tier.md):
 

@@ -1,14 +1,20 @@
 # mod.user.approval
 
-The unsigned body of an answer of yes to a stored request. Issuer signs it.
-Wrap it in [`mod.user.signed_approval`](mod.user.signed_approval.md) before storing
-or propagating it.
+The unsigned body of an answer of yes to a stored expel request. Issuer signs
+it. Wrap it in [`mod.user.signed_approval`](mod.user.signed_approval.md) before
+storing or propagating it.
 
-The node the approval touches carries it out: it signs a contract whose
-`ApprovalID` ([`mod.auth.contract`](../../auth/types/mod.auth.contract.md)) is the entry ID of this approval's
-[`mod.user.signed_approval`](mod.user.signed_approval.md). An approval counts
+Only an expel request has an approval. The user key carries it out by signing a
+[`mod.user.signed_expulsion`](mod.user.signed_expulsion.md). An approval counts
 whenever it is given, because nodes cannot tell when it was signed; answering
-nodes do not sign an answer to a request whose Timeout has passed.
+nodes do not sign an answer to a request whose Timeout has passed. An approval
+gives the expulsion no authority: only the user key's signature expels.
+
+A contract request is answered with an offer, a half-signed
+[`mod.auth.contract`](../../auth/types/mod.auth.contract.md) that names the
+request as its `RequestID` ([App grants](../README.md#app-grants)), and a join
+request is answered by the carrier signing the membership
+([Joins](../README.md#joins)); neither is an approval.
 
 Who may answer depends on the answering node's [tier](mod.user.tier.md):
 
@@ -19,16 +25,17 @@ Who may answer depends on the answering node's [tier](mod.user.tier.md):
 | `member` | none |
 | the user key | every request; it needs no tier |
 
+The table decides who may answer a request with an approval, an offer or a
+decline. A join request is answered with a decline only.
+
 No operation stores, serves or accepts this type yet. It is a [SwarmState entry](../README.md#swarmstate-entries).
 
 ## Fields
 
 * Issuer (identity) – Identity that answers and signs the approval.
-* RequestID (object_id) – Entry ID of the stored signed request it answers: a
-  [`mod.user.signed_contract_request`](mod.user.signed_contract_request.md),
-  [`mod.user.signed_join_request`](mod.user.signed_join_request.md) or
-  [`mod.user.signed_expel_request`](mod.user.signed_expel_request.md). It is
-  not the ID of the unsigned request body.
+* RequestID (object_id) – Entry ID of the stored
+  [`mod.user.signed_expel_request`](mod.user.signed_expel_request.md) it
+  answers. It is not the ID of the unsigned request body.
 
 The signable text is one ASCII line:
 

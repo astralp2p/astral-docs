@@ -30,6 +30,11 @@ A sudo permit is always unconstrained. The action does not evaluate a permit's
 identity it names, including signing contracts in that identity's name,
 whatever constraints the permit carries.
 
+A permit for this action with the user as `AsID` is granted only by a contract
+the user key issued: a Privileged member's membership does not cover it, and a
+Privileged member cannot pass it on ([auth, Authority in a
+swarm](../README.md#authority-in-a-swarm)).
+
 ## Fields
 
 * Action ([`mod.auth.action`](mod.auth.action.md)) – The embedded base action carrying the Nonce and ActorID.

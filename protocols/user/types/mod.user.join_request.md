@@ -2,14 +2,18 @@
 
 The unsigned body of a request for Joiner to join the swarm at a tier, carried
 in by Carrier, a Trusted or Privileged member. Joiner signs it with Carrier
-already named, and resends the same signed object to resume a join. Wrap it in
+already named, and resends the same signed object to resume a join. Carrier
+signs the membership with Joiner in the session that carries the request
+([Joins](../README.md#joins)). Wrap it in
 [`mod.user.signed_join_request`](mod.user.signed_join_request.md) before
 storing or propagating it.
 
-A Privileged member or the user key may answer any join request. A Trusted
-member may answer only a join request at tier `member`. A Privileged member's
-approval of a join at `privileged_member` does not let the carrier sign the
-membership: only the user key signs a `privileged_member` membership.
+A join request has no approval. Carrier signs the membership itself, at a tier
+its own tier may issue: a Trusted Carrier issues `member`, a Privileged Carrier
+`member` or `trusted`. The user key signs a `privileged_member` membership in a
+ceremony. A Privileged member or the user key may decline any join request, and
+a Trusted member a join request at tier `member`; a decline closes the request
+and Carrier signs no membership for it.
 
 No operation stores, serves or accepts this type yet. It is a [SwarmState entry](../README.md#swarmstate-entries).
 

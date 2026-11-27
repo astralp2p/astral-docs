@@ -10,9 +10,9 @@ The wire form is a `string8` holding the word itself. The text form is the word 
 | Value | Entries |
 |-------|---------|
 | `requests` | [`mod.user.signed_contract_request`](mod.user.signed_contract_request.md), [`mod.user.signed_join_request`](mod.user.signed_join_request.md), [`mod.user.signed_expel_request`](mod.user.signed_expel_request.md) |
-| `approvals` | [`mod.user.signed_approval`](mod.user.signed_approval.md) |
+| `approvals` | [`mod.user.signed_approval`](mod.user.signed_approval.md), of an expel request |
 | `declines` | [`mod.user.signed_decline`](mod.user.signed_decline.md) |
-| `contracts` | [`mod.auth.signed_contract`](../../auth/types/mod.auth.signed_contract.md), memberships included |
+| `contracts` | [`mod.auth.signed_contract`](../../auth/types/mod.auth.signed_contract.md): memberships, app contracts and half-signed offers |
 | `expels` | [`mod.user.signed_expulsion`](mod.user.signed_expulsion.md) |
 
 Only signed forms are entries. An unsigned body has no kind.

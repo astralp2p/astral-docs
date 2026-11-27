@@ -271,36 +271,16 @@ rows. Every row is dialed; the order never skips one.
 
 ## SwarmState
 
-The `nodes` module keeps this node's copy of SwarmState, the grow-only set of
-signed entries of the user's swarm
-([user, SwarmState entries](../user/README.md#swarmstate-entries)). The copy
-lives in the node's own [VFS](../vfs/README.md), owned by the node identity,
-under `swarmstate/<kind>/<object id>`. `/swarmhead` holds the number of stored
-entries in decimal; it only grows and is never synced. A merge is a union:
-nothing is overwritten or deleted. The `user` module checks every entry before
-it is stored: an entry it drops is neither stored nor passed on, and an entry
-that waits for what it needs (a signer's membership, the request an answer
-names) is held, at most 1024 at once, and checked again after the next
-accepted merge.
-
-Three operations exchange the set between nodes:
-
-* [`nodes.swarm_digest`](ops/nodes.swarm_digest.md) answers the entry IDs this
-  node stores;
-* [`nodes.swarm_fetch`](ops/nodes.swarm_fetch.md) answers the stored entries
-  among the IDs it receives;
-* [`nodes.swarm_push`](ops/nodes.swarm_push.md) offers one entry.
-
-`nodes.swarm_digest` and `nodes.swarm_fetch` serve this node, the user, and
-every identity whose membership holds here. `nodes.swarm_push` serves every
-identified caller, since the check decides what enters. A node pulls (digest,
-then fetch of what it lacks, at most 256 IDs per fetch) from every linked swarm
-member every 15 seconds. On a first link of a claimed node it first offers the
-peer its own membership, so the peer admits its pull, and then pulls. When the
-node stores its own membership, as at a claim, it does the same with every
-peer it holds a link with. A node claimed while already linked therefore needs
-no new link. Every entry this node stores is pushed to its linked swarm
-members. Each member gets its own push, in the order the entries were stored,
-and each push is bounded to 15 s. The write that stored the entries does not
-wait for these pushes. A failed push is not retried: the member's pull repairs
-it.
+The `nodes` module keeps no SwarmState. The `user` module keeps this node's
+copy, checks every entry, and serves the three operations that exchange it:
+[`user.swarm_digest`](../user/ops/user.swarm_digest.md),
+[`user.swarm_fetch`](../user/ops/user.swarm_fetch.md) and
+[`user.swarm_push`](../user/ops/user.swarm_push.md)
+([user, Synchronisation](../user/README.md#synchronisation)). The `nodes`
+module reacts to the events the `user` module emits when the member set
+changes or a node is banned
+([`mod.user.swarm_member_joined`](../user/types/mod.user.swarm_member_joined.md),
+[`mod.user.swarm_member_left`](../user/types/mod.user.swarm_member_left.md),
+[`mod.user.swarm_node_banned`](../user/types/mod.user.swarm_node_banned.md)):
+it reads the current member set and bans again, maintains links to the members,
+and closes the links of a node that left or was banned.
