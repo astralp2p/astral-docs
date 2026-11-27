@@ -64,9 +64,11 @@ applies another node's entries to this one, and `user.answer_request`.
 `privileged_member` node holds `mod.user.see_swarm_action` and
 `mod.user.admin_swarm_action`, but not `mod.user.expel_action`, through the
 swarm root ([auth, Authority in a swarm](../auth/README.md#authority-in-a-swarm)).
-It uses them itself and cannot pass `mod.user.admin_swarm_action` or
-`mod.user.expel_action` on: a contract carries either only when the user key
-issued it.
+It uses `mod.user.admin_swarm_action` itself and relays as the user itself, and
+passes neither on. Expelling always needs the user key, and acting as the
+user (`mod.auth.sudo_action` with the user as `AsID`) needs a contract the user
+key issued. A contract carries any of the four user powers only when the user
+key issued it.
 
 Each time a node gains a link to a swarm member, inbound or outbound, it
 synchronises with it, in this order: it pushes the active contract, the user's
@@ -206,9 +208,9 @@ signatures commit to. A half-signed contract and its completed form are two
 entries with two IDs and one unsigned body, and the ID of that body matches
 them to each other.
 
-Each signed body's signable text is one ASCII line of at most 217 bytes, so
-with the signer's 23-byte commitment it is at most 240 bytes and a Coldcard can
-sign it ([coldcard](../coldcard/README.md)). A contract's text keeps that bound
+Each signed body's signable text is one printable ASCII line of at most 217
+bytes, so with the signer's 23-byte commitment it is at most 240 bytes and a
+Coldcard can sign it ([coldcard](../coldcard/README.md)). A contract's text keeps that bound
 whatever the contract holds: it names each action by a short word and ends its
 list in a count of the actions it has no room to name
 ([`mod.auth.contract`](../auth/types/mod.auth.contract.md)).
@@ -271,21 +273,28 @@ The merge check applies the rule to each entry offered under `contracts`:
   * it is a membership, and its issuer is the user key, or a member, not
     expelled, whose current tier may issue the membership's tier
     ([Memberships](#memberships));
-  * it names a stored contract request as its `RequestID`, and either its
-    subject is the request's filer and its issuer may answer the request with
-    permits no wider than the request's (the approver's contract to the host),
-    or its issuer is the request's filer and its subject is the identity the
-    request names (the host's contract to its app);
+  * it names a stored contract request as its `RequestID`, and either:
+    * its subject is the request's filer, its issuer may answer the request,
+      and it answers the request: its permits follow the
+      [offer depth rule](#app-grants), as an offer's do. This is the
+      approver's contract to the host, the completed form of an offer;
+    * or its issuer is the request's filer, its subject is the identity the
+      request names, and it carries out the request: each of its permits is
+      byte-equal to one of the requested permits
+      ([`mod.user.contract_request`](types/mod.user.contract_request.md)).
+      This is the host's contract to its app;
   * its issuer is the user key.
 * A contract with only the issuer's signature is an offer. It is stored only
   when all of these hold; it waits while its request has not arrived, and is
   dropped when one of the others fails:
   * `RequestID` names a stored contract request, and the offer's subject is
     that request's `FiledBy`;
-  * its permits are no wider than the request's: each permit has the action
-    and constraints of one requested permit and a delegation depth exactly 1
-    more than that permit's, and it carries no other permit;
+  * its permits follow the [offer depth rule](#app-grants);
   * its issuer may answer that request, and is not expelled;
+  * no other offer from the same issuer for that request is stored, half-signed
+    or completed, with a different unsigned body. An issuer offers at most once
+    per request: of two such offers, the first one stored is kept and the
+    second is dropped;
   * the request has no stored decline.
 
 An entry that fails these checks is neither stored nor passed on. A held entry
@@ -356,16 +365,24 @@ auth walks: app -> host -> approver -> root
 ```
 
 * The approver answers a contract request with the offer, signed with its key
-  and published into SwarmState as an ordinary entry. Its `Delegation` is one
-  more than the request's, so that the host may pass the permits on. It expires
+  and published into SwarmState as an ordinary entry. It expires
   3650 days after signing, or when its issuer's membership expires, if earlier;
   an offer the user key issues expires 3650 days after signing.
+* **Offer depth.** Each offered permit has `Delegation` exactly one more than
+  the requested permit, so that the host may pass it on to the app. An offer
+  carries one such permit for each requested permit, with the requested
+  permit's action and constraints, and no other permit. A requested permit
+  with `Delegation` 0, as an app's permits are, is offered with `Delegation` 1.
+  The completed approver-to-host contract has the offer's permits, so it
+  follows the same rule, and the host's contract to the app carries the
+  requested permits byte-equal.
 * **Who offers.** A member whose tier may answer the request offers with
   [`user.answer_request`](ops/user.answer_request.md), and the user key offers
   with the same operation, run as the user with `as` set to `user`. Several
   issuers may offer for one request, each once, while it is `pending` or
-  `offered`. The host co-signs one of them, and an offer that arrives after the
-  host co-signed stays unused.
+  `offered`; the merge check drops a second offer from the same issuer. The
+  host co-signs one of them, and an offer that arrives after the host
+  co-signed stays unused.
 * **The host is in every chain.** The expiry nests: the app's contract ends no
   later than the host's, and the host's no later than the approver's. Expelling
   the host, or the end of its membership, ends the app's grant as well. A grant
@@ -381,7 +398,7 @@ auth walks: app -> host -> approver -> root
   * the request is not declined, has not expired and is not superseded: the
     host has filed no later request for the same app with the same set of
     permits;
-  * the offer is no wider than the request;
+  * the offer's permits follow the offer depth rule;
   * the permits go onward only to that app;
   * the offer's issuer may answer the request;
   * the host has not co-signed another offer for this request. When several
@@ -391,10 +408,11 @@ auth walks: app -> host -> approver -> root
   The host's consent is the request it signed, and the approver's decision is
   its signature, so co-signing needs no other decision. Whether a person
   confirms first is the host's policy, not part of the protocol.
-* **Residual risk.** The host's contract from the approver carries a
-  delegation depth of 1, and the depth limits how far a grant passes on, not
-  whom it passes to. The host may sign the permits to any identity, including
-  one outside the swarm, and need not publish that contract to SwarmState: a
+* **Residual risk.** The host's contract from the approver carries each
+  permit with one more `Delegation` than the request asked for, `Delegation` 1
+  for an app's usual `Delegation` 0. The delegation limits how far a grant
+  passes on, not whom it passes to. The host may sign the permits to any
+  identity, including one outside the swarm, and need not publish that contract to SwarmState: a
   node's auth indexes a contract it receives from anywhere. A permit's
   constraints cannot narrow this, because an action evaluates them without
   knowing the contract it was reached through. The host already holds the
@@ -487,7 +505,7 @@ it starts.
 | [`mod.user.swarm_request_filed`](types/mod.user.swarm_request_filed.md) | a valid request appears |
 | [`mod.user.swarm_offer_added`](types/mod.user.swarm_offer_added.md) | a valid offer appears: its request is live and not declined, and its issuer is not expelled |
 | [`mod.user.swarm_contract_added`](types/mod.user.swarm_contract_added.md) | a contract that counts appears: both signatures are valid |
-| [`mod.user.swarm_request_approved`](types/mod.user.swarm_request_approved.md) | an expel request gets a counting approval |
+| [`mod.user.swarm_request_approved`](types/mod.user.swarm_request_approved.md) | an expel request gets a counting approval, or the user key's expulsion of its subject |
 | [`mod.user.swarm_request_declined`](types/mod.user.swarm_request_declined.md) | a request's status becomes `declined` |
 | [`mod.user.swarm_request_expired`](types/mod.user.swarm_request_expired.md) | a request's status becomes `expired` |
 | [`mod.user.swarm_node_banned`](types/mod.user.swarm_node_banned.md) | a valid expulsion of a node takes effect on this node |

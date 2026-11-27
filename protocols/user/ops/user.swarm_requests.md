@@ -1,10 +1,10 @@
 # user.swarm_requests
 
-Stream the requests stored in SwarmState with their status, oldest filed first, terminated by `eos`. Without `all` it streams only the pending requests. The caller must hold `mod.user.see_swarm_action`; answered `not permitted` otherwise.
+Stream the requests stored in SwarmState with their status, oldest filed first, terminated by `eos`. Without `all` it streams only the open requests, those whose status is `pending` or `offered`. The caller must hold `mod.user.see_swarm_action`; answered `not permitted` otherwise.
 
 ## Arguments
 
-* all (bool) – When `true`, streams every stored request whatever its status. Defaults to `false`, which streams only the requests whose status is `pending`.
+* all (bool) – When `true`, streams every stored request whatever its status. Defaults to `false`, which streams only the open requests: those whose status is `pending` or `offered`, which an answer may still reach ([`user.answer_request`](user.answer_request.md)).
 
 ## Returned objects
 

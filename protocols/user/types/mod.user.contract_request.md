@@ -23,12 +23,20 @@ No operation stores, serves or accepts this type yet. It is a [SwarmState entry]
   is after FiledAt and at most 1 hour after it; a new request defaults to
   exactly 1 hour after FiledAt.
 
-A contract to Identity carries out the request only when it has at least one
-permit and each of its permits encodes byte-equal, Action, Constraints and
-Delegation alike, to one of the requested Permits. A contract that copies
-Permits always qualifies. An offer carries each requested permit with a
-Delegation 1 more, so that FiledBy may pass it on to Identity. Who issues that
-contract and whom it names are checked separately.
+Two contracts relate to a request through their permits:
+
+* A contract to FiledBy **answers** the request when its permits follow the
+  [offer depth rule](../README.md#app-grants): one permit for each requested
+  permit, with that permit's Action and Constraints byte-equal and a Delegation
+  exactly one more, and no other permit. An offer answers the request, and so
+  does the completed approver-to-FiledBy contract, which has the offer's
+  permits and both signatures.
+* A contract to Identity **carries out** the request only when it has at least
+  one permit and each of its permits encodes byte-equal, Action, Constraints
+  and Delegation alike, to one of the requested Permits. A contract that copies
+  Permits always qualifies.
+
+Who issues each contract is checked separately.
 
 The signable text is one ASCII line:
 

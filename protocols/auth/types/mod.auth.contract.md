@@ -40,11 +40,14 @@ for the user, no
 no [`mod.auth.sudo_action`](mod.auth.sudo_action.md) as the user and no
 [`mod.user.expel_action`](../../user/types/mod.user.expel_action.md), whatever
 its permits say and whatever its `RequestID` links to. Its other permits grant
-as before. A Privileged member uses swarm administration and relaying as the user
-itself and cannot pass them on. An app's relay contract names the app itself and is not affected.
+as before. A Privileged member uses swarm administration and relaying as the
+user itself and passes neither on. Expelling needs the user key, and acting as
+the user needs a contract the user key issued. An app's relay contract names
+the app itself and is not affected.
 
-The signable form of a contract is one ASCII line of at most 217 bytes, used
-when signing with text-only schemes (e.g. `bip137`):
+The signable form of a contract is one printable ASCII line of at most 217
+bytes (`MaxContractTextLen`), used when signing with text-only schemes (e.g.
+`bip137`):
 
 ```
 <issuer> grants <subject> <actions> depth <d> until <YYYY-MM-DD hh:mm:ss>
@@ -52,9 +55,10 @@ when signing with text-only schemes (e.g. `bip137`):
 
 * `<actions>` lists the distinct actions of the permits, in permit order and
   separated by `,`, each by its word:
-  * the action's permit word, when its type declares a valid one, such as the
-    tier of a membership (`member`, `trusted` or `privileged_member`). A valid
-    permit word is 1 to 17 bytes of `a`–`z` and `_`;
+  * the action's permit word (`PermitWord`), when its type declares a valid
+    one, such as the tier of a membership (`member`, `trusted` or
+    `privileged_member`). A valid permit word is 1 to 17 bytes of `a`–`z` and
+    `_`;
   * otherwise `<module>.<name>`, for an action type `mod.<module>.<name>_action`
     whose module and name are each 1 or more bytes of `a`–`z`, `0`–`9` and `_`,
     for example `auth.sudo` for `mod.auth.sudo_action`.

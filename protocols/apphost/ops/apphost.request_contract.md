@@ -44,8 +44,8 @@ After filing, the operation sends the request's entry ID and waits while the
 caller stays connected. A Privileged node, or the user key, answers the
 request with an offer, a
 [`mod.auth.signed_contract`](../../auth/types/mod.auth.signed_contract.md) from
-itself to this node that carries the request's permits with a `Delegation` of 1
-more, names the request as its `RequestID`, and holds only the approver's
+itself to this node that carries the request's permits, each with a
+`Delegation` exactly one more than the requested permit's, names the request as its `RequestID`, and holds only the approver's
 signature, or with a
 [`mod.user.signed_decline`](../../user/types/mod.user.signed_decline.md). On an
 offer for this request, this node adds its signature, which completes the
@@ -61,7 +61,7 @@ approver's contract to this node, and signs a
 The node adds the contract to SwarmState and sends it to the caller. This node
 co-signs only an offer for a request in its own records that is not declined,
 expired or superseded by a later request it filed for the same identity with
-the same set of permits, whose permits are no wider than the request's, and
+the same set of permits, whose permits follow the offer depth rule, and
 whose issuer may answer it; it co-signs one offer per request, preferring the one the user key
 issued, then the one that expires last, then the one with the lowest entry ID
 ([user, App grants](../../user/README.md#app-grants)). A caller that disconnects

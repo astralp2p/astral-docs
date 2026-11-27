@@ -60,8 +60,9 @@ The app's host files and signs the request, and the request names the app.
 A Privileged node, or the user key, answers the request with an offer or a
 decline ([`user.answer_request`](../user/ops/user.answer_request.md)). An offer
 is a contract from the approver to the host with only the approver's signature, the
-requested permits with a `Delegation` of 1 more, and the request's entry ID as
-`RequestID`. SwarmState carries it to the host like any entry. The host adds its
+requested permits, each with a `Delegation` exactly one more than the requested
+permit's ([user, App grants](../user/README.md#app-grants)), and the request's
+entry ID as `RequestID`. SwarmState carries it to the host like any entry. The host adds its
 signature to an offer for a request it filed, and then signs a contract from
 itself to the identity the request names, with exactly the request's permits.
 The grant is these two contracts: approver to host, host to app, and the
@@ -76,7 +77,8 @@ hold:
 * the request is not declined, not expired, and has no other co-signed offer;
 * the request is not superseded: the host has filed no later request for the
   same identity with the same set of permits;
-* the offer's permits are no wider than the request's;
+* the offer's permits follow the offer depth rule: the requested permits, each
+  with a `Delegation` exactly one more;
 * the offer's issuer may answer the request.
 
 A decline closes the request: the host refuses to co-sign a stored offer for
@@ -86,8 +88,9 @@ approver's contract to the host, and it expires 3650 days after signing at the
 latest, so expelling the host, or the end of its membership, ends the app's
 grant as well.
 
-**Residual risk.** The host passes the requested permits on with a delegation
-of 1 and nothing limits to whom. It may sign them to any identity, including
+**Residual risk.** The host holds the requested permits with one more
+`Delegation` than requested, `Delegation` 1 for an app's usual `Delegation` 0,
+and nothing limits to whom it passes them. It may sign them to any identity, including
 one outside the swarm, and need not publish that contract: a node's auth
 indexes a contract it receives from anywhere. A permit's constraints cannot
 narrow this, since an action evaluates them without knowing the contract it was

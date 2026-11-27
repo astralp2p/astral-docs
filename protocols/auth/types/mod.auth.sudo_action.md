@@ -31,8 +31,9 @@ identity it names, including signing contracts in that identity's name,
 whatever constraints the permit carries.
 
 A permit for this action with the user as `AsID` is granted only by a contract
-the user key issued: a Privileged member's membership does not cover it, and a
-Privileged member cannot pass it on ([auth, Authority in a
+the user key issued: a Privileged member's membership does not cover it, a
+Privileged member does not act as the user itself, and no contract a
+Privileged member issues passes it on ([auth, Authority in a
 swarm](../README.md#authority-in-a-swarm)).
 
 ## Fields
