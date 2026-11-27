@@ -20,7 +20,7 @@ to the individual operations.
 
 An app holds no node-local grant. Every action an app takes, on its own node or
 another, is authorized by its contract chain: a contract from its host, back through the
-approver's contract to the host, to the root
+approver's contract to the host, to a handler or the external authority that allows the action
 ([user, App grants](../user/README.md#app-grants)). Every contract in the chain
 carries both signatures ([auth, Authority in a
 swarm](../auth/README.md#authority-in-a-swarm)). The node keeps no
@@ -67,7 +67,7 @@ signature to an offer for a request it filed, and then signs a contract from
 itself to the identity the request names, with the offered permits, each
 byte-equal to its requested permit.
 The grant is these two contracts: approver to host, host to app, and the
-authority of the app's permits is the chain app, host, approver, root. The host
+authority of the app's permits is the chain app, host, approver, and on through the approver's issuers to the handler or the external authority that allows the action. The host
 never signs on an offer for a request another node filed, and never for another
 identity. An app moved to another node files a new request there.
 

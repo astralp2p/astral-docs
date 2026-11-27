@@ -57,15 +57,16 @@ except `user.contract` — `user.info`, `user.list_siblings`,
 the other members of the local swarm.
 `mod.user.admin_swarm_action` covers every change to what the swarm holds —
 `user.introduce` and `user.answer_request`.
-`mod.user.expel_action` covers `user.expel`. The user holds every action; a
-`privileged_member` node holds `mod.user.see_swarm_action` and
-`mod.user.admin_swarm_action`, but not `mod.user.expel_action`, through the
-swarm root ([auth, Authority in a swarm](../auth/README.md#authority-in-a-swarm)).
-It uses `mod.user.admin_swarm_action` itself and relays as the user itself, and
-passes neither on. Expelling always needs the user key, and acting as the
-user (`mod.auth.sudo_action` with the user as `AsID`) needs a contract the user
-key issued. A contract carries any of the four user powers only when the user
-key issued it.
+`mod.user.expel_action` covers `user.expel`. The handler of each decides who
+holds it ([auth, Authority in a
+swarm](../auth/README.md#authority-in-a-swarm)): the user holds
+`mod.user.admin_swarm_action` and `mod.user.expel_action`, and a
+`privileged_member` node holds `mod.user.admin_swarm_action` and relaying as the
+user (`mod.nodes.relay_for_action` with the user as `ForID`) itself, through
+node-local handlers that pass them on to nobody. Every swarm member holds
+`mod.user.see_swarm_action`. Expelling and acting as the user
+(`mod.auth.sudo_action` with the user as `AsID`) need the user key or a
+contract chain from the user key; no membership grants either.
 
 Each time a node gains a link to a swarm member, inbound or outbound, it
 synchronises with it, in this order: it pushes the active contract, the user's
@@ -256,8 +257,9 @@ nothing, wherever it is held, and every producer of a membership collects the
 subject's signature: the carrier, the user key's ceremony, `user.bootstrap` and
 `user.confirm_join`.
 
-The authority of a contract is walked from the actor to the root through
-issuers ([auth, Authority in a swarm](../auth/README.md#authority-in-a-swarm)).
+The authority of a contract is walked from the actor through issuers to the
+handler or the external authority that allows the action
+([auth, Authority in a swarm](../auth/README.md#authority-in-a-swarm)).
 A contract's `RequestID` only links it to the request it answers. It never adds
 authority, and it never redirects the walk to the node that answered the
 request.
@@ -358,7 +360,7 @@ approver publishes offer Contract{Issuer: approver, Subject: host, Q with
                                   Delegation +1, RequestID}          IssuerSig
 host adds SubjectSig to the offer for its own request              approver -> host
 host signs Contract{Issuer: host, Subject: app, Q}; both keys are on the host
-auth walks: app -> host -> approver -> root
+auth walks: app -> host -> approver -> handler or external authority
 ```
 
 * The approver answers a contract request with the offer, signed with its key

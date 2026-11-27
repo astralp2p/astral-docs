@@ -32,18 +32,18 @@ object type and the action's constraint evaluation (if any) accepts the
 permit's `Constraints` bundle.
 
 A contract grants an action only when it has valid signatures of both the
-issuer and the subject. On a node with a swarm, a contract grants none of the
-user's own authority unless the user key issued it: no
-[`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
-for the user, no
-[`mod.user.admin_swarm_action`](../../user/types/mod.user.admin_swarm_action.md),
-no [`mod.auth.sudo_action`](mod.auth.sudo_action.md) as the user and no
-[`mod.user.expel_action`](../../user/types/mod.user.expel_action.md), whatever
-its permits say and whatever its `RequestID` links to. Its other permits grant
-as before. A Privileged member uses swarm administration and relaying as the
-user itself and passes neither on. Expelling needs the user key, and acting as
-the user needs a contract the user key issued. An app's relay contract names
-the app itself and is not affected.
+issuer and the subject, and only as far as the walk from its issuer reaches a
+handler or the external authority that allows the action ([auth, Authority in a
+swarm](../README.md#authority-in-a-swarm)). The user's own powers are decided by
+their handlers: the user key's contract carries
+[`mod.user.expel_action`](../../user/types/mod.user.expel_action.md),
+[`mod.auth.sudo_action`](mod.auth.sudo_action.md) as the user,
+[`mod.user.admin_swarm_action`](../../user/types/mod.user.admin_swarm_action.md)
+and [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
+for the user. A Privileged member's membership answers
+`mod.user.admin_swarm_action` and relaying as the user through node-local
+handlers, so a contract a Privileged member issues carries neither on the
+strength of that membership. A contract's `RequestID` adds no authority.
 
 The signable form of a contract is one printable ASCII line of at most 217
 bytes (`MaxContractTextLen`), used when signing with text-only schemes (e.g.

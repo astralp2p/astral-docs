@@ -21,54 +21,75 @@ either grants nothing, whatever its permits say, and a contract with the
 issuer's signature alone, an offer in
 [SwarmState](../user/README.md#swarmstate-entries), never counts.
 
-The node authorizes an action for an actor by walking contracts from the actor
-to the root:
+The node authorizes an action for an actor by walking issuers from the actor.
+Each hop asks, in this order:
 
-* The walk starts at the actor and takes a contract whose subject is the hop's
-  identity, that has both signatures, has not expired, and whose permit matches
-  the action and accepts its constraints.
-* It continues at the contract's **issuer**: the issuer must hold the permit in
-  turn, through a contract it received, until the walk reaches the root. The
-  walk never continues at the node that answered a request. A contract's
-  `RequestID` only links the contract to the request it answers; it adds no
-  authority and redirects nothing.
+* the veto: an identity the node vetoes, an expelled party among them, is
+  refused whatever else it holds;
+* the handlers registered for the action;
+* the contracts whose subject is the hop's identity, which continue the walk at
+  the contract's issuer;
+* the external authority assigned to the action.
+
+The walk has no root. No identity answers every action: the handlers
+registered for an action and the external authority assigned to it decide who
+holds it, and a contract chain only carries their answer down to the actor.
+
+* A contract counts when its subject is the hop's identity, it has both
+  signatures, it has not expired, and its permit matches the action and accepts
+  its constraints.
+* The walk continues at the contract's **issuer**: the issuer must hold the
+  permit in turn, through a handler, a contract it received or the external
+  authority. The walk never continues at the node that answered a request. A
+  contract's `RequestID` only links the contract to the request it answers; it
+  adds no authority and redirects nothing.
 * Each hop that passes a permit on needs a `Delegation` of at least 1 on the
   contract that gave it, which a further hop reduces by 1. Constraints only
   narrow along the walk.
-* A walk stops at a party that is expelled, and at a contract that has expired.
+* A handler marked node-local answers only for the actor of the request itself,
+  at the first hop. No contract passes a node-local handler's answer on, and no
+  chain of contracts ends at one.
+* A walk stops at a party that is vetoed, and at a contract that has expired.
   The expiry of a chain is the earliest expiry in it, and so expelling or
   expiring a party ends everything that passes through it.
 
-**The root.** The root is the user key. A node that holds a
-`privileged_member` membership the user key issued answers as the root wherever
-the walk reaches it, for every action but the four user powers below, and so
-does an unclaimed node for itself. A grant from such a node therefore has the
-standing of the user's own authority.
+**User powers.** Four things belong to the user. Each is decided by its
+handlers alone:
 
-**User powers.** Four things belong to the user: expelling
-([`mod.user.expel_action`](../user/types/mod.user.expel_action.md)), administering
-the swarm
-([`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)),
-relaying as the user
-([`mod.nodes.relay_for_action`](../nodes/types/mod.nodes.relay_for_action.md)
-with the user as `ForID`) and acting as the user
-([`mod.auth.sudo_action`](types/mod.auth.sudo_action.md) with the user as
-`AsID`). A contract grants any of them only when its issuer is the user key
-itself. A Privileged member answers swarm administration and relaying as the
-user only when it is the actor itself, and never passes them on: a contract it
-issues carries none of the four, so an app that reaches the root through a
-Privileged member holds none of them. The membership of a Privileged member
-covers neither expelling nor acting as the user: expelling always needs the
-user key, in a ceremony, and acting as the user needs a contract the user key
-issued. An app grant passes through the app's host,
-which issues the app's contract, so it carries none of the four, even from an
-offer the user key made. An app that needs one of the four holds it through a
-contract the user key issues to the app itself.
+* Expelling
+  ([`mod.user.expel_action`](../user/types/mod.user.expel_action.md)): the
+  handler allows the actor only when it is the user. The handler is not
+  node-local, so a contract the user signs delegates it through the walk.
+* Acting as the user ([`mod.auth.sudo_action`](types/mod.auth.sudo_action.md)
+  with the user as `AsID`): the handler allows the actor only when it is the
+  user. The handler is not node-local, so a contract the user signs delegates
+  it through the walk.
+* Relaying as the user
+  ([`mod.nodes.relay_for_action`](../nodes/types/mod.nodes.relay_for_action.md)
+  with the user as `ForID`): two handlers decide it. One allows the actor when
+  it relays for its own identity, so it allows the user, and is not node-local,
+  so a contract the user signs delegates it through the walk. The other allows
+  a node that holds a `privileged_member` membership the user key issued, and
+  is node-local.
+* Administering the swarm
+  ([`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)):
+  two handlers decide it. One allows the actor when it is the user, and is not
+  node-local, so a contract the user signs delegates it through the walk. The
+  other allows a node that holds a `privileged_member` membership the user key
+  issued, and is node-local.
+
+A Privileged member holds swarm administration and relaying as the user for
+itself only: the node-local handlers answer them at the first hop, so its
+membership passes neither on through a contract it signs. Its membership grants
+no other user power: it covers neither expelling nor acting as the user. Every
+other action a Privileged member takes comes from the handlers registered for
+that action or from a permit it carries in a contract.
 
 **App grants** are two contracts: the approver's to the app's host, whose
 permits are requested permits, all or some, each with a `Delegation` exactly
 one more than the requested permit's, then the host's to the app. The walk from the app passes the
-host, then the approver, then the root, so the host is in every chain
+host, then the approver, then the approver's own issuers until a handler or the external authority
+answers, so the host is in every chain
 ([user, App grants](../user/README.md#app-grants)).
 
 ## Actions

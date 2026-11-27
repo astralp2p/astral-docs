@@ -36,8 +36,8 @@ this action.
 The node's own identity holds this action, including before the claim, when
 no swarm exists yet.
 
-A Privileged member of the node's swarm holds this action through the swarm
-root. A Member or a Trusted node does not hold it. Such a node reads the
+A swarm membership of any tier does not grant this action: a Privileged,
+Trusted or Member node holds it only through a contract the user signs. Such a node reads the
 endpoints of other members through
 [`nodes.resolve_endpoints`](../../nodes/ops/nodes.resolve_endpoints.md#swarm-only)
 without holding it. A network link does not make a node a member. An app
