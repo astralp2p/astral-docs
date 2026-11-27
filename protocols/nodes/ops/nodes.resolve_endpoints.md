@@ -14,8 +14,8 @@ identity is resolved.
 
 The endpoints a node advertises, and the endpoints it stores for other nodes,
 are private to its user's swarm. The holders of
-`mod.auth.admin_network_action` are the user identity, the node itself and a
-Privileged member, plus an identity the action is delegated to
+`mod.auth.admin_network_action` are the user identity and the node itself,
+plus an identity the action is delegated to
 ([Holders](../../auth/types/mod.auth.admin_network_action.md#holders)). Any
 other current member of the swarm reads the endpoints of the members and of
 this node, and nothing else: every member links to every other member, and

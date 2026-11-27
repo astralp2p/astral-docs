@@ -31,8 +31,9 @@ Each hop asks, in this order:
   the contract's issuer;
 * the external authority assigned to the action.
 
-The walk has no root. No identity answers every action before the handlers,
-and the handlers of an action alone decide who holds it.
+The walk has no root. No identity answers every action: the handlers
+registered for an action and the external authority assigned to it decide who
+holds it, and a contract chain only carries their answer down to the actor.
 
 * A contract counts when its subject is the hop's identity, it has both
   signatures, it has not expired, and its permit matches the action and accepts
@@ -47,13 +48,13 @@ and the handlers of an action alone decide who holds it.
   narrow along the walk.
 * A handler marked node-local answers only for the actor of the request itself,
   at the first hop. No contract passes a node-local handler's answer on, and no
-  walk ends at one.
+  chain of contracts ends at one.
 * A walk stops at a party that is vetoed, and at a contract that has expired.
   The expiry of a chain is the earliest expiry in it, and so expelling or
   expiring a party ends everything that passes through it.
 
-**User powers.** Four things belong to the user. Each is decided in exactly
-one place, its handler:
+**User powers.** Four things belong to the user. Each is decided by its
+handlers alone:
 
 * Expelling
   ([`mod.user.expel_action`](../user/types/mod.user.expel_action.md)): the
@@ -65,9 +66,11 @@ one place, its handler:
   it through the walk.
 * Relaying as the user
   ([`mod.nodes.relay_for_action`](../nodes/types/mod.nodes.relay_for_action.md)
-  with the user as `ForID`): the handler allows a node that holds a
-  `privileged_member` membership the user key issued. The handler is not
-  node-local.
+  with the user as `ForID`): two handlers decide it. One allows the actor when
+  it relays for its own identity, so it allows the user, and is not node-local,
+  so a contract the user signs delegates it through the walk. The other allows
+  a node that holds a `privileged_member` membership the user key issued, and
+  is node-local.
 * Administering the swarm
   ([`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)):
   two handlers decide it. One allows the actor when it is the user, and is not
@@ -75,12 +78,12 @@ one place, its handler:
   other allows a node that holds a `privileged_member` membership the user key
   issued, and is node-local.
 
-A Privileged member holds swarm administration for itself only: the
-node-local handler answers it at the first hop, so no contract it signs passes
-swarm administration on. Its membership grants no other power. Every other
-action a Privileged member takes comes from the handlers registered for that
-action or from a permit it carries in a contract. The membership covers neither
-expelling nor acting as the user.
+A Privileged member holds swarm administration and relaying as the user for
+itself only: the node-local handlers answer them at the first hop, so its
+membership passes neither on through a contract it signs. Its membership grants
+no other user power: it covers neither expelling nor acting as the user. Every
+other action a Privileged member takes comes from the handlers registered for
+that action or from a permit it carries in a contract.
 
 **App grants** are two contracts: the approver's to the app's host, whose
 permits are requested permits, all or some, each with a `Delegation` exactly

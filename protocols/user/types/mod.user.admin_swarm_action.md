@@ -18,8 +18,7 @@ permit carrying constraints is refused, so honouring a narrowed permit would
 grant it in full.
 
 `user.expel` asks for [`mod.user.expel_action`](mod.user.expel_action.md)
-instead, because expelling is the one action a `privileged_member` membership
-does not cover.
+instead, because a `privileged_member` membership does not cover expelling.
 
 ## Fields
 

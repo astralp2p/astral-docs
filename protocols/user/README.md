@@ -61,11 +61,12 @@ the other members of the local swarm.
 holds it ([auth, Authority in a
 swarm](../auth/README.md#authority-in-a-swarm)): the user holds
 `mod.user.admin_swarm_action` and `mod.user.expel_action`, and a
-`privileged_member` node holds `mod.user.admin_swarm_action` itself, through a
-node-local handler that passes it on to nobody. Every swarm member holds
-`mod.user.see_swarm_action`. Expelling needs the user key, and acting as the
-user (`mod.auth.sudo_action` with the user as `AsID`) needs the user key or a
-contract the user key issued.
+`privileged_member` node holds `mod.user.admin_swarm_action` and relaying as the
+user (`mod.nodes.relay_for_action` with the user as `ForID`) itself, through
+node-local handlers that pass them on to nobody. Every swarm member holds
+`mod.user.see_swarm_action`. Expelling and acting as the user
+(`mod.auth.sudo_action` with the user as `AsID`) need the user key or a
+contract chain from the user key; no membership grants either.
 
 Each time a node gains a link to a swarm member, inbound or outbound, it
 synchronises with it, in this order: it pushes the active contract, the user's

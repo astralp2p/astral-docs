@@ -37,10 +37,13 @@ handler or the external authority that allows the action ([auth, Authority in a
 swarm](../README.md#authority-in-a-swarm)). The user's own powers are decided by
 their handlers: the user key's contract carries
 [`mod.user.expel_action`](../../user/types/mod.user.expel_action.md),
-[`mod.auth.sudo_action`](mod.auth.sudo_action.md) as the user and
-[`mod.user.admin_swarm_action`](../../user/types/mod.user.admin_swarm_action.md),
-and no contract a Privileged member issues carries
-`mod.user.admin_swarm_action`. A contract's `RequestID` adds no authority.
+[`mod.auth.sudo_action`](mod.auth.sudo_action.md) as the user,
+[`mod.user.admin_swarm_action`](../../user/types/mod.user.admin_swarm_action.md)
+and [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
+for the user. A Privileged member's membership answers
+`mod.user.admin_swarm_action` and relaying as the user through node-local
+handlers, so a contract a Privileged member issues carries neither on the
+strength of that membership. A contract's `RequestID` adds no authority.
 
 The signable form of a contract is one printable ASCII line of at most 217
 bytes (`MaxContractTextLen`), used when signing with text-only schemes (e.g.

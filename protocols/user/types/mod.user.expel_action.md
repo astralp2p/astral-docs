@@ -1,8 +1,9 @@
 # mod.user.expel_action
 
 A [`mod.auth.action`](../../auth/types/mod.auth.action.md) requesting permission
-for the actor to expel Subject from the swarm. It is the one action a
-`privileged_member` membership does not cover: only the user key expels.
+for the actor to expel Subject from the swarm. A `privileged_member`
+membership does not cover it: the user holds it, and passes it on only through
+a contract the user signs.
 
 [`user.expel`](../ops/user.expel.md) asks for this action. Its handler allows
 the actor only when it is the user identity. The handler is not node-local, so

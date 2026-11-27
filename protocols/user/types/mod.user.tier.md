@@ -12,7 +12,7 @@ The wire form is a `string8` holding the word itself. The text form is the word 
 |-------|-------------|---------|
 | `member` | [`mod.user.member_action`](mod.user.member_action.md) | Links to the swarm and syncs SwarmState. Adds nobody. |
 | `trusted` | [`mod.user.trusted_action`](mod.user.trusted_action.md) | Issues the membership of a joiner at tier `member`, and declines join requests at that tier. |
-| `privileged_member` | [`mod.user.privileged_member_action`](mod.user.privileged_member_action.md) | Issues memberships at `member` and `trusted`, answers contract requests with offers, administers the swarm itself (`mod.user.admin_swarm_action`, through a node-local handler, so it passes the action on to nobody), and relays as the user (`mod.nodes.relay_for_action`). The membership grants no other power. Only the user key issues its membership. |
+| `privileged_member` | [`mod.user.privileged_member_action`](mod.user.privileged_member_action.md) | Issues memberships at `member` and `trusted`, answers contract requests with offers, administers the swarm itself (`mod.user.admin_swarm_action`, through a node-local handler, so it passes the action on to nobody), and relays as the user itself (`mod.nodes.relay_for_action`, also through a node-local handler). The membership grants no other user power. Only the user key issues its membership. |
 
 A membership is issued only at a tier the issuer's tier may issue
 ([Memberships](../README.md#memberships)): the user key any tier,
