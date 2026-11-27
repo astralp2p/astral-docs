@@ -29,8 +29,8 @@ in SwarmState for the new identity, asking for
 [`mod.auth.serve_apps_action`](../../auth/types/mod.auth.serve_apps_action.md),
 [`mod.auth.use_blueprints_action`](../../auth/types/mod.auth.use_blueprints_action.md)
 and every permit the registration asks for. A Privileged node answers it with
-[`user.answer_request`](../../user/ops/user.answer_request.md); on an Approval
-the host signs the app's contract
+[`user.answer_request`](../../user/ops/user.answer_request.md) with an offer;
+the host co-signs the offer and signs the app's contract
 ([Contract requests](../README.md#contract-requests)). Until then the app holds
 no permit, so it registers no handler. The app waits for the outcome with
 [`apphost.request_contract`](apphost.request_contract.md) and the same

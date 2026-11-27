@@ -30,7 +30,7 @@ The node signs it while all of these hold:
 * The contract is the privileged membership
   [`user.new_node_contract`](../../user/ops/user.new_node_contract.md) writes:
   exactly one permit, `mod.user.privileged_member_action`, with delegation 0
-  and no constraints, and no `ApprovalID`.
+  and no constraints, and no `RequestID`.
 * The contract expires more than 1 hour from now and at most 365 days and
   1 hour from now. 365 days is the default validity of
   `user.new_node_contract`.

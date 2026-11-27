@@ -3,8 +3,9 @@
 Build an unsigned `mod.auth.contract` from a user identity to a node identity
 for a given duration: the node's privileged membership. The contract carries
 one permit, `mod.user.privileged_member_action`, with delegation 0 and no
-constraints, and no `ApprovalID`. The user key signs it in a ceremony. Used by
-tooling that wants to assemble a contract before asking the issuer and subject
+constraints, and no `RequestID`. The user key signs it in a ceremony, and the
+node signs it as subject: the contract grants nothing without both signatures.
+Used by tooling that wants to assemble a contract before asking the issuer and subject
 to sign it.
 
 The operation answers `origin not allowed: network` to a query that arrived

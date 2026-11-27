@@ -4,11 +4,16 @@ A `mod.auth.contract` co-signed by its issuer and subject. Both signatures
 must verify against the corresponding identities before the auth module will
 index the contract or consult it when authorizing actions.
 
+A contract with only the issuer's signature, `SubjectSig` absent, is a
+half-signed offer. SwarmState stores and passes it on, but it grants nothing
+until its subject adds `SubjectSig`
+([user, App grants](../../user/README.md#app-grants)).
+
 ## Fields
 
 * Contract (mod.auth.contract) – The embedded contract being signed.
 * IssuerSig (mod.crypto.signature) – Signature produced with the issuer's private key.
-* SubjectSig (mod.crypto.signature) – Signature produced with the subject's private key.
+* SubjectSig (mod.crypto.signature, optional) – Signature produced with the subject's private key. Absent in an offer.
 
 Both signatures cover the same contract; each may use a different signature
 scheme (e.g. `asn1` over the contract's object ID, or `bip137` over its

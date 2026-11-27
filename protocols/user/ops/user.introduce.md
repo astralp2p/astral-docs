@@ -2,8 +2,8 @@
 
 Offer this node's active contract, its membership, to the SwarmState of the
 node `identity` names, then synchronise with that node. The named node checks
-the membership as it checks every SwarmState entry and stores it, so this node
-becomes a member of the named node's
+the membership, which both this node and its issuer signed, as it checks every
+SwarmState entry and stores it, so this node becomes a member of the named node's
 [`Local Swarm`](../../../core-definitions/local-swarm.md). The reply is an
 `ack`.
 
@@ -32,7 +32,7 @@ The node refuses the query in these cases, in this order:
   `identity expelled from swarm`.
 
 The node then offers its active contract to the named node with
-[`nodes.swarm_push`](../../nodes/ops/nodes.swarm_push.md), as itself, with the
+[`user.swarm_push`](user.swarm_push.md), as itself, with the
 `Network` [`Zone`](../../../core-definitions/zone.md), and waits at most 30
 seconds for the answer. The named node drops the entry when its user did not
 sign it and no member of its swarm may issue it, as a merge does
@@ -42,8 +42,8 @@ with an `error_message` reading `push to <identity>: <reason>`, and no
 synchronisation follows.
 
 After an accepted offer the node pulls the named node's SwarmState
-([`nodes.swarm_digest`](../../nodes/ops/nodes.swarm_digest.md),
-[`nodes.swarm_fetch`](../../nodes/ops/nodes.swarm_fetch.md)), schedules a
+([`user.swarm_digest`](user.swarm_digest.md),
+[`user.swarm_fetch`](user.swarm_fetch.md)), schedules a
 synchronisation with the named node and answers `ack`. A pull that fails does
 not change the answer. The named node passes the stored membership on to its
 peers, so the other members learn this node through SwarmState. The answer does not wait for the synchronisation. The named

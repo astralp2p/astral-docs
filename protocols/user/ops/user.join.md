@@ -7,22 +7,25 @@ naming itself as `Joiner`, `node` as `Carrier` and `tier` as `Tier`, with the
 default timeout of 1 hour, and keeps it in its tree until the join ends. It
 sends the request to the carrier's [`user.carry_join`](user.carry_join.md) as
 itself, with the `Network` [`Zone`](../../../core-definitions/zone.md), and
-waits while the carrier waits for the answer in SwarmState.
+stays connected while the carrier signs the membership
+([Joins](../README.md#joins)).
 
-* On an approval, the carrier hands over the membership it signed, and the
-  user identity. This node stores the user identity, activates the membership,
-  adds it to SwarmState and pulls SwarmState from the carrier. The reply is the
-  membership.
-* At tier `privileged_member` the user key signs the membership in a ceremony
-  instead: on a Coldcard the user presses the device; with a software user key
-  on the carrier, the user confirms with
+* The carrier answers the membership it signed as issuer. This node checks it
+  against its request, signs it as subject and sends it back. The carrier adds
+  the contract, with both signatures, to SwarmState and confirms it with the
+  user identity. Only then does this node store the user identity, activate the
+  membership and pull SwarmState from the carrier. The reply is the membership.
+* The carrier issues `member` when it is `trusted` or `privileged_member`, and
+  `trusted` when it is `privileged_member`. At tier `privileged_member` the user
+  key signs the membership in a ceremony instead: on a Coldcard the user presses
+  the device; with a software user key on the carrier, the user confirms with
   [`user.confirm_join`](user.confirm_join.md).
 * A decline, the request's timeout, or a carrier that may not carry the request
-  ends the join, and this node forgets the request.
+  or issue the tier ends the join, and this node forgets the request.
 * Any other failure, such as a dropped connection, keeps the request: the next
   `user.join` through the same carrier at the same tier resends the same
-  request, with the same entry ID, and an answer given in between still counts
-  within the request's hour. A join through another carrier is a new request.
+  request, with the same entry ID, and the carrier answers a membership with the
+  same body. A join through another carrier is a new request.
 
 The node refuses the query in these cases, in this order:
 
@@ -89,10 +92,10 @@ this way.
 [User and Swarm, The route between the nodes](../../../topics/user-and-swarm.md#the-route-between-the-nodes)
 shows the commands.
 
-Nobody answers a join by default. A `privileged_member` node answers a join
-request at any tier, a `trusted` node only one at tier `member`, with
-[`user.answer_request`](user.answer_request.md); the request is listed by
-[`user.swarm_requests`](user.swarm_requests.md).
+A join needs no answer in SwarmState: the carrier signs. A `privileged_member`
+node may decline a join request at any tier, a `trusted` node one at tier
+`member`, with [`user.answer_request`](user.answer_request.md); the request is
+listed by [`user.swarm_requests`](user.swarm_requests.md).
 
 ## Arguments
 
@@ -115,7 +118,8 @@ Otherwise the operation returns one of:
   when the request is declined or times out.
 * An `error_message` reading `join request names another carrier` or `only a
   trusted or privileged member carries a join request` when the carrier may
-  not carry it.
+  not carry it, and `tier above what this node may issue` when its tier may not
+  issue the tier asked for.
 * An `error_message` reading `a privileged membership needs the user key's
   signature` when the carrier reaches no user key for a `privileged_member`
   join.

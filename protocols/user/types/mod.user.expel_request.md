@@ -24,7 +24,8 @@ The signable text is one ASCII line:
 <filed by> asks to expel <subject> until <YYYY-MM-DD hh:mm:ss>
 ```
 
-The time is Timeout.
+The time is Timeout in UTC, to the second; a fraction of a
+second is dropped.
 
 ## Example
 

@@ -5,7 +5,9 @@ for the actor to expel Subject from the swarm. It is the one action a
 `privileged_member` membership does not cover: only the user key expels.
 
 [`user.expel`](../ops/user.expel.md) asks for this action. Only the user
-identity holds it: the swarm root never answers it.
+identity holds it: the swarm root never answers it. A contract grants this
+permit only when the user key issued it ([auth, Authority in a
+swarm](../../auth/README.md#authority-in-a-swarm)).
 
 A permit carrying constraints is refused. This action evaluates no constraint.
 
