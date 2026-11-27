@@ -41,9 +41,10 @@ their handlers: the user key's contract carries
 [`mod.user.admin_swarm_action`](../../user/types/mod.user.admin_swarm_action.md)
 and [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
 for the user. A Privileged member's membership answers
-`mod.user.admin_swarm_action` and relaying as the user through node-local
-handlers, so a contract a Privileged member issues carries neither on the
-strength of that membership. A contract's `RequestID` adds no authority.
+`mod.user.admin_swarm_action` through a node-local handler, so a contract a
+Privileged member issues does not carry it on the strength of that membership.
+Relaying as the user comes only through a relay contract the user key
+signs. A contract's `RequestID` adds no authority.
 
 The signable form of a contract is one printable ASCII line of at most 217
 bytes (`MaxContractTextLen`), used when signing with text-only schemes (e.g.

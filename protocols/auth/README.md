@@ -66,11 +66,11 @@ handlers alone:
   it through the walk.
 * Relaying as the user
   ([`mod.nodes.relay_for_action`](../nodes/types/mod.nodes.relay_for_action.md)
-  with the user as `ForID`): two handlers decide it. One allows the actor when
-  it relays for its own identity, so it allows the user, and is not node-local,
-  so a contract the user signs delegates it through the walk. The other allows
-  a node that holds a `privileged_member` membership the user key issued, and
-  is node-local.
+  with the user as `ForID`): the handler allows the actor when it relays for
+  its own identity, so it allows the user, and is not node-local, so a contract
+  the user signs delegates it through the walk. A node relays as the user only
+  through such a relay contract; no membership grants it, and no node-local
+  handler allows it.
 * Administering the swarm
   ([`mod.user.admin_swarm_action`](../user/types/mod.user.admin_swarm_action.md)):
   two handlers decide it. One allows the actor when it is the user, and is not
@@ -78,12 +78,12 @@ handlers alone:
   other allows a node that holds a `privileged_member` membership the user key
   issued, and is node-local.
 
-A Privileged member holds swarm administration and relaying as the user for
-itself only: the node-local handlers answer them at the first hop, so its
-membership passes neither on through a contract it signs. Its membership grants
-no other user power: it covers neither expelling nor acting as the user. Every
-other action a Privileged member takes comes from the handlers registered for
-that action or from a permit it carries in a contract.
+A Privileged member holds swarm administration for itself only: the node-local
+handler answers it at the first hop, so its membership does not pass it on
+through a contract it signs. Its membership grants no other user power: it
+covers neither expelling, nor acting as the user, nor relaying as the user.
+Every other action a Privileged member takes comes from the handlers registered
+for that action or from a permit it carries in a contract.
 
 **App grants** are two contracts: the approver's to the app's host, whose
 permits are requested permits, all or some, each with a `Delegation` exactly

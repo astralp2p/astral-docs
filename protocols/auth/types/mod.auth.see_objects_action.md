@@ -67,7 +67,8 @@ caller carrying no identity is routed as the node's own identity.
 
 A node member of the node's swarm holds
 [`mod.nodes.relay_for_action`](../../nodes/types/mod.nodes.relay_for_action.md)
-for the user. A query it relays for the user reaches the node as the user.
+for the user only through a relay contract the user key signs. A query it
+relays for the user through that contract reaches the node as the user.
 
 ## Fields
 
